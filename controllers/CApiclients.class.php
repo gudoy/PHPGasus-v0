@@ -1,0 +1,24 @@
+<?php
+
+class_exists('Controller') 		|| require(_PATH_LIBS . 'Controller.class.php');
+class_exists('MApiclients') 	|| require(_PATH_MODELS . 'MApiclients.class.php');
+
+class CApiclients extends Controller
+{
+	private static $_instance;
+	
+	public function __construct()
+	{
+		$this->resourceName = strtolower(preg_replace('/^C(.*)/','$1', __CLASS__));
+		
+		return parent::__construct();
+	}
+	
+	public static function getInstance()
+	{
+		if ( !(self::$_instance instanceof self) ) { self::$_instance = new self(); } 
+		
+		return self::$_instance;
+	}
+}
+?>

@@ -1,0 +1,1 @@
+{*<link href="{$smarty.const._URL_STYLESHEETS}images/widgetSprites.png" rel="prefetch" />*}

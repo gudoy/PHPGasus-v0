@@ -1,0 +1,87 @@
+@media screen and (min-device-width:1024px)
+{
+	body #layout { width:960px; margin:0 auto; }
+}
+
+
+/*
+ * Use in case of a full webapp
+ * { -webkit-touch-callout:none; -webkit-text-size-adjust:none; }
+*/
+
+body { -webkit-text-size-adjust:100%; }
+
+/* Remove color bg on touch events */
+* { -webkit-tap-highlight-color: rgba(0,0,0,0); }
+
+/*
+body.portrait #layout img { max-width:280px; height:auto; }
+body.landscape #layout img { max-width:440px; height:auto; }
+*/
+body.portrait { min-height:480px; } /* Whithout that, url bar won't be hidden when making scrollTo(0,0) */
+body.landscape { min-height:320px; } /* Whithout that, url bar won't be hidden when making scrollTo(0,0) */
+.portrait img { max-width:280px; height:auto; }
+.landscape img { max-width:440px; height:auto; }
+
+body.iphone.emulate #layout,
+body.iphone.portrait.emulate #layout { width:320px; }
+body.iphone.landscape.emulate #layout { width:480px; }
+
+
+#layout,
+#header,
+#body,
+#footer,
+.container_12,
+.container_16,
+.divine1,
+.divine2 { width:auto; }
+
+.container_12 .grid_1,
+.container_12 .grid_2,
+.container_12 .grid_3,
+.container_12 .grid_5,
+.container_12 .grid_6,
+.container_12 .grid_7,
+.container_12 .grid_9,
+.container_12 .grid_10,
+.container_12 .grid_11,
+.container_12 .grid_13,
+.container_12 .grid_14,
+.container_12 .grid_15,
+.container_12 .grid_16 { width:auto; }
+
+.container_16 .grid_1,
+.container_16 .grid_2,
+.container_16 .grid_3,
+.container_16 .grid_5,
+.container_16 .grid_6,
+.container_16 .grid_7,
+.container_16 .grid_9,
+.container_16 .grid_10,
+.container_16 .grid_11,
+.container_16 .grid_13,
+.container_16 .grid_14,
+.container_16 .grid_15,
+.container_16 .grid_16 { width:auto; }
+
+.col { width:auto; float:none; }
+
+#header #branding { margin-top:5px; }
+
+#languagesBlock { width:auto; display:inline-block; float:right; background:none; }
+
+body.admin { font-size:13px; }
+.admin #body { padding:0 10px; }
+.admin #sideCol { margin:0; float:none; }
+.admin #mainCol { margin:0; float:none; }
+.admin .adminTable .col { display:none; }
+.admin .adminTable .col.idCol,
+.admin .adminTable .col.actionsCol,
+.admin .adminTable .col.colSelectResources,
+.admin .adminTable .col.defaultNameField { display:table-cell; }
+.admin .adminBlock .filterBlock form .line { display:none;  } 
+.admin .adminListBlock { /*margin-left:0;*/ }
+
+/*#layout { overflow:hidden; }*/
+

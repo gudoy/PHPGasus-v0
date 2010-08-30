@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+		ServerName local.mynewproject
+		DocumentRoot "C:/Program Files/xampp/htdocs/mynewproject/"
+
+		<Directory "C:/Program Files/xampp/htdocs/mynewproject/">
+		
+			Order allow,deny
+			Allow from all
+		
+			RewriteEngine on
+			RewriteRule ^((?!index|public).*) index.php/$1/%{QUERY_STRING}	[L]
+
+			SetEnv APP_CONTEXT local
+		
+		</Directory>
+		
+		Include conf/extra/vhosts/performances.conf
+		Include conf/extra/vhosts/security.conf
+
+</VirtualHost>

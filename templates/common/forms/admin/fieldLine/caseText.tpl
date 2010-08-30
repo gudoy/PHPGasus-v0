@@ -1,0 +1,1 @@
+<textarea name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" cols="80" rows="4" {if !$editable}disabled="disabled"{/if}>{if $mode !== 'create'}{$resource[$fieldName]|stripslashes}{else}{$postedVal|default:$resource[$fieldName]|stripslashes}{/if}</textarea>

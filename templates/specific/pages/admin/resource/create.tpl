@@ -1,0 +1,1 @@
+{extends file='common/pages/admin/resource/create.tpl'}

@@ -1,0 +1,1 @@
+{extends file='specific/layout/page.tpl'}

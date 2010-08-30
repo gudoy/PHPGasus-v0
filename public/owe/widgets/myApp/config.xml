@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget defaultmode="application" network="public" floating="false">
+	<widgetname>Soundwalk dev</widgetname>
+	<id>
+		<host>clicmobile.com</host>
+		<name>Soundwalk dev</name>
+		<revised>2009-10-07</revised>
+	</id>
+	<width>800</width>
+	<height>480</height>
+	<description>Soundwalk, the audio guide</description>
+	<icon>icon.png</icon>
+	<x>0</x>
+	<y>0</y>
+	<security>
+	   <access>
+	   		<protocol>http</protocol>
+			<host>dev.soundwalk.com</host>
+			<host>*.soundwalk.com</host>
+	   </access>
+	</security>
+</widget>

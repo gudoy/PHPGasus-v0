@@ -1,0 +1,43 @@
+************************************
+1) REQUIREMENTS
+************************************
+
+SERVER
+------
+packages: locales-all
+
+-------- 
+Apache
+-------- 
+version : >=2
+modules: mod_alias, mod_deflate, mod_expires, mod_headers, mod_rewrite, mod_ssl, mod_vhost_alias
+
+-------- 
+PHP
+-------- 
+version : >=5.2.6
+modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, php_gettext, php_hash, php_http (pecl http), php_mbstring, [php_xdebug], php_zip
+
+
+************************************
+2) VHOST
+************************************
+
+- add vhost (see attachment)
+- edit proper paths (DocumentRoot, Directory, Includes)
+- edit APP_CONTEXT env var with proper value (local/dev/preprod/prod)
+
+************************************
+3) PROJECT
+************************************
+svn co https://svn.clicmobile.com/svn/clicmobile/mynewproject/trunk/
+
+
+************************************
+4) FOLDER PERMISSIONS
+************************************
+
+CHMOD tmp/ 777
+CHMOD templates/templates_c/ 777
+CHMOD libs/templating/smarty3/cache/ 777
+CHMOD public/widgets/builds/ 777 

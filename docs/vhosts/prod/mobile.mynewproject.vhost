@@ -1,0 +1,23 @@
+<VirtualHost *:80>
+		ServerName mobile.mynewproject.com
+		ServerAlias m.mynewproject.com
+		DocumentRoot "/var/www/mynewproject/"
+
+		<Directory "/var/www/mynewproject/">
+		
+			Order allow,deny
+			Allow from all
+			AllowOverride All
+		
+			RewriteEngine on
+			RedirectMatch ^/admin/?(.*)? http://admin.mynewproject.com/$1
+			RewriteRule ^((?!index|public).*) index.php/$1/%{QUERY_STRING}	[L]
+
+			SetEnv APP_CONTEXT prod
+		
+		</Directory>
+		
+		Include sites-available/performances.conf
+		Include sites-available/security.conf
+
+</VirtualHost>

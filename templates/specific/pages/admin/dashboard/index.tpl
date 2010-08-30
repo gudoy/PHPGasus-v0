@@ -1,0 +1,1 @@
+{extends file='common/pages/admin/dashboard/index.tpl'}

@@ -1,0 +1,1 @@
+{strip}<link href="{$smarty.const._URL_PUBLIC}favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon" />{/strip}
