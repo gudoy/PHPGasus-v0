@@ -18,9 +18,9 @@ define('_APP_OWNER_URL', 						'http://www.clicmobile.com');
 define('_APP_OWNER_MAP_URL', 					'');
 
 ### SOME HTML RELATED OPTIONS
-define('_APP_DEFAULT_LANGUAGE', 				'fr_FR'); 	// or en_US, en_GB, de_DE, es_EN, it_IT, ja_JP, zh_CN, ko_KR
-define('_APP_DOCTYPE', 							'html5'); 	// 'strict', 'strict1.1', 'transitional', 'html5'
-define('_APP_DEFAULT_OUTPUT_FORMAT', 			'html');	// Is there case where it won't be html?
+define('_APP_DEFAULT_LANGUAGE', 				'fr_FR'); 		// or en_US, en_GB, de_DE, es_EN, it_IT, ja_JP, zh_CN, ko_KR
+define('_APP_DOCTYPE', 							'html5'); 		// 'strict', 'strict1.1', 'transitional', 'html5'
+define('_APP_DEFAULT_OUTPUT_FORMAT', 			'html');		// Is there case where it won't be html?
 define('_APP_DEFAULT_OUTPUT_MIME', 				'text/html');	// 
 define('_APP_INDEXABLE_BY_ROBOTS', 				true);			// Allow pages to be indexed by Google & Friends?
 define('_APP_USE_CHROME_FRAME', 				true);			// Html pages require Google Chrome Frame plugin? (if yes, displays plugin installation popup)
@@ -30,18 +30,18 @@ define('_APP_USE_CSS_IE7', 						false);
 define('_APP_USE_CSS_OPERA', 					false);
 
 ### 
-define('_APP_SNIFF_PLATFORM', 					true); 	// Disable this if you don't want to try getting the platform data (prevent unnecessary processing)
-define('_APP_SNIFF_BROWSER', 					true); 		// Disable this if you don't want to try getting the browser data (prevent unnecessary processing)
+define('_APP_SNIFF_PLATFORM', 					true); 			// Disable this if you don't want to try getting the platform data (prevent unnecessary processing)
+define('_APP_SNIFF_BROWSER', 					true); 			// Disable this if you don't want to try getting the browser data (prevent unnecessary processing)
 
 
 // IOS (iPhone/iPad/i???) OPTIONS
 define('_APP_IOS_WEBAPP_CAPABLE', 				false);
-define('_APP_IOS_INISCALE', 					'1.0'); // Default page scale for iphones (default = 1.0)
-define('_APP_IOS_MAXSCALE', 					'3.0'); // Allow iphones to scale up/down pages (default = 1.0) 
+define('_APP_IOS_INISCALE', 					'1.0'); 		// Default page scale for iphones (default = 1.0)
+define('_APP_IOS_MAXSCALE', 					'3.0'); 		// Allow iphones to scale up/down pages (default = 1.0) 
 define('_APP_IPHONE_INISCALE', 					'1.0'); 		// Default page scale for iphones (default = 1.0)
 define('_APP_IPHONE_MAXSCALE', 					'3.0'); 		// Allow iphones to scale up/down pages (default = 1.0)
-define('_APP_IPAD_INISCALE', 					'1.0'); // Default page scale for ipads (default = 1.0)
-define('_APP_IPAD_MAXSCALE', 					'3.0'); // Allow ipads to scale up/down pages (default = 1.0)
+define('_APP_IPAD_INISCALE', 					'1.0'); 		// Default page scale for ipads (default = 1.0)
+define('_APP_IPAD_MAXSCALE', 					'3.0'); 		// Allow ipads to scale up/down pages (default = 1.0)
 
 define('_APP_BREADCRUMB_SEPARATOR', 			'/');
 
@@ -50,14 +50,14 @@ define('_APP_USE_GOOGLE_ANALYTICS', 			false);
 define('_APP_GOOGLE_ANALYTICS_UA', 				'UA-XXXXX-X');
 
 ### ACCOUNT SESSIONS HANDLING
-define('_APP_USE_ACCOUNTS', 					true); // disable this prevent app from trying to update sessions table on each page load
-define('_APP_ALLOW_SIGNUP', 					false); // allow users to sign up by themselves
-define('_APP_SESSION_DURATION', 				900); // in seconds. (ex: 900s = 15 minutes)
-define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); // 
-define('_APP_KEEP_OLD_SESIONS', 				false); // By default, on user login, its session older than 1 day are deleted
+define('_APP_USE_ACCOUNTS', 					true); 			// disable this prevent app from trying to update sessions table on each page load
+define('_APP_ALLOW_SIGNUP', 					false); 		// allow users to sign up by themselves
+define('_APP_SESSION_DURATION', 				900); 			// in seconds. (ex: 900s = 15 minutes)
+define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
+define('_APP_KEEP_OLD_SESIONS', 				false); 		// By default, on user login, its session older than 1 day are deleted
 
 
-define('_APP_USE_EVENTS', 						true); // disable this if you do not want to use events
+define('_APP_USE_EVENTS', 						true); 			// Disable this if you do not want to use events
 
 ### WIDGETS
 define('_HAS_RELATED_WIDGET', 					false);

@@ -30,7 +30,7 @@ modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, p
 ************************************
 3) PROJECT
 ************************************
-svn co https://svn.clicmobile.com/svn/clicmobile/mynewproject/trunk/
+svn co https://svn.yourdomain.com/mynewproject/trunk/
 
 
 ************************************
