@@ -320,6 +320,7 @@ body#adminMessagespushIndex form .line:not(.legendLine) { width:auto; float:none
 
 .adminBlock { margin-bottom:20px; }
 
+.adminStatsBlock dl:after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; }
 .adminStatsBlock dt { width:38%; padding:3px 1%; display:block; float:left; clear:both; background:#eee; border:1px solid #ccc; border-width:0 1px 1px 0; }
 .adminStatsBlock dd .value { margin-left:10px; }
 .adminStatsBlock dd { padding:3px 1% 3px 40%; display:block; }

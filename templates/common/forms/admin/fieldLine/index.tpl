@@ -16,7 +16,7 @@
 	<div class="labelBlock {if $field.comment}hasInfos{/if}">
 		{strip}
 		{if $field.relResource}
-		<label {if !$field.relResource}for="{$resourceFieldName}{$itemIndex}"{/if}>{$field.relGetAs|default:$fieldName|capitalize|replace:'_':' '}
+		<label for="{$resourceFieldName}{$itemIndex}">{$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
 			{if isset($field.required) && $field.required || $field.pk || $field.fk}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}

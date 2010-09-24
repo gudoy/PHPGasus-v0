@@ -82,7 +82,7 @@ class VAccount extends ApiView
 			$_SESSION = array_merge((array) $_SESSION, array('id' => $newPOST['name'], 'users_id' => $newPOST['users_id']));
 			
 			// Clean old expired session for this user id
-			!_APP_KEEP_OLD_SESIONS && $this->C->delete(array(
+			!_APP_KEEP_OLD_SESSIONS && $this->C->delete(array(
 				'conditions' 	=> array(
 					'users_id' => $user['id'],
 					array('expiration_time', '<', ("FROM_UNIXTIME('" . strtotime('-1 day') . "')")),

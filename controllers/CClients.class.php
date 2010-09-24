@@ -1,7 +1,7 @@
 <?php
 
-class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-class_exists('MClients') 	|| require(_PATH_MODELS . 'MClients.class.php');
+//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('MClients') 	|| require(_PATH_MODELS . 'MClients.class.php');
 
 class CClients extends Controller
 {

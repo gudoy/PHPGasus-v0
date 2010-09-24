@@ -4,6 +4,6 @@
 		<label class="span" for="{$postValName}">{t}password{/t}{* <span class="required">*</span>*}</label>
 	</div>
 	<div class="fieldBlock">
-		<input type="password" class="normal" name="{$postValName}" id="{$postValName}" value="{$smarty.post[$postValName]}" />
+		<input type="password" class="normal" name="{$postValName}" id="{$postValName}" {*value="{$smarty.post[$postValName]}"*} />
 	</div>
 </div>

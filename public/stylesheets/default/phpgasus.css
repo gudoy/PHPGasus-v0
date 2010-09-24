@@ -173,7 +173,7 @@ form select.sized { margin-left:0; margin-right:5px; vertical-align:middle; }
 form .fieldBlock label.span { padding-top:6px; display:block; }
 form .fieldBlock label.span.multi { padding:0; /*display:-moz-inline-block!important; display:-moz-inline-box!important; display:inline-block!important; vertical-align:middle;*/ }
 form .fieldBlock label.span.multi:first-child { /*margin-left:30px;*/ }
-form input { }
+form input { font-size:118%; }
 form input.normal { width:80%; height:24px; padding:3px 3px 0; float:left; border:1px solid #ABADB3; }
 form input.sized { width:auto; height:24px; padding:3px 3px 0; /*float:left;*/ display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
 form input.multi { border:none; }
@@ -182,7 +182,7 @@ form input.sized.file + .currentItem { margin-left:0; }
 form select { height:27px; padding:0; border:1px solid #ABADB3; }
 form select.normal { width:84%; }
 form select.sized { width:auto; display:inline-block; vertical-align:middle; }
-form textarea { width:80%; border:1px solid #ABADB3; }
+form textarea { width:80%; border:1px solid #ABADB3; font-size:118%; }
 
 form .fieldBlock .currentItem { /*margin-right:10px; display:inline-block;*/ margin-bottom:10px; vertical-align:middle; }
 form .fieldBlock .currentItem a.file.image { margin-left:0; }

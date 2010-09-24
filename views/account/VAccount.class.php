@@ -15,8 +15,13 @@ class VAccount extends View
 	
 	public function index($options = null)
 	{
-		$this->data['data']['view']['name'] 	= 'account' . ucfirst( __FUNCTION__);
-		$this->data['data']['view']['template'] = 'pages/store/account/' . __FUNCTION__ . '.tpl';
+		
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			'name' 				=> 'account',
+			'method' 			=> __FUNCTION__,
+			'template'			=> 'pages/store/account/' . __FUNCTION__ . '.tpl',
+			'current' 			=> array('menu' => 'account'),
+		));
 		
 		$this->render();
 	}
@@ -36,6 +41,7 @@ class VAccount extends View
 			'method' 		=> __FUNCTION__,
 			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
 			'resourceName' 	=> $this->resourceName,
+			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('login')),
 		));
 		
 		// If the user is already logged, do not continue & redirect him to the hub
@@ -49,7 +55,7 @@ class VAccount extends View
 		}
 		
 		// Load proper controller and instanciate it
-		$this->requireControllers('CSessions');
+		//$this->requireControllers('CSessions');
 		$CSessions = new CSessions();
 		
 		// If data have been posted
@@ -60,7 +66,7 @@ class VAccount extends View
 			foreach ($reqParams as $key => $val){ if ( empty($_POST[$key]) ) { $this->data['errors'][] = $val; $this->statusCode(400); } }
 			
 			// Get the user data
-			$this->requireControllers('CUsers');
+			//$this->requireControllers('CUsers');
 			$email 		= !empty($_POST['userEmail']) ? filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL) : null;
 			$pass 		= !empty($_POST['userPassword']) ? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : null; 
 			$user 		= CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email));
@@ -102,7 +108,7 @@ class VAccount extends View
 			$this->logged = true;
 			
 			// Clean old expired session for this user id
-			!_APP_KEEP_OLD_SESIONS && $CSessions->delete(array(
+			!_APP_KEEP_OLD_SESSIONS && $CSessions->delete(array(
 				'conditions' 	=> array(
 					'users_id' => $user['id'],
 					array('expiration_time', '<', ("FROM_UNIXTIME('" . strtotime('-1 day') . "')")),
@@ -158,6 +164,7 @@ class VAccount extends View
 			'method' 		=> __FUNCTION__,
 			'template' 		=> 'pages/store/account/' . __FUNCTION__ . '.tpl',
 			'resourceName' 	=> $this->resourceName,
+			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('sign up')),
 		));
 		
 		// If the user is already logged, do not continue & redirect him to the hub

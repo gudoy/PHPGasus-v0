@@ -6,8 +6,6 @@ define("_APP_VERSION", 							'0.1.0.0');
 define('_APP_NAMESPACE', 						'pgas');
 define('_APP_TITLE', 							'mynewproject');
 define('_APP_BASELINE', 						'');
-define('_APP_META_DECRIPTION', 					'');
-define('_APP_META_KEYWORDS', 					'mynewproject');
 define('_APP_AUTHOR_NAME', 						'Clicmobile');
 define('_APP_AUTHOR_MAIL', 						'contact@clicmobile.com');
 define('_APP_AUTHOR_URL', 						'http://www.clicmobile.com');
@@ -22,16 +20,22 @@ define('_APP_DEFAULT_LANGUAGE', 				'fr_FR'); 		// or en_US, en_GB, de_DE, es_EN
 define('_APP_DOCTYPE', 							'html5'); 		// 'strict', 'strict1.1', 'transitional', 'html5'
 define('_APP_DEFAULT_OUTPUT_FORMAT', 			'html');		// Is there case where it won't be html?
 define('_APP_DEFAULT_OUTPUT_MIME', 				'text/html');	// 
-define('_APP_INDEXABLE_BY_ROBOTS', 				true);			// Allow pages to be indexed by Google & Friends?
+define('_APP_META_DECRIPTION', 					'');
+define('_APP_META_KEYWORDS', 					'mynewproject');
+define('_APP_META_ROBOTS_INDEXABLE', 			true);			// Allows/prevents pages to be indexed by Google & Friends?
+define('_APP_META_ROBOTS_ARCHIVABLE', 			true);			// Allows/prevents search engines to display "in cache" links in their search results
+define('_APP_META_ROBOTS_IMAGES_INDEXABLE', 	true);			// Allows/prevents search engines to index your images
+define('_APP_META_GOOGLE_TRANSLATABLE', 		true);			// Allows/prevents Google to offer translation link/feature for your pages
 define('_APP_USE_CHROME_FRAME', 				true);			// Html pages require Google Chrome Frame plugin? (if yes, displays plugin installation popup)
 define('_APP_USE_CSS_IE', 						false);
 define('_APP_USE_CSS_IE6', 						false);
 define('_APP_USE_CSS_IE7', 						false);
 define('_APP_USE_CSS_OPERA', 					false);
 
-### 
+### MISC SNIFFING & FEATURES DETECTION
 define('_APP_SNIFF_PLATFORM', 					true); 			// Disable this if you don't want to try getting the platform data (prevent unnecessary processing)
 define('_APP_SNIFF_BROWSER', 					true); 			// Disable this if you don't want to try getting the browser data (prevent unnecessary processing)
+define('_APP_USE_MODERNIZR', 					true); 			// If allowed, Modernizr (js lib) will be added to detect user browser capabilities adding subsenquent classes to the <HTML> tag
 
 
 // IOS (iPhone/iPad/i???) OPTIONS
@@ -54,13 +58,13 @@ define('_APP_USE_ACCOUNTS', 					true); 			// disable this prevent app from tryi
 define('_APP_ALLOW_SIGNUP', 					false); 		// allow users to sign up by themselves
 define('_APP_SESSION_DURATION', 				900); 			// in seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
-define('_APP_KEEP_OLD_SESIONS', 				false); 		// By default, on user login, its session older than 1 day are deleted
+define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, on user login, its session older than 1 day are deleted
 
 
 define('_APP_USE_EVENTS', 						true); 			// Disable this if you do not want to use events
 
 ### WIDGETS
-define('_HAS_RELATED_WIDGET', 					false);
+define('_APP_HAS_RELATED_WIDGET', 				false);
 define('_APP_WIDGET_VERSION', 					'0.1.1');
 define('_APP_WIDGET_NAME', 						_APP_NAMESPACE . '_' .  _APP_CONTEXT . '_' . _APP_WIDGET_VERSION . '.wgt');
 

@@ -2,7 +2,7 @@
 
 //class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
 
-class MClients extends Model
+class MAppsplatforms extends Model
 {
 	public function __construct($application = null)
 	{

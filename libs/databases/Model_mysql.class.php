@@ -13,7 +13,14 @@ class Model extends Application
 	var $numRows		= null;
 	var $data 			= null;
 	var $afterQuery 	= null;
-	var $safeWrapper 	= '`'; 
+	var $safeWrapper 	= '`';
+	
+	// Default options
+	var $options = array(
+		// Should we force mysql to return real unix_timestamps for timestamp fields instead of mysql formatted dates/
+		// Setting to true prevents costly calls to strtotime() to do the conversion
+		'force_unix_timestamps' => true,
+	);
 	
 	public function __construct($application)
 	{		
@@ -360,12 +367,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	public function buildSelect($options = array())
 	{
 		// Set default params
-		$o 				= $options;
+		$o 				= array_merge($this->options, $options);
 		$o['mode'] 		= isset($o['mode']) ? $o['mode'] : null;
-		
-		// Should we force mysql to return real unix_timestamps for timestamp fields instead of mysql formatted dates/
-		// Setting to true prevents costly calls to strtotime() to do the conversion
-		$o['force_unix_timestamps'] = true;
 		
 		//$rModel 	= $this->dataModel[$this->resourceName];
 		$rModel 	= $this->application->dataModel[$this->resourceName];
@@ -576,7 +579,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	public function buildInsert($resourceData, $options)
 	{
 		$d 			= $resourceData;										// Shortcut for resource data
-		$o 			= $options; 											// Shortcut for options
+		$o 			= array_merge($this->options, $options); 				// Shortcut for options
 		
 		//$rModel 	= $this->dataModel[$this->resourceName];
 		$rModel 	= $this->application->dataModel[$this->resourceName];
@@ -885,6 +888,12 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				
 				$value = "'" . $this->escapeString($d[$fieldName]) . "'";
 			}
+			else if ( $field['type'] === 'int' && !empty($field['fk']) )
+			{
+				$value = !empty($d[$fieldName]) 
+							? $d[$fieldName] 
+							: (isset($field['default']) ? ( is_null($field['default']) ? "NULL" : $field['default']) : "NULL");
+			}
 			// Otherwise, just take the posted data value
 			else
 			{
@@ -918,7 +927,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	public function buildUpdate($resourceData, $options)
 	{
 		$d 			= $resourceData;										// Shortcut for resource data
-		$o 			= $options; 											// Shortcut for options
+		$o 			= array_merge($this->options, $options); 				// Shortcut for options 											// Shortcut for options
 		$fieldsNb 	= count($d);											// Get the number of fields for this resource
 		
 		//$rModel 	= $this->dataModel[$this->resourceName];
@@ -1254,7 +1263,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 
 	public function buildDelete($options)
 	{
-		$o 			= $options; 											// Shortcut for options
+		$o 			= array_merge($this->options, $options); 				// Shortcut for options 											// Shortcut for options
 	
 		// Build WHERE (concatenating values)
 		$where 		= $this->handleOperations($o);
@@ -1280,6 +1289,11 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	{
 		$o 			= $options; 		// Shortcut for options
 		
+		//$rModel 	= $this->dataModel[$this->resourceName];
+		$rModel 	= $this->application->dataModel[$this->resourceName];
+		
+//$this->dump($this->queryData['fields']);
+		
 		// TODO: clean using magic
 		$conditions = '';
 		if ( !empty($o['conditions']) )
@@ -1303,6 +1317,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					//$condValue 	= $condFieldValues[2];
 					$condValue 	= $argsNb === 3 ? $condFieldValues[2] : $condFieldValues[1];
 					
+					// Get the field type
+					$type = !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
+					
 					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
 					//$conditions .= $this->alias . ".";
 					$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName]['tableAlias'] : $this->alias ) . ".";
@@ -1310,12 +1327,19 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$conditions .= $colName . " " . $opType . " ";
 					$conditions .= $opType  === '=' && is_array($condValue) 
 										? ' IN (' . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . ' ) ' 
-										: ( is_bool($condValue) ? (int) $condValue : $condValue );
-										//: ( is_bool($condValue) ? (int) $condValue : "'" . $condValue . "'" );
+										: ( is_bool($condValue) 
+											? (int) $condValue 
+											: ( $type === 'timestamp' && $o['force_unix_timestamps']  ? "FROM_UNIXTIME('" . $condValue . "')" : $condValue ) 
+										);
+										//
+										//. 
 										
 				}
 				else
 				{
+					// Get the field type
+					$type = !empty($rModel[$condFieldName]['type']) ? $rModel[$condFieldName]['type'] : '';
+					
 					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
 					//$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName] : $this->dbTableShortName ) . ".";
 					//$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName] : $this->alias ) . ".";
@@ -1323,9 +1347,11 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$conditions .= $condFieldName . " IN ('";
 					$conditions .= is_array($condFieldValues) 
 									? join("', '", is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues) 
-									//: $condFieldValues;
-									: ( is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues );
-									//: ( is_bool($condFieldValues) ? (int) $condFieldValues : "'" . $condFieldValues . "'" );
+									//: ( is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues );
+									: ( is_bool($condFieldValues) 
+										? (int) $condFieldValues 
+										: ( $type === 'timestamp' && $o['force_unix_timestamps']  ? "FROM_UNIXTIME('" . $condFieldValues . "')" : $condFieldValues ) 
+									);
 					$conditions .= "') ";
 				}
 

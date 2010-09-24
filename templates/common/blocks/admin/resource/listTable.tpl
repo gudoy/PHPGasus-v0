@@ -30,7 +30,7 @@
 						<a class="title {if $isSorted}sort {$smarty.get.orderBy|default:'asc'}{/if}" 
 							href="{$data.meta.fullAdminPath}?sortBy={$fieldName}&amp;orderBy={if $smarty.get.orderBy == 'asc'}desc{else}asc{/if}" 
 							title="{t}Sort by{/t}{t}:{/t} {$fieldName} {if $smarty.get.orderBy == 'asc'}descending{else}ascending{/if}"
-							>{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
+							>{if $field.fk}{$field.relResource}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
 					</th>
 					{math assign='displayedFieldsNb' equation="x+2" x=$displayedFieldsNb}
 					{/if}
@@ -87,7 +87,8 @@
 							{$field.possibleValues[$value]}
 						{elseif $field.subtype === 'file' || $field.subtype == 'fileDuplicate'}
 							{if $value}
-							<a class="currentItem file" href="{if strpos($value, 'http://') === false}{$field.destBaseURL|default:$smarty.const._URL}{if $field.storeAs === 'filename'}{$field.destFolder}{/if}{/if}{$value}">
+								{$baseURL=$field.destBaseURL|default:$smarty.const._URL}
+							<a class="currentItem file" href="{if strpos($value, 'http://') === false}{rtrim($baseURL,'/')}{if $field.storeAs === 'filename'}{$field.destFolder}{/if}{/if}{$value}">
 								{if $field.mediaType && $field.mediaType == 'image' && $field.storeAs !== 'filename'}
 								<img class="value" src="{$smarty.const._URL}{$value}" alt="{$value}: {$resource.id}" />
 								{else}
@@ -97,7 +98,7 @@
 							{/if}
 						{elseif $field.subtype === 'url'}
 							{if $value}
-							<a class="file" href="{if strpos($value, 'http://') === false}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">
+							<a class="url" href="{if strpos($value, 'http://') === false}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">
 								<span class="value">../{$value|regex_replace:"/.*\//":""}</span>
 							</a>
 							{else}

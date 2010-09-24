@@ -37,7 +37,8 @@ $resourceGroups = array(
 ### DATAMODEL: RESOURCES ###
 $resources = array(
 'apiclients' 		=> array('singular' => 'apiclient', 'table' => 'api_clients', 'alias' => 'apicl', 'defaultNameField' => 'name'),
-'apps' 				=> array('singular' => 'app', 'alias' => 'a', 'defaultNameField' => 'admin_title'),
+'apps' 				=> array('singular' => 'app', 'alias' => 'app', 'defaultNameField' => 'admin_title'),
+'appsplatforms' 	=> array('singular' => 'appsplatform', 'table' => 'apps_platforms', 'alias' => 'appptf', 'defaultNameField' => 'id', 'displayName' => 'apps platforms'),
 'clients' 			=> array('singular' => 'client', 'alias' => 'c', 'defaultNameField' => 'admin_title'),
 'contents' 			=> array('singular' => 'content', 'table' => 'issue_contents', 'alias' => 'ic', 'defaultNameField' => 'admin_title'),
 'entries' 			=> array('singular' => 'entry', 'alias' => 'e', 'defaultNameField' => 'admin_title'),
@@ -49,7 +50,7 @@ $resources = array(
 'products' 			=> array('singular' => 'product', 'alias' => 'p', 'defaultNameField' => 'admin_title'),
 'pushregistrations' => array('singular' => 'pushregistration','table' => 'push_registrations', 'alias' => 'pshreg','defaultNameField' => 'device_id','displayName' => 'push registrations'),
 'sessions' 			=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'id'),
-'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email'),
+'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email'),	
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
@@ -63,15 +64,15 @@ $dataModel = array(
 ),
 'apps' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'admin_title' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'title_FR' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
-	'title_EN' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
+	'title_EN' 				=> array('type' => 'varchar', 'length' => 64),
+	'admin_title'			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'title_FR', 'length' => 64, 'list' => 1, 'comment' => 'For admin/url purpose. No special chars'),
 	'clients_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'clients', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'client_name'),
-	'platforms_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'platforms', 'relField' => 'id', 'relGetFields' => 'admin_title', 'relGetAs' => 'platforms_name'),
+	'platforms_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'platforms', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'platforms_name'),
 	'description_FR' 		=> array('type' => 'text'),
 	'description_EN' 		=> array('type' => 'text'),
 	'baseline_short_FR'		=> array('type' => 'varchar', 'length' => 80, 'list' => 1),
-	'baseline_short_EN'		=> array('type' => 'varchar', 'length' => 80, 'list' => 1),
+	'baseline_short_EN'		=> array('type' => 'varchar', 'length' => 80),
 	'desc_short_FR'			=> array('type' => 'text'),
 	'desc_short_EN'			=> array('type' => 'text'),
 	'download_url' 			=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
@@ -80,6 +81,13 @@ $dataModel = array(
 	'is_available' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1),
 	'is_displayable' 		=> array('type' => 'bool', 'default' => 0, 'list' => 1),
 	'release_date'			=> array('type' => 'timestamp', 'default' => 'now', 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
+),
+'appsplatforms' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'apps_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'apps', 'relField' => 'id', 'relGetFields' => 'admin_title', 'relGetAs' => 'apps_name'),
+	'platforms_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'platforms', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'platforms_name'),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),

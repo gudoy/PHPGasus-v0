@@ -192,8 +192,14 @@ class Application
 		$t 		= parse_url($curURL);
 		$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		
+		
+		
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
-		if ( !$this->isLogged() ){ $this->redirect(_URL_LOGIN . '?successRedirect=' . $redir); }
+		if ( !$this->isLogged() )
+		{	
+			$this->data['errors'][] = 10100;		
+			return $this->redirect(_URL_LOGIN . '?successRedirect=' . $redir);
+		}
 		
 		return $this;
 	}
@@ -344,7 +350,7 @@ class Application
 	
 	public function log($data = null, $options = null)
 	{
-		if ( $this->debug && !empty($data) && ( in_array(_APP_CONTEXT, array('local','dev', 'preprod')) || $this->options['debug'] ) )
+		if ( $this->debug && _ALLOW_FIREPHP_LOGGING && !empty($data) && ( in_array(_APP_CONTEXT, array('local','dev', 'preprod')) || $this->options['debug'] ) )
 		{
 			class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
 			
@@ -359,7 +365,7 @@ class Application
 	
 	
 	public function configEnv()
-	{
+	{		
 		$this->env = array(
 			'name' => _APP_CONTEXT,
 			'type' => in_array(_APP_CONTEXT, array('local','dev')) && !isset($_GET['PRODJS']) ? "dev" : "prod",
@@ -367,9 +373,12 @@ class Application
 		
 		if ( $this->env['type'] === 'dev' )
 		{
-			class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
-			
-			ob_start();
+			if ( _ALLOW_FIREPHP_LOGGING )
+			{		
+				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
+				
+				ob_start();	
+			}
 			
 			error_reporting(E_ALL);
 			
@@ -681,34 +690,26 @@ class Application
 		$request->addHeaders(array('Content-Type'=>'application/x-www-form-urlencoded'));
 		$request->addHeaders(array('Accept'=> $accept));
 		
-//var_dump($sentData);
-//var_dump(is_string($sentData) ? $sentData : http_build_query($sentData));
-		
 		// For POST, PUT, requests, add the query data
-		if 		( $m === 'post' ) 	{ $request->setRawPostData( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
+		// setRawPostData is now deprecated and should be replaced by setBody
+		//if 		( $m === 'post' ) 	{ $request->setRawPostData( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
+		if 		( $m === 'post' ) 	{ $request->setBody( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
 		//if 		( $m === 'post' ) 	{ $request->setRawPostData( $sentData ); }
 		elseif 	( $m === 'put' ) 	{ $request->setPutData($sentData); }
 		
 		try
 		{			
-//var_dump($uri);
-//var_dump($m);
-//var_dump( is_string($sentData) ? $sentData : http_build_query($sentData) );
-		
 			// Send the request
 		    $request->send();
 			
 			// Get the status code
 			$data['statusCode'] = $request->getResponseCode();
 
-			$body = $request->getResponseBody();
-
-//var_dump($sentData);			
-//var_dump($body);
+			$body 				= $request->getResponseBody();
 			
 			// Decode the ws response json body transforming it into an associative array
-			$data['body'] 	= !empty($body) ? json_decode($body, true) : null;
-			$data['errors'] = !empty($data['body']['ws']['error']) ? $data['body']['ws']['error'] : null;
+			$data['body'] 		= !empty($body) ? json_decode($body, true) : null;
+			$data['errors'] 	= !empty($data['body']['ws']['error']) ? $data['body']['ws']['error'] : null;
 			
 			// If the request is successfull, just return data
 		    if 	( $data['statusCode'] === 200 ) { return $data; }

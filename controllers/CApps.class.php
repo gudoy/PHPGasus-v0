@@ -1,7 +1,7 @@
 <?php
 
-class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-class_exists('MApps') 	|| require(_PATH_MODELS . 'MApps.class.php');
+//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('MApps') 	|| require(_PATH_MODELS . 'MApps.class.php');
 
 class CApps extends Controller
 {

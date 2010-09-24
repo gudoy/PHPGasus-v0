@@ -145,7 +145,7 @@ class View extends Application
 		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		
 		// List of known platforms
-		$knownPlatforms = array('iPhone','iPod','iPad','Android','Bada','AdobeAIR','tabbee');
+		$knownPlatforms = array('Windows','Mac OS','iPhone','iPod','iPad','Android','Bada','AdobeAIR','tabbee');
 		
 		foreach ( $knownPlatforms as $p )
 		{
@@ -155,9 +155,9 @@ class View extends Application
 			// Check platform identifier is present in the user agent or is the is{$platform} parameter is set in the url
 			if ( strpos($ua, $p) !== false || ( isset($_GET[$urlParam]) && ( $_GET[$urlParam] === '' || $_GET[$urlParam] != false) ) )
 			{
-				$this->platform['name'] = $lower;
+				$this->platform['name'] = str_replace(' ', '', $lower);
 				
-				break;
+				//break;
 			} 
 		}
 
@@ -192,12 +192,12 @@ class View extends Application
 		$data 			= $this->browser;
 		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', );
 		$knownBrowsers 	= array(
-			'MSIE' 						=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*MSIE\s([0-9]*\.[0-9]*);.*/'),
-			'Firefox' 					=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*[Firefox|MozillaDeveloperPreview]\/([0-9\.]*)\s?.*/'),
-			'MozillaDeveloperPreview' 	=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*[Firefox|MozillaDeveloperPreview]\/([0-9\.]*)\s?.*/'),
-			'Chrome' 					=> array('name' => 'chrome', 'displayName' => 'Chrome', 'alias' => 'chrome', 'versionPattern' => '/.*[Chrome]\/([0-9\.]*)\s.*/'),
-			'Safari' 					=> array('name' => 'safari', 'displayName' => 'Safari', 'alias' => 'safari', 'versionPattern' => '/.*[Safari|Version]\/([0-9\.]*)\s.*/'),
-			'Opera' 					=> array('name' => 'opera', 'displayName' => 'Opera', 'alias' => 'opera', 'versionPattern' => '/.*[Version|Opera]\/([0-9\.]*)\s?.*/'),
+			'MSIE' 						=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
+			'Firefox' 					=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
+			//'MozillaDeveloperPreview' 	=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*[Firefox|MozillaDeveloperPreview]\/([0-9\.]*)\s?.*/'),
+			'Chrome' 					=> array('name' => 'chrome', 'displayName' => 'Chrome', 'alias' => 'chrome', 'versionPattern' => '/.*(Chrome)\/([0-9\.]*)\s.*/'),
+			'Safari' 					=> array('name' => 'safari', 'displayName' => 'Safari', 'alias' => 'safari', 'versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
+			'Opera' 					=> array('name' => 'opera', 'displayName' => 'Opera', 'alias' => 'opera', 'versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
 		);
 				
 		// Try to get the browser data using the User Agent
@@ -225,7 +225,7 @@ class View extends Application
 						: null;
 		if ( !empty($pattern) )
 		{
-			$v 			= preg_replace($knownBrowsers[$data['identifier']]['versionPattern'], '$1', $ua);
+			$v 			= preg_replace($knownBrowsers[$data['identifier']]['versionPattern'], '$2', $ua);
 			$vParts 	= explode('.', $v);
 			$scheme 	= array(
 				'major' 	=> isset($vParts[0]) ? (int) $vParts[0] : $v,
@@ -233,8 +233,9 @@ class View extends Application
 				'build' 	=> isset($vParts[2]) ? (int) $vParts[2] : '?',
 				'revision' 	=> isset($vParts[3]) ? (int) $vParts[3] : '?',
 			);
-			foreach ($scheme as $k => $v){ $data['version' . ucFirst($k)] = $v; }
-			$data['version'] = $data['versionMajor'];			
+			foreach ($scheme as $key => $val){ $data['version' . ucFirst($key)] = $val; }
+			$data['version'] 		= $data['versionMajor'];
+			$data['versionFull'] 	= $v;
 		}
 		
 		// Features detection
@@ -295,7 +296,8 @@ class View extends Application
 		$this->log(__METHOD__);
 		
 		$this->request = array(
-			'method' 	=> strtoupper($_SERVER['REQUEST_METHOD']),
+			//'method' 	=> strtoupper($_SERVER['REQUEST_METHOD']),
+			'method' 	=> !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : null,
 			'rawData' 	=> null,
 			'data' 		=> null,
 		);
@@ -393,7 +395,7 @@ class View extends Application
 		// Shortcut for options
 		$o 								= $this->options;
 		
-		$this->availableOutputFormats 	= array('html','json','xml','plist','yaml','qr','plistxml','yamltxt');
+		$this->availableOutputFormats 	= array('html','json','xml','plist','yaml','csv','qr','plistxml','yamltxt');
 		$this->knownOutputMime 			= array(
 			'text/html' 			=> 'html',
 			'application/xhtml+xml' => 'xhtml',
@@ -404,6 +406,7 @@ class View extends Application
 			'application/plist+xml' => 'plist',
 			//'application/xml' 		=> 'plistxml', <=== BUG: should have never been here
 			'text/yaml' 			=> 'yaml',
+			'text/csv' 				=> 'csv',
 			//'plain/text' 			=> 'yamltxt', <=== BUG: should have never been here
 			//'image/png' 			=> 'qr',
 			// TODO: RSS
@@ -472,6 +475,8 @@ class View extends Application
 			
 			// If nothing found, fallback to the default output format
 			if ( empty($this->options['output']) ){ $this->options['output'] = _APP_DEFAULT_OUTPUT_FORMAT; }
+			
+			$this->outputHandled = true;
 		}
 		
 		return $this;
@@ -484,6 +489,7 @@ class View extends Application
 		
 		$this->Events->trigger('onBeforeDisplay', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
+		if ( !empty($this->options['output']) ){ $this->outputFormat(); }
 		$of = $this->options['output']; // Shortcut for the ouptput format
 		
 //var_dump($of);
@@ -587,6 +593,23 @@ class View extends Application
 			$this->writeHeaders();
 			exit(Spyc::YAMLDump($this->data));
 		}
+		else if ( $of === 'csv' )
+		{
+			/*
+			class_exists('php2CSV') || require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
+			
+			// Just keep real data and remove any other elements
+			foreach(array('success','errors','warnings') as $item) { if ( isset($this->data[$item]) ) { unset($this->data[$item]); } }
+			
+			$php2CSV = new php2CSV();
+			$output = $php2CSV->process($this->data);
+			//$output = $php2CSV->process($this->data['entries']);
+						
+			//$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
+			//$this->writeHeaders();
+			//exit($output);
+			*/
+		}
 		else if ( $of === 'qr' )
 		{
 			class_exists('QRcode') || require(_PATH_LIBS . 'converters/phpqrcode.php');
@@ -624,53 +647,6 @@ class View extends Application
 		return $data;
 	}
 	
-	
-	// TODO
-	public function getCSS_old()
-	{
-		$this->log(__METHOD__);
-		
-		$this->css = array();
-
-		// Shortcut for view css props
-		$vCss = isset($this->data['view']['css']) ? $this->data['view']['css'] : null;
-		
-		// If the view is explicitely specified as not containing css, do not continue
-		if ( $vCss === false ){ return $this->css; }
-
-		// Load css associations file
-		isset($cssAssoc) || require(_PATH_CONFIG . 'cssAssoc.php');
-
-		// If the view css is not a string, split it
-		$tmpCss = !empty($vCss) && is_string($vCss) ? explode(',',$vCss) : $vCss;
-		
-		// Handle iphone, android, .., specific css
-		$dvc = $this->platform['name'];
-		if 		( ($dvc === 'iphone' || strpos($_SERVER['PHP_SELF'], 'index.php/iphone/') !== false) && empty($vCss) )	{ $tmpCss = array('commonIphone'); }
-		else if ( ($dvc === 'android' || strpos($_SERVER['PHP_SELF'], 'index.php/android/') !== false) && empty($vCss) ){ $tmpCss = array('commonAndroid'); }
-		else if ( empty($vCss) )																						{ $tmpCss = array('common'); }
-		
-		// Loop over all those supposed css file name
-		if ( !is_array($tmpCss) || empty($tmpCss) ) { return $this->css; }
-		
-		foreach ($tmpCss as $key)
-		{
-			// If '.js' is not find in the files
-			if ( !strpos($key, '.css') )
-			{				
-				// If a group of this name exists in the css association file, add its files to the final css array
-				if ( isset($cssAssoc[$key]) ){ $this->css = array_merge($this->css, $cssAssoc[$key]); } 
-			}
-			// Otherwise, just add this file name to the final css array
-			else { $this->css[] = $key; }
-		}
-		
-//$this->dump($this->css);
-		
-		return $this->css;
-	}
-	
-	
 	public function getCSS()
 	{
 		$this->log(__METHOD__);
@@ -693,8 +669,6 @@ class View extends Application
 		// Default css group
 		$defCssGroup 	= 'default';
 
-//$v['smartclasses'] = 'admin adminUsers fakeGroup';
-
 		// Try to find smartGroups using smartClasses if found, otherwise try to use view name
 		// If nothing is found, will keep defaut css group
 		$smartGroups 	= !empty($v['smartclasses']) ? explode(' ',$v['smartclasses']) : ( !empty($v['name']) ? (array) $v['name'] : array() );
@@ -705,9 +679,6 @@ class View extends Application
 			if ( empty($smartGroups[$i]) || empty($cssAssoc[$smartGroups[$i]]) ){ continue; }
 			else { $defCssGroup = $smartGroups[$i]; break; }
 		} 
-		
-//var_dump($smartGroups);
-//var_dump($defCssGroup);
 		
 		// If specific css have been defined
 		if ( !empty($specCss) ) 
@@ -743,19 +714,11 @@ class View extends Application
 		else if ( _SUBDOMAIN === 'ipad' || $this->platform['name'] === 'ipad' ){ $this->getCSSgroup('ipad'); }
 		else if ( _SUBDOMAIN === 'android' || $this->platform['name'] === 'android' ){ $this->getCSSgroup('android'); }
 		
-//$this->dump($specCss);
-//$this->dump('smartclasses: ' . $v['smartclasses']);
-//$this->dump($smartGroups);
-//$this->dump('defCssGroup: ' . $defCssGroup);
-//$this->dump($this->css);
-
 		return $this->css;
 	}
 	
 	public function getCSSgroup($groupeName)
 	{
-//var_dump($groupeName);
-		
 		// Load css associations file
 		isset($cssAssoc) || require(_PATH_CONFIG . 'cssAssoc.php');
 		
@@ -765,6 +728,9 @@ class View extends Application
 		// Loop over the group items
 		foreach ( $cssAssoc[$groupeName] as $val )
 		{
+			// Skip the item if it is empty ()
+			if ( empty($val) ){ continue; }
+			
 			// If the value does not contains .css, assume it's a css group name
 			if ( strpos($val, '.css') === false && !empty($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
 			
@@ -825,7 +791,7 @@ class View extends Application
 				if 		( empty($val) )													{ continue; }
 				
 				// If the value does not contains .js, assume it's a js group name
-				else if ( strpos($val, '.js') === false && !empty($jsAssoc[$val]) ) 	{ $this->getJSgroup($val); }
+				else if ( strpos($val, '.js') === false && isset($jsAssoc[$val]) ) 	{ $this->getJSgroup($val); }
 				
 				// If the value is prefixed by '--', remove the js from the list
 				else if ( strpos($val, '--') !== false )
@@ -855,8 +821,11 @@ class View extends Application
 		// Loop over the group items
 		foreach ( $jsAssoc[$groupeName] as $val )
 		{
+			// Skip the item if it is empty ()
+			if ( empty($val) ){ continue; }
+			
 			// If the value does not contains .js, assume it's a js group name (we then have to loop over this group name)
-			if ( strpos($val, '.js') === false && !empty($jsAssoc[$val]) ) 		{ $this->getJSgroup($val); }
+			if ( strpos($val, '.js') === false && isset($jsAssoc[$val]) ) 		{ $this->getJSgroup($val); }
 		
 			// Otherwise, and if not already present, add it to the js array
 			else if ( empty($this->js[$val]) )									{ $this->js[] = $val; }
@@ -883,28 +852,24 @@ class View extends Application
 		// Init the errors array
 		$this->data['errors'] = array();
 		
-//var_dump($this->data['errors']);
-		
 		// Loop over the errors
 		foreach ($tmpErrors as $key => $val)
 		{
-//var_dump($key);
-//var_dump($val);
-			
 			// If the item index is not > 1000, assume that it's not a 'native' array index but a defined error code
 			$hasParams 	= is_int($key) && $key > 1000;
 			$errCode 	= $hasParams ? $key : $val;
 			
-//var_dump($errCode);
-			
 			if ( !isset($errorsAssoc[$errCode]) ){ continue; }
+			
+			$err = $errorsAssoc[$errCode];
 			
 			// For each one of them, go get the related error message and reconstruct errors array associating codes to messages 
 			//$this->data['errors'][] = array('id' => $errCode, 'message' => $errorsAssoc[$errCode]);
 			$this->data['errors'][] = array(
 				'id' 		=> $errCode, 
-				'log' 		=> sprintf($errorsAssoc[$errCode]['back'], ($hasParams ? $val : null)),
-				'message' 	=> sprintf($errorsAssoc[$errCode]['front'], ($hasParams ? $val : null)),
+				'log' 		=> sprintf($err['back'], ($hasParams ? $val : null)),
+				'message' 	=> sprintf($err['front'], ($hasParams ? $val : null)),
+				'buttons' 	=> !empty($err['buttons']) ? $err['buttons'] : null, 
 			);
 		}
 		

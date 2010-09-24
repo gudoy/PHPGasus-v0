@@ -1,7 +1,7 @@
 <?php
 
-class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-class_exists('MMedias') || require(_PATH_MODELS . 'MMedias.class.php');
+//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('MMedias') || require(_PATH_MODELS . 'MMedias.class.php');
 
 class CMedias extends Controller
 {

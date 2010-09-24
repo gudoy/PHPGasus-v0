@@ -92,13 +92,13 @@ var admin =
 						//.attr('href', function(){ return $(this).attr('href').replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 						.attr('href', function(i,value){ return value.replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 					.find('td.idCol .value')
+						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
 						.text(createdId).siblings('.exactValue').text(createdId).end().end()
 					.find('td.dataCol .value')
 						//.attr('id', function(){ return $(this).attr('id').replace(new RegExp(cloneId), createdId); }).end()
 						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
 					.find('> td').effect('highlight', {}, 5000)
 						.find('.fullAdminPath')
-							.css('border','1px solid red')
 							.text(function(i,value){ Tools.log('createdId'); return value.replace(new RegExp('\/'+ cloneId + '([\/|\?.*|$])?'),'/' + createdId + '$1'); });
 			}
 		});
@@ -469,8 +469,6 @@ var adminIndex =
 	
 	handleTableCols: function()
 	{
-Tools.log('handleTableCols');
-		
 		var self 	= this,
 			args 	= arguments,
 			a 		= args[0] || null,
@@ -677,10 +675,15 @@ Tools.log('handleTableCols');
 					
 					$('.ui-inlineedit-form', self.context).addClass('loading');
 				},
+				error: function(xhr, txtStatus, err)
+				{
+					//$('.ui-inlineedit-form', self.context).removeClass('loading').addClass('status ' + status);
+				},
 				success: function(response)
 				{
 					var r 			= response,
 						warnings 	= r.warnings || [],
+						errors		= r.errors || [],
 						status 		= warnings.length ? 'warning' : (r.success ? 'valid' : 'error');
 					
 					$('.ui-inlineedit-form', self.context)
@@ -693,17 +696,42 @@ Tools.log('handleTableCols');
 						// $.each(warnings, function(i,item){ notifier.add({type:'warning', id:item.id, data:item.message})
 						$.each(warnings, function(i,item)
 						{
-							$('#adminUsersListBlock > h2').after($('<p />', {
+							$('#body').prepend($('<p />', {
 								'class':'notification warning',
 								'text':item.message,
-								'click': function(e){ $(this).fadeOut(3000, function(){ $(this).remove(); }); }
+								'click': function(e){ $(this).fadeOut(1000, function(){ $(this).remove(); }); }
 							}));							
 						});
 					
 						//self.context.addClass('warning', 2000, function(){ self.context.removeClass('warning', 2000); self.destroy(); });
-						self.context.addClass('warning').removeClass('warning', 5000, function(){ self.destroy(); });
+						self.context.addClass('warning').removeClass('warning', 3000, function(){ self.destroy(); window.location.href = '#body'; });
 					}
-					else if ( r.success )
+					
+					if ( errors.length )
+					{					
+						// TODO: use proper notifier
+						// $.each(warnings, function(i,item){ notifier.add({type:'warning', id:item.id, data:item.message})
+						$.each(errors, function(i,item)
+						{
+							var btnsHTML = '';
+							
+							$.each(item.buttons || [], function(i,btn)
+							{
+								btnsHTML += '<a class="actionBtn" ' + ( btn.id ) + ' href="' + btn.href + '"><span class="value"></span></a>'
+							});	
+							
+							$('#body').prepend($('<p />', {
+								'class':'notification error',
+								'text':item.message,
+								'click': function(e){ $(this).fadeOut(3000, function(){ $(this).remove(); }); }
+							}));				
+						});
+					
+						//self.context.addClass('warning', 2000, function(){ self.context.removeClass('warning', 2000); self.destroy(); });
+						self.context.addClass('error').removeClass('error', 1000, function(){ self.destroy(); window.location.href = '#body'; });
+					}
+					
+					if ( r.success )
 					{
 						if ( self.type === 'bool' )
 						{

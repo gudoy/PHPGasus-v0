@@ -94,7 +94,12 @@ $errorsAssoc = array(
 					'front' => _('Invalid parental code')),
 					
 	'10100' => array('back' => 'Session expired',
-					'front' => _('Your session has expired. Please login again.')),
+					'front' => _('Your session has expired. Please login again.'),
+					'buttons' => array(array(
+						'label' => _('Re-connect'),
+						'href' 	=> _URL_LOGIN,
+						'id' 	=> 'errorReconnectBtn',
+					))),
 	'10101' => array('back' => 'Session corrupted',
 				'front' => _('Your session has been corrupted. Please login again.')),
 					
@@ -157,8 +162,6 @@ $errorsAssoc = array(
 					'front' => _('Please provide a message object.')),
 	'20082' => array('back' => 'Missing msg_text',
 					'front' => _('Please provide a message text.')),
-	'20090' => array('back' => 'Missing recommander id',
-					'front' => _('Please choose a recommander.')),
 					
 	
 	// Coupon codes

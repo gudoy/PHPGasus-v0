@@ -1,6 +1,6 @@
 <?php
 
-class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
 
 class CContacts extends Controller
 {
@@ -28,8 +28,6 @@ class CContacts extends Controller
 		$this->success 	= false;
 		$this->errors 	= array();
 		
-		
-		
 		$rf 		= array('subject','email','name','message','captchaResult');
 		$of 		= array('title','phone','company','website','address','city','zipcode','country');
 		$fields 	= array_merge($rf,$of);
@@ -55,20 +53,16 @@ class CContacts extends Controller
 		if ( !$requirements ){ $this->errors[] = 10000; return $this; }
 		
 		// Check if captcha value is correct
-//$this->dump(@$_SESSION['captchaOperation']);
-//$this->dump(@$_SESSION['captchaResult']);
-//$this->dump(@$contact['captchaResult']);
 		if ( empty($contact['captchaResult']) || (int) $contact['captchaResult'] !== $_SESSION['captchaResult'] ) { $this->errors[] = 10010; return $this; }
 		
-//$this->dump($contact);
-		
 		// Send data to Salesforce (CRM)
-		$url_crm 	= 'https://www.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8';
+		$url_crm 	= _URL_SALESFORCE_CONTACTS_HANDLER;
 		$crm_data 	= array(
 			'email' 		=> @$contact['email'],
 			'lead_source' 	=> @$contact['subject'],
 			//'description' 	=> @$contact['message'],
-			'description' 	=> @utf8_encode(html_entity_decode($contact['message'])),
+			//'description' 	=> @utf8_encode(html_entity_decode($contact['message'])),
+			'description' 	=> @html_entity_decode($contact['message']),
 			'title' 		=> @$contact['title'],
 			'last_name' 	=> @$contact['name'],
 			'company' 		=> @$contact['company'],
@@ -79,11 +73,9 @@ class CContacts extends Controller
 			'zip' 			=> @$contact['zipcode'],
 			'phone' 		=> @$contact['phone'],
 			'oid' 			=> '00D20000000N04P', 
-			'retURL' 		=> 'http://dev.clicmobile.com/about/contact',
+			//'retURL' 		=> 'http://dev.clicmobile.com/about/contact',
 		);
 		$result 	= $this->wsCall($url_crm, array('method' => 'post', 'data' => $crm_data));
-		
-//$this->dump($crm_data);
 		
 		// Instanciate proper controllers
 		$this->Mailer 	= new Mailer();

@@ -1,6 +1,6 @@
 <?php
 
-class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
+//class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
 
 class MSamples extends Model
 {

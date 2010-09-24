@@ -1,7 +1,7 @@
 {$platform.name} {strip}
 {/strip}{$browser.engine} {strip}
 {/strip}{$browser.alias|default:$browser.name} {strip}
-{/strip}{$browser.alias|default:$browser.name}{$browser.version|replace:'.':'-'} {strip}
+{/strip}{$browser.alias|default:$browser.name}{$browser.versionMajor|default:''}{if isset($browser.versionMinor)}-{$browser.versionMinor}{/if} {strip}
 {/strip}{$view.smartclasses} {strip}
 {/strip}{$view.cssclasses} {strip}
 {/strip}{$view.cssid|default:$view.smartname} {strip}

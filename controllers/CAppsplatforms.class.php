@@ -1,9 +1,9 @@
 <?php
 
-//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-//class_exists('MProducts') 	|| require(_PATH_MODELS . 'MProducts.class.php');
+//class_exists('Controller') 		|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('MAppsplatforms') 	|| require(_PATH_MODELS . 'MAppsplatforms.class.php');
 
-class CProducts extends Controller
+class CAppsplatforms extends Controller
 {
 	private static $_instance;
 	

@@ -31,6 +31,8 @@ class Controller extends Application
 		
 		if ( isset($this->resourceName) )
 		{
+			class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
+			
 			// Instanciate the resource model
 			$modelClassname  	= 'M' . ucfirst($this->resourceName);
 			$this->model 		= new $modelClassname($this->application);
@@ -332,7 +334,8 @@ var_dump($tmpData);
 		
 		$resourceData = array();
 		
-		$isApi = strpos($_SERVER['PATH_INFO'], '/api/') !== false;
+		//$isApi = strpos($_SERVER['PATH_INFO'], '/api/') !== false;
+		$isApi = !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
 		
 		// Loop over the data model of the resource
 		//foreach ($this->dataModel[$this->resourceName] as $fieldName => $field)
@@ -352,8 +355,6 @@ var_dump($tmpData);
 				// Set the proper super global to use: $_FILES for posted files, otherwise $_POST
 				$usedSpGlobale = isset($_FILES[$f]) ? 'files' : 'post';
 				$spGlobaleItems = $usedSpGlobale === 'files' ? $_FILES[$f] : $_POST[$f];
-				
-//$this->dump($spGlobaleItems);
 				
 				if ( is_array($spGlobaleItems) && count($spGlobaleItems) > 0 && ($usedSpGlobale !== 'files' || (isset($o['multipleItems']) && $o['multipleItems'] === true)) )
 				{
@@ -386,8 +387,6 @@ var_dump($tmpData);
 	{
 		$field 			= $fieldModel;
 		$f 				= $superGlobaleField;
-		
-//$this->dump($field);
 		
 		// Reset temp filtered data
 		$filteredData 	= null;
@@ -441,8 +440,6 @@ var_dump($tmpData);
 					$filteredData = array_merge($f, array('extension' => $fileExtension, 'md5_hash' => md5_file($f['tmp_name'])));
 				}	
 			}
-			
-//$this->dump($filteredData);
 		}
 		else if ( $field['type'] === 'varchar' )
 		{

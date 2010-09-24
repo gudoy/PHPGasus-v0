@@ -8,6 +8,6 @@
 {$chain=$chain|cat:$basePath|cat:$item|cat:$sep}
 {/foreach}
 {if $chain !== ''}
-<script type="text/javascript" src="{$smarty.const._URL_PUBLIC}min/?f={$chain}" charset="utf-8"></script>
+<script type="text/javascript" src="{$smarty.const._URL_PUBLIC}min/?f={$chain}&{$version}" charset="utf-8"></script>
 {/if}
 {/strip}

@@ -9,7 +9,7 @@ define("_SUBDOMAIN", 					str_replace('.' . _DOMAIN, '', $_SERVER['HTTP_HOST']))
 ## LOCAL ##
 ###########
 
-if ( _APP_CONTEXT == 'local' )
+if ( _APP_CONTEXT === 'local' )
 {
 	define("_SMARTY_COMPILE_CHECK", 	true); 
 	define("_SMARTY_FORCE_COMPILE", 	true); 
@@ -29,8 +29,11 @@ if ( _APP_CONTEXT == 'local' )
 
 if ( _APP_CONTEXT === 'dev' )
 {
+	define("_ALLOW_FIREPHP_LOGGING", 	true);
+	
 	define("_SMARTY_COMPILE_CHECK", 	true); 
 	define("_SMARTY_FORCE_COMPILE", 	false); 
+	define("_SMARTY_CACHING", 			0);
 	
 	define("_MINIFY_JS",				false);
 	define("_MINIFY_CSS", 				false);
@@ -86,6 +89,8 @@ define("_SMARTY_COMPILE_CHECK", 		false);
 define("_SMARTY_FORCE_COMPILE", 		false);
 define("_SMARTY_CACHING", 				0);
 define("_SMARTY_CACHE_LIFETIME", 		3600); // in seconds
+
+define("_ALLOW_FIREPHP_LOGGING", 		false);
 
 // Is minification used for css & js
 define("_MINIFY_JS", 					true);

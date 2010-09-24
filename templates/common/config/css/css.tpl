@@ -1,6 +1,7 @@
 {* The following CC prevents IE8 from blocking css & scripts download until the main css is arrived
 {* cf: http://www.phpied.com/conditional-comments-block-downloads/ *}
 <!--[if IE]><![endif]-->
+{$version='v='|cat:{$smarty.const._CSS_VERSION|default:''}}
 {strip}{include file='common/config/css/ipad.tpl'}{/strip}
 {strip}{include file='common/config/css/iphone.tpl'}{/strip}
 {strip}{include file='common/config/css/android.tpl'}{/strip}
@@ -12,12 +13,13 @@
 {strip}
 {* If the file link is asbolute, do not add base path *}
 {if strpos($item, 'http://') !== false || strpos($item, 'http://') !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
-<link href="{$basePath}{$item}" media="screen" rel="stylesheet" type="text/css" />
+<link href="{$basePath}{$item}?{$version}" media="screen" rel="stylesheet" type="text/css" />
 {/strip}
 {/foreach}
 {/if}
-{strip}{include file='common/config/css/opera.tpl'}{/strip}
-{strip}{include file='common/config/css/ie.tpl'}{/strip}
-{strip}{include file='common/config/css/ie6.tpl'}{/strip}
-{strip}{include file='common/config/css/ie7.tpl'}{/strip}
+
+{include file='common/config/css/opera.tpl'}
+{include file='common/config/css/ie.tpl'}
+{include file='common/config/css/ie6.tpl'}
+{include file='common/config/css/ie7.tpl'}
 {block name='dynamicCss'}{/block}

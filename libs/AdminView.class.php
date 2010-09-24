@@ -15,11 +15,6 @@ class AdminView extends View
 		$this->authLevel 			= !empty($this->authLevel) ? $this->authLevel : array('god','superadmin','admin');
 		$this->authFailureRedirect 	= _URL_ADMIN;
 		
-		$this
-			->requireLogin()								// Require that the user is logged
-			//->requireAuth(array('level' => 'admin')); 	// And has at least admin rights
-			->requireAuth(); 								// And has at least admin rights
-		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		$this->dataModel = array(
@@ -29,6 +24,11 @@ class AdminView extends View
 		);
 		
 		parent::__construct();
+		
+		$this
+			->requireLogin()								// Require that the user is logged
+			//->requireAuth(array('level' => 'admin')); 	// And has at least admin rights
+			->requireAuth(); 								// And has at least admin rights
 		
 		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
 		

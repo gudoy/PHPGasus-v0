@@ -9,9 +9,9 @@
 {/block}
 
 {block name='aside'}
-<div class="col grid_3" id="sideCol">
+<{if $html5}aside{else}div{/if} class="col grid_3" id="sideCol">
 	{include file='common/blocks/admin/nav/secondNav.tpl'}
-</div>
+</{if $html5}aside{else}div{/if}
 {/block}
 
 {block name='mainCol'}

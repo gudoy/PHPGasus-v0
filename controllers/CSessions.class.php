@@ -1,7 +1,7 @@
 <?php
 
-class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-class_exists('MSessions') 	|| require(_PATH_MODELS . 'MSessions.class.php');
+//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('MSessions') 	|| require(_PATH_MODELS . 'MSessions.class.php');
 
 class CSessions extends Controller
 {

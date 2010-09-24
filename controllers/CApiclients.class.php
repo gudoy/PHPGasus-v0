@@ -1,7 +1,7 @@
 <?php
 
-class_exists('Controller') 		|| require(_PATH_LIBS . 'Controller.class.php');
-class_exists('MApiclients') 	|| require(_PATH_MODELS . 'MApiclients.class.php');
+//class_exists('Controller') 		|| require(_PATH_LIBS . 'Controller.class.php');
+//class_exists('MApiclients') 	|| require(_PATH_MODELS . 'MApiclients.class.php');
 
 class CApiclients extends Controller
 {
