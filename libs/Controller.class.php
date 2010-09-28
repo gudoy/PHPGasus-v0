@@ -198,7 +198,8 @@ class Controller extends Application
 		
 		foreach ((array) $this->model->errors as $errNb => $err )
 		{
-			if 		( $errNb === 1451 ){ $this->errors[] = 4110; continue; } // Creation/update error due to fk constraint(s)
+			if 		( $errNb === 1062 ){ $this->errors[] = 4030; continue; } // Duplicate entry error (unique key constraint)
+			elseif 	( $errNb === 1451 ){ $this->errors[] = 4110; continue; } // Creation/update error due to fk constraint(s)
 			elseif 	( $errNb === 1452 ){ $this->errors[] = 4050; continue; } // Deletion error due to fk constraint(s)
 			
 			$this->errors[] = 4010; 
