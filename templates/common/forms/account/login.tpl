@@ -13,7 +13,11 @@
 				{block name='beforeLoginBtn'}{/block}
 				{include file='common/blocks/actionBtn.tpl' mode='button' btnId='validateBtn' btnType='submit' btnLabel='log in'|gettext}
 				{block name='afterLoginBtn'}{/block}
-				{*include file='common/blocks/actionBtn.tpl' btnHref=$smarty.const._URL_SIGNUP btnLabel='register'|gettext*}
+				{block name='loginFormSignupBtn'}
+				{if $smarty.const._APP_ALLOW_SIGNUP}
+					{include file='common/blocks/actionBtn.tpl' btnHref="{$smarty.const._URL_SIGNUP}{$redir}" btnLabel='register'|gettext}
+				{/if}
+				{/block}
 			</div>
 		</div>
 

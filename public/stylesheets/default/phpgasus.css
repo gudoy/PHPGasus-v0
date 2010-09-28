@@ -412,7 +412,7 @@ table thead .sort.asc { margin-bottom:4px; }
 
 
 /* Header */
-#languagesBlock { width:100%; padding:2px 0; background:#8F98A6; /*font-size:78.5%;*/ text-align:right; opacity:0.5; }
+#languagesBlock { width:100%; padding:2px 0; background:transparent; /*font-size:78.5%;*/ text-align:right; /*opacity:0.5;*/ }
 #languagesBlock .blockTitle { display:none; }
 #languagesBlock ul { margin:0 10px 0 0; display:inline-block; }
 #languagesBlock li { display:none; }

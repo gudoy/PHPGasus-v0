@@ -19,7 +19,7 @@ class VAccount extends View
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name' 				=> 'account',
 			'method' 			=> __FUNCTION__,
-			'template'			=> 'pages/store/account/' . __FUNCTION__ . '.tpl',
+			'template'			=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
 			'current' 			=> array('menu' => 'account'),
 		));
 		
@@ -148,7 +148,7 @@ class VAccount extends View
 		return $this->redirect(_URL_LOGIN);
 	}
 	
-	/*
+	
 	public function signup($options = null)
 	{
 		// Shortcut for options
@@ -162,7 +162,7 @@ class VAccount extends View
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name' 			=> 'account' . ucfirst(__FUNCTION__),
 			'method' 		=> __FUNCTION__,
-			'template' 		=> 'pages/store/account/' . __FUNCTION__ . '.tpl',
+			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
 			'resourceName' 	=> $this->resourceName,
 			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('sign up')),
 		));
@@ -241,7 +241,6 @@ class VAccount extends View
 				
 		return $this->render();
 	}
-	*/
 	
 };
 

@@ -32,7 +32,7 @@
 		<div class="line noLabelBlock buttonsLine">
 			<div class="fieldBlock">
 				<input type="hidden" name="signupForm" id="signupForm" value="1" />
-				{include file='common/blocks/common/actionBtn.tpl' mode='button' btnId='validateBtn' btnType='submit' btnLabel='sign up'|gettext}
+				{include file='common/blocks/actionBtn.tpl' mode='button' btnId='validateBtn' btnType='submit' btnLabel='sign up'|gettext}
 			</div>
 		</div>
 
