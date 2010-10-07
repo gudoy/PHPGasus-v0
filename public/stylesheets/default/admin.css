@@ -200,6 +200,21 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminTable tbody td.idCol { width:3em; }
 .adminTable tbody td.typeVarchar .value { min-width:10em; }
 
+.relationTable { width:auto; border:1px solid #ABADB3 }
+.relationTable tr td:hover { outline:none; }
+.relationTable caption { display:table-caption; }
+.relationTable thead th { text-align:center; }
+.relationTable tbody tr td:last-child,
+.relationTable tbody tr td.last { border-right:0; }
+.relationTable tbody tr:last-child td,
+.relationTable tbody tr.last td { border-bottom:0; }
+.relationTable tbody th.actionsCol,
+.relationTable tbody td.actionsCol { width:auto; /*padding:0; border:0;*/ }
+.relationTable tbody td.actionsCol .actions { position:relative; visibility:hidden; }
+.relationTable tbody td.actionsCol .adminLink { /*position:absolute; right:-20px; top:2px;*/ }
+.relationTable tbody tr:hover td.actionsCol .actions,
+.relationTable tbody tr.hover td.actionsCol .actions { visibility:visible; }
+
 .adminListBlock { margin-left:20px; position:relative; }
 .adminListBlock:hover { position:relative; }
 .adminListBlock thead tr th.actionsCol .title,
@@ -297,7 +312,8 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminResourceDetailBlock .comment .detail { width:200px; height:auto; overflow:hidden; padding:5px; display:none; position:absolute; right:-210px; bottom:15px; background:white; border:1px solid black; font-size:84.6%; color:#000; text-align:left; }
 .adminResourceDetailBlock .comment:hover .detail,
 .adminResourceDetailBlock .comment.hover .detail { display:block; z-index:1000; }
-.adminResourceDetailBlock dd.typeText { max-height:inherit; }
+.adminResourceDetailBlock dd.typeText,
+.adminResourceDetailBlock dd.typeOnetomany { max-height:inherit; }
 
 
 .bubble { padding:5px; position:absolute; z-index:15000; background:white; border:2px solid black; -moz-border-radius:8px; -webkit-border-radius:8px; -o-border-radius:8px; }
@@ -332,3 +348,5 @@ body#adminMessagespushIndex form .line:not(.legendLine) { width:auto; float:none
 .admin p.notification { text-align:left; font-weight:bold; position:relative; }
 .admin p.notification:hover {}
 .admin p.notification:after { width:16px; height:16px; display:block; content:' '; position:absolute; right:5px; top:3px; background:url(images/commonIconsSprites.png) no-repeat -112px -80px; font-size:1%; cursor:pointer; }
+
+#adminMainNav { margin:0; padding:3px 20px; display:block; clear:both; }

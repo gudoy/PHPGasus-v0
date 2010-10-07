@@ -8,6 +8,10 @@
 	{include file='common/blocks/header/languages.tpl'}
 	{/block}
 	
+	{block name='loggedUserBlock'}
+	{*include file='common/blocks/header/loggedUserBlock.tpl'*}
+	{/block}
+	
 	{if $data.platform.name === 'tabbee' || $smarty.get.tabbee == 1}
 	<a id="closeBtn"><span class="value">{t}Close{/t}</span></a>
 	{/if}

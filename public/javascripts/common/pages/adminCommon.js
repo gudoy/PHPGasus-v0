@@ -451,16 +451,16 @@ var adminIndex =
 				
 				if ( a.hasClass('relResourceLink') )
 				{
-					admin.relResTimeout = setTimeout(function(){ admin.relatedResource(a,e); }, 250);
+					//admin.relResTimeout = setTimeout(function(){ admin.relatedResource(a,e); }, 250);
 				}
 				
 			}, function(e)
 			{
 				var that = this;
 				
-				clearTimeout(admin.relResTimeout);
+				//clearTimeout(admin.relResTimeout);
 				
-				admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
+				//admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
 			});
 		
 		

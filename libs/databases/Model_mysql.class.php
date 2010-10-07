@@ -128,17 +128,11 @@ class Model extends Application
 	{
 		$o = $options;
 		
-		if ( !empty($o['mode']) && $o['mode'] === 'count' ){ return $this; }
-		
-//$this->dump('count:' . $this->numRows);
-//$this->dump($this->data);
+		if ( !empty($o['mode']) && $o['mode'] === 'count' ){ $this->data = is_numeric($this->data) ? (int) $this->data : $this->data; return $this; }
 		
 		// Handle case where data is just 1 item, where we have to directly loop over the fields
 		if ( $this->numRows == 1 && !empty($o['mode']) && $o['mode'] === 'onlyOne' ) { $this->data = $this->fixSpecificsSingle($this->data); }
-		//if 		( $this->numRows == 1 ) { $this->data = $this->fixSpecificsSingle($this->data); }
-		
 		// Handle case where data is made of serval items, where we have to loop over them all and apply fix to each one of them
-		//else if ( $this->numRows > 1 )
 		else
 		{
 			foreach($this->data as $index => $itemData) { $this->data[$index] = $this->fixSpecificsSingle($itemData); }
@@ -147,16 +141,10 @@ class Model extends Application
 		return $this;
 	}
 	
-	private function fixSpecificsSingle($dataRow)
+	private function fixSpecificsSingle_old($dataRow)
 	{
-//var_dump(__METHOD__);
-		
 		if ( !is_array($dataRow) && !is_object($dataRow) ){ return $dataRow; }
-		
-//var_dump($this->resourceName);
-//var_dump($dataRow);
 
-		//$rModel 	= $this->dataModel[$this->resourceName];
 		$rModel 	= $this->application->dataModel[$this->resourceName];
 		
 		foreach( $dataRow as $field => $value )
@@ -199,6 +187,92 @@ class Model extends Application
 		
 		return $dataRow;
 	}
+	
+	
+	private function fixSpecificsSingle($dataRow)
+	{
+		if ( !is_array($dataRow) && !is_object($dataRow) ){ return $dataRow; }
+
+		//$rModel 	= $this->dataModel[$this->resourceName];
+		$rModel 	= $this->application->dataModel[$this->resourceName];
+		
+		foreach( $rModel as $name => $field )
+		{
+			$skip 		= false;
+			$type 		= !empty($field['type']) ? $field['type'] : null;
+			$subtype 	= !empty($field['subtype']) ? $field['subtype'] : null;
+			
+			if 		( $type === 'onetomany' ){ $skip = false; }
+			elseif 	( empty($dataRow[$name]) ){ $skip = true; }  			
+			
+			if ( $skip ) { continue; }
+			
+			$curVal = !empty($dataRow[$name]) ? $dataRow[$name] : null;
+			
+			if ( $type === 'bool' )
+			{
+				//$dataRow[$field] = $curVal === 't' ? true : ( $curVal === 'f' ? false : $curVal);  
+				//$dataRow[$field] = $curVal === 't' || $curVal == true  ? true : ( $curVal === 'f' || $curVal == false ? false : $curVal);
+				$dataRow[$name] = $dataRow[$name] === 't' || $dataRow[$name] == true  ? true : false;
+			}
+			else if ( $type === 'int' )
+			{
+				$dataRow[$name] = (int) $curVal;
+			}
+			else if ( $type === 'float' )
+			{
+				$dataRow[$name] = (float) $curVal;
+			}
+			else if ( $type === 'timestamp' )
+			{
+				//$dataRow[$field] = is_numeric($curVal) ? $curVal : strtotime($curVal);  
+				$dataRow[$name] = is_numeric($curVal) ? (int) $curVal : strtotime($curVal);
+			}
+			//else if ( $type === 'varchar' && $subtype === 'file' )
+			else if ( $type === 'varchar' && in_array($subtype, array('file', 'fileDuplicate')) )
+			{
+				if ( !empty($curVal) && !empty($field['destBaseURL']) )
+				{
+					$dataRow[$name] = $field['destBaseURL'] . $curVal;
+				}
+			}
+			else if ( $type === 'onetomany' )
+			{
+				$relResource 	= !empty($field['relResource']) ? $field['relResource'] : $name;
+				$getFields 		= !empty($field['getFields']) ? $this->magic($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
+				$pivotResource 	= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . $relResource;
+				$pivotTable 	= !empty($this->resources[$pivotResource]['table']) ? $this->resources[$pivotResource]['table'] : $pivotResource;
+				$tmpData 		= array();
+				
+				// Special case for pivolIdField
+				$getFields 		= isset($dataRow[$pivotTable . '_id']) ? array_merge($getFields, array($pivotTable . '_id')) : $getFields;
+				
+				// Loop over the gotten fields
+				foreach ($getFields as $item)
+				{
+					// Build the name used for the database output
+					$storingName 	= strpos($item, $pivotTable) !== false ? $item : $this->resources[$relResource]['singular'] . '_' . $item . 's';
+					
+					if ( !isset($dataRow[$storingName]) ){ continue; }
+					
+					// split the field value which should be a concatenated string of the all the field values
+					$tmp 			= explode(',', $dataRow[$storingName]);
+					
+					// Loop over the splited value and reassign into the proper final array
+					foreach ( $tmp as $k => $v ){ $tmpData[$k][$item] = $v; }
+					
+					// If the field is not a native one and thus does not belong to dataModel for this resource
+					// remove if from the output since it has been reassigned elsewhere 
+					//if ( !isset($rModel[$storingName]) ){ unset($dataRow[$storingName]); }
+				}
+				
+				$dataRow[$name] = $tmpData;
+			}
+		}
+		
+		return $dataRow;
+	}
+	
 
 	private function fetchResults($queryResult, $options = null)
 	{		
@@ -234,11 +308,25 @@ class Model extends Application
 		return mysql_real_escape_string($string);
 	}
 	
-	
-	private function magic($tissue)
+
+	/**
+	 * 
+	 * @deprecated use arrayify instead
+	 */
+	private function magic($data)
 	{
-		return is_array($tissue) ? $tissue : preg_split("/,+\s*/", $tissue);
+		//return is_array($tissue) ? $tissue : preg_split("/,+\s*/", $tissue);
+		return $this->arrayify($data);
 	}
+	
+	
+	/*
+	 * Always returns an array. If a string is passed, explodes it on ',' 
+	 */
+	public final function arrayify($value)
+	{
+		return is_array($value) ? $value : preg_split("/,+\s*/", (string) $value);
+	} 
 	
 	
 	private function magicFields($fieldsStringOrArray = null)
@@ -261,6 +349,7 @@ class Model extends Application
 		
 		return $this;
 	}
+	
 	
 	// TODO: refactor
 	private function afterQuery()
@@ -397,11 +486,14 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$where 		= $this->handleOperations($o);
 		$conditions = $this->handleConditions($o);
 		
+		
 		// Case where we just want to count the number of records in the table
 		if ( isset($o['mode']) && $o['mode'] === 'count')
-		{			
-			$query 		= "SELECT COUNT(id) AS total ";
-			//$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->dbTableName . " AS " . $this->dbTableShortName . " ";
+		{
+			// Set the field used to do the count. Try the 'id' field if it exists, otherwise use the first one defined in the datamodel
+			$usedfield = isset($rModel['id']) ? 'id' : key($rModel);
+			
+			$query 		= "SELECT COUNT(" . $this->escapeString($usedfield) . ") AS total ";
 			$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
 			$query 		.= $where;		
 		}
@@ -418,11 +510,95 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			$leftJoins 				= array();
 			$alreadyJoinedTables 	= array();
 			$ljcount = 1;
+			
+			$crossJoins 			= '';
+			
+//$this->dump($this->queryData['fields']);
+			
 			foreach ($rModel as $fieldName => $field)
 			{
-				if ( !empty($field['relResource']) 
-					&& ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
+//var_dump($fieldName);
+//var_dump($field);
+				
+				$type = $field['type'];
+				
+//var_dump($type);
+
+				// Do not process relation fields
+				if ( $type === 'onetomany' && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
 				{
+					$relType 			= !empty($field['relType']) ? $field['relType'] : 'onetomany';
+					$relResource 		= !empty($field['relResource']) ? $field['relResource'] : $fieldName;
+					$relTable 			= !empty($this->resources[$relResource]['table']) ? $this->resources[$relResource]['table'] : $relResource;
+					$relResourceAlias 	= !empty($this->resources[$relResource]['alias']) ? $this->resources[$relResource]['alias'] : null;
+					$relField 			= !empty($field['relField']) ? $field['relField'] : 'id';
+					//$pivotResource 		= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . '_' . $relResource;
+					$pivotResource 		= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . $relResource;
+					$pivotTable 		= !empty($this->resources[$pivotResource]['table']) ? $this->resources[$pivotResource]['table'] : $pivotResource;
+					$pivotLeftField 	= !empty($field['pivotLeftField']) ? $field['pivotLeftField'] : $this->resourceSingular . '_' . 'id';
+					$pivotRightField 	= !empty($field['pivotRightField']) ? $field['pivotRightField'] : $this->resources[$relResource]['singular'] . '_' . 'id';
+					$pivotAlias 		= !empty($this->resources[$pivotResource]['alias']) ? $this->resources[$pivotResource]['alias'] : null;
+					$getFields 			= !empty($field['getFields']) ? $this->magic($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
+					
+					$crossJoins 		.= 'LEFT OUTER JOIN ' . $pivotTable . ( !empty($pivotAlias) ? ' AS ' . $pivotAlias : '');
+					$crossJoins 		.= ' ON ' . $this->alias . '.' . $relField . ' = ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotLeftField  . ' ';
+					$crossJoins 		.= 'LEFT OUTER JOIN ' . $relResource . ( !empty($relResourceAlias) ? ' AS ' . $relResourceAlias : '');
+					$crossJoins 		.= ' ON ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotRightField . ' = ' . $relResourceAlias . '.' . $relField  . ' ';
+//var_dump($relType);
+//var_dump($relResource);
+//var_dump($pivotResource);
+//var_dump($getFields);
+					// Remove fake column from query fields since we are going to use 'getFields' (defaulted to resource defaultNameField if empty) 
+					unset($this->queryData['fields'][$fieldName]);
+					
+					$o['groupBy'] 	= !empty($o['groupBy']) ? $this->magic($o['groupBy']) : array();
+					$o['groupBy'][] = 'id';
+//var_dump($crossJoins);
+
+					// Loop over the fields we have to get
+					foreach ($getFields as $item)
+					{
+						// Do not process fields that are not existing resource fields
+						if ( empty($relResource) || empty($relResource[$item]) ) { continue; }
+						
+						// Build the storing name
+						// ie: in a table 'users', a 'groups' with getFields('id,name')
+						// will result in 'group_ids' and 'group_name' fields 
+						$storingName 	= $this->resources[$relResource]['singular'] . '_' . $item . 's';
+						
+//var_dump($storingName);
+						
+						$this->queryData['fields'][$storingName] = array(
+										'name' 			=> $item,
+										'as' 			=> $storingName,
+										'resource' 		=> $relResource,
+										'table' 		=> $relTable,
+										'tableAlias' 	=> $relResourceAlias,
+										'cast' 			=> true,
+										'groupConcat' 	=> true,
+										'relation' 		=> 'onetomany',
+						);	
+					}
+					
+					
+					$this->queryData['fields'][$pivotTable . '_id'] = array(
+									'name' 			=> 'id',
+									'as' 			=> $pivotTable . '_id',
+									'resource' 		=> $pivotResource,
+									'table' 		=> $pivotTable,
+									'tableAlias' 	=> $pivotAlias,
+									'cast' 			=> true,
+									'groupConcat' 	=> true,
+									'relation' 		=> 'onetomany',
+					);
+					
+//var_dump($this->queryData['fields'][$pivotTable . '_id']);
+//die();
+				}
+				elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
+				{
+//var_dump('case relation default');
+					
 					// Get proper table name
 					$field['relResource'] = //(!empty($this->resources[$field['relResource']]['tableName']) 
 											(!empty($this->resources[$field['relResource']]['table'])
@@ -432,8 +608,13 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					
 					$queryTables[] = _DB_TABLE_PREFIX . $field['relResource'];
 					
+//var_dump('here1');
+					
+
 					if ( !empty($field['relGetFields']) )
 					{
+//var_dump('here2');
+						
 						$tmpFields = $this->magic($field['relGetFields']);
 						
 						// 2 possible models for the fields list:
@@ -455,6 +636,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 							$this->queryData['fields'][$storingName] = array(
 											'name' 			=> $tmpFieldName,
 											'as' 			=> $storingName,
+											//'resource' 		=> $field['relResource'],
 											'table' 		=> $field['relResource'],
 											'tableAlias' 	=> $tmpTableAlias,
 											'count' 		=> isset($this->queryData['fields'][$storingName]['count']) ? $this->queryData['fields'][$storingName]['count'] : false,
@@ -470,28 +652,38 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						
 						$ljcount++;
 						
-					}				
+					}
 				}
 			}
 			
-//var_dump($this->queryData['fields']);
+//$this->dump($this->queryData['fields']);
 			
 			// Get fields to use in the query
 			$i = 0;
 			$finalFields = '';
+			
 			foreach ($this->queryData['fields'] as $k => $field)
 			{
 				// Get the field type
-				$type = !empty($rModel[$field['name']]['type']) ? $rModel[$field['name']]['type'] : '';
+				$resName 	= !empty($field['resource']) ? $field['resource'] : $this->resourceName;
+				$res 		= $this->application->dataModel[$resName];
+				$type 		= !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
+
+//var_dump($type . ': ' . $k . ' (' . $resName . ')')				
+
+//var_dump($field['as']);
 				
 				$finalFields .= ( $i > 0 ? ", " : '' ) 
-								. ( $type === 'timestamp' && $o['force_unix_timestamps']  ? "UNIX_TIMESTAMP(" : '' )
+								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? "UNIX_TIMESTAMP(" : '')
+								. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? ' GROUP_CONCAT(CAST(' : '' )
 								. ( !empty($field['table']) 
 									//? $field['table']
 									? ( !empty($field['tableAlias']) ? $field['tableAlias'] : $field['table'] ) 
 									//: $this->dbTableShortName ) . "."
 									: $this->alias ) . "."
 								. $field['name'] 
+								//. ( !empty($field['as']) ? $field['as'] : $field['name'] )
+								. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
 								. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
 								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? ") as " . $field['name'] : '' )
 								;
@@ -501,7 +693,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				
 				// Add the count if specified to				
 				//if ( $field['count'] ){ $finalFields .= ( $i > 0 ? ", " : '' ) . "count(" . $this->dbTableShortName . "." . $k . ") AS " . $k . "_total"; }
-				if ( $field['count'] )
+				if ( !empty($field['count']) )
 				{
 					//$finalFields .= (( $i > 0 ) ? ", " : '' ) . "COUNT(" . $this->alias . "." . $k . ") AS " . $k . "_total";
 					$finalFields .= ( !empty($finalFields) ? ", " : '' ) . "COUNT(" . $this->alias . "." . $k . ") AS " . $k . "_total";
@@ -535,6 +727,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				$groupByOthers = '';
 				foreach ($gByFields as $k => $f)
 				{
+					// Skip onetomany gotten fields
+					if ( !empty($f['relation']) && $f['relation'] === 'onetomany' ){ continue; } 
+					
 					//$groupByOthers .= ($i === 0 ? '' : ", ") . ( !empty($f['table']) ? $f['table'] : $this->dbTableShortName ) . "." . $f['name'];
 					$groupByOthers .= ($i === 0 ? '' : ", ") . ( !empty($f['table']) ? $f['table'] : $this->alias ) . "." . $f['name'];
 					
@@ -563,12 +758,16 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			//$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->dbTableName . " AS " . $this->dbTableShortName . " ";
 			$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
 			$query 		.= 	( !empty($leftJoins) ? $leftJoins : " " );
+			$query 		.= 	( !empty($crossJoins) ? $crossJoins : '' );
 			$query 		.= 	$where . $conditions;
 			$query 		.= 	$groupBy;
 			$query 		.= 	( !empty($orderBy) ? $orderBy . " " : '' );
 			$query 		.= 	( !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : '' );
 			$query 		.= 	( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : '' );
 		}
+		
+//var_dump($query);
+//if ( $this->resourceName === 'users' ){ die(); }
 		
 		$this->launchedQuery = $query;
 		
@@ -974,7 +1173,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				// Get the user whose data are being updated and get the current user
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
 				//$currentUser 	= !empty($this->data['current']['user']) ? $this->data['current']['user'] : null; 
-				$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['users_id'])));
+				$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
 
 				// Has the current user higher authorization than the updated one
 				$foundUsersData = !empty($updatedUser) && !empty($currentUser);
@@ -1528,14 +1727,11 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		$o['values'] 	= !empty($o['values']) ? $this->magic($o['values']) : null;
 		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( count($o['values']) <= 1 ? 'onlyOne' : null );
+		// Using LIMIT 1 (by default) for perf issues
 		$o['limit'] 	= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;
 		$o['type'] 		= 'select';
 		
-		// Do not continue if no value has been passed
-		//if ($o['values'] === null) { return false; }
-		
 		// If a manual query has not been passed, build the proper one
-		//$query 	= $this->buildSelect($o);
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
 		$this->log($query);

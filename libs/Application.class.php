@@ -112,7 +112,7 @@ class Application
 				session_id($_GET[_SESSION_NAME]);
 				session_start(); 
 				$_SESSION['id'] 		= $_GET[_SESSION_NAME];
-				$_SESSION['users_id'] 	= $s['users_id'];
+				$_SESSION['user_id'] 	= $s['user_id'];
 			}
 		}
 		
@@ -136,7 +136,8 @@ class Application
 			'limit' => 1,
 			'conditions' 	=> array(
 				'name' => $sid,
-				array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
+				//array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
+				array('expiration_time', '>', time()),
 			)
 		)); 
 		

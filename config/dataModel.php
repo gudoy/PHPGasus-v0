@@ -30,6 +30,9 @@
 // [exposed]: 			default = true
 // [placeholder]: 		TODO
 // [listTruncate]: 		In admin, in list view, will the displayed value truncated (default) or not
+// [pivotResource]: 	name of the resource used as the pivot. default = {current column}_{relResource}. (ie: groups)
+// [pivotLeftField]:	name of the 1st column used in the pivot relation. default = singular(current resource})_id. (ie: user_id)
+// [pivotRightField]:	name of the 2nd column used in the pivot relation.default = singular(current resource})_id. (ie: group_id)
 
 $resourceGroups = array(
 );
@@ -43,14 +46,19 @@ $resources = array(
 'contents' 			=> array('singular' => 'content', 'table' => 'issue_contents', 'alias' => 'ic', 'defaultNameField' => 'admin_title'),
 'entries' 			=> array('singular' => 'entry', 'alias' => 'e', 'defaultNameField' => 'admin_title'),
 'issues' 			=> array('singular' => 'issue', 'alias' => 'i', 'defaultNameField' => 'number'),
+'groups' 			=> array('singular' => 'group', 'alias' => 'gp', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title'),
+'groupsauths' 		=> array('singular' => 'groupsauth', 'table' => 'groups_auths',  'alias' => 'gpauth', 'crudability' => 'CRUD', 'defaultNameField' => 'group_id'),
 'keywords' 			=> array('singular' => 'keyword', 'alias' => 'k', 'defaultNameField' => 'label'),
+'machines' 			=> array('singular' => 'machine', 'alias' => 'mach', 'crudability' => 'CRUD', 'defaultNameField' => 'reference'),
 'medias' 			=> array('singular' => 'media', 'table' => 'medias', 'alias' => 'me', 'defaultNameField' => 'admin_title'),
 'pointsofinterest' 	=> array('singular' => 'pointofinterest', 'table' => 'points_of_interest', 'alias' => 'poi', 'defaultNameField' => 'admin_title', 'displayName' => 'Points of Interest'),
 'platforms' 		=> array('singular' => 'platform', 'alias' => 'ptf', 'defaultNameField' => 'admin_title'),
 'products' 			=> array('singular' => 'product', 'alias' => 'p', 'defaultNameField' => 'admin_title'),
 'pushregistrations' => array('singular' => 'pushregistration','table' => 'push_registrations', 'alias' => 'pshreg','defaultNameField' => 'device_id','displayName' => 'push registrations'),
+'resources' 		=> array('singular' => 'resource', 'alias' => 'res', 'crudability' => 'CRUD', 'defaultNameField' => 'name'),
 'sessions' 			=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'id'),
 'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email'),	
+'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'defaultNameField' => 'user_id'),		
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
@@ -140,6 +148,20 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => true, 'list' => 1),
 ),
+'groups' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'admin_title' 			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
+),
+'groupsauths' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'group_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'groups', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'group_name'),
+	'resource_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'resources', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'resource_name'),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+),
 'keywords' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'issues_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'issues', 'relField' => 'id', 'relGetFields' => 'number', 'relGetAs' => 'issue_number','displayName' => 'number'),
@@ -148,6 +170,13 @@ $dataModel = array(
 	'definition' 			=> array('type' => 'text', 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => true),
+),
+'machines' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'reference' 			=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
+	'reference_type' 		=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
 'medias' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
@@ -202,6 +231,20 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
+'resources' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'singular' 				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+),
+'usersgroups' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email'),
+	'group_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'groups', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'group_name'),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+),
 'users' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'email' 				=> array('type' => 'varchar', 'subtype' => 'email', 'list' => 1),
@@ -210,6 +253,8 @@ $dataModel = array(
 	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
 	'auth_level' 			=> array('type' => 'enum', 'default' => 'user', 'possibleValues' => array('user','contributor','admin','superadmin','god'), 'editable' => 0),
 	'auth_level_nb' 		=> array('type' => 'int', 'default' => 10, 'editable' => 0, 'comment' => '10=user, 100=contributor, 500=admin, 1000=superadmin, 10000=god'),
+	//'groups' 				=> array('type' => 'onetomany', 'relResource' => 'groups', 'relField' => 'id', 'pivotResource' => 'users_groups', 'pivotLeftField' => 'user_id', 'pivotRightField' => 'group_id', 'getFields' => 'admin_title'),
+	'groups' 				=> array('type' => 'onetomany', 'getFields' => 'id,admin_title'),
 	'company' 				=> array('type' => 'varchar', 'length' => 64),
 	'address' 				=> array('type' => 'varchar'),
 	'zipcode' 				=> array('type' => 'varchar', 'length' => 16),
@@ -227,7 +272,7 @@ $dataModel = array(
 'sessions' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1, 'editable' => 0),
-	'users_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'editable' => 0, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email','displayName' => 'user'),
+	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'editable' => 0, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email','displayName' => 'user'),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 	'expiration_time'		=> array('type' => 'timestamp', 'list' => 1, 'editable' => 1),

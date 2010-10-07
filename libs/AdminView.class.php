@@ -117,6 +117,40 @@ class AdminView extends View
 		return $m;
 	}
 	
+	
+	public function handleRelations()
+	{
+//var_dump('handleRelations');
+		
+		if ( empty($this->resourceName) ){ return $this; }
+		
+		// Array of related resource for the current resource 
+		$relResources = array();
+		
+		// Loop over the resource colums
+		foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
+		{
+//var_dump($name);
+			
+			if ( empty($f['type']) ){ continue; }
+			
+			else if ( $f['type'] === 'onetomany' )
+			{
+				 $relResName 				= !empty($f['relResource']) ? $f['relResource'] : $name; 	// Get the related resource or default it to current column name
+				 $relResources[] 			= $relResName;												// Add it to the related resources array
+				 $ctrlrName 				= 'C' . ucfirst($relResName);								// Build its controller name
+				 $ctrlr 					= new $ctrlrName(); 										// Instanciate it
+				 $count 					= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
+				 $this->data[$relResName] 	= $count < 100 ? $ctrlr->index() : null;
+			}
+		}
+		
+		//$this->current['relatedResources'] = $relResources;
+		
+		return $this;
+	}
+	
+	
 	public function index($resourceId = null, $options = null)
 	{		
 		$this->data['view']['method'] 	= __FUNCTION__;
@@ -163,10 +197,7 @@ class AdminView extends View
 		
 		//if ( !count($this->data[$this->resourceName]) ){ $this->statusCode(204); }
 
-//$this->dump($this->data);
-
 		$this
-			//->paginate()
 			->beforeRender(array('function' => __FUNCTION__));
 			
 		return $this->render();
@@ -301,6 +332,8 @@ class AdminView extends View
 			->paginate()
 			->beforeRender(array('function' => __FUNCTION__));
 		
+//$this->dump($this->data);
+		
 		return $this->render();
 	}
 	
@@ -324,7 +357,8 @@ class AdminView extends View
 				
 		$this->resourceId 	= $resourceId;
 		
-		$this->handleForeignData();
+		//$this->handleForeignData();
+		$this->handleRelations();
 		
 		// Handle file deletion
 		if ( !empty($_GET['forceFileDeletion']) && !empty($args[1]) )
@@ -380,12 +414,12 @@ class AdminView extends View
 		{
 			$this->Events->trigger('onUpdateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
-		
-//var_dump($this->data);
 
 		$this
 			->paginate()
 			->beforeRender(array('function' => __FUNCTION__));
+			
+$this->dump($this->data);
 		
 		return $this->render();
 	}
@@ -485,7 +519,7 @@ class AdminView extends View
 		$redir 			= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		
 		// Get the user id
-		$uid = !empty($_SESSION['users_id']) ? $_SESSION['users_id'] : null;
+		$uid = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 		
 		// If no user id is found, redirect to login
 		if ( empty($uid) )
@@ -511,30 +545,6 @@ class AdminView extends View
 		$redir = $o['failureRedirect'];
 		$redir .= ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=9000';
 		return !$match ? $this->redirect($redir) : true;
-	}
-	
-	
-	public function handleForeignData()
-	{
-		/*
-		// Loop of the fields
-		foreach ($this->dataModel['resourcesFields'][$this->resourceName] as $fname => $field)
-		{
-			// Only process foreign key fields
-			if ( empty($field['fk']) ) { continue; }
-
-			$relRes 	= $field['relResource']; 						// Get the related resource name
-			$cname 		= 'C' . ucfirst($relRes); 						// Get the controller name
-			$this->requireControllers($cname); 							// Load it
-			$$cname 	= new $cname(); 								// Instanciate it
-			
-			$count 		= $$cname->index(array('mode' => 'count'));
-			$this->data['foreign'] = array(
-				count => array($relRes => $count )
-			);
-//var_dump($this->data['foreign']['count']); 
-		}
-		*/
 	}
 	
 	

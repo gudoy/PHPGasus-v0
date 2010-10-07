@@ -20,6 +20,8 @@
 	
 </div>
 
+{*
 {if !$data.options.viewType || $data.options.viewType !== 'bubble'} 
 {include file='common/blocks/admin/resource/retrieve/related.tpl'}
 {/if}
+*}

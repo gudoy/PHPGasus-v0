@@ -100,9 +100,10 @@ define("_MINIFY_CSS", 					true);
 ## 	COMMON APPLICATION PARAMETERS	##
 ##################################
 
-define("_JS_VERSION", 					'1');
-define("_CSS_VERSION", 					'1');
-define("_FLASH_VERSION", 				'1');
+define("_UNIQUE_VERSION", 				'2909101200');
+define("_JS_VERSION", 					_UNIQUE_VERSION);
+define("_CSS_VERSION", 					_UNIQUE_VERSION);
+define("_FLASH_VERSION", 				_UNIQUE_VERSION);
 
 // SESSION DATA
 define('_SESSION_NAME', 				'SID');

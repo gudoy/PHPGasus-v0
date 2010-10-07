@@ -432,3 +432,9 @@ table thead .sort.asc { margin-bottom:4px; }
 #breadcrumbsBlock a.home .value { display:none; }
 #breadcrumbsBlock a:after { margin:0 3px; content:'/'; vertical-align:middle; }
 #breadcrumbsBlock .sep { margin:0 3px; vertical-align:middle; }  
+
+#loggedUserBlock { width:250px; display:block; float:right; clear:both; }
+#loggedUserBlock .picsBlock { float:left; }
+#loggedUserBlock .dataBlock { margin-left:74px; }
+#loggedUserBlock .dataBlock a.n { margin:5px 0 10px; display:block; } 
+#loggedUserBlock .logoutLink { clear:both; }

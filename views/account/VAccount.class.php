@@ -81,9 +81,9 @@ class VAccount extends View
 			$savePOST = $_POST;
 			$newPOST = array(
 				'name' 				=> session_id(), 
-				'users_id' 			=> $user['id'], 
+				'user_id' 			=> $user['id'], 
 				'expiration_time' 	=> time() + (int) _APP_SESSION_DURATION, 
-				'ip' 				=> $_SERVER['REMOTE_ADDR']
+				'ip' 				=> $_SERVER['REMOTE_ADDR'],
 			);
 			foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
 						
@@ -104,19 +104,19 @@ class VAccount extends View
 			unset($_POST);
 			
 			// Store the session data
-			$_SESSION = array_merge((array) $_SESSION, array('id' => $newPOST['name'], 'users_id' => $newPOST['users_id']));
+			$_SESSION = array_merge((array) $_SESSION, array('id' => $newPOST['name'], 'user_id' => $newPOST['user_id']));
 			$this->logged = true;
 			
 			// Clean old expired session for this user id
 			!_APP_KEEP_OLD_SESSIONS && $CSessions->delete(array(
 				'conditions' 	=> array(
-					'users_id' => $user['id'],
+					'user_id' => $user['id'],
 					array('expiration_time', '<', ("FROM_UNIXTIME('" . strtotime('-1 day') . "')")),
 				),
 			));
 			
 			// Return them as proper data session object
-			$this->data[$this->resourceSingular] = array('id' => $newPOST['name'], 'users_id' => $newPOST['users_id']);
+			$this->data[$this->resourceSingular] = array('id' => $newPOST['name'], 'user_id' => $newPOST['user_id']);
 			
 			if ( !empty($redir) ) { $this->redirect($redir); }
 			

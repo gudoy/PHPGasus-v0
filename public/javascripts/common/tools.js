@@ -209,11 +209,8 @@ var Tools =
 	removeQueryParam: function(url, paramName)
 	{
 		var reg = new RegExp('(.*)' + paramName + '=([^\&\#\?]*)(.*)', 'g');
-		//return url.replace(reg,'$1').replace(/(.*)[&|?]$/,'$1');
-		return url.replace(reg,'$1$3').replace(/(.*)\?&(.*)/,'$1?$2').replace(/(.*)[&|?]$/,'$1');
 		
-		// test?values=1&id=1&applications_versions_id=1&releases_id=1.replace(new RegExp('(.*)' + 'value' + '=(.*)[&|$]')), '$1')
-		//alert('test?values=1&id=1&applications_versions_id=1&bar=1&foobar=3'.replace(new RegExp('(.*)values=([^\&\#\?]*)(.*)','g'), '$1$3'))
+		return url.replace(reg,'$1$3').replace(/(.*)\?&(.*)/,'$1?$2').replace(/(.*)[&|?]$/,'$1');
 	},
 	
 	var_dump: function(data)

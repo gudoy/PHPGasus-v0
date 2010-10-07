@@ -46,28 +46,9 @@ class VAdmin extends AdminView
 		
 		$this->usersStats();
 		
-		//$this->handleMessagePusher();
-		
 //$this->dump($this->data);
 			
 		$this->render();
-	}
-	
-	
-	public function handleRSSimporter()
-	{
-		if ( !empty($_POST['rssimporter']) )
-		{
-			// Load RSS Importer lib
-			$this->requireLibs(array('RSSimporter' => 'importers/'));
-			$RSSimporter = new RSSimporter();
-			$import 								= $RSSimporter->index(array('url' => _URL_ARC_RSS_FEED));
-			//$this->data['imported'] = $RSSimporter->index(array('url' => _URL_ARC_RSS_FEED))->data;
-			
-			$this->data['rssimporter']['success'] 	= $RSSimporter->success;
-			
-			if ( $this->data['rssimporter']['success'] ){ $_POST = null; }
-		}
 	}
 	
 	
@@ -78,11 +59,13 @@ class VAdmin extends AdminView
 			'sortBy' 	=> 'expiration_time',
 			'orderBy' 	=> 'DESC',
 			'conditions' 	=> array(
-				array('update_date', '>', ("FROM_UNIXTIME('" . (time() - _APP_SESSION_DURATION) . "')")),
 				//array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
+				//array('update_date', '>', ("FROM_UNIXTIME('" . (time() - _APP_SESSION_DURATION) . "')")),
+				array('update_date', '>', (time() - _APP_SESSION_DURATION)),
+				
 			)
 		));
-		$userIds 						= $CSessions->values('users_id');
+		$userIds 						= $CSessions->values('user_id');
 		$this->data['connectedUsers'] 	= CUsers::getInstance()->index(array('values' => $userIds, 'reindexby' => 'id')); 
 	}
 	
@@ -172,28 +155,7 @@ class VAdmin extends AdminView
 	}
 
 
-	public function handleMessagePusher()
-	{
-		// Since we can send a lot of messages, we need to increase the execution time for the script
-		ini_set('max_execution_time','3600');
-
-		// Get the entries			
-		$this->data['entries'] = Centries::getInstance()->index(array('reindexby' => 'id'));
-		
-		if ( !empty($_POST['messagePusher']) )
-		{
-			$push 	= array(
-				'msgId' 	=> filter_input(INPUT_POST, 'pushmessageId', FILTER_SANITIZE_NUMBER_INT),
-				'dvcIds' 	=> !empty($_POST['deviceIds']) ? explode(',', filter_input(INPUT_POST, 'deviceIds', FILTER_SANITIZE_STRING)) : null,
-				'custMsg' 	=> filter_input(INPUT_POST, 'pushmessageText', FILTER_SANITIZE_STRING), 
-				'env' 		=> filter_input(INPUT_POST, 'environment', FILTER_SANITIZE_STRING),
-			);
-			
-			// If no message has been selected/provided, do not continue
-			if 		( empty($push['msgId']) && empty($push['custMsg']) ){ $this->data['errors'][] = 20056; }
-			
-			// Otherwise
-			else
+	public function importMachines()
 			{
 				// If a custome message has been provided, use id. Otherwise, get the selected message
 				$push['message'] 	= !empty($push['custMsg']) ? $push['custMsg'] : $this->data['entries'][$push['msgId']]['text_FR'];

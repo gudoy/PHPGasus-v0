@@ -16,6 +16,8 @@ $errorsAssoc = array(
 					'front' => _('An error occured on the site\'s database. Please come back later.')),
 	'4010' => array('back' => 'Database query error',
 					'front' => _('An error occured on the site\'s database. Please come back later.')),
+	'4020' => array('back' => 'Database query syntax error',
+					'front' => _('There\'s a syntax error in a database request.')),
 	'4030' => array('back' => 'Creation due to unique key constraint',
 					'front' => _('The resource(s) could not be created because there\'s already an unique record with passed data associations.')),
 	'4050' => array('back' => 'Creation/update error due to fk constraint(s)',
@@ -205,6 +207,8 @@ $errorsAssoc = array(
 	'20430' => array('back' => 'No shared contents for this device ID',
 					'front' => _('There is no shared content for the passed device id')),
 					
+	'20440' => array('back' => 'Coupon code already used with this device ID.',
+					'front' => _('You cannot use this coupon code more than once for this device.')),
 
 
 

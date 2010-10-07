@@ -19,7 +19,7 @@
 			{foreach $connectedUsers as $session}
 			<ul class="value">
 				<li>{strip}
-					{$user=$data.connectedUsers[$session.users_id]}
+					{$user=$data.connectedUsers[$session.user_id]}
 					
 					{if $user.first_name && $user.last_name}
 						{$user.first_name|ucfirst} {$user.last_name|ucfirst}

@@ -142,3 +142,9 @@ input.search.button { width:28%; margin-left:2%; }
 .article a.image:hover { border:1px solid #666; }
 .article a.image img { float:left; }
 .article p.meta { color:#666; border-top:1px dotted #999; border-bottom:1px dotted #999; padding:.3em 0; margin-bottom:.8em; }
+
+/* PHPGasus specifics */
+#languagesBlock { width:auto; display:inline-block; float:right; }
+#mainNavBlock { margin-bottom:20px; background:#666; }
+#mainNavBlock .nav li a { padding:3px 10px; background:none; }
+#accountNav { float:right; }

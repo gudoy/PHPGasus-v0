@@ -39,7 +39,7 @@ define('_APP_USE_MODERNIZR', 					true); 			// If allowed, Modernizr (js lib) wi
 
 
 // IOS (iPhone/iPad/i???) OPTIONS
-define('_APP_IOS_WEBAPP_CAPABLE', 				false);
+define('_APP_IOS_WEBAPP_CAPABLE', 				false); 		// 
 define('_APP_IOS_INISCALE', 					'1.0'); 		// Default page scale for iphones (default = 1.0)
 define('_APP_IOS_MAXSCALE', 					'3.0'); 		// Allow iphones to scale up/down pages (default = 1.0) 
 define('_APP_IPHONE_INISCALE', 					'1.0'); 		// Default page scale for iphones (default = 1.0)
@@ -54,11 +54,11 @@ define('_APP_USE_GOOGLE_ANALYTICS', 			false);
 define('_APP_GOOGLE_ANALYTICS_UA', 				'UA-XXXXX-X');
 
 ### ACCOUNT SESSIONS HANDLING
-define('_APP_USE_ACCOUNTS', 					true); 			// disable this prevent app from trying to update sessions table on each page load
-define('_APP_ALLOW_SIGNUP', 					false); 		// allow users to sign up by themselves
-define('_APP_SESSION_DURATION', 				900); 			// in seconds. (ex: 900s = 15 minutes)
+define('_APP_USE_ACCOUNTS', 					true); 			// Disable this prevent app from trying to update sessions table on each page load
+define('_APP_ALLOW_SIGNUP', 					false); 		// Allow users to sign up by themselves
+define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
-define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, on user login, its session older than 1 day are deleted
+define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, when a user login, its sessions older than 1 day are deleted
 
 
 define('_APP_USE_EVENTS', 						true); 			// Disable this if you do not want to use events
@@ -68,7 +68,7 @@ define('_APP_HAS_RELATED_WIDGET', 				false);
 define('_APP_WIDGET_VERSION', 					'0.1.1');
 define('_APP_WIDGET_NAME', 						_APP_NAMESPACE . '_' .  _APP_CONTEXT . '_' . _APP_WIDGET_VERSION . '.wgt');
 
-define('_PHPGASUS_VERSION', 					'0.5.2.0');
+define('_PHPGASUS_VERSION', 					'0.5.3.0');
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');

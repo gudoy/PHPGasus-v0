@@ -58,6 +58,8 @@
 		{include file='common/forms/admin/fieldLine/casePassword.tpl'}
 	{elseif $field.type === 'varchar' && ($field.subtype === 'file' || $field.subtype === 'fileDuplicate')}
 		{include file='common/forms/admin/fieldLine/caseFile.tpl'}
+	{elseif $field.type === 'onetomany'}
+		{include file='common/forms/admin/fieldLine/caseOneToMany.tpl'}
 	{else}
 		{include file='common/forms/admin/fieldLine/caseVarchar.tpl'}
 	{/if}

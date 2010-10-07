@@ -2,6 +2,9 @@
 1) REQUIREMENTS
 ************************************
 
+[] <=== optional but strongly recommanded
+
+
 SERVER
 ------
 packages: locales-all
@@ -10,13 +13,13 @@ packages: locales-all
 Apache
 -------- 
 version : >=2
-modules: mod_alias, mod_deflate, mod_expires, mod_headers, mod_rewrite, mod_ssl, mod_vhost_alias
+modules: [mod_alias], [mod_deflate] (or gzip), mod_env, [mod_expires], [mod_headers], mod_rewrite, mod_vhost_alias
 
 -------- 
 PHP
 -------- 
 version : >=5.2.6
-modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, php_gettext, php_hash, php_http (pecl http), php_mbstring, [php_xdebug], php_zip
+modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, php_gettext, php_http (pecl http), [php_xdebug], php_zip
 
 
 ************************************

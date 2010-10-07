@@ -64,6 +64,11 @@ define("_URL_ABOUT_CONTACT", 				_URL . 'about/contact');
 define("_URL_REFERENCE", 					_URL . 'references/');
 define("_URL_REFERENCES", 					_URL . 'references/');
 
+define("_URL_ADMIN_DASHBOARD", 				_URL_ADMIN . 'dashboard/');
+define("_URL_ADMIN_SETUP", 					_URL_ADMIN . 'setup/');
+define("_URL_ADMIN_SETUP_RESOURCES", 		_URL_ADMIN_SETUP . 'resources/');
+
+
 # APP SPECIFIC URIS
 
 

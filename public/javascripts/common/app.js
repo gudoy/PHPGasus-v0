@@ -340,19 +340,6 @@ var ui =
 			
 			window.scrollTo(0,0);
 
-/*			
-			var meta 		= $('meta[name="viewport"]'),
-				curContent 	= meta.attr('content'),
-				newContent 	= curContent.replace(/(.*maximum-scale\=)([0-9\.]+[\s\;]?)/,'$11.0'),
-				newContent 	= newContent.replace(/(.*user-scalable\=)([yesnotruefalse01]+[\s\;]?)/,'$1no');
-				
-			meta.attr('content', newContent + '; user-scalable=no;');
-			$('body').css('-webkit-transform','scale(1)');
-				
-//Tools.log(curContent);
-//Tools.log(newContent);
-Tools.log(meta.attr('content'))
-*/
 		};
 		
 		return this;

@@ -1,4 +1,5 @@
 {extends file='specific/layout/pageAdmin.tpl'}
+
 {block name='pageContent'}
 
 	{$resourceName=$view.resourceName}
