@@ -29,6 +29,6 @@
 		</p>
 	</div>
 	{/if}
-	{include file='common/forms/admin/frmAdminResourceUpdate.tpl' resource=$data.$resourceName}
+	{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin' resource=$data.$resourceName}
 	
 </div>

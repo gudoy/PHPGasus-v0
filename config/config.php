@@ -95,6 +95,7 @@ define("_ALLOW_FIREPHP_LOGGING", 		false);
 // Is minification used for css & js
 define("_MINIFY_JS", 					true);
 define("_MINIFY_CSS", 					true);
+define("_FLUSH_BUFFER_EARLY", 			true);
 
 ##################################
 ## 	COMMON APPLICATION PARAMETERS	##

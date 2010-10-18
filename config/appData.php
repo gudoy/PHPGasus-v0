@@ -75,7 +75,8 @@ define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');
 define('_AWS_SECRET_KEY', 						'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 						'yourBucketName');
 
-### IPHONE PUSH
+### IPHONE
+define('_APP_STORE_URL', 						'http://itunes.apple.com');
 define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:2195');
 define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 

@@ -107,11 +107,47 @@ class View extends Application
 		$this->Smarty->cache_dir 			= _PATH_SMARTY . 'cache/';
 		$this->Smarty->config_dir 			= _PATH_SMARTY . 'configs/';
 		$this->Smarty->allow_php_templates 	= true;
+		$this->Smarty->allow_php_tag 		= true;
 		
 		return $this;
 	}
 	
 	
+	public function dispatchMethods($args = array(), $options = array())
+	{
+		/*
+		if ( !empty($_POST['ids']) )
+		{
+			$resourceId 				= join(',', $_POST['ids']);
+			$_SERVER['REQUEST_METHOD'] 	= 'GET';
+			$_GET['method'] 			= $_POST['method'];
+		}
+		*/
+				
+		$o 			= $options; 
+		$rm 		= strtolower($_SERVER['REQUEST_METHOD']); 									// Shortcut for request method
+		$a 			= isset($this->options['method']) ? $this->options['method'] : null; 		// Shortcut for "forced method" 
+		$id 		= !empty($args[0]) ? $args[0] : null;										// Shortcut for resource identifier(s)
+		$bindings 	= array('put' => 'update', 'post' => 'create', 'get' => 'retrieve');		// Bind request methods to class methods
+		$m 			= !empty($a) 
+						? $a 
+						: ( !isset($bindings[$rm]) || ( $bindings[$rm] === 'retrieve' && empty($id) ) 
+							? 'index' : $bindings[$rm] ); 										// Get the class method to use
+		$allowed 	= !empty($o['allowed']) ? explode(',', $o['allowed']) : array(); 			// Get the allowed methods
+		
+		$this->data['view']['method'] = $m;
+		
+//var_dump($rm);
+//var_dump($m);
+		
+		// If the method is not index and belongs to the allowed methods, call it
+		if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
+		// Otherwise, just continue
+		else {  }
+	}
+	
+	
+	/*
 	public function methodDispatch($methodArguments, $className, $objectId, $options)
 	{
 		$this->log(__METHOD__);
@@ -122,7 +158,7 @@ class View extends Application
 		$a		= sizeof($args) >= 3 ? array_slice($args, 2) : $args[0]; // Shortcut for function params
 
 		return call_user_func(array(new $c($c), $m), $objectId, $a, $options);
-	}
+	}*/
 	
 	
 	/*
@@ -269,19 +305,21 @@ class View extends Application
 
 		// Known options
 		$known = array(
-			'output','viewType','offset','limit','sortBy','orderBy','by','value','values',
-			'operation','isIphone','iphone','isAndroid','android','debug',
+			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values',
+			//'operation','isIphone','iphone','isAndroid','android','debug',
+			'operation','debug','confirm',
 			'errors','successes','warnings','notifications'
 		);
 		
 		// Specific ones whose default value is 0 (false)
-		$specZero = array('isIphone','iphone','isAndroid','android','offset','limit','debug');
+		$specZero = array('isIphone','iphone','isAndroid','android','offset','limit','debug', 'confirm');
 		
 		// Assign the options default values
 		foreach ( $known as $opt )
 		{
 			// TODO: use array_intersect, array_merge ???
-			$this->options[$opt] = isset($_GET[$opt]) ? $_GET[$opt] : ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
+			//$this->options[$opt] = isset($_GET[$opt]) ? $_GET[$opt] : ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
+			$this->options[$opt] = isset($_GET[$opt]) ? filter_var($_GET[$opt], FILTER_SANITIZE_STRING) : ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
 		}
 		
 		$tmpLim = (int) $this->options['limit'];
@@ -387,10 +425,17 @@ class View extends Application
 	{
 		$this->log(__METHOD__);
 		
-		// Prevent the method form being called twice (could happend in some cases)
+		// Prevent the method form being called twice (could happend in some cases) 
+		// TODO: check why and fix?
 		if ( !empty($this->outputHandled) ){ return $this; }
 		
 		$this->outputHandled 			= true;
+
+		// Try to get the output format extension on the last resource in path
+		$uriParts 						= @parse_url($_SERVER['REQUEST_URI']); 
+		//$uriParts 						= filter_var($_SERVER['REQUEST_URI'], FILTER_VALIDATE_URL) ? parse_url($_SERVER['REQUEST_URI']) : array();
+		$urlExt 						= !empty($uriParts['path']) ? preg_replace('/(.*)\.(.*)/', '$2', $uriParts['path']) : null;
+		$this->options['output'] 		= !empty($this->options['output']) ? $this->options['output'] : $urlExt;
 		
 		// Shortcut for options
 		$o 								= $this->options;
@@ -419,7 +464,7 @@ class View extends Application
 			// TODO: BMP??
 		);
 		
-		// If not 'output' param has been passed or if the passed one is not part of the available formats
+		// If no 'output' param has been passed or if the passed one is not part of the available formats
 		//if ( empty($o['output']) && !in_array($o['output'], $this->knownOutputMime) )
 		if ( empty($o['output']) || !in_array($o['output'], $this->availableOutputFormats) )
 		{
@@ -841,7 +886,10 @@ class View extends Application
 		
 		// Store current errors (error codes)
 		$urlErrors = !empty($this->options['errors']) ? explode(',',$this->options['errors']) : array();
-		$tmpErrors = array_merge((array) $this->data['errors'], $urlErrors);
+		//$tmpErrors = array_merge((array) $this->data['errors'], $urlErrors);
+		// array_merge fails on associative arrays with numeric indexes
+		// ie: array_merge(array(1001 => 'somevalue'), array('foo')) results int array(0 => 'somevalue') (expected: array(0 => 'foo', '1001' => 'somevalue')
+		$tmpErrors = (array) $this->data['errors'] + $urlErrors;
 		
 		// If there's no errors, do not continue
 		if ( empty($tmpErrors) ) { return $this; }
@@ -854,9 +902,9 @@ class View extends Application
 		
 		// Loop over the errors
 		foreach ($tmpErrors as $key => $val)
-		{
+		{			
 			// If the item index is not > 1000, assume that it's not a 'native' array index but a defined error code
-			$hasParams 	= is_int($key) && $key > 1000;
+			$hasParams 	= is_numeric($key) && $key > 1000;
 			$errCode 	= $hasParams ? $key : $val;
 			
 			if ( !isset($errorsAssoc[$errCode]) ){ continue; }
@@ -949,15 +997,25 @@ class View extends Application
 		}
 		
 		//header('HTTP/1.1 ' . $h); 
-		$this->headers[] = 'HTTP/1.1 ' . $h;
+		//$this->headers[] = 'HTTP/1.1 ' . $h;
+		
+		// As long as the output format is not html and the code not 201
+		// (sending) a 201 
+		//if ( !in_array($this->options['output'], array('html','xhtml')) && !in_array($h, array(201)) )
+		if ( !in_array($this->options['output'], array('html','xhtml')) || !in_array($h, array(201)) )
+		{
+			// Add it to the headers
+			$this->headers[] = 'HTTP/1.1 ' . $h;
+		}
 		
 		$this->data = array_merge($this->data, array(
 			'request' 	=> str_replace('&', '&amp;', $_SERVER['REQUEST_URI']),
 			'status' 	=> (int) $statusCode,
 		));
 
-		return $this->display();
+		//return $this->display();
 		//return in_array($this->options['output'], array('html','xhtml')) ? $this : $this->display();
+		return $this->render();
 	}
 	
 	
@@ -1069,21 +1127,16 @@ class View extends Application
 			'options'			=> $this->options,
 			'css' 				=> $this->getCSS(),
 			'js' 				=> $this->getJS(),
-			//'commonJsKey' 		=> 'common_' . $this->env['type'],
 			'debug' 			=> $this->debug,
 			//'logged' 			=> $this->logged,
 			'logged' 			=> $this->isLogged(),
 		));
 		
 		if ( isset($this->data['view']['cache']) && !$this->data['view']['cache'] ){ $this->Smarty->caching = 0; }  
-		
-		//$this->data['view']['smartname'] 	= $this->smartname();
-		//$this->data['view']['smartclasses'] = $this->smartclasses();
 
 		// Pass vars to the templates 
 		$this->Smarty->assign(array(
 			'data' 			=> $this->data,
-			//'pagesJSassoc' 	=> $pagesJSassoc,
 		));
 		
 		// Get the layout/template to use

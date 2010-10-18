@@ -27,7 +27,6 @@ class AdminView extends View
 		
 		$this
 			->requireLogin()								// Require that the user is logged
-			//->requireAuth(array('level' => 'admin')); 	// And has at least admin rights
 			->requireAuth(); 								// And has at least admin rights
 		
 		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
@@ -120,8 +119,7 @@ class AdminView extends View
 	
 	public function handleRelations()
 	{
-//var_dump('handleRelations');
-		
+		// Do not continue if the resource is not defined
 		if ( empty($this->resourceName) ){ return $this; }
 		
 		// Array of related resource for the current resource 
@@ -130,8 +128,6 @@ class AdminView extends View
 		// Loop over the resource colums
 		foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
 		{
-//var_dump($name);
-			
 			if ( empty($f['type']) ){ continue; }
 			
 			else if ( $f['type'] === 'onetomany' )
@@ -148,18 +144,67 @@ class AdminView extends View
 		//$this->current['relatedResources'] = $relResources;
 		
 		return $this;
+	}	
+	
+	
+	public function requireAuth($options = null)
+	{
+		$this->log(__METHOD__);
+		
+		// Shortcut for options
+		$o 						= $options;
+		
+		// 
+		$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
+		$o['authLevel'] 		= !empty($o['authLevel']) && !is_array($o['authLevel']) ? (array) $o['authLevel'] : $o['authLevel'];
+		$o['failureRedirect'] 	= !empty($o['redirection']) ? $o['redirection'] : ( isset($this->authFailureRedirect) ? $this->authFailureRedirect : _URL_HOME );
+		
+		$curURL 		= $this->currentURL();
+		$t 				= parse_url($curURL); 
+		$redir 			= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
+		
+		// Get the user id
+		$uid = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+		
+		// If no user id is found, redirect to login
+		if ( empty($uid) )
+		{			
+			$auth 		= false;
+			$redir		= _URL_LOGIN . ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=10101';
+			$this->redirect($redir);
+		}
+		else
+		{
+			// Get the user data
+			$this->requireControllers('CUsers');
+			$u 			= CUsers::getInstance()->retrieve(array('values' => $uid));
+			$match 		= in_array($u['auth_level'], $o['authLevel']);
+			
+			// Store the current user, after having remove sensitive data (password, .... ?)
+			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
+			unset($u['password']);
+			$this->data['current']['user'] = $u;
+		}
+
+		// TODO: redirect + notify ('you dont have credentials to access this area')???
+		$redir = $o['failureRedirect'];
+		$redir .= ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=9000';
+		return !$match ? $this->redirect($redir) : true;
 	}
 	
 	
-	public function index($resourceId = null, $options = null)
-	{		
-		$this->data['view']['method'] 	= __FUNCTION__;
+	//public function index($resourceId = null, $options = null)
+	public function index()
+	{
+		$args = func_get_args();
+		$this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate'));
+		//$this->dispatchMethods($args);
 		
-//$this->Events->register('beforeRender', array('class' => 'AdminView', 'method' => 'testEvent', 'arguments' => array('arg1','arg2')));
-//$this->Events->register('beforeRender', array('class' => $this, 'method' => 'testEvent', 'arguments' => array('arg1','arg2')));
-//$this->Events->register('beforeRender', array('class' => 'foo', 'method' => 'testEvent', 'arguments' => array('arg1','arg2')));
+		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		$this->log(__METHOD__);
+		
+		/*
 		
 		if ( !empty($_POST['ids']) )
 		{
@@ -176,6 +221,9 @@ class AdminView extends View
 		else if ( $m === 'DELETE' 	|| $a === 'delete' )		{ return $this->delete($resourceId, $options); }
 		else if ( $m === 'POST' 	|| $a === 'update' )		{ return $this->update($resourceId, $options); }
 		else if ( $m === 'GET' && !empty($resourceId))			{ return $this->retrieve($resourceId, $options); }
+		*/
+		
+		//$this->dispatchMethods(array('allowed' => 'CRUD'));
 		
 		
 		// Set output data		
@@ -204,7 +252,8 @@ class AdminView extends View
 	}
 	
 	
-	public function create($options = null)
+	//public function create($options = null)
+	public function create()
 	{
 		// Log current method
 		$this->log(__METHOD__);
@@ -212,14 +261,14 @@ class AdminView extends View
 		$this->Events->trigger('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
-		$this->data['view']['method'] 	= __FUNCTION__;
+		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		// Check for crudability
-		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
+		$meta 		= !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'C') === false ){ $this->redirect($meta['fullAdminPath']); }
 		
-		$referer = !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
-		$cleanURL = _URL . preg_replace('/^\/(.*)/','$1',$_SERVER['REQUEST_URI']);
+		$referer 	= !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+		$cleanURL 	= _URL . preg_replace('/^\/(.*)/','$1',$_SERVER['REQUEST_URI']);
 		
 		// If the resource creation form has been posted
 		if ( !empty($_POST) )
@@ -268,13 +317,14 @@ class AdminView extends View
 	
 	public function duplicate($resourceId = null, $options = null)
 	{
+		$args 				= func_get_args(); 						// Get the passed arguments
+		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+		
 		// Log current method
 		$this->log(__METHOD__);
 		
 		// Set the current method
-		$this->data['view']['method'] 	= __FUNCTION__;
-		
-		$this->resourceId 	= $resourceId;
+		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		$data = $this->C->retrieve(array('values' => $this->resourceId));
 		
@@ -308,19 +358,21 @@ class AdminView extends View
 	}
 	
 	
-	public function retrieve($resourceId = null, $options = null)
+	//public function retrieve($resourceId = null, $options = null)
+	public function retrieve()
 	{
+		$args 				= func_get_args(); 						// Get the passed arguments
+		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+		
 		// Log current method
 		$this->log(__METHOD__);
 		
 		// Set the current method
-		$this->data['view']['method'] 	= __FUNCTION__;
+		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'R') === false ){ $this->redirect($meta['fullAdminPath']); }
-		
-		$this->resourceId 	= $resourceId;
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
@@ -338,24 +390,23 @@ class AdminView extends View
 	}
 	
 	
-	public function update($resourceId = null, $options = null)
+	//public function update($resourceId = null, $options = null)
+	public function update()
 	{
+		$args 				= func_get_args(); 						// Get the passed arguments
+		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+		
 		// Log current method
 		$this->log(__METHOD__);
 		
 		$this->Events->trigger('onBeforeUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
-		$args 	= func_get_args();
-		$rId 	= $resourceId;
-		
 		// Set the current method
-		$this->data['view']['method'] 	= __FUNCTION__;
+		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'U') === false ){ $this->redirect($meta['fullAdminPath']); }
-				
-		$this->resourceId 	= $resourceId;
 		
 		//$this->handleForeignData();
 		$this->handleRelations();
@@ -419,30 +470,33 @@ class AdminView extends View
 			->paginate()
 			->beforeRender(array('function' => __FUNCTION__));
 			
-$this->dump($this->data);
+//$this->dump($this->data);
 		
 		return $this->render();
 	}
 	
 	
-	public function delete($resourceId = null, $options = null)
+	//public function delete($resourceId = null, $options = null)
+	public function delete()
 	{
+		$args 				= func_get_args(); 						// Get the passed arguments
+		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+		
 		// Log current method
 		$this->log(__METHOD__);
 		
 		$this->Events->trigger('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
-		$this->data['view']['method'] 	= __FUNCTION__;
+		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
-		if ( !empty($meta) && strpos($meta['crudability'], 'D') === false ){ $this->redirect($meta['fullAdminPath']); }
-		
-		$this->resourceId 	= $resourceId;			
+		if ( !empty($meta) && strpos($meta['crudability'], 'D') === false ){ $this->redirect($meta['fullAdminPath']); }		
 		
 		// If the confirmation param has been passed
-		if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['confirm']) && $_GET['confirm']) )
+		//if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['confirm']) && $_GET['confirm']) )
+		if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (int) $this->options['confirm'] === 1 )
 		{
 			// Launch the deletion
 			$this->C->delete(array('values' => $this->resourceId));
@@ -458,8 +512,6 @@ $this->dump($this->data);
 		if ( $this->data['success'] )
 		{
 			$this->Events->trigger('onDeleteSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
-			
-			// ???
 		}
 		else
 		{
@@ -485,66 +537,6 @@ $this->dump($this->data);
 		$this->data['pagination']['next'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
 
 		return $this;
-	}
-	
-	
-	public function dispatchMethod($args = array(), $options = array())
-	{
-		$m = $_SERVER['REQUEST_METHOD'];
-		$a = isset($_GET['method']) ? $_GET['method'] : null;
-		
-		
-		if 		( $m === 'POST' 	|| $a === 'create' )	{ return $this->create($args, $o); }
-		else if ( $m === 'PUT' 		|| $a === 'update' )	{ return $this->update($args, $o); }
-		else if ( $m === 'DELETE' 	|| $a === 'delete' )	{ return $this->delete($args, $o); }
-		else if ( $m === 'GET' && !empty($resourceId))		{ return $this->retrieve($args, $o); }
-		//else 												{ return $this->index($args, $o); }
-	}
-	
-	
-	public function requireAuth($options = null)
-	{
-		$this->log(__METHOD__);
-		
-		// Shortcut for options
-		$o 						= $options;
-		
-		// 
-		$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
-		$o['authLevel'] 		= !empty($o['authLevel']) && !is_array($o['authLevel']) ? (array) $o['authLevel'] : $o['authLevel'];
-		$o['failureRedirect'] 	= !empty($o['redirection']) ? $o['redirection'] : ( isset($this->authFailureRedirect) ? $this->authFailureRedirect : _URL_HOME );
-		
-		$curURL 		= $this->currentURL();
-		$t 				= parse_url($curURL); 
-		$redir 			= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
-		
-		// Get the user id
-		$uid = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-		
-		// If no user id is found, redirect to login
-		if ( empty($uid) )
-		{			
-			$auth 		= false;
-			$redir		= _URL_LOGIN . ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=10101';
-			$this->redirect($redir);
-		}
-		else
-		{
-			// Get the user data
-			$this->requireControllers('CUsers');
-			$u 			= CUsers::getInstance()->retrieve(array('values' => $uid));
-			$match 		= in_array($u['auth_level'], $o['authLevel']);
-			
-			// Store the current user, after having remove sensitive data (password, .... ?)
-			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
-			unset($u['password']);
-			$this->data['current']['user'] = $u;
-		}
-
-		// TODO: redirect + notify ('you dont have credentials to access this area')???
-		$redir = $o['failureRedirect'];
-		$redir .= ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=9000';
-		return !$match ? $this->redirect($redir) : true;
 	}
 	
 	
@@ -599,21 +591,8 @@ $this->dump($this->data);
 	
 	public function render()
 	{		
-		/*
-		// Get the passed arguments
-		$args 	= func_get_args();
-		
-		// 1st arg, if present and if it's a string, use is as a shortcut for the parent method name
-		$m 		= count($args) && is_string($args[0]) ? $args[0] : null;
-		
-		// Shortcut for optional viewData
-		// = 2nd arg (is exists and array) || 1st (if exists and array) || empty array
-		$d 		= count($args) > 1 && is_array($args[1]) ? $args[1] : ( isset($args[0]) && is_array($args[0]) ? $args[0] : array() );
-		*/
-		
 		$this->log(__METHOD__);
 				
-		//return parent::render($d);
 		return parent::render();
 	}
 	
@@ -621,9 +600,6 @@ $this->dump($this->data);
 	{
 		$v = !empty($this->data['view']) ? $this->data['view'] : null; 	// Shortcut for view data
 		$m = !empty($v['method']) ? $v['method'] : 'index'; 			// Shortcut for view method
-		
-		// Set the current called method
-		//$this->data['current']['method'] = $m ? $m : 'index'; // deprecated
 		
 		if ( !empty($m) )
 		{

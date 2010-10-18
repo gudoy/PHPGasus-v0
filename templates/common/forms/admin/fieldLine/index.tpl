@@ -1,5 +1,9 @@
+{if $viewMode === 'api'}
+{$resourceFieldName=$fieldName}
+{else}
 {$capFieldName=$fieldName|ucfirst}
 {$resourceFieldName=$data.meta.singular|cat:$capFieldName}
+{/if}
 
 {if $multipleItems}
 	{$useArray='[]'}
@@ -16,7 +20,7 @@
 	<div class="labelBlock {if $field.comment}hasInfos{/if}">
 		{strip}
 		{if $field.relResource}
-		<label for="{$resourceFieldName}{$itemIndex}">{$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
+		<label for="{$resourceFieldName}{$itemIndex}">{$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
 			{if isset($field.required) && $field.required || $field.pk || $field.fk}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}
@@ -40,9 +44,9 @@
 	<div class="fieldBlock">
 	{*$postVal=$smarty.post[$resourceFieldName]*}
 	{$editable=$field.editable|default:true}
-	{if $field.type === 'int' && ( ($field.relResource && $field.relField && $field.relUse === 'select') || isset($field.possibleValues) )}
-		{include file='common/forms/admin/fieldLine/caseSelect.tpl'}
-	{elseif $field.relResource}
+	{*if $field.type === 'int' && ( ($field.relResource && $field.relField && $field.relUse === 'select') || isset($field.possibleValues) )}
+		{include file='common/forms/admin/fieldLine/caseSelect.tpl'*}
+	{if $field.relResource && $viewMode === 'admin'}
 		{include file='common/forms/admin/fieldLine/caseRelation.tpl'}
 	{elseif $field.type === 'int' || $field.type === 'float'}
 		{include file='common/forms/admin/fieldLine/caseInt.tpl'}

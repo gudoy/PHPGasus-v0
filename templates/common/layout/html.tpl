@@ -14,6 +14,13 @@
 </head>
 
 <body class="{include file='common/config/css/bodyClasses.tpl'}" id="{$view.cssid|default:$view.smartname|default:'noSpecificId'}">
+{if $smarty.const._FLUSH_BUFFER_EARLY}
+{php}
+	//str_pad('',20000);
+	ob_flush(); 
+	flush();
+{/php}
+{/if}
 {block name='bodyStart'}{/block}
 	
 	{include file='common/config/js/detectjs.tpl'}

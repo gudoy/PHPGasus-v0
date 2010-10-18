@@ -252,32 +252,25 @@ class Application
 
 		// View class handling
 		$view 			= array('folders' => array(), 'path' => '', 'name' => 'home');
-		
-//$this->dump($s);
+
+		// Remove extension from path resource name, if present
+		foreach($s as &$item) { $item = preg_replace('/(.*)\.(.*)/', '$1', $item); }
 		
 		// Loop over segments parts (URI parts) to find the deeper existing view folder
 		// and then set the proper view to use
 		$i 		= 0;
 		$tmp 	= array();
 		while ( !empty($s[$i]) )
-		{
+		{			
 			// Temp value for view folder, view name, view path 
 			$tmp['f'] 		= strtolower($s[$i]);
 			$tmp['v'] 		= !empty($s[$i+1]) ? $s[$i+1] : $tmp['f'];
 			$tmp['path'] 	= _PATH_VIEWS . ( !empty($view['folders'] ) ? join('/', $view['folders']) . '/' : '');
 			
-//$this->dump($tmp);
-//$this->dump($view['folders']);
-//$this->dump('test1:' . $tmp['path'] . $tmp['f'] . ', ' . $tmp['path'] . $tmp['f'] . '/V' . ucfirst($tmp['f']) . '.class.php' );
-//$this->dump('test2:' . $tmp['path'] . 'V' . ucfirst($tmp['f']) . '.class.php' );
-//$this->dump('test1:' . (is_dir($tmp['path'] . $tmp['f'] ) && file_exists($tmp['path'] . $tmp['f'] . '/V' . ucfirst($tmp['f']) . '.class.php'))?'true':'false');
-//$this->dump('test2:' . (file_exists($tmp['path'] . 'V' . ucfirst($tmp['f']) . '.class.php'))?'true':'false' );
-			
 			// If the folder and at least a view named 'V{foldername}.class.php' exist, we can continue
 			//if ( is_dir($tmp['path'] . '/' . $tmp['f'] ) && file_exists($tmp['path'] . $tmp['f'] . '/V' . ucfirst($tmp['f']) . '.class.php') )
 			if ( is_dir($tmp['path'] . $tmp['f'] ) && file_exists($tmp['path'] . $tmp['f'] . '/V' . ucfirst($tmp['f']) . '.class.php') )
 			{
-//$this->dump('case 1');
 				$view['folders'][] 	= $tmp['f'];
 				$fileExists 		= file_exists( $tmp['path'] . '/V' . ucfirst($tmp['v']) . '.class.php' );
 				$view['name'] 		= $fileExists ? $tmp['v'] : $tmp['f'];
@@ -285,14 +278,12 @@ class Application
 			}
 			else if ( file_exists($tmp['path'] . 'V' . ucfirst($tmp['f']) . '.class.php') )
 			{
-//$this->dump('case 2');
 				$view['name'] 		= $tmp['f'];
 				break;
 			}
 			// Otherwise, we have to break here
 			else
 			{
-//$this->dump('case 2');
 				break;
 			}
 		}
@@ -306,7 +297,6 @@ class Application
 								: ( in_array(ucfirst($view['name']), $s) ? array_search(ucfirst($view['name']), $s) : 0 ); // handle /Viewname/.../method/param URIs (capitalised)
 		$s 					= array_slice($s,  $lim+1);
 		
-//$this->dump($view);
 		
 		// If the file is correctly loaded
 		if( require($view['path'] . '/' . $view['fullname'] . '.class.php') )
@@ -622,6 +612,39 @@ class Application
 
         return $id;
     }
+	
+	
+	public function generateUniqueID($options = array())
+	{
+		// Get passed options or default them
+		$o 			= array_merge(array(
+			'length' 	=> 8,
+			//'check' 	=> true,
+			'resource' 	=> null,
+			'field' 	=> null,
+		), $options);
+		
+		$alpha 		= 'abcdefghjkmnopqrstuvwxyz';
+		$num 		= '23456789';
+		$wref 		= '';
+		while ( strlen($wref) < $o['length'] )
+		{
+			$wref .= mt_rand(1,2) === 1 ? $alpha[mt_rand(1, 24)-1] : $num[mt_rand(0, 7)];
+		}
+		
+		// TODO: check if resource & resource field exist in datamodel
+		if ( !empty($o['resource']) && !empty($o['resource'])  )
+		{
+			$cName 		= 'C' . ucfirst($o['resource']);
+			$ctrl 		= new $cName();
+			//$isUnique 	= $ctrl->retrieve(array('by' => 'key', 'values' => $wref, 'mode' => 'count')) === 0;
+			$isUnique 	= $ctrl->retrieve(array('by' => $o['field'], 'values' => $wref, 'mode' => 'count')) === 0;
+			
+			if ( !$isUnique ) { $this->generateUniqueID($o); }	
+		}
+		
+		return $wref;
+	}
 	
 	
 	public function XML2Array($xml, $recursive = false, $options = array())

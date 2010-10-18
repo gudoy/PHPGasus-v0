@@ -26,7 +26,5 @@
 
 {block name='mainCol'}
 <div class="col grid_13" id="mainCol">
-	{block name='pageContent'}
-	{/block}
-</div>
+{$smarty.block.parent}
 {/block}

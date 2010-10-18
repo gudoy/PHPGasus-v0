@@ -1,4 +1,3 @@
-{strip}
 {$htmlClasses='no-js'}
 {$doctype=$view.doctype|default:$smarty.const._APP_DOCTYPE|default:'strict' scope='global'}
 {if $doctype === 'html5'}
@@ -13,4 +12,3 @@
 {elseif $doctype === 'xhtml-transitional'}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 {/if}
-{/strip}

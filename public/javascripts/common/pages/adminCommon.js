@@ -92,14 +92,16 @@ var admin =
 						//.attr('href', function(){ return $(this).attr('href').replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 						.attr('href', function(i,value){ return value.replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 					.find('td.idCol .value')
-						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
-						.text(createdId).siblings('.exactValue').text(createdId).end().end()
+						//.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
+						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); })
+						.text(createdId).siblings('.exactValue').text(createdId).end()
 					.find('td.dataCol .value')
 						//.attr('id', function(){ return $(this).attr('id').replace(new RegExp(cloneId), createdId); }).end()
 						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
 					.find('> td').effect('highlight', {}, 5000)
 						.find('.fullAdminPath')
-							.text(function(i,value){ Tools.log('createdId'); return value.replace(new RegExp('\/'+ cloneId + '([\/|\?.*|$])?'),'/' + createdId + '$1'); });
+							.text(function(i,value){ Tools.log('createdId'); return value.replace(new RegExp('\/'+ cloneId + '([\/|\?.*|$])?'),'/' + createdId + '$1'); })
+					;
 			}
 		});
 		

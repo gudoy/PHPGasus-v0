@@ -19,7 +19,7 @@
 		{assign var='relResourceParentSingular' value=$data.resources[$relResourceParent].singular}
 		{assign var='cleanedRelResource' value=$field.relResource|replace:$relResourceParentSingular:''}
 	{/if*}
-	<a class="changeValBtn" href="{$data.metas[$field.relResource].fullAdminPath}" title="{t}[require javascript]{/t}">
+	<a class="actionBtn changeValBtn" href="{$data.metas[$field.relResource].fullAdminPath}" title="{t}[require javascript]{/t}">
 		<span class="ninja fieldCurrentVal">{$resource[$fieldName]|default:'&nbsp;'}</span>
 		<span class="ninja formFieldName">{$resourceFieldName}</span>
 		<span class="ninja relResource">{$field.relResource}</span>
@@ -37,7 +37,7 @@
 		{/strip}
 		<span class="ninja relGetFields">{$tmpRelGetFields|default:$field.relGetFields}</span>
 		<span class="ninja relDisplayAs">{$field.relDisplayAs|default:$resource[$field.relGetAs]|default:'&nbsp;'}</span>
-		{t}[change]{/t}
+		<span class="label">{t}change{/t}</span>
 	</a>
 	<a class="hidden searchLink" href="#">
 		<span class="label">{t}search{/t}</span>

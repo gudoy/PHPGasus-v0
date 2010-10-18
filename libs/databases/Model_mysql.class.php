@@ -781,6 +781,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$o 			= array_merge($this->options, $options); 				// Shortcut for options
 		
 		//$rModel 	= $this->dataModel[$this->resourceName];
+		$rName 		= $this->resourceName;
 		$rModel 	= $this->application->dataModel[$this->resourceName];
 		
 		$fieldsNb 	= count($rModel);		// Get the number of fields for this resource
@@ -832,7 +833,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 //var_dump($d[$fieldName]);
 			
 			// Handle value treatments/filters via eval
-			if ( !empty($field['eval']) )
+			if ( !empty($field['eval']) && !empty($d[$fieldName]) )
 			{
 				$phpCode 		= str_replace('---self---', '\'' . $d[$fieldName] . '\'', $field['eval']);
 				$d[$fieldName] 	= eval('return ' . $phpCode . ';');
@@ -1033,6 +1034,12 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			{
 				$value = "'" . sha1($this->escapeString($d[$fieldName])) . "'";
 			}
+			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
+			{
+				$len 	= !empty($field['length']) ? $field['length'] : 8;
+				$uniqID = $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
+				$value 	= "'" . $uniqID . "'";
+			}
 			else if ( $field['type'] === 'enum' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
@@ -1130,6 +1137,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$fieldsNb 	= count($d);											// Get the number of fields for this resource
 		
 		//$rModel 	= $this->dataModel[$this->resourceName];
+		$rName 		= $this->resourceName;
 		$rModel 	= $this->application->dataModel[$this->resourceName];
 		
 		// Start writing request
@@ -1164,7 +1172,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			if ( !empty($field['subtype']) && $field['subtype'] === 'fileMetaData' && !empty($d[$field['relatedFile']]) ) { $skip = false; }
 			
 			// except for fields whose subtype is fileDuplicate
-			if ( !empty($field['subtype']) && $field['subtype'] === 'fileDuplicate' && !empty($field['original']) && !empty($d[$field['original']]) ) { $skip = false; }
+			else if ( !empty($field['subtype']) && $field['subtype'] === 'fileDuplicate' && !empty($field['original']) && !empty($d[$field['original']]) ) { $skip = false; }
+			
+			else if ( !empty($field['subtype']) && $field['subtype'] === 'uniqueID' ) { $skip = false; }
 			
 			// For password fields, only users to modifie oneself password 
 			//if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' )
@@ -1416,6 +1426,12 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				$tmpVal = !empty($d[$fieldName]) ? sha1($d[$fieldName]) : '';
 				$value 	= "'" . $tmpVal . "'";
 			}
+			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
+			{
+				$len 	= !empty($field['length']) ? $field['length'] : 8;
+				$uniqID = $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
+				$value 	= "'" . $uniqID . "'";
+			}
 			else if ( $field['type'] === 'enum' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
@@ -1540,13 +1556,10 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$type = !empty($rModel[$condFieldName]['type']) ? $rModel[$condFieldName]['type'] : '';
 					
 					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
-					//$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName] : $this->dbTableShortName ) . ".";
-					//$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName] : $this->alias ) . ".";
 					$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName]['tableAlias'] : $this->alias ) . ".";
 					$conditions .= $condFieldName . " IN ('";
 					$conditions .= is_array($condFieldValues) 
 									? join("', '", is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues) 
-									//: ( is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues );
 									: ( is_bool($condFieldValues) 
 										? (int) $condFieldValues 
 										: ( $type === 'timestamp' && $o['force_unix_timestamps']  ? "FROM_UNIXTIME('" . $condFieldValues . "')" : $condFieldValues ) 
@@ -1564,6 +1577,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	
 	public function handleOperations($options)
 	{
+//var_dump('handleOperations');
+//var_dump($options);
+
 		$o 			= $options; 		// Shortcut for options
 		
 		$where 		= '';
@@ -1616,7 +1632,16 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					break;
 				default:
 					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
-					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
+					$by 	= $this->arrayify($o['by']);
+					//$where 	= "WHERE " . $this->alias . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
+					$i = 0;
+					$where = "WHERE ";
+					foreach ($by as $item)
+					{
+						$where .= $i === 0 ? '' : 'OR ';
+						$where .= $this->alias . "." . $item . " IN ('" . join("', '", $whereValues) . "') ";
+						$i++;
+					}  
 					break;
 			}	
 		}

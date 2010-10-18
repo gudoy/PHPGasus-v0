@@ -285,7 +285,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .box.adminUpdateBlock { margin-bottom:2em; }
 
 
-.adminListingBlock { overflow:hidden; }
+.adminListingBlock { /*overflow:hidden;*/ }
 .adminListBlock table caption { display:none; }
 .adminUpdateBlock form .comment,
 .adminCreateBlock form .comment { width:auto; height:auto; background:none; }

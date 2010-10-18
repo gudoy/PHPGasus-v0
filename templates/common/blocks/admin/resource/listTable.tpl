@@ -30,7 +30,7 @@
 						<a class="title {if $isSorted}sort {$smarty.get.orderBy|default:'asc'}{/if}" 
 							href="{$data.meta.fullAdminPath}?sortBy={$fieldName}&amp;orderBy={if $smarty.get.orderBy == 'asc'}desc{else}asc{/if}" 
 							title="{t}Sort by{/t}{t}:{/t} {$fieldName} {if $smarty.get.orderBy == 'asc'}descending{else}ascending{/if}"
-							>{if $field.fk}{$field.relResource}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
+							>{if $field.fk}{$field.displayName|default:$field.relResource}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
 					</th>
 					{math assign='displayedFieldsNb' equation="x+2" x=$displayedFieldsNb}
 					{/if}

@@ -30,6 +30,6 @@
 	</div>
 	{/if}
 
-	{include file='common/forms/admin/frmAdminResourceCreate.tpl'}
+	{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='admin'}
 	
 </div>

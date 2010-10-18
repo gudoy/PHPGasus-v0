@@ -5,7 +5,7 @@
 
 	<div id="apiBox">
 			
-		<div class="exposedAPIsBlock box grid_11" id="exposedAPIsBlock">
+		<div class="exposedAPIsBlock box grid_12" id="exposedAPIsBlock">
 			
 			<h2>{t}Exposed APIs{/t}</h2>
 			
@@ -396,11 +396,14 @@
 					<dd>
 						<span class="summary">Set the expected output format of the data (overload Accept header)</span>
 						<ul class="acceptedValues">
+							<li>html</li>
 							<li>xhtml</li>
-							<li>xml</li>
 							<li>json</li>
-							<li>yaml</li>
+							<li>xml</li>
 							<li>plist</li>
+							<li>yaml</li>
+							<li>plistxml (plist served with xml header)</li>
+							<li>yamltxt (plist served with plain txt header</li>
 						</ul>
 					</dd>
 					<dt class="name">offset</dt>

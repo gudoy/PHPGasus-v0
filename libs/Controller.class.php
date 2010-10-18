@@ -198,6 +198,8 @@ class Controller extends Application
 		
 		foreach ((array) $this->model->errors as $errNb => $err )
 		{
+//var_dump($errNb);
+			
 			if 		( $errNb === 1062 ){ $this->errors[] = 4030; continue; } // Duplicate entry error (unique key constraint)
 			elseif 	( $errNb === 1064 ){ $this->errors[] = 4020; continue; } // Request syntax error
 			elseif 	( $errNb === 1451 ){ $this->errors[] = 4110; continue; } // Creation/update error due to fk constraint(s)
@@ -205,6 +207,8 @@ class Controller extends Application
 			
 			$this->errors[] = 4010; 
 		}
+		
+//var_dump($this->errors);
 		
 		return $this;
 	}
