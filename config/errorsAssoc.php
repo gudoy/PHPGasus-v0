@@ -10,6 +10,16 @@ $errorsAssoc = array(
 					'front' => _('Please fill all the required fields')),
 	'1003' => array('back' => 'Missing required fields',
 					'front' => _('Please fill all the required fields:<br/> %s')),
+					
+	'1010' => array('back' => 'Wrong %s value',
+					'front' => _('The passed %s value is not the expected one.')),
+					
+	'1051' => array('back' => 'Missing required % resource(s)',
+					'front' => _('One or more resource(s) could not be found')),
+					
+
+					
+					
 	'4000' => array('back' => 'Database connection error',
 					'front' => _('An error occured on the site\'s database. Please come back later.')),
 	'4001' => array('back' => 'Database selection error',
@@ -19,9 +29,15 @@ $errorsAssoc = array(
 	'4020' => array('back' => 'Database query syntax error',
 					'front' => _('There\'s a syntax error in a database request.')),
 	'4030' => array('back' => 'Creation due to unique key constraint',
-					'front' => _('The resource(s) could not be created because there\'s already an unique record with passed data associations.')),
+					'front' => _('The resource(s) could not be created because there\'s already an unique record with passed data association(s).')),
 	'4050' => array('back' => 'Creation/update error due to fk constraint(s)',
 					'front' => _('The resource(s) could not be created/updated because one or more required field(s) are missing/empty.')),
+	'4080' => array('back' => '%s',
+					'front' => _('Your query contains one or more unknown column(s)')),
+	'4081' => array('back' => 'Unknown column: %s',
+					'front' => _('Your query contains one or more unknown column(s): %s')),
+	'4100' => array('back' => 'DB error message: %s',
+					'front' => _('Returned database error message: %s')),
 	'4110' => array('back' => 'Deletion error due to fk constraint(s)',
 					'front' => _('The resource(s) could not be deleted because other resource(s) are pointing to it (them). Please update/delete sibling resources first.')),
 					

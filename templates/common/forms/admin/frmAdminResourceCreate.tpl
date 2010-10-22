@@ -4,9 +4,11 @@
 	<fieldset>
 		<legend><span>{t}Create a new resource{/t}</span></legend>
 		
+		{block name='resourceFieldsRows'}
 		{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
 		{include file='common/forms/admin/fieldLine/index.tpl'}
 		{/foreach}
+		{/block}
 		
 		{include file='common/forms/common/fields/legendDetail.tpl'}
 		

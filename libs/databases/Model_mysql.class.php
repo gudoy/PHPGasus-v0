@@ -75,8 +75,8 @@ class Model extends Application
 		if ( !$this->db ) { $this->connect(); }
 		
 		$this->errors 			= array();
-		$o 						= $options;										// Shortcut for options
-		$o['type'] 				= !empty($o['type']) ? $o['type'] : 'select'; 	// Set query type to select by default if not already setted
+		$o 						= $options;																// Shortcut for options
+		$o['type'] 				= !empty($o['type']) ? $o['type'] : 'select'; 							// Set query type to select by default if not already setted
 		
 		// Do the query
 		$queryResult 			= mysql_query($query, $this->db);
@@ -108,6 +108,17 @@ class Model extends Application
 				
 				// TODO: if returning !== 'id', make a select using id value, then return column value
 				if ( !empty($o['returning']) ) { $this->data['id'] = $this->insertedId; }
+				
+
+				
+				// 
+				if ( !empty($o['getFields']) && count($o['getFields']) === 1 )
+				{
+//var_dump($o['getFields']);
+//var_dump($this->data);
+					$this->data = !empty($this->data[$o['getFields'][0]]) ? $this->data[$o['getFields'][0]] : null;
+//var_dump($this->data);
+				}
 			}
 			
 			// For insert, we may need to do some process once the request succeed
@@ -202,8 +213,8 @@ class Model extends Application
 			$type 		= !empty($field['type']) ? $field['type'] : null;
 			$subtype 	= !empty($field['subtype']) ? $field['subtype'] : null;
 			
-			if 		( $type === 'onetomany' ){ $skip = false; }
-			elseif 	( empty($dataRow[$name]) ){ $skip = true; }  			
+			if 		( $type === 'onetomany' )	{ $skip = false; }
+			elseif 	( !isset($dataRow[$name]) )	{ $skip = true; }  			
 			
 			if ( $skip ) { continue; }
 			
@@ -239,7 +250,7 @@ class Model extends Application
 			else if ( $type === 'onetomany' )
 			{
 				$relResource 	= !empty($field['relResource']) ? $field['relResource'] : $name;
-				$getFields 		= !empty($field['getFields']) ? $this->magic($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
+				$getFields 		= !empty($field['getFields']) ? $this->arrayify($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
 				$pivotResource 	= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . $relResource;
 				$pivotTable 	= !empty($this->resources[$pivotResource]['table']) ? $this->resources[$pivotResource]['table'] : $pivotResource;
 				$tmpData 		= array();
@@ -454,10 +465,11 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	
 	
 	public function buildSelect($options = array())
-	{
+	{		
 		// Set default params
 		$o 				= array_merge($this->options, $options);
 		$o['mode'] 		= isset($o['mode']) ? $o['mode'] : null;
+
 		
 		//$rModel 	= $this->dataModel[$this->resourceName];
 		$rModel 	= $this->application->dataModel[$this->resourceName];
@@ -469,7 +481,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 
 		// Get fields we want to request
 		//if ( !empty($o['getFields']) ) 	{ $this->magicFields($o['getFields']); }
-		if ( !empty($o['getFields']) ) 	{ $o['getFields'] = $this->magic($o['getFields']); $this->magicFields($o['getFields']); }
+		//if ( !empty($o['getFields']) ) 	{ $o['getFields'] = $this->magic($o['getFields']); $this->magicFields($o['getFields']); }
+		if ( !empty($o['getFields']) ) 	{ $this->magicFields($o['getFields']); }
 		else 							{ $this->magicFields($rModel); }
 		
 		if ( !empty($o['count']) )
@@ -517,12 +530,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			
 			foreach ($rModel as $fieldName => $field)
 			{
-//var_dump($fieldName);
-//var_dump($field);
-				
 				$type = $field['type'];
-				
-//var_dump($type);
 
 				// Do not process relation fields
 				if ( $type === 'onetomany' && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
@@ -538,16 +546,13 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$pivotLeftField 	= !empty($field['pivotLeftField']) ? $field['pivotLeftField'] : $this->resourceSingular . '_' . 'id';
 					$pivotRightField 	= !empty($field['pivotRightField']) ? $field['pivotRightField'] : $this->resources[$relResource]['singular'] . '_' . 'id';
 					$pivotAlias 		= !empty($this->resources[$pivotResource]['alias']) ? $this->resources[$pivotResource]['alias'] : null;
-					$getFields 			= !empty($field['getFields']) ? $this->magic($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
+					$getFields 			= !empty($field['getFields']) ? $this->arrayify($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
 					
 					$crossJoins 		.= 'LEFT OUTER JOIN ' . $pivotTable . ( !empty($pivotAlias) ? ' AS ' . $pivotAlias : '');
 					$crossJoins 		.= ' ON ' . $this->alias . '.' . $relField . ' = ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotLeftField  . ' ';
 					$crossJoins 		.= 'LEFT OUTER JOIN ' . $relResource . ( !empty($relResourceAlias) ? ' AS ' . $relResourceAlias : '');
 					$crossJoins 		.= ' ON ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotRightField . ' = ' . $relResourceAlias . '.' . $relField  . ' ';
-//var_dump($relType);
-//var_dump($relResource);
-//var_dump($pivotResource);
-//var_dump($getFields);
+
 					// Remove fake column from query fields since we are going to use 'getFields' (defaulted to resource defaultNameField if empty) 
 					unset($this->queryData['fields'][$fieldName]);
 					
@@ -798,7 +803,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		foreach ($rModel as $fieldName => $field)
 		{
 			$i++;
-			if ( $field['type'] === 'int' && isset($field['AI']) && $field['AI'] ){ continue; } // Do not process autoincremented fields
+			if 		( $field['type'] === 'int' && isset($field['AI']) && $field['AI'] ){ continue; } // Do not process autoincremented fields
+			else if ( $field['type'] === 'onetomany' ) { continue; }
 			
 			$query .= $this->safeWrapper . $fieldName . $this->safeWrapper . ($i < $fieldsNb ? ',' : ''); // Add each fields to the request, with coma if not last field
 		}
@@ -824,7 +830,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			$i++;
 			
 			// Do not process some fields
-			if ( ( $field['type'] === 'int' && isset($field['AI']) && $field['AI'] ) ){ $skip = true; }
+			if 		( ( $field['type'] === 'int' && isset($field['AI']) && $field['AI'] ) ){ $skip = true; }
+			// TODO: handle subqueries for onetomany relations
+			else if ( $field['type'] === 'onetomany' ) { $skip = true; }
 			
 			// Skip current field process is we have to 
 			if ( $skip ) { continue; }
@@ -882,7 +890,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					foreach ($rModel as $key => $value)
 					{
 						// Special case for id where the data to use is not in the resource data but in the options in 'values' var
-						$time 			= $key === 'id' ? time() : null;
+						//$time 			= $key === 'id' ? time() : null;
+						$time 			= $key === 'id' ? ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) : null;
 						$tmpReplaceVal 	= $this->escapeString($time !== null ? $time : ( !empty($d[$key]) ? $d[$key] : ''));
 										
 						// If a placeholder for the current column is found in the destination name or the destination folder
@@ -913,7 +922,10 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						$bucket = !empty($field['bucket']) ? $field['bucket'] : _AWS_BASE_BUCKET;
 						
 						// If file exists, rename it with a time_suffix
-						if ( $s3->if_object_exists($bucket, $dest) ) { $s3->rename_object($bucket, $dest, $dest . '_old_' . time(), $acl); }
+						//if ( $s3->if_object_exists($bucket, $dest) ) { $s3->rename_object($bucket, $dest, $dest . '_old_' . time(), $acl); }
+						$time = ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() );
+						if ( $s3->if_object_exists($bucket, $dest) ) { $s3->rename_object($bucket, $dest, $dest . '_old_' . $time, $acl); }
+						
 						
 						// Then, create/replace the file/object
 						$FileUpload 			= $s3->create_object($bucket, array('filename' => $dest, 'body' => $body, 'contentType' => $d[$fieldName]['type'], 'acl' => $acl )); 
@@ -922,7 +934,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						// Handle duplicates/thumbnails generation if necessary
 						if ( !empty($field['duplicates']) && is_array($field['duplicates']) )
 						{
-							$tmpTime = time();
+							//$tmpTime = time();
+							$tmpTime = ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() );
 							
 							foreach ( $d[$fieldName]['duplicates'] as $dup )
 							{
@@ -1032,7 +1045,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			//else if ( $field['type'] === 'varchar' )
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
 			{
-				$value = "'" . sha1($this->escapeString($d[$fieldName])) . "'";
+				$tmpVal = !empty($d[$fieldName]) ? sha1($this->escapeString($d[$fieldName])) : '';
+				$value = "'" . $this->escapeString($tmpVal) . "'";
 			}
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
 			{
@@ -1082,7 +1096,14 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			else if ( $field['type'] === 'timestamp' )
 			{
 				// Get the passed value if present, otherwise, try to use default value
-				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? ( strpos($field['default'], 'now') !== false ? time() : '0' ) : 0);
+				$tmpVal = !empty($d[$fieldName]) 
+							? $d[$fieldName] 
+							: (isset($field['default']) 
+							? ( strpos($field['default'], 'now') !== false
+								//? time() 
+								? ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) 
+								: '0' ) 
+							: 0);
 				$value 	= is_int($tmpVal) && $tmpVal < 0 
 							? "DATE_ADD(FROM_UNIXTIME(0), INTERVAL " . $this->escapeString($tmpVal) ." SECOND)"
 							: "FROM_UNIXTIME('" . $this->escapeString($tmpVal) . "')";
@@ -1174,7 +1195,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			// except for fields whose subtype is fileDuplicate
 			else if ( !empty($field['subtype']) && $field['subtype'] === 'fileDuplicate' && !empty($field['original']) && !empty($d[$field['original']]) ) { $skip = false; }
 			
-			else if ( !empty($field['subtype']) && $field['subtype'] === 'uniqueID' ) { $skip = false; }
+			//else if ( !empty($field['subtype']) && $field['subtype'] === 'uniqueID' ) { $skip = false; }
 			
 			// For password fields, only users to modifie oneself password 
 			//if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' )
@@ -1285,7 +1306,10 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						$bucket = !empty($field['bucket']) ? $field['bucket'] : _AWS_BASE_BUCKET;
 						
 						// If file exists, rename it with a time_suffix
-						if ( $s3->if_object_exists($bucket, $dest) ) { $s3->rename_object($bucket, $dest, $dest . '_old_' . time(), $acl); }
+						//if ( $s3->if_object_exists($bucket, $dest) ) { $s3->rename_object($bucket, $dest, $dest . '_old_' . time(), $acl); }
+						$time 	= ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() );
+						if ( $s3->if_object_exists($bucket, $dest) ) { $s3->rename_object($bucket, $dest, $dest . '_old_' . $time, $acl); }
+						 
 						
 						// Then, create/replace the file/object
 						$FileUpload 			= $s3->create_object($bucket, array('filename' => $dest, 'body' => $body, 'contentType' => $d[$fieldName]['type'], 'acl' => $acl )); 
@@ -1294,7 +1318,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						// Handle duplicates if necessary
 						if ( !empty($field['duplicates']) && is_array($field['duplicates']) )
 						{
-							$tmpTime = time();
+							//$tmpTime = time();
+							$tmpTime = !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
 							
 							foreach ( $d[$fieldName]['duplicates'] as $dup )
 							{
@@ -1406,9 +1431,13 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			{
 				// Get the passed value if present, otherwise, try to use default value
 				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? ( strpos($field['default'], 'now') !== false ? time() : '0' ) : 0);
-				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? ( strpos($field['default'], 'now') !== false ? time() : '0' ) : time());
-//$this->dump($tmpVal);
-//$this->dump(strftime('%Y-%m-%d %H:%M:%S',$tmpVal));
+				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? ( strpos($field['default'], 'now') !== false ? time() : '0' ) : time());
+				$tmpVal = !empty($d[$fieldName]) 
+							? $d[$fieldName] 
+							: (isset($field['default']) 
+							? ( strpos($field['default'], 'now') !== false ? time() : '0' ) 
+							//: time() );
+							: ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) );
 				$value 	= is_int($tmpVal) && $tmpVal < 0 
 							? "DATE_ADD(FROM_UNIXTIME(0), INTERVAL " . $this->escapeString($tmpVal) ." SECOND)"
 							: "FROM_UNIXTIME('" . $this->escapeString($tmpVal) . "')";
@@ -1429,8 +1458,10 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
 			{
 				$len 	= !empty($field['length']) ? $field['length'] : 8;
-				$uniqID = $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
-				$value 	= "'" . $uniqID . "'";
+				$uniqID = !empty($d[$fieldName]) 
+							? $d[$fieldName]
+							: $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
+				$value 	= "'" . $this->escapeString(trim(stripslashes($uniqID))) . "'";
 			}
 			else if ( $field['type'] === 'enum' )
 			{
@@ -1447,7 +1478,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			else if ( $field['type'] === 'varchar' )
 			{
 				//$value = "'" . $this->escapeString($d[$fieldName]) . "'";
-				$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";  
+				$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
 				//$value = "'" . $this->escapeString(trim($d[$fieldName])) . "'";
 			}
 			// Otherwise, just take the posted data value
@@ -1544,11 +1575,12 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 										? ' IN (' . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . ' ) ' 
 										: ( is_bool($condValue) 
 											? (int) $condValue 
-											: ( $type === 'timestamp' && $o['force_unix_timestamps']  ? "FROM_UNIXTIME('" . $condValue . "')" : $condValue ) 
+											: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
+												? "FROM_UNIXTIME('" . $condValue . "')" 
+												//: $condValue 
+												: ( is_null($condValue) ? 'NULL' : $condValue )
+											) 
 										);
-										//
-										//. 
-										
 				}
 				else
 				{
@@ -1562,7 +1594,11 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 									? join("', '", is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues) 
 									: ( is_bool($condFieldValues) 
 										? (int) $condFieldValues 
-										: ( $type === 'timestamp' && $o['force_unix_timestamps']  ? "FROM_UNIXTIME('" . $condFieldValues . "')" : $condFieldValues ) 
+										: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
+											? "FROM_UNIXTIME('" . $condFieldValues . "')" 
+											//: $condFieldValues
+											: ( is_null($condFieldValues) ? 'NULL' : $condFieldValues )
+										) 
 									);
 					$conditions .= "') ";
 				}
@@ -1708,6 +1744,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'id';
 		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
 		$o['type'] 		= 'select';
+		$o['getFields'] = !empty($o['getFields']) ? $this->arrayify($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
 		//$query 	= $this->buildSelect($o);
@@ -1750,11 +1787,13 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		// TODO: use $this->options instead, and use array_merge
 		$o 				= $options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
-		$o['values'] 	= !empty($o['values']) ? $this->magic($o['values']) : null;
+		//$o['values'] 	= !empty($o['values']) ? $this->magic($o['values']) : null;
+		$o['values'] 	= !empty($o['values']) ? $this->arrayify($o['values']) : null;
 		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( count($o['values']) <= 1 ? 'onlyOne' : null );
 		// Using LIMIT 1 (by default) for perf issues
 		$o['limit'] 	= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;
 		$o['type'] 		= 'select';
+		$o['getFields'] = !empty($o['getFields']) ? $this->arrayify($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);

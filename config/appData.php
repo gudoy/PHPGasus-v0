@@ -20,6 +20,8 @@ define('_APP_DEFAULT_LANGUAGE', 				'fr_FR'); 		// or en_US, en_GB, de_DE, es_EN
 define('_APP_DOCTYPE', 							'html5');		// 'html5', 'xhtml-strict-1.1', 'xhtml-strict', 'xhtml-transitional', 
 define('_APP_DEFAULT_OUTPUT_FORMAT', 			'html');		// Is there case where it won't be html?
 define('_APP_DEFAULT_OUTPUT_MIME', 				'text/html');	// 
+define('_APP_USE_MANIFEST', 					false);			//
+define('_APP_MANIFEST_FILENAME', 				_APP_TITLE . '.manifest'); // 
 define('_APP_META_DECRIPTION', 					'');
 define('_APP_META_KEYWORDS', 					'mynewproject');
 define('_APP_META_ROBOTS_INDEXABLE', 			true);			// Allows/prevents pages to be indexed by Google & Friends?

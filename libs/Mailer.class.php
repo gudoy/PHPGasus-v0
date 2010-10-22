@@ -67,7 +67,9 @@ class Mailer extends View
 		/*
 		if ( !empty($this->alternative) )
 		{
-			$randomHash = md5(time());
+			//$randomHash = md5(time());
+			$randomHash = md5( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() );
+			
 			$headers .= "Content-Type: multipart/alternative; boundary=\"PHP-alt-" . $randomHash . "\n";
 			ob_start();
 			echo "--PHP-alt-" . $randomHash;

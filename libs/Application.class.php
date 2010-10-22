@@ -137,7 +137,9 @@ class Application
 			'conditions' 	=> array(
 				'name' => $sid,
 				//array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
-				array('expiration_time', '>', time()),
+				//array('expiration_time', '>', time()),
+				array('expiration_time', '>', ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) ),
+				
 			)
 		)); 
 		
@@ -171,7 +173,11 @@ class Application
 		$sessExp	 	= !empty($session) 
 							? (is_numeric($session['expiration_time']) ? $session['expiration_time'] : strtotime($session['expiration_time']) )
 							: null;
-		$this->logged 	= !empty($sessExp) && $sessExp > time() && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
+		//$this->logged 	= !empty($sessExp) && $sessExp > time() && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
+		$time 			= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+		$this->logged 	= !empty($sessExp) && $sessExp > $time && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
+		
+		
 		
 //$this->dump('islogged: ' . $this->logged);
 		
@@ -618,10 +624,11 @@ class Application
 	{
 		// Get passed options or default them
 		$o 			= array_merge(array(
-			'length' 	=> 8,
-			//'check' 	=> true,
-			'resource' 	=> null,
-			'field' 	=> null,
+			'length' 			=> 8,
+			//'check' 			=> true,
+			'resource' 			=> null,
+			'field' 			=> null,
+			'preventNumsOnly' 	=> true,
 		), $options);
 		
 		$alpha 		= 'abcdefghjkmnopqrstuvwxyz';
@@ -631,6 +638,9 @@ class Application
 		{
 			$wref .= mt_rand(1,2) === 1 ? $alpha[mt_rand(1, 24)-1] : $num[mt_rand(0, 7)];
 		}
+		
+		// Prevents id having numerics only to prevent conflict with ids in database on "smart searchs" ( retrieve(array('by' => 'id,uid', 'value' => $value)) 
+		if ( $o['preventNumsOnly'] && is_numeric($wref) ) { $this->generateUniqueID($o); }
 		
 		// TODO: check if resource & resource field exist in datamodel
 		if ( !empty($o['resource']) && !empty($o['resource'])  )

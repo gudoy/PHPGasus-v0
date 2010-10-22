@@ -82,7 +82,9 @@ class VAccount extends View
 			$newPOST = array(
 				'name' 				=> session_id(), 
 				'user_id' 			=> $user['id'], 
-				'expiration_time' 	=> time() + (int) _APP_SESSION_DURATION, 
+				//'expiration_time' 	=> time() + (int) _APP_SESSION_DURATION,
+				'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + (int) _APP_SESSION_DURATION,
+				 
 				'ip' 				=> $_SERVER['REMOTE_ADDR'],
 			);
 			foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
@@ -134,8 +136,10 @@ class VAccount extends View
 		// Destroy cookie session if used (default)
 		if ( ini_get('session.use_cookies') )
 		{
-	    	$p = session_get_cookie_params();
-	    	setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $params['httponly']);
+	    	$p 		= session_get_cookie_params();
+			$time 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+	    	//setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $params['httponly']);
+			setcookie(session_name(), '', $time - 42000, $p['path'], $p['domain'], $p['secure'], $params['httponly']);
 		}
 		
 		// Delete session var

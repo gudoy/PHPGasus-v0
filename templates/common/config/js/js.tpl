@@ -13,8 +13,6 @@
 {/if}
 {if $view.name}
 <script type="text/javascript" {if !$html5}charset="utf-8"{/if}>
-//<![CDATA[
 $(document).ready(function(){ if ( typeof({$view.name}) !== 'undefined' && {$view.name}.init ) { {$view.name}.init(); } });
-//]]>
 </script>
 {/if}

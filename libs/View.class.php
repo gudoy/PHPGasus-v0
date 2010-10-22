@@ -64,8 +64,10 @@ class View extends Application
 			// Instanciate the resource controller
 			$controllerClassname 	= 'C' . ucfirst($this->resourceName);
 			$this->controller 		= new $controllerClassname();
-			$this->C 				= $this->controller;
+			$this->C 				= &$this->controller;
 		}
+		
+//$this->dump($this);
 		
 		//if ( empty($this->inited) )
 		//{
@@ -125,15 +127,15 @@ class View extends Application
 		*/
 				
 		$o 			= $options; 
-		$rm 		= strtolower($_SERVER['REQUEST_METHOD']); 									// Shortcut for request method
-		$a 			= isset($this->options['method']) ? $this->options['method'] : null; 		// Shortcut for "forced method" 
-		$id 		= !empty($args[0]) ? $args[0] : null;										// Shortcut for resource identifier(s)
-		$bindings 	= array('put' => 'update', 'post' => 'create', 'get' => 'retrieve');		// Bind request methods to class methods
+		$rm 		= strtolower($_SERVER['REQUEST_METHOD']); 													// Shortcut for request method
+		$a 			= isset($this->options['method']) ? $this->options['method'] : null; 						// Shortcut for "forced method" 
+		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
+		$bindings 	= array('put' => 'update', 'post' => 'create', 'get' => 'retrieve', 'delete' => 'delete');	// Bind request methods to class methods
 		$m 			= !empty($a) 
 						? $a 
 						: ( !isset($bindings[$rm]) || ( $bindings[$rm] === 'retrieve' && empty($id) ) 
-							? 'index' : $bindings[$rm] ); 										// Get the class method to use
-		$allowed 	= !empty($o['allowed']) ? explode(',', $o['allowed']) : array(); 			// Get the allowed methods
+							? 'index' : $bindings[$rm] ); 														// Get the class method to use
+		$allowed 	= !empty($o['allowed']) ? explode(',', $o['allowed']) : array(); 							// Get the allowed methods
 		
 		$this->data['view']['method'] = $m;
 		
@@ -143,7 +145,11 @@ class View extends Application
 		// If the method is not index and belongs to the allowed methods, call it
 		if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
 		// Otherwise, just continue
-		else {  }
+		else if ( $m === 'index' ) { /* simply continue */ }
+		else
+		{
+			return $this->statusCode(405); // Method not allowed
+		}
 	}
 	
 	
@@ -362,6 +368,7 @@ class View extends Application
 	
 	public function handleAppSpecifics()
 	{
+		/*
 		$this->log(__METHOD__);
 		
 		// Handle referer param in url
@@ -378,6 +385,7 @@ class View extends Application
 				$_SESSION['iphoneApp']['refererParams'][$KeyVal[0]] = $KeyVal[1];
 			}
 		}
+		*/
 		
 		return $this;
 	}
@@ -887,8 +895,8 @@ class View extends Application
 		// Store current errors (error codes)
 		$urlErrors = !empty($this->options['errors']) ? explode(',',$this->options['errors']) : array();
 		//$tmpErrors = array_merge((array) $this->data['errors'], $urlErrors);
-		// array_merge fails on associative arrays with numeric indexes
-		// ie: array_merge(array(1001 => 'somevalue'), array('foo')) results int array(0 => 'somevalue') (expected: array(0 => 'foo', '1001' => 'somevalue')
+		// array_merge fails on associative arrays whose keys are valid numerics
+		// ie: array_merge(array(1001 => 'somevalue'), array('foo')) results int array(0 => 'somevalue') (expected: array('1001' => 'somevalue', 0 => 'foo')
 		$tmpErrors = (array) $this->data['errors'] + $urlErrors;
 		
 		// If there's no errors, do not continue
@@ -917,6 +925,7 @@ class View extends Application
 				'id' 		=> $errCode, 
 				'log' 		=> sprintf($err['back'], ($hasParams ? $val : null)),
 				'message' 	=> sprintf($err['front'], ($hasParams ? $val : null)),
+				// TODO: replace buttons by actions = (label => url)*
 				'buttons' 	=> !empty($err['buttons']) ? $err['buttons'] : null, 
 			);
 		}
@@ -1009,8 +1018,8 @@ class View extends Application
 		}
 		
 		$this->data = array_merge($this->data, array(
-			'request' 	=> str_replace('&', '&amp;', $_SERVER['REQUEST_URI']),
-			'status' 	=> (int) $statusCode,
+			//'request' 	=> str_replace('&', '&amp;', $_SERVER['REQUEST_URI']),
+			//'status' 	=> (int) $statusCode,
 		));
 
 		//return $this->display();

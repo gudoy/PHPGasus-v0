@@ -43,3 +43,10 @@ h1#branding a { /*color:#D8D8D8;*/ }
 .unittestsResulsBlock .commonTable tbody th { font-weight:normal; }
 .unittestsResulsBlock .commonTable .outputFormatCol { text-align:center; }  
 
+.apiItemBlock > dl { margin:5px; border:1px solid; }
+.apiItemBlock dt.key { width:200px; display:block; float:left; background:#C9E2FC; border-bottom:1px solid; }
+.apiItemBlock dd.value { display:block; overflow:hidden; border-bottom:1px solid; }
+.apiItemBlock dd.value:after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; }
+.apiItemBlock dl dl dt.key { width:auto; min-width:50px; }
+.apiItemBlock dl dl dd.value {  }
+

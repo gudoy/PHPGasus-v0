@@ -8,7 +8,7 @@
 {/if}
 <div class="line">
 	<div class="labelBlock">
-		<label class="span" for="{$postValName}">{$label}{if $required}<span class="required">*</span>{/if}</label>
+		<label class="span" for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
 		{if empty($type) || !in_array($type, array('email','phone','url')) || !$html5}{$type='text'}{/if}

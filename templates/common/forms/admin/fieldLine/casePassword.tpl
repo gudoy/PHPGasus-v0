@@ -13,7 +13,7 @@
 	id="{$resourceFieldName}{$itemIndex}"  
 	class="sized"
 	value=""
-	disabled="disabled"{/strip} />
-{if $allowEdit}
+	{if $mode !== 'create'}disabled="disabled"{/if}{/strip} />
+{if $allowEdit && $mode !== 'create'}
 {include file='common/blocks/actionBtn.tpl' mode='button' btnClasses="changeValBtn changePassBtn" btnId={'change'|cat:{$resourceFieldName|ucfirst}} btnLabel='change'|gettext}
 {/if}

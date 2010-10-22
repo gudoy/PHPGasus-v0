@@ -55,7 +55,8 @@ class Controller extends Application
 		$this->success 	= $this->model->success;
 		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
 		
-		if ( $this->success ) { $this->extendsData(); }
+		if ( $this->success ) { $this->extendsData($o); }
+		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
 		
 		if ( !empty($o['reindexby']) ){ self::reindex($options); }
 		
@@ -200,7 +201,8 @@ class Controller extends Application
 		{
 //var_dump($errNb);
 			
-			if 		( $errNb === 1062 ){ $this->errors[] = 4030; continue; } // Duplicate entry error (unique key constraint)
+			if 		( $errNb === 1054 ){ $this->errors[4100] = $err; continue; } // Unknown column
+			else if ( $errNb === 1062 ){ $this->errors[] = 4030; continue; } // Duplicate entry error (unique key constraint)
 			elseif 	( $errNb === 1064 ){ $this->errors[] = 4020; continue; } // Request syntax error
 			elseif 	( $errNb === 1451 ){ $this->errors[] = 4110; continue; } // Creation/update error due to fk constraint(s)
 			elseif 	( $errNb === 1452 ){ $this->errors[] = 4050; continue; } // Deletion error due to fk constraint(s)
@@ -297,10 +299,14 @@ var_dump($tmpData);
 	}
 	
 	
-	public function extendsData()
+	public function extendsData($options = array())
 	{
+		$o = array_merge(array(
+			'extendsData' => true,
+		), $options);
+		
 		// Do not continue if there's no data to process or if data is not an array( ie: for count operations)
-		if ( empty($this->data) || !is_array($this->data) ) { return $this; }
+		if ( empty($this->data) || !is_array($this->data) || empty($o['extendsData']) ) { return $this; }
 		
 		// Nothing here for the moment
 		// Overload this method specificaly in you controllers when you need to extends your data 
@@ -502,12 +508,15 @@ var_dump($tmpData);
 		
 		// Loop over the columns
 		foreach ($colNames as $colName)
-		{
+		{			
 			// Then loop over the data rows and for each one
 			// get the value associated to the passed column(s) and store them in a temp array
 			foreach ($this->data as $dataRow)
-			{
-				if ( !isset($dataRow[$colName]) ){ continue; }
+			{				
+				//if ( !isset($dataRow[$colName]) ){ continue; }
+				// Only handle requested columns, and only if the value has not already found for the current column 
+				if ( !isset($dataRow[$colName]) 
+					|| ( !empty($data[$colName]) && in_array($dataRow[$colName], $data[$colName]) ) ){ continue; }
 				
 				$data[$colName][] = $dataRow[$colName];
 			} 
@@ -515,7 +524,9 @@ var_dump($tmpData);
 		
 		// If several columns have been requested, we return the whole data array
 		// Othewise, just return the part containing the values of the only column requested  
-		return count($colNames) === 1 && isset($data[$colNames[0]]) ? $data[$colNames[0]] : $data;
+		$returnVal = count($colNames) === 1 && isset($data[$colNames[0]]) ? $data[$colNames[0]] : $data;
+		
+		return $returnVal;
 	}
 	
 	

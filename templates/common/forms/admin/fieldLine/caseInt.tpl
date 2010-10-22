@@ -14,7 +14,7 @@
 	type="{if $html5}number{else}text{/if}"{/strip} {strip}
 	{if $html5}pattern="[0-9{if $field.type === 'float'}\.\s\,{/if}]{ldelim}0,{$field.length|default:11}{rdelim}"{/if}
 	{*if $html5}step="{if $field.type === 'float'}0.01{else}1{/if}"{/if*}
-	{if $html5}step="{$field.step|default:'1'}"{/if}
+	{if $html5}step="{$field.step|default:'any'}"{/if}
 	name="{$resourceFieldName}{$useArray}"{/strip} {strip}  
 	id="{$resourceFieldName}{$itemIndex}"{/strip} {strip}
 	{if $field.length}maxlength="{$field.length}"{/if}{/strip} {strip}

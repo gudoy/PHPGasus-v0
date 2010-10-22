@@ -5,11 +5,17 @@
 	{$resourceName=$data.view.resourceName}
 
 	<div class="box block grid_10">
+		
 		<h2>{t}data{/t}</h2>
-		{$items=$items|default:$data[$resourceName]}
-		<div class="apiItemBlock">
-			{include file='common/blocks/api/resource/retrieve.tpl'}
+		
+	{if $data.success}
+		<div class="notifierBlock">
+			<p class="notification success">
+				{t}The resource has been successfully delete!{/t}
+			</p>
 		</div>
+	{/if}
+	
 	</div>
 	
 	<div class="grid_6">		
@@ -17,5 +23,3 @@
 	</div>
 	
 {/block}
-
-

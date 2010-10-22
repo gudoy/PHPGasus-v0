@@ -241,7 +241,10 @@ var admin =
 	
 	handlePasswordFields: function()
 	{
-		$('button.changePassBtn', 'form')
+//Tools.log('handlePasswordFields');
+		
+		//$('button.changePassBtn', 'form')
+		$('.changePassBtn', 'form')
 			.click(function(e)
 			{
 				e.preventDefault();

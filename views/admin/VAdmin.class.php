@@ -61,7 +61,9 @@ class VAdmin extends AdminView
 			'conditions' 	=> array(
 				//array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
 				//array('update_date', '>', ("FROM_UNIXTIME('" . (time() - _APP_SESSION_DURATION) . "')")),
-				array('update_date', '>', (time() - _APP_SESSION_DURATION)),
+				//array('update_date', '>', (time() - _APP_SESSION_DURATION)),
+				array('update_date', '>', ( ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) - _APP_SESSION_DURATION ) ),
+				
 				
 			)
 		));
@@ -154,7 +156,7 @@ class VAdmin extends AdminView
 		$this->render(__FUNCTION__);
 	}
 
-
+	
 };
 
 ?>
