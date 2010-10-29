@@ -569,9 +569,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						// Build the storing name
 						// ie: in a table 'users', a 'groups' with getFields('id,name')
 						// will result in 'group_ids' and 'group_name' fields 
-						$storingName 	= $this->resources[$relResource]['singular'] . '_' . $item . 's';
-						
-//var_dump($storingName);
+						//$storingName 	= $this->resources[$relResource]['singular'] . '_' . $item . 's';
+						$storingName 	= $this->resources[$relResource]['singular'] . '_' . $this->pluralize($item);
 						
 						$this->queryData['fields'][$storingName] = array(
 										'name' 			=> $item,
@@ -585,10 +584,14 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 						);	
 					}
 					
-					
-					$this->queryData['fields'][$pivotTable . '_id'] = array(
+					// Build the storing name
+					//$storingName = $pivotTable . '_id';
+					//$storingName = $this->resourceSingular . '_' . $relResource  . '_ids';
+					$storingName 	= $pivotResource . '_ids'; 
+										
+					$this->queryData['fields'][$storingName] = array(
 									'name' 			=> 'id',
-									'as' 			=> $pivotTable . '_id',
+									'as' 			=> $storingName,
 									'resource' 		=> $pivotResource,
 									'table' 		=> $pivotTable,
 									'tableAlias' 	=> $pivotAlias,
@@ -1199,7 +1202,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			
 			// For password fields, only users to modifie oneself password 
 			//if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' )
-			if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' )
+			if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' && !empty($d[$fieldName]) )
 			{
 				// Get the user whose data are being updated and get the current user
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
@@ -1450,7 +1453,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				$value = "'" . $this->escapeString($d[$fieldName]) . "'";
 			}
 			//else if ( $field['type'] === 'varchar' )
-			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
+			//else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
+			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' && !empty($d[$fieldName]) )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? sha1($d[$fieldName]) : '';
 				$value 	= "'" . $tmpVal . "'";
@@ -1581,6 +1585,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 												: ( is_null($condValue) ? 'NULL' : $condValue )
 											) 
 										);
+					$conditions .= ' ';
 				}
 				else
 				{

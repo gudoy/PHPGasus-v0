@@ -28,6 +28,7 @@
 			</thead>
 			<tbody>
 				{foreach $data.current.groupResources as $name => $resource}
+				{if in_array($name, $data.current.user.auths.__can_display)}
 				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource@iteration}">
 					<td class="col firstcol colSelectResources">
 						<input type="checkbox" name="ids[]" value="{$resource@iteration}" {if $smarty.post.ids && in_array($resource@iteration, $smarty.post.ids)}checked="checked"{/if} />
@@ -39,6 +40,7 @@
 						<div class="value dataValue" id="recordsCount{$resource@iteration}">{$data.total[$name]|default:'???'}</div>
 					</td>
 				</tr>
+				{/if}
 				{foreachelse}
 				<tr>
 					<td colspan="3">

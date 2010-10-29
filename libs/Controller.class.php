@@ -121,6 +121,10 @@ class Controller extends Application
 			
 			$this->handleModelErrors();
 		}
+		else
+		{
+			$this->extendsData(array('isCollection' => false));
+		}
 		
 		return $this->data;
 	}

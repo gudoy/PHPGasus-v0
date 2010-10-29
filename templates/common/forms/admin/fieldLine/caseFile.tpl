@@ -13,7 +13,7 @@
 			<img class="icon" src="{if strpos($resource[$fieldName], 'http://') === false}{$field.destBaseURL|default:$smarty.const._URL}{/if}{$resource[$fieldName]}" alt="{$resource[$fieldName]}: {$resource.id}" />
 		</a>
 		{*if file_exists($fileSrc)}<span class="filesize">[ {filesize($fileSrc)} o]</span>{/if*}
-	</{if $html5}figure{else}div{/if}
+	</{if $html5}figure{else}div{/if}>
 	{/if}
 	<{if $html5}details{else}div{/if} class="dataBlock details">
 	<a class="name filename file {if $isImage}image{/if} {$fileExt}" href="{$fileSrc}">	
@@ -21,7 +21,7 @@
 			{$resource[$fieldName]|regex_replace:"/.*\//":""}
 		</span>
 	</a>
-	</{if $html5}details{else}div{/if}
+	</{if $html5}details{else}div{/if}>
 	{$updateFieldClass=hidden}
 </div>
 {/if}

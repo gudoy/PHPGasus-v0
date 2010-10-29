@@ -372,9 +372,10 @@ class Application
 		{
 			if ( _ALLOW_FIREPHP_LOGGING )
 			{		
-				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
+				//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
+				//ob_start();
 				
-				ob_start();	
+				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');	
 			}
 			
 			error_reporting(E_ALL);
@@ -533,13 +534,11 @@ class Application
 	
 	public function singularize($plural)
 	{		
-		$len = strlen($plural);
+		$len 	= strlen($plural);
+		$sing 	= $plural;  		// Default
 		
-		$sing = $plural;  // Default
-		
-		
-		if 		( $len >= 5 && substr($plural, -4) === 'uses'  )		{ $sing = preg_replace('/(.*)uses/','$1us', $plural); }
-		else if ( $len >= 4 && substr($plural, -3) === 'ses'  )		{ $sing = preg_replace('/(.*)ses/','$1ss', $plural); }
+		if 		( $len >= 5 && substr($plural, -4) === 'uses' )		{ $sing = preg_replace('/(.*)uses/','$1us', $plural); }
+		else if ( $len >= 4 && substr($plural, -3) === 'ses' )		{ $sing = preg_replace('/(.*)ses/','$1ss', $plural); }
 		else if ( $len >= 4 && substr($plural, -3) === 'hes' )		{ $sing = preg_replace('/(.*)hes/','$1h', $plural); }
 		else if ( $len >= 4 && substr($plural, -3) === 'ies' )		{ $sing = preg_replace('/(.*)ies$/','$1y', $plural); }
 		else if ( $len >= 4 && substr($plural, -3) === 'oes' )		{ $sing = preg_replace('/(.*)oes$/','$1o', $plural); }
@@ -548,6 +547,23 @@ class Application
 		else if ( $len >= 2 && $plural[$len-1] === 's' ) 			{ $sing = preg_replace('/(.*)s$/','$1', $plural); }
 		
 		return $sing;
+	}
+	
+	public function pluralize($singular)
+	{		
+		$len = strlen($singular);
+		$plu = $singular;  			// Default
+		
+		if 		( $len >= 3 && substr($singular, -2) === 'us' )		{ $plu = preg_replace('/(.*)us/','$1uses', $singular); }
+		else if ( $len >= 3 && substr($singular, -2) === 'ss' )		{ $plu = preg_replace('/(.*)ss/','$1ses', $singular); }
+		else if ( $len >= 3 && $singular[$len-1] === 'h' )			{ $plu = preg_replace('/(.*)h/','$1hes', $singular); }
+		else if ( $len >= 3 && $singular[$len-1] === 'y' )			{ $plu = preg_replace('/(.*)y/','$1ies', $singular); }
+		else if ( $len >= 3 && $singular[$len-1] === 'o' )			{ $plu = preg_replace('/(.*)o/','$1oes', $singular); }
+		else if ( $len >= 3 && $singular[$len-1] === 'f' )			{ $plu = preg_replace('/(.*)f/','$1ves', $singular); }
+		else if ( $len >= 3 && substr($singular, -2) === 'um' )		{ $plu = preg_replace('/(.*)um/','$a', $singular); }
+		else if ( $len >= 2 )										{ $plu = $singular . 's'; }
+		
+		return $plu;
 	}
 
 	

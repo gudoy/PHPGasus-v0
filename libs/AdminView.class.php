@@ -128,9 +128,12 @@ class AdminView extends View
 		// Loop over the resource colums
 		foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
 		{
-			if ( empty($f['type']) ){ continue; }
+			// Do not continue if the type is not found and the field is not a foreign key
+			if ( empty($f['type']) && empty($f['fk']) ){ continue; }
 			
-			else if ( $f['type'] === 'onetomany' )
+			// For onetoone & onetomany relations
+			//else if ( $f['type'] === 'onetomany' || $f['type'] === 'onetoone' )
+			else if ( $f['type'] === 'onetomany' || !empty($f['fk']) )
 			{
 				 $relResName 				= !empty($f['relResource']) ? $f['relResource'] : $name; 	// Get the related resource or default it to current column name
 				 $relResources[] 			= $relResName;												// Add it to the related resources array
@@ -176,9 +179,55 @@ class AdminView extends View
 		else
 		{
 			// Get the user data
-			$this->requireControllers('CUsers');
-			$u 			= CUsers::getInstance()->retrieve(array('values' => $uid));
-			$match 		= in_array($u['auth_level'], $o['authLevel']);
+			//$this->requireControllers('CUsers');
+			$u 				= CUsers::getInstance()->retrieve(array('values' => $uid));
+			
+			// TODO: Deprecated, to be removed
+			//$match 			= in_array($u['auth_level'], $o['authLevel']);
+			
+			# Get user credentials
+			$gids 			= !empty($u['group_ids']) ? $u['group_ids'] : array(); 			// Get user group ids
+			$opts 			= array('by' => 'group_id', 'values' => $gids); 				// Set options
+			$gpsAuths 		= CGroupsauths::getInstance()->index($opts); 					// Try to get user groups auth
+			$uAuths 		= array(); 														// Init user auths array resource indexed array
+			$knownAuths 	= array('display','create','retrieve','update','delete'); 								// List of knowns auth
+			$actionAuths 	= array(); 														// Init user auths actions indexed array
+			
+			// Loop over the group auths
+			foreach ( (array) $gpsAuths as $gpAuths )
+			{
+				// Shortcut for the group auth resource name
+				$rname 				= !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
+				
+				// Do not continue if the resource name has not been found 
+				if ( empty($rname) ) { continue; }
+				
+				// Loop over the know auths
+				foreach($knownAuths as $auth)
+				{
+					$aN 					= 'allow_' . $auth;																// Shortcut for auth name
+					$cN 					= '__can_' . $auth; 															// Shortcut for 
+					$uAuths[$rname][$aN] 	= isset($gpAuths[$aN]) && $gpAuths[$aN] == true; 								// Update the auth for the current resource
+					
+					$actionAuths[$cN] 		= !isset($actionAuths[$cN]) ? array() : $actionAuths[$cN];
+					if ( !empty($gpAuths[$aN]) ) { $actionAuths[$cN][] = $rname; }
+				}
+			}
+
+			
+			$uAuths 		+= $actionAuths;
+			$u['auths'] 	= $uAuths;
+			
+			// Can the user access the admin
+			$ugps 			= !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
+			$u['auths']['__can_access_admin'] = in_array('admins', $ugps) || in_array('superadmins', $ugps) || in_array('gods', $ugps);
+			
+			$match 	= !empty($u['auths']['__can_access_admin']) 
+						&& ( empty($this->resourceName) || in_array($this->resourceName, $u['auths']['__can_display']) );
+			
+//var_dump($u['auths']['__can_display']);
+//sort($u['auths']['__can_display']);
+//var_dump($u['auths']['__can_display']);
 			
 			// Store the current user, after having remove sensitive data (password, .... ?)
 			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
@@ -269,6 +318,8 @@ class AdminView extends View
 		
 		$referer 	= !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
 		$cleanURL 	= _URL . preg_replace('/^\/(.*)/','$1',$_SERVER['REQUEST_URI']);
+		
+		$this->handleRelations();
 		
 		// If the resource creation form has been posted
 		if ( !empty($_POST) )
@@ -408,7 +459,6 @@ class AdminView extends View
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'U') === false ){ $this->redirect($meta['fullAdminPath']); }
 		
-		//$this->handleForeignData();
 		$this->handleRelations();
 		
 		// Handle file deletion
@@ -547,7 +597,8 @@ class AdminView extends View
 		if ( !in_array($this->options['output'], array('html','xhtml')) )
 		{
 			unset($this->data['dataModel']);
-			unset($this->data['resources']);
+			
+			if ( empty($this->resourceName) || $this->resourceName !== 'resources' )  unset($this->data['resources']);
 		}
 		
 		return parent::beforeRender($options);
@@ -629,6 +680,8 @@ class AdminView extends View
 		{
 			$this->data['resourceId'] = $this->resourceId;
 		}
+		
+//$this->dump($this->data);
 		
 		return parent::prepareTemplate();
 	}

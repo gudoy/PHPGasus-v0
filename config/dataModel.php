@@ -1,6 +1,6 @@
 <?php 
 
-// [type]: 				int, float, varchar, bool, timestamp, datetime, enum
+// [type]: 				int, float, varchar, bool, timestamp, datetime, enum, onetomany
 // [length]: 			length of the field value [for int and varchar] (default: int=11, varchar=255)
 // [subtype]: 			file, fixedValues, URIname, fakebool, fileMetaData
 // [possibleValues]: 	list of the possible values
@@ -159,6 +159,11 @@ $dataModel = array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'group_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'groups', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'group_name'),
 	'resource_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'resources', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'resource_name'),
+	'allow_display' 		=> array('type' => 'bool', 'default' => 1, 'list' => 1),
+	'allow_create' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'allow_retrieve' 		=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'allow_update' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'allow_delete' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
@@ -248,7 +253,7 @@ $dataModel = array(
 'users' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'email' 				=> array('type' => 'varchar', 'subtype' => 'email', 'list' => 1),
-	'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'list' => 1),
+	'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'list' => 1, 'editable' => 0),
 	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
 	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
 	'auth_level' 			=> array('type' => 'enum', 'default' => 'user', 'possibleValues' => array('user','contributor','admin','superadmin','god'), 'editable' => 0),

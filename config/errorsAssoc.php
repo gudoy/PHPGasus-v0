@@ -28,7 +28,7 @@ $errorsAssoc = array(
 					'front' => _('An error occured on the site\'s database. Please come back later.')),
 	'4020' => array('back' => 'Database query syntax error',
 					'front' => _('There\'s a syntax error in a database request.')),
-	'4030' => array('back' => 'Creation due to unique key constraint',
+	'4030' => array('back' => 'Creation error due to unique key constraint',
 					'front' => _('The resource(s) could not be created because there\'s already an unique record with passed data association(s).')),
 	'4050' => array('back' => 'Creation/update error due to fk constraint(s)',
 					'front' => _('The resource(s) could not be created/updated because one or more required field(s) are missing/empty.')),

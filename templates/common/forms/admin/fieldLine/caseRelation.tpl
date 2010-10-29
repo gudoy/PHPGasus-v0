@@ -1,4 +1,9 @@
-{assign var='displayAs' value=$field.relGetAs|default:$field.relField}
+{$displayAs=$field.relGetAs|default:$field.relField}
+{$relResource=$field.relResource}
+{$relField=$field.relField}
+{if $data[$relResource] && count($data[$relResource]) < 100}
+{include file='common/forms/admin/fieldLine/caseOneToOne.tpl'}
+{else}
 <div class="relField disabled">
 	{* Handle related resource *}
 	{assign var='relDisplayVal' value=''}
@@ -22,8 +27,8 @@
 	<a class="actionBtn changeValBtn" href="{$data.metas[$field.relResource].fullAdminPath}" title="{t}[require javascript]{/t}">
 		<span class="ninja fieldCurrentVal">{$resource[$fieldName]|default:'&nbsp;'}</span>
 		<span class="ninja formFieldName">{$resourceFieldName}</span>
-		<span class="ninja relResource">{$field.relResource}</span>
-		<span class="ninja relField">{$field.relField}</span>
+		<span class="ninja relResource">{$relResource}</span>
+		<span class="ninja relField">{$relField}</span>
 		{strip}
 		{assign var='tmpRelGetFields' value=''}
 		{if is_array($field.relGetFields)}
@@ -43,3 +48,4 @@
 		<span class="label">{t}search{/t}</span>
 	</a>
 </div>
+{/if}

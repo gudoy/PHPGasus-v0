@@ -278,6 +278,15 @@ class View extends Application
 			foreach ($scheme as $key => $val){ $data['version' . ucFirst($key)] = $val; }
 			$data['version'] 		= $data['versionMajor'];
 			$data['versionFull'] 	= $v;
+			
+			
+			$als 	= $data['alias'];
+			$v 		= $scheme;
+			$data['support'] = array(
+				'datalist' => 
+								$als === 'opera' && ($v['major'] > 10 || ($v['major'] == 10 && $v['minor'] == 5))
+								|| $als === 'ff' && $v['major'] > 4,
+			);
 		}
 		
 		// Features detection
@@ -313,7 +322,7 @@ class View extends Application
 		$known = array(
 			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values',
 			//'operation','isIphone','iphone','isAndroid','android','debug',
-			'operation','debug','confirm',
+			'operation', 'debug','confirm',
 			'errors','successes','warnings','notifications'
 		);
 		
@@ -325,8 +334,32 @@ class View extends Application
 		{
 			// TODO: use array_intersect, array_merge ???
 			//$this->options[$opt] = isset($_GET[$opt]) ? $_GET[$opt] : ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
-			$this->options[$opt] = isset($_GET[$opt]) ? filter_var($_GET[$opt], FILTER_SANITIZE_STRING) : ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
+			$this->options[$opt] = isset($_GET[$opt]) 
+									? filter_var($_GET[$opt], FILTER_SANITIZE_STRING) 
+									: ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
 		}
+		
+		// 
+		$this->options['conditions'] = isset($_GET['conditions']) ? $_GET['conditions'] : null;
+		if ( !empty($this->options['conditions']) )
+		{
+			$passedOps 	= explode(';', $this->options['conditions']);
+			$finalOps 	= array();
+			 
+			foreach ( (array) $passedOps as $item)
+			{
+				$parts = explode('|', $item);
+				
+				if ( count($parts) < 2 ) { continue; }
+				
+				$field 		= filter_var($parts[0], FILTER_SANITIZE_STRING);
+				$operator 	= filter_var( (count($parts) >= 3 ? $parts[1] : '='), FILTER_UNSAFE_RAW);
+				$value 		= filter_var(count($parts) >= 3 ? $parts[2] : $parts[1], FILTER_SANITIZE_STRING);
+				$finalOps[] = array($field, $operator, $value);
+			}
+			$this->options['conditions'] = $finalOps;
+		}
+		
 		
 		$tmpLim = (int) $this->options['limit'];
 		$this->options['limit'] = $tmpLim > 0 ? $tmpLim : ( $tmpLim === -1 ? null : _ADMIN_RESOURCES_NB_PER_PAGE );

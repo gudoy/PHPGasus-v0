@@ -64,6 +64,7 @@ form .line.subtypeFile .editFileUrlMode .emptyValueMode input.file { display:non
 form .line.subtypeFile .emptyValueMode .actionBtn { display:none; }
 form .line.subtypeFile .emptyValueMode .actionBtn.editFileLink { display:inline-block; }
 form .line.subtypeFile .emptyValueMode.editFileUrlMode input.file { display:none; }
+form .line.typeonetomany .suggestBlock { display:none; } 
 
 
 body.opera form fieldset { display:block; }

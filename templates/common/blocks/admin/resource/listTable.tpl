@@ -26,11 +26,11 @@
 						{assign var='isSorted' value=false}
 					{/if}
 					{$isDefaultNamefield=($data.metas[$resourceName].defaultNameField===$fieldName)?true:false}
-					<th class="col {$fieldName}Col type{$field.type|ucfirst} {if $isDefaultNamefield}defaultNameField{/if} {if $isSorted}ui-state-active{/if} {if !$field.list}hidden{/if}">
+					<th class="col {$fieldName}Col type{$field.type|ucfirst} {if $isDefaultNamefield}defaultNameField{/if} {if $isSorted}ui-state-active{/if} {if !$field.list}hidden{/if}" id="{$fieldName}Col" scope="col">
 						<a class="title {if $isSorted}sort {$smarty.get.orderBy|default:'asc'}{/if}" 
 							href="{$data.meta.fullAdminPath}?sortBy={$fieldName}&amp;orderBy={if $smarty.get.orderBy == 'asc'}desc{else}asc{/if}" 
 							title="{t}Sort by{/t}{t}:{/t} {$fieldName} {if $smarty.get.orderBy == 'asc'}descending{else}ascending{/if}"
-							>{if $field.fk}{$field.displayName|default:$field.relResource}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
+							>{if $field.fk}{$field.displayName|default:$data.metas[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
 					</th>
 					{math assign='displayedFieldsNb' equation="x+2" x=$displayedFieldsNb}
 					{/if}
@@ -60,7 +60,7 @@
 					</td>
 				</tr>
 				{foreach name=$resourceName from=$data[$resourceName] item='resource'}
-				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource.id}" data-fullAdminPath="{$data.meta.fullAdminPath}{$resource.id}">
+				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource.id}" data-fullAdminPath="{$data.meta.fullAdminPath}{$resource.id}" scope="row">
 					<td class="col firstcol colSelectResources">
 						<input type="checkbox" name="ids[]" value="{$resource.id}" {if $smarty.post.ids && in_array($resource.id, $smarty.post.ids)}checked="checked"{/if} />
 					</td>
@@ -71,16 +71,16 @@
 					{$isDefaultNamefield=($data.metas[$resourceName].defaultNameField===$fieldName)?true:false}
 					{$value=$resource[$fieldName]}
 					{if $field.list}
-					<td id="{$fieldName}Col{$resource.id}" class="col dataCol {$fieldName}Col type{$field.type|ucfirst} {if $field.subtype}subtype{$field.subtype|ucfirst}{/if} {if $isDefaultNamefield}defaultNameField{/if} {if $field.relResource}typeRel{/if} {if !$field.list}hidden{/if}">
+					<td id="{$fieldName}Col{$resource.id}" class="col dataCol {$fieldName}Col type{$field.type|ucfirst} {if $field.subtype}subtype{$field.subtype|ucfirst}{/if} {if $isDefaultNamefield}defaultNameField{/if} {if $field.relResource}typeRel{/if} {if !$field.list}hidden{/if}" headers="row{$resource.id} {$fieldName}Col">
 						<div class="value dataValue" id="{$fieldName}{$resource.id}" {if $field.type === 'timestamp'}title="{$value|date_format:"%Y-%m-%d %H:%M:%S"}"{/if}>{strip}
 						{if $field.type === 'timestamp' || $field.type === 'datetime'}
 						{$value|date_format:"%d %B %Y, %Hh%M"}
 						{$storedValue=$value}{* Remove and directly use $value  *}
 						{elseif $field.type === 'bool'}
 							{if $value === true || $value === 't' || $value == 1}
-								<span class="validity valid">{t}yes{/t}</span>
+								<span class="validity valid"><span class="label">{t}yes{/t}</span></span>
 							{else}
-								<span class="validity invalid">{t}no{/t}</span>
+								<span class="validity invalid"><span class="label">{t}no{/t}</span></span>
 							{/if}
 						{elseif $field.type === 'int' && $field.subtype === 'fixedValues'}
 							{* assign var='posValIndex' value=$value*}
@@ -105,8 +105,9 @@
 								&nbsp;
 							{/if}
 						{else}
+							{* Handle foreign keys/onetoone relations *}
+							{*
 							{if $field.relResource}
-								{* Handle related resource *}
 								{assign var='relDisplayVal' value=''}
 								{if !empty($field.relDisplayAs)}
 									{assign var='relDisplayVal' value=$field.relDisplayAs|regex_replace:"/\%(.*)\%/Ue":"\\1"}
@@ -123,8 +124,15 @@
 								<a class="relResourceLink" href="{$data.metas[$field.relResource].fullAdminPath}{$value}?method=retrieve" title="{t}[require javascript]{/t}">
 									{$resource[$fieldName]} - {$relDisplayVal|default:'[untitled]'}
 								</a>
+								*}
+							{if $field.fk}
+								{$relResource=$field.relResource}
+								{$relField=$field.relField}
+								<a class="relResourceLink" href="{$data.metas[$relResource].fullAdminPath}{$value}">
+									{*<span class="relField">{$resource[$fieldName]}</span>*}
+									{$resource[{$field.relGetAs|default:$field.relGetFields}]|default:''}
+								</a>
 							{else}
-								{*$value|escape:'html':'utf-8'|truncate:50:"..."*}
 								{if !$field.listTruncate}
 									{$value|regex_replace:'/&([^#]|$)/':'&amp;$1'|stripslashes|default:'&nbsp;'}
 								{else}
@@ -134,10 +142,12 @@
 						{/if}
 						{/strip}</div>
 						<span class="hidden exactValue">{$value}</span>
+						{*
 						{if empty($field.pk) && empty($field.editable)}
 						<span class="ninja columName">{$data.meta.singular}{$fieldName|ucfirst}</span>
 						<span class="ninja fullAdminPath">{$data.meta.fullAdminPath}{$resource.id}</span>
 						{/if}
+						*}
 					</td>
 					{/if}
 					{/foreach}

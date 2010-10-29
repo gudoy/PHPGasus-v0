@@ -26,6 +26,8 @@ var admin =
 	
 	relatedResource: function(jqObj, e)
 	{
+Tools.log('relatedRessource');
+		
 		var self 		= this, 
 			objBubble 	= jqObj.siblings('.adminRelResBubble');		
 		
@@ -214,6 +216,177 @@ var admin =
 				}
 			});
 		});
+		
+		return this;
+	},
+	
+	handleOneToManyFields: function()
+	{
+//Tools.log('handleOneToManyFields');
+		
+		var suggestFields =
+		{
+			context: '.suggestBlock',
+			inputSel: 'input[type=text], input[type=search]',
+			
+			init: function()
+			{
+				var self = this;
+				
+				$(self.inputSel, self.context)
+					.each(function()
+					{
+						var jqOjb = $(this);
+						
+						jqOjb						
+							.bind('keypress', function(e)
+							{
+								self.update(e,jqOjb);
+							})
+							.closest(self.context)
+							.siblings('a.addLink')
+								.click(function(e)
+								{
+									e.preventDefault();
+		
+									$(this).addClass('hidden');
+									
+									self.open(e,jqOjb);
+								})
+						;			
+					});
+				
+				return this;
+			},
+			
+			open: function(e,jqOjb)
+			{
+//Tools.log('open');
+				
+				var self 		= this;
+					//suggest 	= jqOjb.siblings('.suggest');
+					
+				self.goNext(jqOjb);
+				
+				jqOjb
+					.focus()
+					.siblings('.suggest')
+						.bind('click', function(e)
+						{
+							e.preventDefault();
+							
+							var t 				= e.target,
+								jT 				= $(t),
+								item 			= jT.closest('.item', $(this)).addClass('selected'),
+								label 			= item.find('.label').text() || '',
+								value 			= item.find('.value').text() || '',
+								relPostField 	= jqOjb.siblings('input[type=hidden]:first'),
+								curPostVal 		= relPostField.val() || '',
+								curPostValIds 	= (curPostVal && curPostVal.split(',') ) || [],
+								newPostValIds 	= value && curPostValIds.push(value) ? curPostValIds : curPostValId,
+								newPostVal 		= newPostValIds.join() || curPostVal;
+							
+//Tools.log(value);
+//Tools.log(curPostVal);
+//Tools.log(curPostValIds);
+//Tools.log(newPostValIds);
+//Tools.log(newPostVal);
+								
+							jqOjb.val(label);
+							relPostField.val(newPostVal);
+							
+							self.close(jqOjb);
+						})
+						.show()
+					.closest('.suggestBlock')
+					.show()
+					;
+				
+				return this;
+			},
+			
+			update: function(e,jqOjb)
+			{
+				//e.preventDefault();
+								
+				var self 		= this,
+					val 		= jqOjb.val() || '',
+					k 			= e.keyCode || null,
+					suggest 	= jqOjb.siblings('.suggest');
+									
+//Tools.log(val.length);
+Tools.log(k);
+								
+				if ( k === 27 )
+				{
+					self.close(jqOjb);
+				}
+				else if ( k === 38 || (k === 9 && e.shiftKey) )
+				{
+					e.preventDefault();
+					
+					suggest.show();
+					
+					self.goPrev(jqOjb);
+				}
+				else if ( k === 40 || k === 9 )
+				{
+					e.preventDefault();
+					
+					suggest.show();
+					
+					self.goNext(jqOjb);
+				}
+				else if ( val.length >= 1 )
+				{
+					
+				}
+				
+				return this;
+			},
+			
+			goPrev: function(jqOjb)
+			{
+				var self 		= this,
+					suggest 	= jqOjb.siblings('.suggest');
+					items 		= suggest.find('.item'),
+					current 	= items.filter('.hover');
+					prev 		= !current.length || ( items.length >=2 && current.length > 0 && items.index(current) === 0 ) ? items.last() : current.prev();
+					
+				prev.addClass('hover').siblings().removeClass('hover');
+					
+				return this;
+			},
+			
+			goNext: function(jqOjb)
+			{
+				var self 		= this,
+					suggest 	= jqOjb.siblings('.suggest');
+					items 		= suggest.find('.item'),
+					current 	= items.filter('.hover');
+					next 		= !current.length || ( items.length >=2 && current.length > 0 && items.index(current) === items.length-2 ) ? items.first() : current.next();
+					
+				next.addClass('hover').siblings().removeClass('hover');
+					
+				return this;
+			},
+			
+			close: function(jqOjb)
+			{
+				jqOjb
+					.siblings('.suggest')
+					.fadeOut()
+					.find('.item')
+						.removeClass('hover selected')
+						.end()
+					.end()
+				.focus();
+				
+				return this;
+			},
+		};
+		
+		suggestFields.init();
 		
 		return this;
 	},
@@ -527,12 +700,17 @@ var adminIndex =
 			this.curVal 		= this.valCtnr.text() || ''; 											// Get the current value
 			this.exactVal 		= this.valCtnr.siblings('.exactValue').text() || '';
 			this.boolVal		= this.valCtnr.find('.validity').hasClass('valid') || false
-			this.colName 		= $('> .columName:first', this.context).text() || ''; 							// Get the column name
-			this.url 			= $('> .fullAdminPath:first', this.context).text() || false; 						// Get the resource url
+			//this.colName 		= $('> .columName:first', this.context).text() || ''; 							// Get the column name
+			this.colName 		= admin.resourceSingular + Tools.ucfirst(this.context.attr('headers').split(' ')[1] || '').replace(/(.*)Col/,'$1'); 							// Get the column name
 			this.resId 			= this.context.closest('tr').attr('id').replace(/row/,'') || '';
+			//this.url 			= $('> .fullAdminPath:first', this.context).text() || false; 						// Get the resource url
+			this.url 			= window.location.href.replace(/(.*)[\?|$](.*)/,'$1') + this.resId;
 			this.saving 		= false;
 			//this.inputType 	= this.type === 'timestamp' ? 'datetime' : 'text';
 			this.inputType 		= 'text';
+			
+//Tools.log(this.colName);
+//Tools.log(this.url);
 
 			if ( !this.url ){ return this; }
 			
@@ -1160,6 +1338,7 @@ var adminUpdate =
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()
+			.handleOneToManyFields()
 			.handleFileFields();
 		
 		return this;
