@@ -26,8 +26,6 @@ var admin =
 	
 	relatedResource: function(jqObj, e)
 	{
-Tools.log('relatedRessource');
-		
 		var self 		= this, 
 			objBubble 	= jqObj.siblings('.adminRelResBubble');		
 		
@@ -170,6 +168,8 @@ Tools.log('relatedRessource');
 	
 	handleForeigKeyFields: function()
 	{
+		var self = this;
+		
 		$('a.changeValBtn', 'form').click(function(e)
 		{
 			e.preventDefault();
@@ -213,6 +213,110 @@ Tools.log('relatedRessource');
 						
 						$('#' + fName).append(opt);
 					});
+				}
+			});
+		});
+		
+		$('a.addRelatedItemsLink', 'form')
+//.css('border','1px solid red')
+			.live('click', function(e)
+		{
+			e.preventDefault();
+			
+			var $this 			= $(this),										// jQuery reference to the clicked button
+				$select 		= $this.siblings('select'), 					// jQuery reference of the matching select input
+				dialog 			= $('body > .ui-dialog.adminCreateDialog'), 	// Try to find the matching dialog
+				urlDialog 		= $this.attr('href') || '', 					// Get the url of the dialog content (clicked button href)
+				relResource 	= $this.attr('data-relResource') || '', 		// Get the related resource name
+				relGetFields 	= $this.attr('data-relGetFields') || ''; 		// Get the related resource getFields (~default name field)
+			
+			// If the dialog already exists, just open it
+			if ( dialog.length ) { return dialog.dialog('open'); }
+			
+			// Do not continue if the url of the dialog content if not found
+			if ( !urlDialog ) { return self; }
+			
+			// Get the creation form block for the related resource
+			$.ajax(
+			{
+				url: urlDialog,
+				type: 'GET',
+				dataType: 'html',
+				success: function(r)
+				{
+					// Append it to the body and make a modal dialog of it
+					$(r).appendTo('body').dialog({
+						width:'50%',
+						minWidth:200,
+						autoOpen: false,
+						dialogClass: 'adminDialog adminCreateDialog',
+						modal: true,
+						close: function(){ $(this).dialog('destroy').remove(); },
+						open: function()
+						{
+							var that = this;
+							
+							// TO DO: use event delegation?
+							$(that)
+								// Get the cancel button and make it close the dialog
+								.find('a.cancelBtn').click(function(e){ e.preventDefault(); $(that).dialog('close'); })
+								.end()
+								// Get the form and intercept the submit event
+								.find('form').css('border','1px solid red').bind('submit', function(e)
+							{
+								e.preventDefault();
+								
+								var $form 		= $(this),						// jQuery reference to the form
+									urlForm 	= $form.attr('action') || ''; 	// action url of the form 
+								
+								$.ajax(
+								{
+									url: urlForm,
+									type: 'POST',
+									data: $form.serialize(),
+									dataType: 'html',
+									success: function(r)
+									{		
+										// Update the dialog content
+										$(that).html( $(r).html() );
+										
+										// Build the related resource url
+										var relResourceUrl = urlDialog.replace(/\?(.*)/,'') || '';
+										
+										// Do no continue if there's no url
+										if ( !relResourceUrl ){ return self; }
+										
+										// Get the related resource items
+										$.ajax(
+										{
+											url: relResourceUrl,
+											type: 'GET',
+											dataType: 'json',
+											success: function(r)
+											{	
+												if ( r && r[relResource] )
+												{
+													// Empty the mathing select input
+													$select.empty();
+													
+													// Loop over the related resource items and add them as options of the matching select input
+													$.each(r[relResource], function(i,item)
+													{										
+														$opt = $('<option />').attr(
+														{
+															'value':item.id,
+															'text':relGetFields && item[relGetFields] ? item[relGetFields] : item.id
+														});
+														$select.append($opt);
+													});	
+												}
+											}
+										});
+									}
+								});
+							})
+						}
+					}).dialog('open');
 				}
 			});
 		});
@@ -708,7 +812,7 @@ var adminIndex =
 			this.saving 		= false;
 			//this.inputType 	= this.type === 'timestamp' ? 'datetime' : 'text';
 			this.inputType 		= 'text';
-			
+
 //Tools.log(this.colName);
 //Tools.log(this.url);
 
@@ -924,6 +1028,7 @@ var adminIndex =
 								.find('.validity')
 								.removeClass('valid invalid')
 								.addClass(newVal == 1 ? 'valid' : 'invalid')
+								.find('.label')
 								.text(newVal == 1 ? 'yes' : 'no'); }
 						//else if ( self.type === 'varchar' && self.context.hasClass('passwordCol') )
 						// buggy <=== why? TODO : debug
@@ -1310,7 +1415,7 @@ var adminRetrieve =
 		};
 		
 		this.init();
-	}
+	},
 }
 
 
@@ -1338,7 +1443,6 @@ var adminUpdate =
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()
-			.handleOneToManyFields()
 			.handleFileFields();
 		
 		return this;

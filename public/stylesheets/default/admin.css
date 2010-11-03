@@ -46,6 +46,8 @@ form .fieldBlock input.multi { margin-right:30px; }
 form input:focus,
 form select:focus,
 form textarea:focus { background:#ffc; }
+form .line.typeint select,
+form .line.typeonetoone select { min-width:100px; }
 form .line.subtypeFile .actionBtn { margin-right:10px; text-transform:capitalize; }
 form .line.subtypeFile .or { display:none; }
 form .line.subtypeFile .actionsBlock { display:inline-block; }
@@ -271,6 +273,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminBlock .paginationBlock { margin:-28px 0 10px 0; display:inline-block; position:relative; float:right; }
 .adminBlock .paginationBlock:after { height:0; clear:both; content:'.'; display:block; visibility:hidden; }
 .adminBlock .notifierBlock { margin:10px 20px; } 
+.adminCreateBlock .paginationBlock { display:none; }
 
 .adminUpdateBlock form,
 .adminUpdateBlock form { }
@@ -351,3 +354,9 @@ body#adminMessagespushIndex form .line:not(.legendLine) { width:auto; float:none
 .admin p.notification:after { width:16px; height:16px; display:block; content:' '; position:absolute; right:5px; top:3px; background:url(images/commonIconsSprites.png) no-repeat -112px -80px; font-size:1%; cursor:pointer; }
 
 #adminMainNav { margin:0; padding:3px 20px; display:block; clear:both; }
+
+
+.adminDialog .box.adminBlock { margin:0; }
+.adminDialog .adminBlock .actionsBlock { display:none; }
+.adminDialog .adminBlock .titleBlock { display:none; }
+.adminDialog .adminBlock .validateAndBackBtn { display:none; }

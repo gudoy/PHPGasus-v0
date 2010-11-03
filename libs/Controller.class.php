@@ -55,8 +55,20 @@ class Controller extends Application
 		$this->success 	= $this->model->success;
 		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
 		
-		if ( $this->success ) { $this->extendsData($o); }
+		//if ( $this->success ) { $this->extendsData($o); }
 		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
+		
+		// If the request failed, get the errors
+		if ( !$this->success )
+		{
+			//$this->model->errors;
+			
+			$this->handleModelErrors();
+		}
+		else
+		{
+			$this->extendsData($options);
+		}
 		
 		if ( !empty($o['reindexby']) ){ self::reindex($options); }
 		
@@ -113,7 +125,7 @@ class Controller extends Application
 		$this->data 	= $this->model->retrieve($options);
 		$this->success 	= $this->model->success;		
 		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
-		
+
 		// If the request failed, get the errors
 		if ( !$this->success )
 		{
@@ -205,11 +217,11 @@ class Controller extends Application
 		{
 //var_dump($errNb);
 			
-			if 		( $errNb === 1054 ){ $this->errors[4100] = $err; continue; } // Unknown column
-			else if ( $errNb === 1062 ){ $this->errors[] = 4030; continue; } // Duplicate entry error (unique key constraint)
-			elseif 	( $errNb === 1064 ){ $this->errors[] = 4020; continue; } // Request syntax error
-			elseif 	( $errNb === 1451 ){ $this->errors[] = 4110; continue; } // Creation/update error due to fk constraint(s)
-			elseif 	( $errNb === 1452 ){ $this->errors[] = 4050; continue; } // Deletion error due to fk constraint(s)
+			if 		( $errNb === 1054 ){ $this->errors[4100] = $err; continue; } 	// Unknown column
+			else if ( $errNb === 1062 ){ $this->errors[] = 4030; continue; } 		// Duplicate entry error (unique key constraint)
+			elseif 	( $errNb === 1064 ){ $this->errors[] = 4020; continue; } 		// Request syntax error
+			elseif 	( $errNb === 1451 ){ $this->errors[] = 4110; continue; } 		// Creation/update error due to fk constraint(s)
+			elseif 	( $errNb === 1452 ){ $this->errors[] = 4050; continue; } 		// Deletion error due to fk constraint(s)
 			
 			$this->errors[] = 4010; 
 		}

@@ -15,19 +15,20 @@ class VSamples extends ApiView
 	
 	public function index()
 	{
-		$args = func_get_args();
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name
+		
 		$this->dispatchMethods($args, array('allowed' => 'index,create,retrieve,update,delete'));
 		
 		# Comment/remove the following block if you want to allow listing resources
-		$rName 		= $this->resourceName; 								// Shortcut for resource name
-		$opts 		= array_merge($this->options, array('by' => 'id')); // Set options
-		
-		// Try to get the resources
-		$resources 	= $this->C->index($opts);
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : 'id' ) ); 
+		$opts 		= array_merge($o, $opts);
+		$resources 	= $this->C->index(array_merge($o, $opts)); 									// Try to get the resources
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
-			$rName 			=> $resource,
+			$rName 			=> $resources,
 			'success' 		=> $this->C->success, 
 			'errors'		=> $this->C->errors,
 			'warnings' 		=> $this->C->warnings,
@@ -43,8 +44,9 @@ class VSamples extends ApiView
 	
 	public function create()
 	{
-		$args 		= func_get_args();
-		$rName 		= $this->resourceName; 	// Shortcut for resource name
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		
 		// If no resource identifier has been found
 		if ( empty($_POST['device_id']) && empty($_POST['user_firstname']) ){ $this->data['errors'][1001] = 'device_id or user_firstname'; return $this->statusCode(417); } 
@@ -80,14 +82,14 @@ class VSamples extends ApiView
 	
 	public function retrieve()
 	{
-		$args 		= func_get_args();
-		
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
 		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
 		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
 		$rid 		= filter_var($rid, constant($filter));										// Filter the value
-		$opts 		= is_numeric($rid) ? array('by' => 'id') : array('by' => 'admin_title'); 	// Set options
-		$opts 		= array_merge($this->options, $opts, array('values' => $rid));
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
 		// If no resource identifier has been found
 		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
@@ -112,14 +114,14 @@ class VSamples extends ApiView
 	
 	public function update()
 	{
-		$args 		= func_get_args();
-		
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
 		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
 		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
 		$rid 		= filter_var($rid, constant($filter));										// Filter the value
-		$opts 		= is_numeric($rid) ? array('by' => 'id') : array('by' => 'admin_title'); 	// Set options
-		$opts 		+= array('values' => $rid);
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
 		// If no resource identifier has been found
 		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
@@ -156,14 +158,14 @@ class VSamples extends ApiView
 	
 	public function delete()
 	{
-		$args 		= func_get_args();
-		
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
 		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
 		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
 		$rid 		= filter_var($rid, constant($filter));										// Filter the value
-		$opts 		= is_numeric($rid) ? array('by' => 'id') : array('by' => 'admin_title'); 	// Set options
-		$opts 		+= array('values' => $rid);
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
 		// If no resource identifier has been found
 		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }

@@ -78,6 +78,8 @@ class Model extends Application
 		$o 						= $options;																// Shortcut for options
 		$o['type'] 				= !empty($o['type']) ? $o['type'] : 'select'; 							// Set query type to select by default if not already setted
 		
+		$this->launchedQuery 	= $query;
+		
 		// Do the query
 		$queryResult 			= mysql_query($query, $this->db);
 		
@@ -558,7 +560,6 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					
 					$o['groupBy'] 	= !empty($o['groupBy']) ? $this->magic($o['groupBy']) : array();
 					$o['groupBy'][] = 'id';
-//var_dump($crossJoins);
 
 					// Loop over the fields we have to get
 					foreach ($getFields as $item)
@@ -777,7 +778,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 //var_dump($query);
 //if ( $this->resourceName === 'users' ){ die(); }
 		
-		$this->launchedQuery = $query;
+		//$this->launchedQuery = $query;
 		
 		return $query;
 	}
@@ -1147,7 +1148,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		
 		//if ( !empty($o['returning']) ) { $query .= " RETURNING " . $o['returning']; }
 		
-		$this->launchedQuery 	= $query;
+		//$this->launchedQuery 	= $query;
 		$this->afterQuery 		= $after;
 		
 		return $query;
@@ -1500,12 +1501,12 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		//$query 		.= " WHERE " . $o['by'] . " = '" . $this->escapeString($o['values']) . "'";
 		$query 		.= !empty($o['conditions'])
 						? " " . $this->handleConditions($o)
-						: " WHERE " . $o['by'] . " = '" . $this->escapeString($o['values']) . "'";
+						: " WHERE " . $this->safeWrapper . $o['by'] . $this->safeWrapper . " = '" . $this->escapeString($o['values']) . "'";
 		$query 		.= 	( !empty($orderBy) ? $orderBy . " " : '' );
 		$query 		.= 	( !empty($o['limit']) && $o['limit'] != -1 ? " LIMIT " . $o['limit'] . " " : '' );
 		$query 		.= 	( !empty($o['offset']) ? " OFFSET " . $o['offset'] . " " : '' );
 		
-		$this->launchedQuery = $query;
+		//$this->launchedQuery = $query;
 		
 		return $query;
 	}
@@ -1529,7 +1530,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		//$query 		.= $where;
 		$query 		.= 	$where . $conditions;
 		
-		$this->launchedQuery = $query;
+		//$this->launchedQuery = $query;
 		
 		return $query;
 	}

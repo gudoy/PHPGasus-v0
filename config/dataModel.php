@@ -59,6 +59,7 @@ $resources = array(
 'sessions' 			=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'id'),
 'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email'),	
 'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'defaultNameField' => 'user_id'),		
+'versions' 			=> array('singular' => 'version', 'alias' => 'v', 'crudability' => 'CRUD', 'defaultNameField' => 'value'),
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
@@ -152,8 +153,8 @@ $dataModel = array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'admin_title' 			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
 'groupsauths' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
@@ -283,7 +284,16 @@ $dataModel = array(
 	'expiration_time'		=> array('type' => 'timestamp', 'list' => 1, 'editable' => 1),
 	'ip' 					=> array('type' => 'varchar', 'length' => 48, 'list' => 1, 'editable' => 0),
 	'last_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1, 'editable' => 0, 'forceUpdate' => 1),
-	),
+),
+'versions' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'major' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
+	'minor' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
+	'build' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
+	'revision' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+),
 );
 
 

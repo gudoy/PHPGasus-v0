@@ -1,7 +1,7 @@
 {$displayAs=$field.relGetAs|default:$field.relField}
 {$relResource=$field.relResource}
 {$relField=$field.relField}
-{if $data[$relResource] && count($data[$relResource]) < 100}
+{if isset($data[$relResource]) && count($data[$relResource]) < 100}
 {include file='common/forms/admin/fieldLine/caseOneToOne.tpl'}
 {else}
 <div class="relField disabled">

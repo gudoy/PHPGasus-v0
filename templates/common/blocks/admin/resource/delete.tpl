@@ -1,4 +1,4 @@
-<div class="box block adminBlock adminDeleteBlock" id="admin{$resourceName|capitalize}DeleteBlock">
+<div class="box block adminBlock adminDeleteBlock" id="admin{$resourceName|capitalize}DeleteBlock" title="{$data.meta.displayName} - {$resourceId}">
 	<h2>
 		<span class="{$resourceName}" id="resourceName">
 			{$data.meta.displayName} - {$resourceId}

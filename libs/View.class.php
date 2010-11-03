@@ -278,15 +278,6 @@ class View extends Application
 			foreach ($scheme as $key => $val){ $data['version' . ucFirst($key)] = $val; }
 			$data['version'] 		= $data['versionMajor'];
 			$data['versionFull'] 	= $v;
-			
-			
-			$als 	= $data['alias'];
-			$v 		= $scheme;
-			$data['support'] = array(
-				'datalist' => 
-								$als === 'opera' && ($v['major'] > 10 || ($v['major'] == 10 && $v['minor'] == 5))
-								|| $als === 'ff' && $v['major'] > 4,
-			);
 		}
 		
 		// Features detection
@@ -295,6 +286,18 @@ class View extends Application
 								|| ($data['alias'] === 'ff' && $data['versionMajor'] >= 3 && $data['versionMinor'] >= 5)
 								|| ($data['alias'] === 'opera' && $data['versionMajor'] >= 9)
 								|| ($data['alias'] === 'ie' && $data['versionMajor'] >= 9);
+		
+		$als 	= $data['alias'];
+		
+		if ( !empty($scheme) )
+		{
+			$v 		= $scheme;
+			$data['support'] = array(
+				'datalist' => 
+								$als === 'opera' && ($v['major'] > 10 || ($v['major'] == 10 && $v['minor'] == 5))
+								|| $als === 'ff' && $v['major'] > 4,
+			);
+		}
 		
 		$this->browser = $data;
 		
@@ -322,7 +325,7 @@ class View extends Application
 		$known = array(
 			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values',
 			//'operation','isIphone','iphone','isAndroid','android','debug',
-			'operation', 'debug','confirm',
+			'operation','debug','confirm',
 			'errors','successes','warnings','notifications'
 		);
 		
@@ -360,6 +363,8 @@ class View extends Application
 			$this->options['conditions'] = $finalOps;
 		}
 		
+
+
 		
 		$tmpLim = (int) $this->options['limit'];
 		$this->options['limit'] = $tmpLim > 0 ? $tmpLim : ( $tmpLim === -1 ? null : _ADMIN_RESOURCES_NB_PER_PAGE );

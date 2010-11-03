@@ -26,3 +26,12 @@ CACHE MANIFEST
 #/public/javascripts/common/libs/adminSpecifics.js
 #/public/javascripts/common/pages/api/home.js
 /public/javascripts/*
+
+
+NETWORK:
+/account/login
+/account/logout
+/account/signup
+
+FALLBACK:
+# nothing here for the moment

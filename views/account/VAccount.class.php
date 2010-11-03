@@ -131,7 +131,7 @@ class VAccount extends View
 	
 	public function logout()
 	{
-		CSessions::getInstance()->delete(array('values' => $_SESSION['id']));
+		if ( !empty($_SESSION['id']) ) { CSessions::getInstance()->delete(array('values' => $_SESSION['id'])); }
 		
 		// Destroy cookie session if used (default)
 		if ( ini_get('session.use_cookies') )
@@ -139,7 +139,7 @@ class VAccount extends View
 	    	$p 		= session_get_cookie_params();
 			$time 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
 	    	//setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $params['httponly']);
-			setcookie(session_name(), '', $time - 42000, $p['path'], $p['domain'], $p['secure'], $params['httponly']);
+			setcookie(session_name(), '', $time - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
 		}
 		
 		// Delete session var

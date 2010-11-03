@@ -1,9 +1,9 @@
-<div class="box adminBlock adminCreateBlock" id="admin{$resourceName|capitalize}CreateBlock">
+<div class="box adminBlock adminCreateBlock" id="admin{$resourceName|capitalize}CreateBlock" title="{$data.meta.displayName} - {t}Create New{/t}">
 	
 	<div class="titleBlock">
 		<h2>
 			<span class="{$resourceName}" id="resourceName">
-				{$data.meta.displayName} - {t}New{/t}
+				{$data.meta.displayName} - {t}Create New{/t}
 			</span>
 			<span class="{$data.meta.singular}" id="resourceSingular">&nbsp;</span>
 		</h2>

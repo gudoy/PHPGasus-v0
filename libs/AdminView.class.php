@@ -181,6 +181,7 @@ class AdminView extends View
 			// Get the user data
 			//$this->requireControllers('CUsers');
 			$u 				= CUsers::getInstance()->retrieve(array('values' => $uid));
+			//$match 		= in_array($u['auth_level'], $o['authLevel']); // deprecated
 			
 			// TODO: Deprecated, to be removed
 			//$match 			= in_array($u['auth_level'], $o['authLevel']);
@@ -228,6 +229,8 @@ class AdminView extends View
 //var_dump($u['auths']['__can_display']);
 //sort($u['auths']['__can_display']);
 //var_dump($u['auths']['__can_display']);
+//var_dump($u);
+//die();
 			
 			// Store the current user, after having remove sensitive data (password, .... ?)
 			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
@@ -247,37 +250,15 @@ class AdminView extends View
 	{
 		$args = func_get_args();
 		$this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate'));
-		//$this->dispatchMethods($args);
-		
-		//$this->data['view']['method'] 	= __FUNCTION__;
 		
 		$this->log(__METHOD__);
-		
-		/*
-		
-		if ( !empty($_POST['ids']) )
-		{
-			$resourceId 				= join(',', $_POST['ids']);
-			$_SERVER['REQUEST_METHOD'] 	= 'GET';
-			$_GET['method'] 			= $_POST['method'];
-		}
-		
-		$m = $_SERVER['REQUEST_METHOD'];
-		$a = isset($_GET['method']) ? $_GET['method'] : null;
-		
-		if 		( $a === 'duplicate' && !empty($resourceId))	{ return $this->duplicate($resourceId, $options); }
-		else if ( $m === 'PUT' 		|| $a === 'create' )		{ return $this->create($options); }
-		else if ( $m === 'DELETE' 	|| $a === 'delete' )		{ return $this->delete($resourceId, $options); }
-		else if ( $m === 'POST' 	|| $a === 'update' )		{ return $this->update($resourceId, $options); }
-		else if ( $m === 'GET' && !empty($resourceId))			{ return $this->retrieve($resourceId, $options); }
-		*/
-		
-		//$this->dispatchMethods(array('allowed' => 'CRUD'));
-		
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
 			$this->resourceName 	=> $this->C->index($this->options),
+			'success' 				=> $this->C->success, 
+			'errors'				=> $this->C->errors,
+			'warnings' 				=> $this->C->warnings,
 			'current'				=> array_merge($this->data['current'], array(
 				'url' 						=> $this->currentURL(),
 				'offset'					=> $this->options['offset'],
@@ -287,13 +268,8 @@ class AdminView extends View
 			'total'					=> array(
 				$this->resourceName 	=> $this->C->index(array_merge($this->options, array('mode' => 'count'))),
 			),
-			'success' 				=> $this->C->success, 
-			'errors'				=> $this->C->errors,
-			'warnings' 				=> $this->C->warnings,
 		));
 		
-		//if ( !count($this->data[$this->resourceName]) ){ $this->statusCode(204); }
-
 		$this
 			->beforeRender(array('function' => __FUNCTION__));
 			

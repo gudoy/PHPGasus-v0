@@ -1,4 +1,4 @@
-<div class="box block adminBlock adminUpdateBlock" id="admin{$resourceName|capitalize}UpdateBlock">
+<div class="box block adminBlock adminUpdateBlock" id="admin{$resourceName|capitalize}UpdateBlock" title="{$data.meta.displayName} - {$resourceId}">
 	
 	<div class="titleBlock">
 		<h2>
