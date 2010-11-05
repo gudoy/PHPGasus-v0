@@ -373,7 +373,7 @@ class Application
 			if ( _ALLOW_FIREPHP_LOGGING )
 			{		
 				//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
-				//ob_start();
+				ob_start();
 				
 				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');	
 			}

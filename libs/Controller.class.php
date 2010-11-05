@@ -491,7 +491,8 @@ var_dump($tmpData);
 		}
 		else if ( $field['type'] === 'bool' )
 		{
-			$filteredData = $f == '1' ? 1 : 0;
+			//$filteredData = $f == '1' ? 1 : 0;
+			$filteredData = $f == '1' || $f == 'true' || $f == 't' ? 1 : 0;
 		}
 		else if ( $field['type'] === 'text' )
 		{

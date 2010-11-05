@@ -1567,17 +1567,23 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$opType 	= !empty($condFieldValues[1]) ? $condFieldValues[1] : '='; // Default operator to '='
 					//$condValue 	= $condFieldValues[2];
 					$condValue 	= $argsNb === 3 ? $condFieldValues[2] : $condFieldValues[1];
+					$condValue 	= $this->arrayify($condValue);
+					
+//var_dump($condValue);
+//die();
 					
 					// Get the field type
-					$type = !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
+					$type 		= !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
 					
 					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
 					//$conditions .= $this->alias . ".";
 					$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName]['tableAlias'] : $this->alias ) . ".";
 					//$conditions .= $colName . " " . $opType . " " . $condValue;
-					$conditions .= $colName . " " . $opType . " ";
+					//$conditions .= $colName . " " . $opType . " ";
+					$conditions .= $colName . " " . ( is_array($condValue) ? '' : $opType ) . " ";
 					$conditions .= $opType  === '=' && is_array($condValue) 
-										? ' IN (' . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . ' ) ' 
+										? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . "' ) " 
+										//? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $this->escapeString($condValue))) . "' ) "
 										: ( is_bool($condValue) 
 											? (int) $condValue 
 											: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
@@ -1587,6 +1593,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 											) 
 										);
 					$conditions .= ' ';
+					
+//var_dump($conditions);
 				}
 				else
 				{
