@@ -199,8 +199,6 @@ class Application
 		$t 		= parse_url($curURL);
 		$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		
-		
-		
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
 		if ( !$this->isLogged() )
 		{	
@@ -645,14 +643,15 @@ class Application
 			'resource' 			=> null,
 			'field' 			=> null,
 			'preventNumsOnly' 	=> true,
+			'preventAlphaOnly' 	=> false, // TODO
 		), $options);
 		
-		$alpha 		= 'abcdefghjkmnopqrstuvwxyz';
-		$num 		= '23456789';
+		$alpha 		= 'abcdefghjkmnpqrstuvwxyz'; 	// all letters except i,o,l (prevent reading confusions)
+		$num 		= '23456789'; 					// all numerics except 1 (prevent reading confusions)
 		$wref 		= '';
 		while ( strlen($wref) < $o['length'] )
 		{
-			$wref .= mt_rand(1,2) === 1 ? $alpha[mt_rand(1, 24)-1] : $num[mt_rand(0, 7)];
+			$wref .= mt_rand(1,2) === 1 ? $alpha[mt_rand(1, 23)-1] : $num[mt_rand(0, 7)];
 		}
 		
 		// Prevents id having numerics only to prevent conflict with ids in database on "smart searchs" ( retrieve(array('by' => 'id,uid', 'value' => $value)) 
@@ -666,7 +665,7 @@ class Application
 			//$isUnique 	= $ctrl->retrieve(array('by' => 'key', 'values' => $wref, 'mode' => 'count')) === 0;
 			$isUnique 	= $ctrl->retrieve(array('by' => $o['field'], 'values' => $wref, 'mode' => 'count')) === 0;
 			
-			if ( !$isUnique ) { $this->generateUniqueID($o); }	
+			if ( !$isUnique || ($o['preventNumsOnly'] && is_numeric($wref)) ) { $this->generateUniqueID($o); }	
 		}
 		
 		return $wref;

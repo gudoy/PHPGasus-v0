@@ -1498,7 +1498,6 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$orderBy = $this->handleOrder($o);
 		
 		// Finish writing the request
-		//$query 		.= " WHERE " . $o['by'] . " = '" . $this->escapeString($o['values']) . "'";
 		$query 		.= !empty($o['conditions'])
 						? " " . $this->handleConditions($o)
 						: " WHERE " . $this->safeWrapper . $o['by'] . $this->safeWrapper . " = '" . $this->escapeString($o['values']) . "'";
@@ -1515,19 +1514,14 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	public function buildDelete($options)
 	{
 		$o 			= array_merge($this->options, $options); 				// Shortcut for options 											// Shortcut for options
-	
-		// Build WHERE (concatenating values)
+
 		$where 		= $this->handleOperations($o);
 		$conditions = $this->handleConditions($o);
 	
 		// Start writing request
-		// When using "AS", mysql seems want to have the defined as just before the FROM
-		//$query 		= "DELETE " . $this->dbTableShortName . " ";
+		// When using "AS", mysql seems to want to have it defined just before the FROM
 		$query 		= "DELETE " . $this->alias . " ";
-		//$query 		= "DELETE ";
-		//$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->dbTableName . " AS " . $this->dbTableShortName . " ";
 		$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
-		//$query 		.= $where;
 		$query 		.= 	$where . $conditions;
 		
 		//$this->launchedQuery = $query;
@@ -1560,7 +1554,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				if ( !isset($condFieldValues) ) { break; }
 				
 				if ( $pattern === 'advanced' )
-				{					
+				{
 					$argsNb 	= count($condFieldValues);
 					$colName 	= $condFieldValues[0];
 					//$opType 	= $condFieldValues[1];
@@ -1569,12 +1563,10 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$condValue 	= $argsNb === 3 ? $condFieldValues[2] : $condFieldValues[1];
 					$condValue 	= $this->arrayify($condValue);
 					
-//var_dump($condValue);
-//die();
-					
 					// Get the field type
 					$type 		= !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
 					
+					// TODO: refactor handling fieldname, operator, value separately and concatenate them afterwards
 					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
 					//$conditions .= $this->alias . ".";
 					$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName]['tableAlias'] : $this->alias ) . ".";
@@ -1584,10 +1576,11 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$conditions .= $opType  === '=' && is_array($condValue) 
 										? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . "' ) " 
 										//? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $this->escapeString($condValue))) . "' ) "
-										: ( is_bool($condValue) 
+										: $opType . ' ' . ( is_bool($condValue) 
 											? (int) $condValue 
 											: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
-												? "FROM_UNIXTIME('" . $condValue . "')" 
+												//? "FROM_UNIXTIME('" . $condValue . "')" 
+												? "FROM_UNIXTIME('" . implode(',',$condValue) . "')"
 												//: $condValue 
 												: ( is_null($condValue) ? 'NULL' : $condValue )
 											) 
@@ -1627,12 +1620,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	
 	public function handleOperations($options)
 	{
-//var_dump('handleOperations');
-//var_dump($options);
-
 		$o 			= $options; 		// Shortcut for options
-		
 		$where 		= '';
+		
 		if ( isset($o['values']) && !empty($o['by']) )
 		{
 			$whereValues 	= $this->magic($o['values']);
@@ -1641,43 +1631,34 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			switch($op)
 			{
 				case 'valueContains': 
-					//foreach ($whereValues as $item) { $tmpWhere[] = $this->dbTableShortName . "." . $o['by'] . " ILIKE '%" . $this->escapeString($item) . "%'"; }
 					foreach ($whereValues as $item) { $tmpWhere[] = $this->alias . "." . $o['by'] . " ILIKE '%" . $this->escapeString($item) . "%'"; }
 					$where = "WHERE " . join(" OR ", $tmpWhere) . " ";
 					break;
 				case 'valueNotContains': 
-					//foreach ($whereValues as $item) { $tmpWhere[] = $this->dbTableShortName . "." . $o['by'] . " NOT ILIKE '%" . $this->escapeString($item) . "%'"; }
 					foreach ($whereValues as $item) { $tmpWhere[] = $this->alias . "." . $o['by'] . " NOT ILIKE '%" . $this->escapeString($item) . "%'"; }
 					$where = "WHERE " . join(" AND ", $tmpWhere) . " ";
 					break;
 				case 'valueStartsBy': 
-					//foreach ($whereValues as $item) { $tmpWhere[] = $this->dbTableShortName . "." . $o['by'] . " LIKE '" . $this->escapeString($item) . "%'"; }
 					foreach ($whereValues as $item) { $tmpWhere[] = $this->alias . "." . $o['by'] . " LIKE '" . $this->escapeString($item) . "%'"; }
 					$where = "WHERE " . join(" OR ", $tmpWhere) . " ";
 					break;
 				case 'valueEndsBy': 
-					//foreach ($whereValues as $item) { $tmpWhere[] = $this->dbTableShortName . "." . $o['by'] . " LIKE '%" . $this->escapeString($item) . "'"; }
 					foreach ($whereValues as $item) { $tmpWhere[] = $this->alias . "." . $o['by'] . " LIKE '%" . $this->escapeString($item) . "'"; }
 					$where = "WHERE " . join(" OR ", $tmpWhere) . " ";
 					break;
 				case 'valueIsNot': 
-					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " NOT IN ('" . join("', '", $whereValues) . "') ";
 					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " NOT IN ('" . join("', '", $whereValues) . "') ";
 					break;
 				case 'valueIsGreater': 
-					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " > '" . $this->escapeString($whereValues[0]) . "' ";
 					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " > '" . $this->escapeString($whereValues[0]) . "' ";
 					break;
 				case 'valueIsGreaterOrEqual': 
-					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " >= '" . $this->escapeString($whereValues[0]) . "' ";
 					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " >= '" . $this->escapeString($whereValues[0]) . "' ";
 					break;
 				case 'valueIsLower': 
-					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " < '" . $this->escapeString($whereValues[0]) . "' ";
 					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " < '" . $this->escapeString($whereValues[0]) . "' ";
 					break;
 				case 'valueIsLowerOrEqual': 
-					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " <= '" . $this->escapeString($whereValues[0]) . "' ";
 					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " <= '" . $this->escapeString($whereValues[0]) . "' ";
 					break;
 				default:
@@ -1761,7 +1742,6 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$o['getFields'] = !empty($o['getFields']) ? $this->arrayify($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
-		//$query 	= $this->buildSelect($o);
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
 		$this->log($query);
@@ -1783,7 +1763,6 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$o['type'] 	= 'insert';
 		
 		// If a manual query has not been passed, build the proper one
-		//$query 	= $this->buildInsert($resourceData, $o);
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildInsert($resourceData, $o);
 		
 		$this->log($query);
@@ -1830,11 +1809,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		$o['type'] 		= 'update';
 		
 		// Do not continue if no data or no item value has been passed 
-		//if ( empty($resourceData) || empty($o['values']) ) { return; }
 		if ( empty($resourceData) ) { return; }
 		
 		// If a manual query has not been passed, build the proper one
-		//$query = $this->buildUpdate($resourceData, $o);
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildUpdate($resourceData, $o);
 		
 		$this->log($query);

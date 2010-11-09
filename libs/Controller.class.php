@@ -5,7 +5,7 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 class Controller extends Application
 {
 	public $application;
-	protected $model				= null;
+	public $model				= null;
 	public $errors					= null;
 	public $success					= null;
 	public $warnings				= null;
@@ -375,7 +375,9 @@ var_dump($tmpData);
 			$f = $isApi ? $fieldName : $this->resourceSingular . ucFirst($fieldName);
 			
 			// If the field is required but not present, throw an error
-			if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[] = 1002; return; }
+			// TODO: continue looping over the fields to list all missing ones
+			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[] = 1002; return; }
+			if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[1002] = $f; return; }
 			
 			// if the POST data for each field exists
 			if ( isset($_FILES[$f]) || isset($_POST[$f]) )
