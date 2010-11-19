@@ -41,6 +41,13 @@ $errorsAssoc = array(
 	'4110' => array('back' => 'Deletion error due to fk constraint(s)',
 					'front' => _('The resource(s) could not be deleted because other resource(s) are pointing to it (them). Please update/delete sibling resources first.')),
 					
+	'4210' => array('back' => 'Wrong condition format: %s',
+					'front' => _('Wrong condition format. Expected: field, [operator], $values. Received: %s')),
+	'4213' => array('back' => 'Unknown condition field/column: %s',
+					'front' => _('Unknown condition field/column: %s')),
+	'4215' => array('back' => 'Unknown condition operator: %s',
+					'front' => _('Unknown condition operator: %s')),
+					
 	'5000' => array('back' => 'Common error.',
 					'front' => _('An error occured during the process, please retry later')),
 					

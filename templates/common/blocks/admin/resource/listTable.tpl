@@ -8,8 +8,8 @@
 			<thead class="{*titleBlock*} titleRow sortables">
 				<tr>
 		      		{if !$data.sortBy}
-						{assign var='sortBy' value='id'}
-						{assign var='order' value='asc'}
+						{$sortBy='id'}
+						{$order='asc'}
 					{/if}
 					<th class="col firstCol colSelectResources" id="toggleAllCel">
 						<input type="checkbox" id="toggleAll" name="toggleAll" />
@@ -21,9 +21,9 @@
 					{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
 					{if $field.list}
 					{if $smarty.get.sortBy == $fieldName || (strpos($smarty.get.sortBy,',') !== false && strpos($smarty.get.sortBy,$fieldName) !== false)}
-						{assign var='isSorted' value=true}
+						{$isSorted=true}
 					{else}
-						{assign var='isSorted' value=false}
+						{$isSorted=false}
 					{/if}
 					{$isDefaultNamefield=($data.metas[$resourceName].defaultNameField===$fieldName)?true:false}
 					<th class="col {$fieldName}Col type{$field.type|ucfirst} {if $isDefaultNamefield}defaultNameField{/if} {if $isSorted}ui-state-active{/if} {if !$field.list}hidden{/if}" id="{$fieldName}Col" scope="col">
@@ -154,9 +154,9 @@
 					<td class="col colsHandlerCol last">&nbsp;</td>	
 				</tr>
 				{foreachelse}
-				<tr>
+				<tr class="noData">
 					<td colspan="{$displayedFieldsNb+5}">
-						{t}There's currently no item in the database{/t}
+						{t}There's currently nothing here{/t}
 					</td>
 				</tr>
 				{/foreach}

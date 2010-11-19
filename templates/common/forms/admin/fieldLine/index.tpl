@@ -42,31 +42,30 @@
 	</div>
 	
 	<div class="fieldBlock">
-	{*$postVal=$smarty.post[$resourceFieldName]*}
 	{$editable=$field.editable|default:true}
-	{*if $field.type === 'int' && ( ($field.relResource && $field.relField && $field.relUse === 'select') || isset($field.possibleValues) )}
-		{include file='common/forms/admin/fieldLine/caseSelect.tpl'*}
+	{$type=$field.type}
 	{if $field.relResource && $viewMode === 'admin'}
 		{include file='common/forms/admin/fieldLine/caseRelation.tpl'}
-	{elseif $field.type === 'int' || $field.type === 'float'}
+	{elseif $type === 'int' || $type === 'float'}
 		{include file='common/forms/admin/fieldLine/caseInt.tpl'}
-	{elseif $field.type == 'bool'}
+	{elseif $type == 'bool'}
 		{include file='common/forms/admin/fieldLine/caseBool.tpl'}
-	{elseif $field.type === 'text'}
+	{elseif $type === 'text'}
 		{include file='common/forms/admin/fieldLine/caseText.tpl'}
-	{elseif $field.type === 'timestamp'}
+	{elseif $type === 'timestamp'}
 		{include file='common/forms/admin/fieldLine/caseTimestamp.tpl'}
-	{elseif $field.type == 'enum'}
+	{elseif $type == 'enum'}
 		{include file='common/forms/admin/fieldLine/caseEnum.tpl'}
-	{elseif $field.type === 'varchar' && $field.subtype === 'password'}
+	{elseif $type === 'varchar' && $field.subtype === 'password'}
 		{include file='common/forms/admin/fieldLine/casePassword.tpl'}
-	{elseif $field.type === 'varchar' && ($field.subtype === 'file' || $field.subtype === 'fileDuplicate')}
+	{elseif $type === 'varchar' && ($field.subtype === 'file' || $field.subtype === 'fileDuplicate')}
 		{include file='common/forms/admin/fieldLine/caseFile.tpl'}
-	{elseif $field.type === 'onetomany'}
+	{elseif $type === 'onetomany'}
 		{include file='common/forms/admin/fieldLine/caseOneToMany.tpl'}
 	{else}
 		{include file='common/forms/admin/fieldLine/caseVarchar.tpl'}
 	{/if}
+	
 	</div>
 	
 	{if !$html5 && $field.from}<span class="hidden meta from">{$field.from}</span>{/if}

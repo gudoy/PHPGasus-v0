@@ -1,8 +1,5 @@
 <?php
 
-//class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-//class_exists('MSamples') 	|| require(_PATH_MODELS . 'MSamples.class.php');
-
 class CCollections extends Controller
 {
 	private static $_instance;

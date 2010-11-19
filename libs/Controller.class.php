@@ -5,7 +5,7 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 class Controller extends Application
 {
 	public $application;
-	public $model				= null;
+	public $model					= null;
 	public $errors					= null;
 	public $success					= null;
 	public $warnings				= null;
@@ -52,6 +52,39 @@ class Controller extends Application
 		$this->warnings	= array();
 		
 		$this->data 	= $this->model->index($options);
+		$this->success 	= $this->model->success;
+		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
+		
+		//if ( $this->success ) { $this->extendsData($o); }
+		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
+		
+		// If the request failed, get the errors
+		if ( !$this->success )
+		{
+			//$this->model->errors;
+			
+			$this->handleModelErrors();
+		}
+		else
+		{
+			$this->extendsData($options);
+		}
+		
+		if ( !empty($o['reindexby']) ){ self::reindex($options); }
+		
+		return $this->data;
+	}
+	
+
+	public function search($options = array())
+	{
+		$o = $options;
+		
+		$this->success 	= false;
+		$this->errors 	= array();
+		$this->warnings	= array();
+		
+		$this->data 	= $this->model->search($options);
 		$this->success 	= $this->model->success;
 		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
 		

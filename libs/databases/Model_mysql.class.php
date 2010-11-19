@@ -14,6 +14,7 @@ class Model extends Application
 	var $data 			= null;
 	var $afterQuery 	= null;
 	var $safeWrapper 	= '`';
+	var $launchedQuery 	= null;
 	
 	// Default options
 	var $options = array(
@@ -139,7 +140,14 @@ class Model extends Application
 	
 	private function fixSpecifics($options = null)
 	{
-		$o = $options;
+//$t1 = microtime(true);
+		
+		$o 			= $options;
+		$fixTypes 	= !defined('_APP_USE_ONFETCH_TYPEFIXING') || !_APP_USE_ONFETCH_TYPEFIXING;
+		
+		if ( !$fixTypes ){ return $this; }
+		
+//var_dump('old typefixer');
 		
 		if ( !empty($o['mode']) && $o['mode'] === 'count' ){ $this->data = is_numeric($this->data) ? (int) $this->data : $this->data; return $this; }
 		
@@ -150,6 +158,10 @@ class Model extends Application
 		{
 			foreach($this->data as $index => $itemData) { $this->data[$index] = $this->fixSpecificsSingle($itemData); }
 		}
+		
+//$t2 = microtime(true);
+//$d = $t2-$t1;
+//var_dump($d);
 		
 		return $this;
 	}
@@ -305,7 +317,16 @@ class Model extends Application
 		// Otherwise, fetch the query results set
 		else
 		{				
-			if ( $this->numRows > 0 ) 	{ while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC)) { $this->data[] = $row; } }
+			if ( $this->numRows > 0 ) 
+			{
+				$fixTypes = defined('_APP_USE_ONFETCH_TYPEFIXING') && _APP_USE_ONFETCH_TYPEFIXING;
+				
+				while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
+				{
+					//$this->data[] = $row;
+					$this->data[] = $fixTypes ? $this->fixSpecificsSingle($row) : $row;
+				}
+			}
 			else 						{ $this->data = array(); }
 		}
 		
@@ -331,15 +352,6 @@ class Model extends Application
 		//return is_array($tissue) ? $tissue : preg_split("/,+\s*/", $tissue);
 		return $this->arrayify($data);
 	}
-	
-	
-	/*
-	 * Always returns an array. If a string is passed, explodes it on ',' 
-	 */
-	public final function arrayify($value)
-	{
-		return is_array($value) ? $value : preg_split("/,+\s*/", (string) $value);
-	} 
 	
 	
 	private function magicFields($fieldsStringOrArray = null)
@@ -601,12 +613,15 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 									'relation' 		=> 'onetomany',
 					);
 					
+					// Destroy tmp vars to prevent var name conflicts
+					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
+					
 //var_dump($this->queryData['fields'][$pivotTable . '_id']);
 //die();
 				}
 				elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
 				{
-//var_dump('case relation default');
+//$this->dump('case relation default');
 					
 					// Get proper table name
 					$field['relResource'] = //(!empty($this->resources[$field['relResource']]['tableName']) 
@@ -617,13 +632,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					
 					$queryTables[] = _DB_TABLE_PREFIX . $field['relResource'];
 					
-//var_dump('here1');
-					
 
 					if ( !empty($field['relGetFields']) )
 					{
-//var_dump('here2');
-						
 						$tmpFields = $this->magic($field['relGetFields']);
 						
 						// 2 possible models for the fields list:
@@ -649,7 +660,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 											'table' 		=> $field['relResource'],
 											'tableAlias' 	=> $tmpTableAlias,
 											'count' 		=> isset($this->queryData['fields'][$storingName]['count']) ? $this->queryData['fields'][$storingName]['count'] : false,
-							);	
+							);
 						}
 
 						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relResource']) . "." . $field['relField'];
@@ -665,6 +676,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				}
 			}
 			
+			
+//$this->dump($leftJoins);
 //$this->dump($this->queryData['fields']);
 			
 			// Get fields to use in the query
@@ -673,6 +686,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			
 			foreach ($this->queryData['fields'] as $k => $field)
 			{
+//$this->dump($k);
+				
 				// Get the field type
 				$resName 	= !empty($field['resource']) ? $field['resource'] : $this->resourceName;
 				$res 		= $this->application->dataModel[$resName];
@@ -684,6 +699,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 				
 				$finalFields .= ( $i > 0 ? ", " : '' ) 
 								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? "UNIX_TIMESTAMP(" : '')
+								//. ( $type === 'int' ? "CAST('" : '')
 								. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? ' GROUP_CONCAT(CAST(' : '' )
 								. ( !empty($field['table']) 
 									//? $field['table']
@@ -695,6 +711,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 								. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
 								. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
 								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? ") as " . $field['name'] : '' )
+								//. ( $type === 'int' ? "' AS UNSIGNED INTEGER)" : '' )
 								;
 				
 				//if ( !empty($field['table']) && !empty($field['as']) ){ $finalFields .= ( $i > 0 ? ", " : '' ) .  $this->dbTableShortName . "." . $k; }
@@ -708,16 +725,20 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$finalFields .= ( !empty($finalFields) ? ", " : '' ) . "COUNT(" . $this->alias . "." . $k . ") AS " . $k . "_total";
 				}
 				
-//$this->log($finalFields);
+//$this->dump($finalFields);
 				
 				$i++;
 			}
 			
-//$this->log($finalFields);
+//$this->dump($leftJoins);
+			
+//$this->dump($finalFields);
 //$this->log($this->queryData['fields']);
 			
-			$queryTables 	= !empty($getFields) ? '' : join(', ', $queryTables);
-			$leftJoins 		= !empty($getFields) ? '' : join('', $leftJoins);
+			//$queryTables 	= !empty($getFields) ? '' : join(', ', $queryTables);
+			$queryTables 	= empty($queryTables) ? '' : join(', ', $queryTables);
+			//$leftJoins 		= !empty($getFields) ? '' : join('', $leftJoins);
+			$leftJoins 		= empty($leftJoins) ? '' : join('', $leftJoins);
 
 			// Build GROUP BY
 			$groupBy = '';
@@ -1530,7 +1551,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 	}
 
 
-	public function handleConditions($options)
+	public function handleConditions_old($options)
 	{
 		$o 			= $options; 		// Shortcut for options
 		
@@ -1561,7 +1582,8 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$opType 	= !empty($condFieldValues[1]) ? $condFieldValues[1] : '='; // Default operator to '='
 					//$condValue 	= $condFieldValues[2];
 					$condValue 	= $argsNb === 3 ? $condFieldValues[2] : $condFieldValues[1];
-					$condValue 	= $this->arrayify($condValue);
+					//$condValue 	= $this->arrayify($condValue);
+					$condValue 	= $condValue !== null ? $this->arrayify($condValue) : null;
 					
 					// Get the field type
 					$type 		= !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
@@ -1576,7 +1598,9 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 					$conditions .= $opType  === '=' && is_array($condValue) 
 										? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . "' ) " 
 										//? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $this->escapeString($condValue))) . "' ) "
-										: $opType . ' ' . ( is_bool($condValue) 
+										//: $opType . ' ' . ( is_bool($condValue) 
+										//: ' ' . ( is_bool($condValue)
+										: ( is_null($condValue) ? '' : $opType ) . ' ' . ( is_bool($condValue)
 											? (int) $condValue 
 											: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
 												//? "FROM_UNIXTIME('" . $condValue . "')" 
@@ -1616,6 +1640,316 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		
 		return $conditions;
 	}
+
+	/*
+	 * ### Accepted formats for conditions param
+	 * $conditions = array(
+	 * 		$fields1 => $values1, 
+	 * 		$fields2 => $values2, 
+	 * 		...
+	 *	); // <== no operator passed, use = as default one
+	 * $conditions = array(
+	 * 		array($fields1,$operator1,$values1), 
+	 * 		array($fields2,$operator2,$values2),
+	 * 		...
+	 * );
+	 * 
+	 * ### Allowed operators
+	 * ----------------------
+	 * contains: 			LIKE + %value%
+	 * does not contain: 	NOT LIKE + %value%
+	 * starts by: 			LIKE + value%
+	 * ends by: 			LIKE + %value
+	 * not: 				NOT IN (values)
+	 * greater: 			> value
+	 * lower: 				< value
+	 * greater or equal:	>= value
+	 * lower or equal: 		<= value
+	 * equal: (default)		= value
+	 * not equal:			!= value
+	 * is not:				NOT IN (values)
+	 * is:					IN (values)
+	*/	
+	public function handleConditions($options = array())
+	{		
+		$o 				= &$options; 												// Shortcut for $options
+		$output 		= '';														// Initialize conditions request outptut
+				
+		// Do not continue if there's no conditions to handle 
+		if ( empty($o['conditions']) ) { return $output; }
+		
+//$this->dump('handleConditions');
+//$this->dump($o['conditions']);
+		
+		// If the new conditions handler is not activated, use the old one 
+		if ( !defined('_APP_USE_CONDITIONS_HANDLER_V2') || !_APP_USE_CONDITIONS_HANDLER_V2 ) { return $this->handleConditions_old($options); }
+
+		// Known operators
+		$knownOps 		= array(
+			'contains' 			=> 'LIKE', 		// + %value% // TODO
+			'like' 				=> 'LIKE', 		// + %value% // TODO
+			'doesnotcontains' 	=> 'NOT LIKE', 	// + %value% // TODO
+			'notlike' 			=> 'NOT LIKE', 	// + %value% // TODO
+			'startsby' 			=> 'LIKE', 		// + value% // TODO
+			'endsby' 			=> 'LIKE', 		// + %value // TODO
+			'doesnotstartsby' 	=> 'NOT LIKE', 	// + value% // TODO
+			'doesnotendssby' 	=> 'NOT LIKE', 	// + %value // TODO
+			'not' 				=> '!=',
+			'notin' 			=> 'NOT IN',
+			'greater' 			=> '>',
+			'>' 				=> '>',
+			'lower' 			=> '<',
+			'<' 				=> '<',
+			'greaterorequal' 	=> '>=',
+			'>=' 				=> '>=',
+			'lowerorequal' 		=> '<=',
+			'<=' 				=> '<=',
+			'is' 				=> '=',
+			'equal' 			=> '=',
+			'=' 				=> '=',
+			'in' 				=> 'IN',
+			'isnot' 			=> '!=',
+			'notequal' 			=> '!=',
+			'notin' 			=> 'NOT IN',
+			'between' 			=> 'BETWEEN', 		// TODO
+			'notbetween' 		=> 'NOT BETWEEN', 	// TODO
+			// TODO: handle between
+		);
+		$uniques 		= array('>','<','>=','<=');				// operator whose value can only by unique
+		$oneAtATime 	= array('LIKE','NOT LIKE','=','!='); 	// operators allowing multiple conditions but with only 1 at a time
+		$i				= 0;
+		
+		// Loop over the passed conditions
+		foreach ($o['conditions'] as $key => $condition)
+		{
+//$this->dump('condition:');		
+//$this->dump($condition);
+			
+			// If the key is numeric, assume that the conditions array is associative
+			// matching the following pattern array($field1 => $values1, [...])
+			// and then reformat it into array(array($field1,$values1), [...])
+			$condition = !is_numeric($key) ? array($key,$condition) : $condition;
+			
+			// Do not continue if the current item is not an array, throwing a warning by the way
+			if ( !is_array($condition) ){ $this->warnings[4210] = $condition; continue; } // 'Wrong condition format
+			
+			$fields 		= $condition[0];
+			$values 		= count($condition) > 2 ? $condition[2] : $condition[1];
+			// TODO: what if we whant to use float values? have to use "." in float numbers?
+			$multiValues 	= is_array($values) || ( is_string($values) && strpos($values, ',') !== false );
+			$multiFields 	= is_array($fields) || ( is_string($fields) && strpos($fields, ',') !== false );
+			$operator 		= count($condition) > 2 ? strtolower(str_replace(' ', '', $condition[1])) : '=';
+
+			$usedOperator 	= $knownOps[$operator];
+			
+			// Special case
+			// If the operator is = or != and passed values are multiple
+			$usedOperator 	= in_array($usedOperator, array('=','!=')) && $multiValues 
+								? ( $usedOperator === '!=' ? 'NOT IN' : 'IN' ) 
+								: $usedOperator;
+
+//$this->dump('operator: ' . $operator);
+			
+//$this->dump('fields:');		
+//$this->dump($fields);
+//$this->dump('values:');		
+//$this->dump($values);
+//$this->dump('operator: ' . $operator);
+//$this->dump('multiValues: ' . $multiValues);
+
+//$this->dump('operator: ' . $operator);
+			
+			// Do not continue if the current operator does not belong to the known ones, throwing a warning by the way
+			if ( !isset($knownOps[$operator]) ){ $this->warnings[4215] = $operator; continue; } // Unknown operator
+			
+			// Do not continue if the current values are multiple whereas the operator throwing a warning by the way
+			if ( in_array($usedOperator, $uniques) && $multiValues ) { $this->warnings[4215] = $operator . '/' . (string) $values; continue; }
+			
+			$fields 		= is_string($fields) && strpos($fields, ',') !== false ? $this->arrayify($fields) : $fields;
+			$values 		= is_string($values) && strpos($values, ',') !== false ? $this->arrayify($values) : $values;
+			$condKeyword 	= $i === 0 && empty($o['extra']) ? 'WHERE ' : 'AND ';
+			
+//$this->dump('values:');
+//$this->dump($values);
+			
+			$output .= $condKeyword;
+
+//$this->dump('usedOperator: ' . $usedOperator);
+			
+//$this->dump('output:');		
+//$this->dump($output);
+
+			
+
+			// Special case when multiple fields are passed
+			// Since we cannot handle more than 1 field at a time,
+			// we need to explode the array of $fields, handling the first one and making new conditions for the other ones
+			if ( $multiFields )
+			{
+//$this->dump('case multi fields');
+				// Extract the first element from the fields array
+				$tmpFields 	= $fields;
+				$fields 	= array_shift($tmpFields);
+				
+				// For each field, create a single condition 
+				//foreach($tmpFields as $field ){ $o['conditions'] = array($field,$operator,$values); $i++; }
+				$extraConds = array();
+				foreach($tmpFields as $field ){ $extraConds[] = array($field,$operator,$values); $i++; }
+				$extraOutput = $this->handleConditions(array('conditions' => $extraConds, 'extra' => true));
+			}
+			
+			// Handle 'or' conditions
+			if ( isset($condition[4]) && strtolower($condition[4]) === 'or' )
+			{
+				// TODO: get next triplets: [5],[6],[7]???? and loop over itself geting the ouput $orConditions
+			}
+			
+			//if ( $operator === 'in' )
+			if ( in_array($usedOperator, array('IN','NOT IN')) )
+			{
+				// Try to get the queried fields data
+				$qf 	= !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
+				$res 	= !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
+				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
+				$opts 	+= array('values' => $values); 
+				
+				$fields = $this->arrayify($fields);
+				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
+				//$output .= ' IN (' . $this->handleConditionsTypes($opts);
+				$output .= ' ' . $usedOperator . ' (' . $this->handleConditionsTypes($opts);
+				$output .= ') ';
+			}
+			// Case for single field & single value operators
+			else
+			{
+				// Try to get the queried fields data
+				$qf 	= !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
+				// Try to get the related resource for the current field/column, otherwise assume its the current one
+				$res 	= !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
+				$col 	= $fields;
+				$alias 	= !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias;
+				
+				//$output .= $alias . '.' . $fields . ' = ' . $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col)) . ' ';
+				$output .= $alias . '.' . $fields . ' ' . $usedOperator . ' ' . $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col)) . ' ';
+			}
+			
+			// Get conditions alternatives
+			$output .= !empty($orConditions) ? $orConditions : '';
+			
+			// Get extra conditions is there's
+			$output .= !empty($extraOutput) ? $extraOutput : '';
+			
+//$this->dump(@$this->warnings);
+			
+			$i++;
+		}
+		
+//$this->dump('output: ' . $output);	
+//die();
+		
+		return $output;
+	}
+	
+	public function handleConditionsColumns($options = array())
+	{
+//$this->dump('handleConditionsColumns');
+		
+		$o 		= &$options;
+		$output = '';
+		
+		// Do not continue if there's no columns passed
+		if ( empty($o['columns']) ) { return $output; }
+		
+//var_dump($o['columns']);
+		
+		$j = 0;
+		foreach( $o['columns'] as $column )
+		{
+//$this->dump($field);
+			$qf = !empty($this->queryData['fields'][$column]) ? $this->queryData['fields'][$column] : null;
+			
+			// Do not continue if the field is not an existing one
+			if ( !$qf ) { $this->warnings[4213] = $column; continue; } // Unknow field/column
+			
+			//$alias 	= !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias . ".";
+			$alias 	= !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias;
+			$output .= ($j !== 0 ? ', ' : '') . $alias . '.' . $column;
+			$j++;
+		}
+		
+		return $output;
+	}
+
+
+	// Handle values types (depending of the field)
+	// TODO: $this->handleType(array('resource' => current, 'column' => current))???
+	// TODO: $this->handleType(array('type' => gettype($value)))???
+	public function handleConditionsTypes($options = array())
+	{
+//$this->dump('handleConditionsTypes');
+		
+		$o 		= &$options;
+		$output = '';
+		//$output = isset($o['values']) ? $o['values'] : '';
+		
+		if ( is_array($o['values']) )
+		{
+//$this->dump('values array case');
+			//$output .= join("', '", is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues) ;
+			$j = 0; 
+			foreach ( $o['values'] as $val )
+			{
+//var_dump($val);
+				$output .= ($j !== 0 ? ',' : '') . $this->handleTypes($val, $o);
+				//$output .= "'" . ($j !== 0 ? "','" : '') . $this->handleTypes($val, $o) . "'";
+				$j++;
+			}
+		}
+		else
+		{
+//$this->dump('single value case');
+			$output = $this->handleTypes($o['values'], $o);	
+		}
+		
+//$this->dump('output: ' . $output);
+		
+		return $output;
+	}
+	
+	public function handleTypes($val, $options = array())
+	{
+//$this->dump('handleTypes');
+		
+		$o 		= array_merge(array(
+			'resource' 	=> null,
+			'column' 	=> null,
+		), $options);
+		$output = '';
+		
+		$res 			= &$o['resource'];
+		$col 			= &$o['column'];
+		$colModel 		= !empty($res) && !empty($col) && !empty($this->application->dataModel[$res][$col]) ? $this->application->dataModel[$res][$col] : null;
+		$defType 		= !empty($colModel['type']) ? $colModel['type'] : null;
+
+//$this->dump('res: ' . $res);
+//$this->dump('col: ' . $col);
+//$this->dump('colModel: ' . $colModel);
+//$this->dump('defType: ' . $defType);
+//var_dump($val);
+		
+		if ( $defType === 'timestamp' ) 		{ $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
+		else if ( is_int($val) )				{ $val = (int) $val; }
+		else if ( is_float($val) )				{ $val = (float) $val; }
+		else if ( is_bool($val) )				{ $val = (int) $val; }
+		else if ( is_null($val) ) 				{ $val = 'NULL'; }
+		else if ( is_string($val) ) 			{ $val = "'" . $this->escapeString($val) . "'"; }
+		//else 									{ $val = "'" . $this->escapeString($val) . "'"; }
+		else 									{ $val = $val; }
+
+//$this->dump('val: ' . $val);
+		
+		return $val;
+	}
 	
 	
 	public function handleOperations($options)
@@ -1631,7 +1965,7 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 			switch($op)
 			{
 				case 'valueContains': 
-					foreach ($whereValues as $item) { $tmpWhere[] = $this->alias . "." . $o['by'] . " ILIKE '%" . $this->escapeString($item) . "%'"; }
+					foreach ($whereValues as $item) { $tmpWhere[] = $this->alias . "." . $o['by'] . " LIKE '%" . $this->escapeString($item) . "%'"; }
 					$where = "WHERE " . join(" OR ", $tmpWhere) . " ";
 					break;
 				case 'valueNotContains': 
@@ -1679,7 +2013,6 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		
 		return $where;
 	}
-	
 	
 	public function handleOrder($options = array())
 	{
@@ -1749,8 +2082,12 @@ $this->dump('renamed folder:' . $item['destRoot'] . $curFolder . ' IN ' . $item[
 		// Execute the query and store the returned data
 		$this->query($query, $o);
 		
-		
 		return $this->data;
+	}
+	
+	public function search($options = array())
+	{
+		return $this->index($options);
 	}
 	
 	

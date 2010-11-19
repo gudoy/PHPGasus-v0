@@ -11,6 +11,11 @@
 <meta name="author" content="{$smarty.const._APP_AUTHOR_NAME}" />
 <meta name="reply-to" content="{$smarty.const._APP_AUTHOR_MAIL}" />
 <meta name="owner" content="{$smarty.const._APP_OWNER_MAIL}" />
+{*
+http://www.google.com/support/news_pub/bin/answer.py?answer=191283
+<meta name="original-source" content="{$smarty.const._URL}{* current url *}{*">
+<meta name="syndication-source" content="http://www.example.com/wire_story_1.html">
+*}
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 {if $smarty.const._APP_IPHONE_WEBAPP_CAPABLE}<meta name="apple-mobile-web-app-capable" content="yes" />{/if}
 

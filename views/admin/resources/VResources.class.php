@@ -1,7 +1,5 @@
 <?php
 
-//class_exists('AdminView') || require(_PATH_LIBS . 'AdminView.class.php');
-
 class VResources extends AdminView
 {
 	public function __construct()

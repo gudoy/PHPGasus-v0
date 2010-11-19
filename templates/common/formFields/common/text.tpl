@@ -11,7 +11,7 @@
 		<label class="span" for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
-		{if empty($type) || !in_array($type, array('email','phone','url')) || !$html5}{$type='text'}{/if}
-		<input type="{$type}" class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" value="{$smarty.post[$postValName]}" {if $required && $html}required="required"{/if} />
+		{if empty($type) || !in_array($type, array('email','phone','url','search')) || !$html5}{$type='text'}{/if}
+		<input type="{$type}" class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" value="{$smarty.post[$postValName]}" {if $required && $html}required="required"{/if} {if $placeholder}placeholder="{$placeholder}"{/if} />
 	</div>
 </div>

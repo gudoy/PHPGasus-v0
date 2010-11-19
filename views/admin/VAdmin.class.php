@@ -4,6 +4,7 @@ class VAdmin extends AdminView
 {
 	public function __construct()
 	{
+		// Deprecated
 		$this->authLevel = array('god','superadmin','admin','contributor');
 		
 		$this->filePath 		= dirname(__FILE__);
@@ -59,9 +60,6 @@ class VAdmin extends AdminView
 			'sortBy' 	=> 'expiration_time',
 			'orderBy' 	=> 'DESC',
 			'conditions' 	=> array(
-				//array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
-				//array('update_date', '>', ("FROM_UNIXTIME('" . (time() - _APP_SESSION_DURATION) . "')")),
-				//array('update_date', '>', (time() - _APP_SESSION_DURATION)),
 				array('update_date', '>', ( ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) - _APP_SESSION_DURATION ) ),
 				
 				

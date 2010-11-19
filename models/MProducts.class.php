@@ -1,7 +1,5 @@
 <?php
 
-//class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
-
 class MProducts extends Model
 {
 	public function __construct($application = null)

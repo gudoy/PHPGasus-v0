@@ -202,6 +202,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminTable tbody tr.ui-selected td { background:#E0E8A4; }
 .adminTable tbody td.idCol { width:3em; }
 .adminTable tbody td.typeVarchar .value { min-width:10em; }
+.adminTable tr.noData td { text-align:center; }
 
 .relationTable { width:auto; border:1px solid #ABADB3 }
 .relationTable tr td:hover { outline:none; }

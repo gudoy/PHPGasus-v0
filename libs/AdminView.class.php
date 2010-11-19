@@ -62,6 +62,8 @@ class AdminView extends View
 			'resources' 			=> $this->dataModel['resources'],
 		));
 		
+//$this->dump($this->data);
+		
 		return $this;
 	}
 	
@@ -230,6 +232,7 @@ class AdminView extends View
 //sort($u['auths']['__can_display']);
 //var_dump($u['auths']['__can_display']);
 //var_dump($u);
+//var_dump($match);
 //die();
 			
 			// Store the current user, after having remove sensitive data (password, .... ?)
@@ -632,11 +635,7 @@ class AdminView extends View
 		{
 			$this->data['view'] = array_merge(array(
 				'name' 					=> 'admin' . ucfirst($m),
-				//'template' 				=> 'common/pages/admin/common/' . $m . '.tpl',
-				'template' 				=> 'specific/pages/admin/resource/' . $m . '.tpl',
-				//'bodyTpl' 				=> 'layouts/bodyAdmin.tpl',
-				//'css' 					=> array('common', 'admin'),
-				//'jsKey' 				=> 'admin',
+				'template' 				=> 'specific/pages/admin/' . ( !empty($this->resourceName) ? 'resource/' . $m : 'default' ) . '.tpl',
 				'resourceName' 			=> isset($this->resourceName) ? $this->resourceName : '',
 			), ( isset($this->data['view']) ? (array) $this->data['view'] : array()) );
 		}

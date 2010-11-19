@@ -10,9 +10,11 @@
 {include file='common/blocks/admin/nav/mainNav_new.tpl'}
 {/block}
 
+{*
 {block name='adminMainNav'}
 {include file='common/blocks/admin/nav/mainNav.tpl'}
 {/block}
+*}
 
 {block name='breadcrumbs'}
 {include file='common/blocks/header/breadcrumbs.tpl'}
@@ -20,7 +22,15 @@
 
 {block name='aside'}
 <{if $html5}aside{else}div{/if} class="col grid_3" id="sideCol">
+
+	{block name='adminSearch'}
+	{include file='common/blocks/admin/search.tpl'}
+	{/block}
+
+	{block name='secondNav'}
 	{include file='common/blocks/admin/nav/secondNav.tpl'}
+	{/block}
+		
 </{if $html5}aside{else}div{/if}>
 {/block}
 

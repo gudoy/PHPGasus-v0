@@ -91,6 +91,7 @@ class Application
 		
 		// Do not continue if the accounts system (and so db sessions) is not used
 		if ( !_APP_USE_ACCOUNTS ){ return $this; }
+		//if ( !_APP_USE_ACCOUNTS || ( isset($this->noSession) && $this->noSession ) ){ return $this; }
 		
 		// If setted to true, allow sessions to be available for other subdomains
 		if ( _APP_IS_SESSION_CROSS_SUBDOMAIN ) { ini_set('session.cookie_domain', '.' . _DOMAIN); /*session_set_cookie_params(0, '/', '.' . _DOMAIN);*/  }
@@ -599,6 +600,15 @@ class Application
 		
 		return str_replace($convert_from, $convert_to, $string); 
 	}
+	
+	/*
+	 * Always returns an array. If a string is passed, explodes it on ',' 
+	 */
+	public final function arrayify($value)
+	{
+		return is_array($value) ? $value : preg_split("/,+\s*/", (string) $value);
+	} 
+	
 	
 	// function found on http://forum.webrankinfo.com/fonctions-pour-creer-slug-seo-friendly-url-t99376.html
 	/*

@@ -82,4 +82,9 @@ define('_APP_STORE_URL', 						'http://itunes.apple.com');
 define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:2195');
 define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 
+### FEATURES & REFACTORING
+define('_APP_USE_SQL_TYPEFIXING', 				false);
+define('_APP_USE_ONFETCH_TYPEFIXING', 			false);
+define('_APP_USE_CONDITIONS_HANDLER_V2', 		true);
+
 ?>

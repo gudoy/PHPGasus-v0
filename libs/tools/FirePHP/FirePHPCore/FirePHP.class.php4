@@ -51,7 +51,7 @@
  * 
  * @var string
  */
-define('FirePHP_VERSION', '0.0.0master1010251614');   
+define('FirePHP_VERSION', '0.0.0master1011090942');   
 
 /**
  * Firebug LOG level

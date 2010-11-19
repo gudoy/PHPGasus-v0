@@ -1,7 +1,5 @@
 <?php
 
-//class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
-
 class MGroupsauths extends Model
 {
 	public function __construct($application = null)
@@ -9,6 +7,24 @@ class MGroupsauths extends Model
 		$this->resourceName = strtolower(preg_replace('/^M(.*)/','$1', __CLASS__));
 		
 		return parent::__construct($application);
+	}
+
+	public function index($options = array())
+	{
+		$o 				= &$options;
+		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'group_name, resource_name';
+		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
+		
+		return parent::index($options);
+	}
+	
+	public function retrieve($options = array())
+	{
+		$o 				= &$options;
+		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'group_name, resource_name';
+		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
+		
+		return parent::index($options);
 	}
 
 }

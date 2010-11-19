@@ -935,7 +935,8 @@ class View extends Application
 		//$tmpErrors = array_merge((array) $this->data['errors'], $urlErrors);
 		// array_merge fails on associative arrays whose keys are valid numerics
 		// ie: array_merge(array(1001 => 'somevalue'), array('foo')) results int array(0 => 'somevalue') (expected: array('1001' => 'somevalue', 0 => 'foo')
-		$tmpErrors = (array) $this->data['errors'] + $urlErrors;
+		//$tmpErrors = (array) $this->data['errors'] + $urlErrors;
+		$tmpErrors = !empty($this->data['errors']) ? (array) $this->data['errors'] + $urlErrors : null;
 		
 		// If there's no errors, do not continue
 		if ( empty($tmpErrors) ) { return $this; }
