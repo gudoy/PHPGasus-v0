@@ -47,6 +47,8 @@ $errorsAssoc = array(
 					'front' => _('Unknown condition field/column: %s')),
 	'4215' => array('back' => 'Unknown condition operator: %s',
 					'front' => _('Unknown condition operator: %s')),
+	'4220' => array('back' => 'Invalid values for condition: %s',
+					'front' => _('Expected an unique value for the passed condition field/operator couple: %s/%s')),
 					
 	'5000' => array('back' => 'Common error.',
 					'front' => _('An error occured during the process, please retry later')),

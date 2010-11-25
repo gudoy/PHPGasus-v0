@@ -1,6 +1,6 @@
 <?php
 
-class CUsersgroups extends Controller
+class CTechnicians extends CUsers
 {
 	private static $_instance;
 	

@@ -1,7 +1,5 @@
 <?php
 
-class_exists('View') || require(_PATH_LIBS . 'View.class.php');
-
 class AdminView extends View
 {
 	//protected 	$debug 	= false;
@@ -18,16 +16,16 @@ class AdminView extends View
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		$this->dataModel = array(
-			'resources' 		=> $resources,
-			'resourcesFields' 	=> $dataModel,
-			'resourceGroups' 	=> $resourceGroups,
+			'resources' 		=> &$resources,
+			'resourcesFields' 	=> &$dataModel,
+			//'resourceGroups' 	=> $resourceGroups,
 		);
 		
 		parent::__construct();
 		
 		$this
 			->requireLogin()								// Require that the user is logged
-			->requireAuth(); 								// And has at least admin rights
+			->requireAuth(); 								// and has admin rights for the current view
 		
 		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
 		
@@ -40,13 +38,11 @@ class AdminView extends View
 			$tmp 							= explode('/', str_replace(_PATH_VIEWS, '', ($pos ? substr($this->filePath, 0, $pos-1) : $this->filePath)));
 			$tmpGroupName 					= $tmp[count((array) $tmp)-1];
 			$this->resourceAdminBasePath 	= join('/', $tmp) . (!empty($tmp) ? '/' : '');
-			$this->resourceGroupName 		= !empty($tmpGroupName) && !empty($resourceGroups) && !empty($resourceGroups[$tmpGroupName])
-												? $tmpGroupName
-												: '';
+			//$this->resourceGroupName 		= !empty($tmpGroupName) && !empty($resourceGroups) && !empty($resourceGroups[$tmpGroupName]) ? $tmpGroupName : '';
 		}
 		
 		// Get the metadata for each of the resources of the current admin group (or all resources if no groups defined)
-		$this->data['current']['groupResources'] = !empty($this->resourceGroupName) ? $resourceGroups[$tmpGroupName]['resources'] : $this->dataModel['resources'];
+		//$this->data['current']['groupResources'] = !empty($this->resourceGroupName) ? $resourceGroups[$tmpGroupName]['resources'] : $this->dataModel['resources'];
 		
 		// Compute the metadata for each of the resources
 		foreach((array) $this->dataModel['resources'] as $key => $val)
@@ -58,7 +54,7 @@ class AdminView extends View
 		
 		$this->data = array_merge($this->data, array(
 			'dataModel' 			=> $this->dataModel['resourcesFields'],
-			'resourceGroups' 		=> $this->dataModel['resourceGroups'],
+			//'resourceGroups' 		=> $this->dataModel['resourceGroups'],
 			'resources' 			=> $this->dataModel['resources'],
 		));
 		
@@ -152,7 +148,7 @@ class AdminView extends View
 	}	
 	
 	
-	public function requireAuth($options = null)
+	public final function requireAuth($options = null)
 	{
 		$this->log(__METHOD__);
 		
@@ -180,57 +176,62 @@ class AdminView extends View
 		}
 		else
 		{
-			// Get the user data
-			//$this->requireControllers('CUsers');
-			$u 				= CUsers::getInstance()->retrieve(array('values' => $uid));
-			//$match 		= in_array($u['auth_level'], $o['authLevel']); // deprecated
-			
-			// TODO: Deprecated, to be removed
-			//$match 			= in_array($u['auth_level'], $o['authLevel']);
-			
-			# Get user credentials
-			$gids 			= !empty($u['group_ids']) ? $u['group_ids'] : array(); 			// Get user group ids
-			$opts 			= array('by' => 'group_id', 'values' => $gids); 				// Set options
-			$gpsAuths 		= CGroupsauths::getInstance()->index($opts); 					// Try to get user groups auth
-			$uAuths 		= array(); 														// Init user auths array resource indexed array
-			$knownAuths 	= array('display','create','retrieve','update','delete'); 								// List of knowns auth
-			$actionAuths 	= array(); 														// Init user auths actions indexed array
-			
-			// Loop over the group auths
-			foreach ( (array) $gpsAuths as $gpAuths )
-			{
-				// Shortcut for the group auth resource name
-				$rname 				= !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
-				
-				// Do not continue if the resource name has not been found 
-				if ( empty($rname) ) { continue; }
-				
-				// Loop over the know auths
-				foreach($knownAuths as $auth)
-				{
-					$aN 					= 'allow_' . $auth;																// Shortcut for auth name
-					$cN 					= '__can_' . $auth; 															// Shortcut for 
-					$uAuths[$rname][$aN] 	= isset($gpAuths[$aN]) && $gpAuths[$aN] == true; 								// Update the auth for the current resource
-					
-					$actionAuths[$cN] 		= !isset($actionAuths[$cN]) ? array() : $actionAuths[$cN];
-					if ( !empty($gpAuths[$aN]) ) { $actionAuths[$cN][] = $rname; }
-				}
-			}
+            // Get the user data
+            $u              = CUsers::getInstance()->retrieve(array('values' => $uid));
+            
+		    if ( !defined('_APP_USE_ACL_V2') || !_APP_USE_ACL_V2 )
+            {
 
-			
-			$uAuths 		+= $actionAuths;
-			$u['auths'] 	= $uAuths;
-			
-			// Can the user access the admin
-			$ugps 			= !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
-			$u['auths']['__can_access_admin'] = in_array('admins', $ugps) || in_array('superadmins', $ugps) || in_array('gods', $ugps);
-			
-			$match 	= !empty($u['auths']['__can_access_admin']) 
-						&& ( empty($this->resourceName) || in_array($this->resourceName, $u['auths']['__can_display']) );
-			
+                // TODO: Deprecated, to be removed
+                $match            = in_array($u['auth_level'], $o['authLevel']);                
+            }
+            else
+            {
+                # Get user credentials
+                $gids           = !empty($u['group_ids']) ? $u['group_ids'] : array();          // Get user group ids
+                $opts           = array('by' => 'group_id', 'values' => $gids);                 // Set options
+                $gpsAuths       = CGroupsauths::getInstance()->index($opts);                    // Try to get user groups auth
+                $uAuths         = array();                                                      // Init user auths array resource indexed array
+                $knownAuths     = array('display','create','retrieve','update','delete');                               // List of knowns auth
+                $actionAuths    = array();                                                      // Init user auths actions indexed array
+                
+                // Loop over the group auths
+                foreach ( (array) $gpsAuths as $gpAuths )
+                {
+                    // Shortcut for the group auth resource name
+                    $rname              = !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
+                    
+                    // Do not continue if the resource name has not been found 
+                    if ( empty($rname) ) { continue; }
+                    
+                    // Loop over the know auths
+                    foreach($knownAuths as $auth)
+                    {
+                        $aN                     = 'allow_' . $auth;                                                             // Shortcut for auth name
+                        $cN                     = '__can_' . $auth;                                                             // Shortcut for 
+                        $uAuths[$rname][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;                                // Update the auth for the current resource
+                        
+                        $actionAuths[$cN]       = !isset($actionAuths[$cN]) ? array() : $actionAuths[$cN];
+                        if ( !empty($gpAuths[$aN]) ) { $actionAuths[$cN][] = $rname; }
+                    }
+                }
+    
+                
+                $uAuths         += $actionAuths;
+                $u['auths']     = $uAuths;
+                
+                // Can the user access the admin
+                $ugps           = !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
+                $u['auths']['__can_access_admin'] = in_array('admins', $ugps) || in_array('superadmins', $ugps) || in_array('gods', $ugps);
+                
+                $match  = !empty($u['auths']['__can_access_admin']) 
+                            && ( empty($this->resourceName) || in_array($this->resourceName, $u['auths']['__can_display']) );
+                            
 //var_dump($u['auths']['__can_display']);
 //sort($u['auths']['__can_display']);
 //var_dump($u['auths']['__can_display']);
+            }
+
 //var_dump($u);
 //var_dump($match);
 //die();

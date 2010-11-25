@@ -5,7 +5,7 @@ class VAdmin extends AdminView
 	public function __construct()
 	{
 		// Deprecated
-		$this->authLevel = array('god','superadmin','admin','contributor');
+		//$this->authLevel = array('god','superadmin','admin','contributor');
 		
 		$this->filePath 		= dirname(__FILE__);
 		
@@ -25,40 +25,41 @@ class VAdmin extends AdminView
 			'errorsBlock' 	=> false,
 		));
 		
-		// Loop over the resources
-		$r = $this->data['current']['groupResources'];
-		foreach ($r as $key => $val)
-		{
-			$name = is_numeric($key) ? $val : $key;
-			
-			// Get the resource meta
-			$m = $this->data['metas'][$name]; 
-			
-			// Load its controller
-			class_exists($m['controllerName']) || require(_PATH_CONTROLLERS . $m['controllerPath']);
-			
-			// Instanciate it
-			$resController = new $m['controllerName']();
-			
-			//$this->data['meta'][$name] 	= $this->meta($name);
-			$this->data['total'][$name] = $resController->index(array('mode' => 'count'));
-			
-		}
-		
+
+        $this->resourcesData();
 		$this->usersStats();
-		
-//$this->dump($this->data);
 			
 		$this->render();
 	}
 	
+    
+    public function resourcesData()
+    {
+        if ( !defined('_APP_ADMIN_GET_RESOURCES_DATA') || !_APP_ADMIN_GET_RESOURCES_DATA ){ return $this; }
+        
+        // Loop over the resources
+        $r = &$this->dataModel['resources'];
+        foreach ( array_keys($r) as $name )
+        {
+            $cName                      = 'C' . ucfirst($name);                         // Build the controller name
+            $$cName                     = new $cName();                                 // Instanciate the controller
+            $this->data['total'][$name] = $$cName->index(array('mode' => 'count'));     // Get the resource count
+            
+        }
+
+        return $this; 
+    }
 	
+    
 	public function usersStats()
 	{
+	    if ( !defined('_APP_ADMIN_GET_USERS_STATS') || !_APP_ADMIN_GET_USERS_STATS ){ return $this; }
+        
 		$CSessions = new CSessions();
+        
 		$this->data['usersStats']['connected'] = $CSessions->index(array(
-			'sortBy' 	=> 'expiration_time',
-			'orderBy' 	=> 'DESC',
+			'sortBy' 		=> 'expiration_time',
+			'orderBy' 		=> 'DESC',
 			'conditions' 	=> array(
 				array('update_date', '>', ( ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) - _APP_SESSION_DURATION ) ),
 				
@@ -66,16 +67,20 @@ class VAdmin extends AdminView
 			)
 		));
 		$userIds 						= $CSessions->values('user_id');
-		$this->data['connectedUsers'] 	= CUsers::getInstance()->index(array('values' => $userIds, 'reindexby' => 'id')); 
+		$this->data['connectedUsers'] 	= CUsers::getInstance()->index(array('values' => $userIds, 'reindexby' => 'id'));
+        
+        return $this; 
 	}
 	
-	
+	/*
+     * Deprecated. Used for finder widget on Soundwalk
+     */
 	public function related($checkAgainstResource = '', $options = null)
 	{
 		$c 				= strtolower($checkAgainstResource); 			// Shortcut for resource to check against
 		$filterValue 	= $this->options['values'];  
-		$resources 		= $this->dataModel['resourcesFields']; 		// Shortcut for resources
-		$dmR 			= $this->dataModel['resources'];
+		$resources 		= &$this->dataModel['resourcesFields']; 		// Shortcut for resources
+		$dmR 			= &$this->dataModel['resources'];
 		$this->data 	= array(
 			'related' 			=> array(),
 			'siblings' 			=> array(),
@@ -85,7 +90,7 @@ class VAdmin extends AdminView
 		foreach ((array) $resources as $rName => $cols)
 		{			
 			// Loop over their colums
-			foreach ((array) $cols as $cName => $props)
+			foreach ((array) $cols as $col => $props)
 			{
 				if ( $rName === $c && !empty($props['relResource']) )
 				{
@@ -98,13 +103,13 @@ class VAdmin extends AdminView
 					$ctrlr = new $m['controllerName']();
 					
 					// List the fields whe have to get
-					$fields2get = array($props['relField'], $cName);
+					$fields2get = array($props['relField'], $col);
 					
 					$this->data['siblings'][$props['relResource']] = array(
 						'meta' 		=> $m,
-						'relOn' 	=> $cName,
+						'relOn' 	=> $col,
 						'relType' 	=> 'sibling',
-						'items' => $ctrlr->index(array('values' => !empty($_GET[$cName]) ? $_GET[$cName] : null, )),
+						'items' => $ctrlr->index(array('values' => !empty($_GET[$col]) ? $_GET[$col] : null, )),
 					);
 				}
 				
@@ -120,7 +125,7 @@ class VAdmin extends AdminView
 				$ctrlr = new $m['controllerName']();
 
 				// List the fields whe have to get
-				$fields2get = array($props['relField'], $cName);
+				$fields2get = array($props['relField'], $col);
 				
 				// If the default name field for this resource should be gotten via a JOIN, we have to add the column on which the join is done
 				if ( !empty($m['defaultNameField']) && !isset($resources[$rName][$m['defaultNameField']]) )
@@ -137,11 +142,11 @@ class VAdmin extends AdminView
 				// Then build the output data
 				$this->data['related'][$rName] = array(
 					'meta' => $m,
-					'relOn' => $cName,
+					'relOn' => $col,
 					'relType' => 'child',
 					'items' => $ctrlr->index(array(
 						'values' 	=> $filterValue, 
-						'by' 		=> !empty($filterValue) ? $cName : null,
+						'by' 		=> !empty($filterValue) ? $col : null,
 						'getFields' => $fields2get,
 					)),
 				);
@@ -153,6 +158,11 @@ class VAdmin extends AdminView
 
 		$this->render(__FUNCTION__);
 	}
+
+    public function importMachines()
+    {
+        CMachines::getInstance()->import();   
+    }
 
 	
 };

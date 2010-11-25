@@ -190,7 +190,13 @@ form .suggest .item { padding:0.5em; display:block; }
 form .suggest .item.hover,
 form .suggest .item:hover { background:#ffc; }
 form .suggest .item.selected { background:#3d9dfd; color:#fff; }
-form .suggest input.search:before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -144px 0; font-size:1%; vertical-align:middle; }
+/*
+ * w3c spec does not specific :after and :before for replaced elements such as input & images
+ * however works in
+ * Opera (>=10.5)
+ */
+form input.search:before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -112px -112px; font-size:1%; vertical-align:middle; border:1px solid blue; }
+form input[type=search]:before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -112px -112px; font-size:1%; vertical-align:middle; border:1px solid blue; position:relative; margin-left:-20px; z-index:9999; }
 
 form .fieldBlock .currentItem { /*margin-right:10px; display:inline-block;*/ margin-bottom:10px; vertical-align:middle; }
 form .fieldBlock .currentItem a.file.image { margin-left:0; }

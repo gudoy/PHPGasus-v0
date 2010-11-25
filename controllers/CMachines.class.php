@@ -6,8 +6,7 @@ class CMachines extends Controller
 	
 	public function __construct()
 	{
-		$this->resourceName 	= strtolower(preg_replace('/^C(.*)/','$1', __CLASS__));
-		//$this->resourceSingular = 'sample'; // use only if: singular !== (resourceName - "s") 
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}
@@ -18,5 +17,258 @@ class CMachines extends Controller
 		
 		return self::$_instance;
 	}
+    
+    public function import()
+    {
+        $t1         = microtime(true);
+        $this->lb   = '<br/>';
+        
+        //$srcFilePath = _URL_PUBLIC . 'FUSION.txt';
+        //$srcFilePath = _PATH_PUBLIC . 'machines_log';
+        $srcFilePath = _PATH_PUBLIC . 'machines_log - Copie';
+        
+//$this->dump($srcFilePath);
+        
+        // Opens the file and lock it (prevents other process to access it)
+        $handle         = fopen($srcFilePath, 'r');
+        
+        // Do not continue if the file could not be open
+        if ( !is_resource($handle) ){ return $this; }
+             
+        flock($handle, LOCK_EX);
+        
+        $rowNb                  = 1;
+        $imported               = 0;
+        //$this->data           = array();
+        $csvModel               = null;
+        $maildmn                = '@' . 'photomaton.com';
+        
+        // Instanciate proper controllers
+        foreach ( array('machines','users','groups','usersgroups') as $item)
+        {
+            $cname  = 'C' . ucfirst($item);
+            $$cname = new $cname();
+        }
+        
+        // Get groups
+        $groups                 = $CGroups->index(array('reindexby' => 'name', 'isUnique' => 1));
+        
+//var_dump($groups);
+
+        // As long as we find a row to parse
+        while ( ($row = fgets($handle) ) !== false)
+        {
+            // Do not continue if the row is empty
+            if ( empty($row) ){ continue; }
+            
+if ( $rowNb > 30 ){ break; }
+            
+//$this->dump($row);
+//var_dump($row);
+        
+            $tmpData            = explode(";", substr($row, 0, -1));
+            
+            // Remove "" wrapping string values
+            foreach ( $tmpData as $k => $v ){ $tmpData[$k] = is_string($v) ? str_replace(array('"'), array(''), $v) : $v; }
+            
+//$this->dump($tmpData);
+//var_dump($tmpData);
+
+            // Handle the commercial
+            if ( !empty($tmpData[29]) )
+            {
+                $ccial      = array(
+                    'first_name'    => strtolower(preg_replace('/(.*)\s(.*)/', '$2', $tmpData[29])),
+                    'last_name'     => strtolower(preg_replace('/(.*)\s(.*)/', '$1', $tmpData[29])),
+                );
+                $u          = &$ccial;              // Shortcut for the user data
+                $u          += array(
+                    'name'      => $u['first_name'] . ' ' . $u['last_name'],
+                    'email'     => !empty($u['first_name']) && !empty($u['last_name']) ? $u['first_name'][0] . $u['last_name'] . $maildmn : null,
+                    'password'  => md5(time()),
+                );
+                
+                // Try to find the user in the db
+                $uid = $CUsers->retrieve(array(
+                    'getFields'     => 'id',
+                    'conditions'    => array('first_name' => $u['first_name'], 'last_name' => $u['last_name']),
+                ));
+                
+                // If the commercial user id has not beed found, create it
+                if ( empty($uid) )
+                {
+                    // Create the user
+                    $_POST      = array();
+                    foreach ($u as $k => $v) { $_POST['user' . ucfirst($k)] = $v; }
+                    $uid    = $CUsers->create(array('returning' => 'id'));
+                    
+                    // Insert him into the proper groups
+                    $_POST      = array();
+                    $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['commercials']['id']);
+                    foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
+                    $CUsersgroups->create();
+                }
+                
+                $ccialid = &$uid;
+            }
+            
+            // Handle the technician
+            if ( !empty($tmpData[16]) || !empty($tmpData[17]) )
+            {
+                $techn      = array(
+                    'first_name'    => strtolower(preg_replace('/(.*)\s(.*)/', '$2', $tmpData[17])),
+                    'last_name'     => strtolower(preg_replace('/(.*)\s(.*)/', '$1', $tmpData[16])),
+                );
+                $u          = &$techn;              // Shortcut for the user data
+                $u          += array(
+
+                    'email'     => !empty($u['first_name']) && !empty($u['last_name']) ? $u['first_name'][0] . $u['last_name'] . $maildmn : null,
+                    'password'  => md5(time()),
+                );
+                
+                // Try to find the user in the db
+                $uid = $CUsers->retrieve(array(
+                    'getFields'     => 'id',
+                    'conditions'    => array('first_name' => $u['first_name'], 'last_name' => $u['last_name']),
+                ));
+                
+                // If the commercial user id has not beed found, create it
+                if ( empty($uid) )
+                {
+                    // Create the user
+                    $_POST      = array();
+                    foreach ($u as $k => $v) { $_POST['user' . ucfirst($k)] = $v; }
+                    $uid    = $CUsers->create(array('returning' => 'id'));
+                    
+                    // Insert him into the proper groups
+                    $_POST      = array();
+                    $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['technicians']['id']);
+                    foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
+                    $CUsersgroups->create();
+                }
+                
+                $technid = &$uid;
+            }
+            
+            /*
+            $client = array(
+                'name'      => $tmpData[20],
+            );
+            */
+
+            $machine = array(
+                'code'                  => $tmpData[0],
+                'number'                => $tmpData[1],
+                'position'              => (int) $tmpData[2],
+                'model'                 => $tmpData[3],
+                'place_code'            => (float) $tmpData[4],
+                'install_date'          => !empty($tmpData[5]) ? DateTime::createFromFormat('d/m/Y H:i:s', $tmpData[5])->getTimestamp() : null,
+                'uninstall_date'        => !empty($tmpData[6]) ? DateTime::createFromFormat('d/m/Y H:i:s', $tmpData[6])->getTimestamp() : null,
+                'place_name'            => strtolower($tmpData[12]),
+                'commercial_code'       => $tmpData[13],
+                'sector_code'           => $tmpData[14],
+                'technician_user_id'    => $technid,
+                // [skip], [skip], [skip], [skip], [skip
+                //'client_code'             => $tmpData[15],
+                'technical_area_code'   => $tmpData[18],
+                'technical_area_name'   => $tmpData[19],
+                
+                'model_name'            => $tmpData[21],
+                'team_chief_code'       => $tmpData[22],
+                // [skip],
+                'company_code'          => $tmpData[24],
+                'model_category_name'   => $tmpData[25], // <= model_group_name?
+                'client_category_name'  => $tmpData[26],
+                'model_family'          => $tmpData[27],
+                // [skip],
+                'commercial_user_id'    => $ccialid,
+                'department'            => strtolower($tmpData[30]),
+                'city'                  => strtolower($tmpData[31]),
+                // [skip], [skip], [skip],
+                'accountant_code'       => $tmpData[34],
+                'accountant_code'       => $tmpData[35],
+                'contract_type'         => $tmpData[36],
+                //'warranty_end_date'       => !empty($tmpData[37]) ? DateTime::createFromFormat('d/m/Y H:i:s', $tmpData[37])->getTimestamp() : null,
+            );
+            
+//var_dump($machine);
+//var_dump($ccial);
+//var_dump($techn);
+//var_dump($client);
+//var_dump('--------------------------------------');
+            
+            // Add the machine to the db
+            $_POST = array();
+            foreach ( $machine as $k => $v ){ $_POST['machine' . ucfirst($k)] = $v; }
+//var_dump($_POST);
+            $CMachines->create();
+            $result =  $CMachines->success;
+
+
+            
+//$this->logError('Machine ' . $rowNb . ' : ' . ($result ? 'OK' : 'ERROR'));
+$this->logError(!$result ? 'Error on line ' . (string) ($rowNb) : '');
+$this->logError(!$result ? 'Raw data:' . (string) ($row) : '');
+if (!$result)
+{
+var_dump($tmpData);
+var_dump($CMachines->errors);
+}
+$this->logError(!$result && isset($CMachines->model->launchedQuery) ? $CMachines->model->launchedQuery : '');
+$this->logError(!$result ? '--------------------------------------' : '');
+
+            if ( $result ){ $imported++; }
+
+            unset($tmpData, $machine, $ccial, $techn);
+            $rowNb++;
+        }
+        
+        $t2     = microtime(true);
+        $ptime  = ($t2 - $t1);
+        
+        $succesLog = 'TOTAL: processed in: ' . $ptime . 's' . $this->lb;
+        $succesLog .= 'TOTAL: ' . $rowNb . ' row(s) found' . $this->lb;
+        $succesLog .= 'TOTAL: ' . $imported . ' record(s) successfully inserted' . $this->lb;
+        $succesLog .= 'BATCH END ----' . $this->lb;
+        print_r($succesLog);
+        
+        return $this;
+    }
+    
+    
+    // If the passed error is an object or an array print_r it
+    // otherwise, we just make a simple print
+    public function logError($err = '', $options = array())
+    {
+        // Set a shortcut for options, extending default params by passed one
+        $o = array_merge(array('autoEOL' => true), $options);
+        
+        // Do no continue if the error is an empty string
+        if ( $err === '' ){ return $this; }
+                
+        //$log = is_string($err) ? $err : print_r($err);
+        $log = (is_array($err) || is_object($err) ) ? print_r($err, true) : $err;
+        //$log .= $o['autoEOL'] ? PHP_EOL : '';
+        $log .= $o['autoEOL'] ? '<br/>' : '';
+        
+        /*
+        // Open the error file
+        $handle = fopen($this->errLogPath, 'a');
+        
+        // Write the log message into the file
+        fwrite($handle, $log);
+        
+        // Release the file
+        fclose($handle);
+        */
+        
+        echo $log;
+        
+        $log    = null;
+        
+        //ob_start();
+        
+        return $this;
+    }
 }
 ?>

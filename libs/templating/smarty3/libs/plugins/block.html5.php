@@ -55,7 +55,7 @@ function smarty_block_html5($params, $content)
 		'id' 			=> '',
 	), (array) $params);
 	$tag 		= $p['html5'] ? $p['tag'] : $p['fallbackTag'];
-	$classes 	= trim((string) $p['class']) . $html5[$p['tag']]['class'];
+	$classes 	= $html5[$p['tag']]['class'] . ' ' . trim((string) $p['class']);
 	
 	return '<' . $tag . ' class="' . $classes . '"' . ( !empty($p['id']) ? ' id="' . $p['id'] . '"' : '' ) . '>' . $content . '</' . $tag . '>';
 } 

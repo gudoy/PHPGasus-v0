@@ -262,7 +262,7 @@ var admin =
 								.find('a.cancelBtn').click(function(e){ e.preventDefault(); $(that).dialog('close'); })
 								.end()
 								// Get the form and intercept the submit event
-								.find('form').css('border','1px solid red').bind('submit', function(e)
+								.find('form').bind('submit', function(e)
 							{
 								e.preventDefault();
 								
@@ -487,7 +487,7 @@ Tools.log(k);
 				.focus();
 				
 				return this;
-			},
+			}
 		};
 		
 		suggestFields.init();
@@ -1078,7 +1078,7 @@ var adminIndex =
 		// Close every already opened inline editor cell
 		this.closeAll();
 		this.init(jqObj);
-	},
+	}
 };
 
 
@@ -1169,7 +1169,7 @@ var adminRetrieve =
 					{
 						autoHeight: false,
 						clearStyle: true,
-						header: '.ui-finder-group-header',
+						header: '.ui-finder-group-header'
 					})
 					//.find('.ui-finder-group:first .ui-finder-group-header a:first').click()
 					.end()
@@ -1415,7 +1415,7 @@ var adminRetrieve =
 		};
 		
 		this.init();
-	},
+	}
 }
 
 

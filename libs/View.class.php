@@ -4,15 +4,16 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 
 class View extends Application
 {
-	var $controller			= null;
-	var $headers 			= array();
-	public $Events 			= null;
-	
-	public $data 			= array(
+	var $controller        = null;
+	var $headers           = array();
+	var $Events            = null;
+	var $data              = array(
 		'success' 		=> false,
 		'errors' 		=> array(), 
 		'warnings' 		=> array()
 	);
+    
+    var $logged             = false;
 		
 	public function __construct()
 	{
@@ -126,7 +127,7 @@ class View extends Application
 		}
 		*/
 				
-		$o 			= $options; 
+		$o 			= &$options; 
 		$rm 		= strtolower($_SERVER['REQUEST_METHOD']); 													// Shortcut for request method
 		$a 			= isset($this->options['method']) ? $this->options['method'] : null; 						// Shortcut for "forced method" 
 		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
@@ -139,9 +140,6 @@ class View extends Application
 		
 		$this->data['view']['method'] = $m;
 		
-//var_dump($rm);
-//var_dump($m);
-		
 		// If the method is not index and belongs to the allowed methods, call it
 		if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
 		// Otherwise, just continue
@@ -151,20 +149,6 @@ class View extends Application
 			return $this->statusCode(405); // Method not allowed
 		}
 	}
-	
-	
-	/*
-	public function methodDispatch($methodArguments, $className, $objectId, $options)
-	{
-		$this->log(__METHOD__);
-		
-		$args 	= $methodArguments;	// Shortcut for arguments;
-		$c 		= $className;		// Shortcut for classname
-		$m 		= $args[1];			// Shortcut for method
-		$a		= sizeof($args) >= 3 ? array_slice($args, 2) : $args[0]; // Shortcut for function params
-
-		return call_user_func(array(new $c($c), $m), $objectId, $a, $options);
-	}*/
 	
 	
 	/*
@@ -187,7 +171,7 @@ class View extends Application
 		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		
 		// List of known platforms
-		$knownPlatforms = array('Windows','Mac OS','iPhone','iPod','iPad','Android','Bada','AdobeAIR','tabbee');
+		$knownPlatforms = array('Windows','Mac OS','linux','freebsd','iPhone','iPod','iPad','Android','Bada','AdobeAIR','tabbee','mobile','j2me');
 		
 		foreach ( $knownPlatforms as $p )
 		{
@@ -232,7 +216,7 @@ class View extends Application
 		
 		// Known browsers data
 		$data 			= $this->browser;
-		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', );
+		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml');
 		$knownBrowsers 	= array(
 			'MSIE' 						=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
 			'Firefox' 					=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
@@ -240,6 +224,7 @@ class View extends Application
 			'Chrome' 					=> array('name' => 'chrome', 'displayName' => 'Chrome', 'alias' => 'chrome', 'versionPattern' => '/.*(Chrome)\/([0-9\.]*)\s.*/'),
 			'Safari' 					=> array('name' => 'safari', 'displayName' => 'Safari', 'alias' => 'safari', 'versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
 			'Opera' 					=> array('name' => 'opera', 'displayName' => 'Opera', 'alias' => 'opera', 'versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
+			'Konqueror'                 => array('name' => 'konqueror', 'displayName' => 'Konqueror', 'alias' => 'konqueror', 'versionPattern' => '/.*(Konqueror)\/([0-9\.]*)\s.*/'),
 		);
 				
 		// Try to get the browser data using the User Agent
@@ -285,7 +270,8 @@ class View extends Application
 								|| ($data['alias'] === 'safari' && $data['versionMajor'] >= 4)
 								|| ($data['alias'] === 'ff' && $data['versionMajor'] >= 3 && $data['versionMinor'] >= 5)
 								|| ($data['alias'] === 'opera' && $data['versionMajor'] >= 9)
-								|| ($data['alias'] === 'ie' && $data['versionMajor'] >= 9);
+								|| ($data['alias'] === 'ie' && $data['versionMajor'] >= 9)
+                                || ($data['alias'] === 'konqueror' && $data['versionMajor'] >= 4 && $data['versionMinor'] >= 4 && $data['build'] >= 4);
 		
 		$als 	= $data['alias'];
 		
@@ -611,7 +597,7 @@ class View extends Application
 		if ( $of === 'html' || $of === 'xhtml' )
 		{
 			$cacheId = !empty($this->data['view']['cacheId']) ? $this->data['view']['cacheId'] : null;
-			
+            
 			$this
 				->writeHeaders()
 				->prepareTemplate($viewData)
@@ -1155,17 +1141,13 @@ class View extends Application
 	{
 		$this->log(__METHOD__);
 		
-		//$this->data = !empty($this->data) && is_array($this->data) ? $this->data : array();
 		$this->data = array_merge($viewData, (array) $this->data);
 		
-		// Load css, js & errors associations files and allow Smarty to access their variables
-		//isset($pagesJSassoc) 	|| require(_PATH_CONFIG . 'jsAssoc.php');
-
-		//$this->getJS();
+		$v = &$this->data['view'];
 		
-		$this->data['view']['smartname'] 		= $this->smartname();
-		$this->data['view']['smartclasses'] 	= $this->smartclasses();
-		$this->data['view']['isAjaxRequest'] 	= $this->isAjaxRequest;
+		$v['smartname'] 	= $this->smartname();
+		$v['smartclasses'] 	= $this->smartclasses();
+		$v['isAjaxRequest'] = $this->isAjaxRequest;
 
 		// Merge resourceData, processingData and viewData
 		$this->data = array_merge($this->data, array(
@@ -1176,23 +1158,23 @@ class View extends Application
 			'css' 				=> $this->getCSS(),
 			'js' 				=> $this->getJS(),
 			'debug' 			=> $this->debug,
-			//'logged' 			=> $this->logged,
-			'logged' 			=> $this->isLogged(),
+			'logged' 			=> $this->logged,
+			//'logged' 			=> $this->isLogged(),
 		));
 		
-		if ( isset($this->data['view']['cache']) && !$this->data['view']['cache'] ){ $this->Smarty->caching = 0; }  
+		if ( isset($v['cache']) && !$v['cache'] ){ $this->Smarty->caching = 0; }  
 
 		// Pass vars to the templates 
 		$this->Smarty->assign(array(
 			'data' 			=> $this->data,
 		));
+        
+        // Fix required since smarty 3.0.5 that use defined error reporting level by
+        $this->Smarty->error_reporting  = E_ALL & ~E_NOTICE;
 		
 		// Get the layout/template to use
-		//$layoutTpl 		= !empty($this->data['view']['layout']) ? $this->data['view']['layout'] : 'common/layout/html.tpl';
-		//$this->template = !empty($_GET['tplSelf']) && $_GET['tplSelf'] == true ? $this->data['view']['template'] : $layoutTpl;
-		//$this->data['view']['layout'] = !empty($this->data['view']['layout']) ? $this->data['view']['layout'] : 'common/layout/html.tpl';
-		$this->data['view']['template'] = $this->smartTemplate();
-		$this->template 				= $this->data['view']['template'];
+		$v['template']    = $this->smartTemplate();
+		$this->template   = $v['template'];
 		
 //$this->dump($this->data);
 //var_dump($this);
@@ -1234,8 +1216,6 @@ class View extends Application
 	{
 		$this->log(__METHOD__);
 		
-//$this->dump($this);
-		
 		$this->Events->trigger('onBeforeRender', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		return $this->display();
@@ -1252,7 +1232,6 @@ class View extends Application
 				'browser' 		=> $this->browser,
 				'options' 		=> $this->options,
 				'css' 			=> $this->getCSS,
-				//'commonJsKey' 	=> 'common_' . $this->env['type'],
 				'debug' 		=> $this->debug,
 			)
 		), $this->data);

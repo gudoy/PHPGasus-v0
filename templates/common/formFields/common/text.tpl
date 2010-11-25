@@ -1,4 +1,4 @@
-{* Accepted params values: $label, $resourceSingular, [$required] *}
+{* Accepted params values: $label, $value, $name, $resourceSingular, $required *}
 {$resourceSingular=$resourceSingular|default:''}
 {if $resourceSingular !== ''}{$secondPart=$name|default:$label|ucfirst}{else}{$secondPart=$name|default:$label}{/if}
 {if $mode=='api'}
@@ -12,6 +12,6 @@
 	</div>
 	<div class="fieldBlock">
 		{if empty($type) || !in_array($type, array('email','phone','url','search')) || !$html5}{$type='text'}{/if}
-		<input type="{$type}" class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" value="{$smarty.post[$postValName]}" {if $required && $html}required="required"{/if} {if $placeholder}placeholder="{$placeholder}"{/if} />
+		<input type="{$type}" class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" value="{$value|default:$smarty.post[$postValName]}" {if $required && $html}required="required"{/if} {if $placeholder}placeholder="{$placeholder}"{/if} />
 	</div>
 </div>

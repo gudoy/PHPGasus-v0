@@ -6,8 +6,7 @@ class CAlerts extends Controller
 	
 	public function __construct()
 	{
-		$this->resourceName 	= strtolower(preg_replace('/^C(.*)/','$1', __CLASS__));
-		//$this->resourceSingular = 'sample'; // use only if: singular !== (resourceName - "s") 
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

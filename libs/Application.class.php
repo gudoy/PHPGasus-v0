@@ -38,6 +38,26 @@ class Application
 		
 		class_exists($className) || (file_exists($path . $className . '.class.php') && require($path . $className . '.class.php'));
 	}
+    
+    
+    public function setResource($options = array())
+    {
+        // Do not continue if the resourceName is already defined
+        if ( !empty($this->resourceName) ){ return $this; }
+        
+        $o          = &$options;        
+
+        $name       = !empty($o['name']) ? (string) $o['name'] : null;
+        $singular   = !empty($o['singular']) ? (string) $o['singular'] : null;
+        
+        //if ( !empty($o['controller']) ){ $name = strtolower(preg_replace('/^C(.*)/','$1', $o['controller'])); }
+        if ( !empty($o['class']) ){ $name = strtolower(substr($o['class'], 1)); }
+        
+        $this->resourceName     = $name;
+        $this->resourceSingular = !empty($singular) ? $singular : $this->singularize((string) $name);
+        
+        return $this;
+    }
 	
 	
 	// TODO: clean & refactor
@@ -672,10 +692,9 @@ class Application
 		{
 			$cName 		= 'C' . ucfirst($o['resource']);
 			$ctrl 		= new $cName();
-			//$isUnique 	= $ctrl->retrieve(array('by' => 'key', 'values' => $wref, 'mode' => 'count')) === 0;
-			$isUnique 	= $ctrl->retrieve(array('by' => $o['field'], 'values' => $wref, 'mode' => 'count')) === 0;
+			$isUnique 	= $ctrl->retrieve(array('by' => $o['field'], 'values' => $wref, 'mode' => 'count'));
 			
-			if ( !$isUnique || ($o['preventNumsOnly'] && is_numeric($wref)) ) { $this->generateUniqueID($o); }	
+			if ( !empty($isUnique) || ($o['preventNumsOnly'] && is_numeric($wref)) ) { $this->generateUniqueID($o); }	
 		}
 		
 		return $wref;

@@ -1,7 +1,5 @@
 <?php
 
-class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
-
 class Controller extends Application
 {
 	public $application;
@@ -17,12 +15,13 @@ class Controller extends Application
 		// Use the class name to get the resource name
 		//$this->resourceName 		= strtolower(preg_replace('/^V(.*)/','$1', __CLASS__));
 		
-		// Remove the expedted final 's' from the resource name to get it's singular (overload in proper class if needed) 
+		// Remove the expedted final 's' from the resource name to get it's singular (overload in proper class if needed)
+		/* 
 		if ( !empty($this->resourceName) )
 		{
 			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : preg_replace('/(.*)s$/','$1', $this->resourceName);
 			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
-		}
+		}*/
 		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
@@ -33,10 +32,12 @@ class Controller extends Application
 		{
 			class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
 			
+//$this->dump($this->resourceName);
+            
 			// Instanciate the resource model
-			$modelClassname  	= 'M' . ucfirst($this->resourceName);
-			$this->model 		= new $modelClassname($this->application);
-			//$this->m 			= $this->model; 						// Shortcut for model 
+			$mName  	= 'M' . ucfirst($this->resourceName);
+			$this->model 		= new $mName(&$this->application);
+			//$this->m 			= &$this->model; 						// Shortcut for model 
 		}
 		
 		return $this;
@@ -45,15 +46,14 @@ class Controller extends Application
 	
 	public function index($options = array())
 	{
-		$o = $options;
+		$o                = &$options;
+		$this->success    = false;
+		$this->errors     = array();
+		$this->warnings   = array();
 		
-		$this->success 	= false;
-		$this->errors 	= array();
-		$this->warnings	= array();
-		
-		$this->data 	= $this->model->index($options);
-		$this->success 	= $this->model->success;
-		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
+		$this->data       = $this->model->index($options);
+		$this->success    = $this->model->success;
+		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
 		//if ( $this->success ) { $this->extendsData($o); }
 		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
@@ -78,15 +78,14 @@ class Controller extends Application
 
 	public function search($options = array())
 	{
-		$o = $options;
+        $o                = &$options;
+        $this->success    = false;
+        $this->errors     = array();
+        $this->warnings   = array();
 		
-		$this->success 	= false;
-		$this->errors 	= array();
-		$this->warnings	= array();
-		
-		$this->data 	= $this->model->search($options);
-		$this->success 	= $this->model->success;
-		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
+		$this->data       = $this->model->search($options);
+		$this->success    = $this->model->success;
+		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
 		//if ( $this->success ) { $this->extendsData($o); }
 		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
@@ -111,13 +110,12 @@ class Controller extends Application
 
 	public function create($options = null)
 	{	
-		$o = $options;
-			
-		$this->success 	= false;
-		$this->errors 	= array();
-		$this->warnings	= array();
+        $o                = &$options;
+        $this->success    = false;
+        $this->errors     = array();
+        $this->warnings   = array();
 		
-		$resourceData = $this->filterPostData($options);
+		$resourceData     = $this->filterPostData($options);
 
 		if ( !empty($resourceData) )
 		{
@@ -149,15 +147,14 @@ class Controller extends Application
 	
 	public function retrieve($options = array())
 	{
-		$o = $options;
+        $o                = &$options;
+        $this->success    = false;
+        $this->errors     = array();
+        $this->warnings   = array();
 		
-		$this->success 	= false;
-		$this->errors 	= array();
-		$this->warnings	= array();
-		
-		$this->data 	= $this->model->retrieve($options);
-		$this->success 	= $this->model->success;		
-		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
+		$this->data       = $this->model->retrieve($options);
+		$this->success    = $this->model->success;		
+		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 
 		// If the request failed, get the errors
 		if ( !$this->success )
@@ -177,17 +174,12 @@ class Controller extends Application
 	
 	public function update($options = null)
 	{
-		$o = $options;
-				
-		$this->success 	= false;
-		$this->errors 	= array();
-		$this->warnings	= array();
-		
-//$this->dump($_POST);
+        $o                = &$options;
+        $this->success    = false;
+        $this->errors     = array();
+        $this->warnings   = array();
 	
-		$resourceData = $this->filterPostData();
-		
-//$this->dump($resourceData);
+		$resourceData     = $this->filterPostData();
 
 		if ( !empty($resourceData) )
 		{			
@@ -214,19 +206,18 @@ class Controller extends Application
 	
 	public function delete($options = null)
 	{
-		$o = $options;
-		
-		$this->success 	= false;
-		$this->errors 	= array();
-		$this->warnings	= array();
+        $o                = &$options;
+        $this->success    = false;
+        $this->errors     = array();
+        $this->warnings   = array();
 
 		// Launch the creation
 		$this->model->delete($options);
 		
 		// Get the success of the request
-		$this->success 	= $this->model->success;
+		$this->success    = $this->model->success;
 		
-		$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
+		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
 		// If the request failed, get the errors
 		if ( !$this->success )
@@ -264,56 +255,11 @@ class Controller extends Application
 		return $this;
 	}
 	
-	/*
+    // TODO: index on database fetch	
 	public function reindex($options = array())
 	{
 		// Shortcut for options and default options
-		$o 					= $options;
-		$o['indexModifier'] = !empty($o['indexModifier']) ? $o['indexModifier'] : null;
-
-		// Do not continue if there's no data to process of if data is not an array( ie: for count operations) 
-		if ( empty($this->data) || empty($o['reindexby']) || !is_array($this->data) || !isset($this->data[0][$o['reindexby']])) { return false; }
-		
-		$tmpData 	= array();
-		$fixedMulti = false;
-		foreach ($this->data as $item)
-		{
-			// Set index ~name~
-			if 			( $o['indexModifier'] === 'lower' )	{ $k = strtolower($item[$o['reindexby']]); }
-			else if 	( $o['indexModifier'] === 'upper' )	{ $k = strtoupper($item[$o['reindexby']]); }
-			else 											{ $k = $item[$o['reindexby']]; }  
-			
-			// Do not assign data whose index is empty
-			//if ( $k == '' ){ continue; }
-			if ( $k === '' ){ continue; }
-			
-			$k 				= (string) $k; 														// Cast key into a string to prevent index conflicts
-			$isMulti 		= !empty($o['forceMulti']) || !empty($tmpData[$k]); 					// Does the index already contains data?
-			
-			// When the destination index is not empty and when assigning a 2nd item to it,
-			// we have to transform it in
-			if 		( $isMulti && !$fixedMulti )	{ $tmpData[$k] 		= array($tmpData[$k], $item); $fixedMulti = true; }
-			else if ( $isMulti )					{ $tmpData[$k][] 	= $item; }
-			else 									{ $tmpData[$k] 		= $item; }
-			
-			//if ( $isMulti ) { break; }
-		}
-		
-		//if ( $isMulti ) { $this->reindex($options + array('isMulti' => true)); }
-		
-var_dump($tmpData);
-
-		// Reassign data reindexed
-		$this->data = $tmpData;
-		
-		return $this->data;
-	}*/
-	
-	
-	public function reindex($options = array())
-	{
-		// Shortcut for options and default options
-		$o 					= $options;
+		$o 					= &$options;
 		$rModel 			= $this->application->dataModel[$this->resourceName];
 		$o['indexModifier'] = !empty($o['indexModifier']) ? $o['indexModifier'] : null;
 
@@ -369,7 +315,7 @@ var_dump($tmpData);
 	 */
 	public function checkRequiredFields($options = array())
 	{
-		$o 		= $options; 		// Shortcut for options
+		$o 		= &$options; 		// Shortcut for options
 		$return = true; 			// Default return value to true
 		
 		// Do not continue if no fields list has been passed 
@@ -388,7 +334,7 @@ var_dump($tmpData);
 	public function filterPostData($options = null)
 	{
 		// Shortcut for options
-		$o = $options;
+		$o = &$options;
 		
 		// Do not continue if the resource has not been defined
 		if ( empty($this->resourceName) ) { return; }
@@ -445,11 +391,11 @@ var_dump($tmpData);
 		return $return;
 	}
 	
-	
+	// TODO filter on request build for perf issues (merge 2 loop cycles on the same data)???
 	public function filterSingle($fieldModel, $superGlobaleField, $options = array())
 	{
-		$field 			= $fieldModel;
-		$f 				= $superGlobaleField;
+		$field 			= &$fieldModel;
+		$f 				= &$superGlobaleField;
 		
 		// Reset temp filtered data
 		$filteredData 	= null;
@@ -582,11 +528,14 @@ var_dump($tmpData);
 	}
 	
 	
+    /*
+    // Safe for remove???
 	public function redirect($url)
 	{
 		header("Location:" . $url);
 		die();
 	}
+    */
 
 }
 

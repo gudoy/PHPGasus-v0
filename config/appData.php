@@ -83,8 +83,12 @@ define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:
 define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 
 ### FEATURES & REFACTORING
+define('_APP_ADMIN_GET_USERS_STATS',            true);
+define('_APP_ADMIN_GET_RESOURCES_DATA',         true);
+define('_APP_USE_ACL_V2',                       true);
 define('_APP_USE_SQL_TYPEFIXING', 				false);
-define('_APP_USE_ONFETCH_TYPEFIXING', 			false);
+define('_APP_USE_ONFETCH_TYPEFIXING', 			true);
 define('_APP_USE_CONDITIONS_HANDLER_V2', 		true);
+define('_APP_ADMIN_USE_LIST_FILTERS_V2',        true);
 
 ?>
