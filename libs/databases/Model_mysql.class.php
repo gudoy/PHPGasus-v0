@@ -119,6 +119,9 @@ class Model extends Application
 			if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
 			{
 
+//$this->dump('here1');
+//$this->dump($o);
+
 				$this->fetchResults($queryResult, $o);
 				
 				$this->fixSpecifics($o);
@@ -315,6 +318,8 @@ class Model extends Application
 		$o 			= &$options;
 		$o['mode'] 	= !empty($o['mode']) ? $o['mode'] : '';
 		
+//$this->dump($o['mode']);
+        
 		// Special cases where we know that we will only get 1 result
 		// So, we do not want it to be put into an array but want it instead to be directly returned
 		if ( $o['mode'] === 'count' )
@@ -322,12 +327,16 @@ class Model extends Application
 			$this->data = mysql_result($queryResult, 0,0);
 		}
 		else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning'])) && $this->numRows != 0 )
-		{			
+		{
+//$this->dump('only one');
+            			
 			$this->data = mysql_fetch_array($queryResult, MYSQL_ASSOC);
 		}
 		// Otherwise, fetch the query results set
 		else
-		{				
+		{
+//$this->dump('several');
+            			
 			if ( $this->numRows > 0 ) 
 			{
 				$fixTypes = defined('_APP_USE_ONFETCH_TYPEFIXING') && _APP_USE_ONFETCH_TYPEFIXING;
@@ -2085,8 +2094,8 @@ class Model extends Application
 		$o 				= &$options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		//$o['values'] 	= !empty($o['values']) ? $this->magic($o['values']) : null;
-		$o['values'] 	= !empty($o['values']) ? $this->arrayify($o['values']) : null;
 		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( count($o['values']) <= 1 ? 'onlyOne' : null );
+        $o['values']    = !empty($o['values']) ? $this->arrayify($o['values']) : null;
 		// Using LIMIT 1 (by default) for perf issues
 		$o['limit'] 	= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;
 		$o['type'] 		= 'select';
@@ -2096,7 +2105,7 @@ class Model extends Application
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
 		$this->log($query);
-		
+        
 		$this->data = $this->query($query, $o)->data;
 		
 		return $this->data;

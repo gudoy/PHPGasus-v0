@@ -89,6 +89,9 @@ define('_APP_USE_ACL_V2',                       true);
 define('_APP_USE_SQL_TYPEFIXING', 				false);
 define('_APP_USE_ONFETCH_TYPEFIXING', 			true);
 define('_APP_USE_CONDITIONS_HANDLER_V2', 		true);
-define('_APP_ADMIN_USE_LIST_FILTERS_V2',        true);
+define('_APP_USE_ADMIN_LIST_FILTERS_V2',        true);
+define('_APP_USE_ADMIN_LIST_TOOLBAR_V2',        true);
+define('_APP_USE_ADMIN_METAS',                  false);
+
 
 ?>

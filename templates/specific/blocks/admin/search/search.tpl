@@ -1,3 +1,4 @@
+{$resources=$data._resources}
 {$search=$data.search}
 <a id="searchToggler" href="#adminSearchBlock"><span class="label">{t}toggle search{/t}</span></a>
 {html5 tag='section' class='searchBlock adminSearchBlock' id='adminSearchBlock'}
@@ -84,7 +85,7 @@
             {/html5}
             {foreach $search.groups as $groupName => $group}
             {$groupResource=$group.resource}
-            {$displayField=$data.resources[$groupResource].defaultNameField}
+            {$displayField=$resources[$groupResource].defaultNameField}
             <div class="resultsGroup">
                 <h4 class="title">{$groupName}</h4>
                 {html5 tag='meter' class='count' id=$groupName|cat:'Count'}{$group.count|default:0}{/html5}

@@ -9,7 +9,7 @@ h1 { font-size:100%; }
 h2 { margin-bottom:0; padding:5px 10px; font-size:100%; font-weight:normal; text-transform:uppercase; }
 
 a.actionBtn,
-.actionBtn button { height:22px; overflow:hidden; padding:0 3px 0; background:#ddd; background:-moz-linear-gradient(top, white, #ddd); background:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); border:1px solid #ababab; box-shadow:1px 1px 1px #fff; -moz-box-shadow:1px 1px 0 #fff; -webkit-box-shadow:1px 1px 0 #fff; border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:5px; white-space:nowrap; font-size:100%; }
+.actionBtn button { height:22px; overflow:hidden; padding:0 3px 0; background:#ddd; background:-moz-linear-gradient(top, white, #ddd); background:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); border:1px solid #ababab; box-shadow:1px 1px 1px #fff; -moz-box-shadow:1px 1px 0 #fff; -webkit-box-shadow:1px 1px 0 #fff; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; white-space:nowrap; font-size:100%; }
 .actionBtn button { height:24px; }
 .actionBtn:hover span.label,
 .actionBtn:hover button { background:none; }
@@ -94,6 +94,21 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 {
 }
 
+.actionBtn .label.value { padding-left:5px; padding-right:10px; }
+.actionBtn.addLink .value:before,
+.actionBtn.editLink .value:before,
+.actionBtn.deleteLink .value:before,
+.actionBtn.filterLink .value:before { width:16px; height:16px; margin-right:5px; overflow:hidden; display:inline-block; content:' '; background-image:url(images/commonIconsSprites.png); vertical-align:middle; text-decoration:none; font-size:1%; }
+
+.toolbar { padding:5px 10px; }
+.toolbar .group { margin-right:50px; display:inline-block; vertical-align:bottom; }
+.toolbar .group .title { display:block; text-shadow:1px 1px 1px #fff; font-weight:bold; text-transform:capitalize; }
+.toolbar .group .buttons { display:block; clear:both; }
+.toolbar .group .buttons .actionBtn:not(:only-of-type):not(:last-of-type) { -moz-border-radius-topright:0; -moz-border-radius-bottomright:0; border-top-right-radius:0; border-bottom-right-radius:0; border-right:none; }
+.toolbar .group .buttons .actionBtn:not(:only-of-type):not(:last-of-type) .value { -moz-border-radius-topright:0; -moz-border-radius-bottomright:0; border-top-right-radius:0; border-bottom-right-radius:0; }
+.toolbar .group .buttons .actionBtn:not(:only-of-type):last-of-type { -moz-border-radius-topleft:0; -moz-border-radius-bottomleft:0; border-top-left-radius:0; border-bottom-left-radius:0; border-left:none; }
+.toolbar .group .buttons .actionBtn:not(:only-of-type):last-of-type .value { -moz-border-radius-topleft:0; -moz-border-radius-bottomleft:0; border-top-left-radius:0; border-bottom-left-radius:0; border-left-color:#fff; }
+
 .adminLink { width:auto; margin-right:10px; display:inline-block; text-decoration:none; }
 .adminLink:last-child { margin-right:0; }
 .adminLink.disabled { color:8e8e8e; text-decoration:line-through; }
@@ -102,21 +117,29 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminLink .value { display:none; text-decoration:underline; }
 .adminLink:hover { /*background-color:#959595; border:3px solid; border-color:#292929 #c9c9c9 #c9c9c9 #292929;*/ }
 .adminLink.disabled { cursor:default; }
-.adminLink.addLink:before { background-position:-48px -64px; }
-.adminLink.listViewLink:before { background-position:-192px -48px; }
-.adminLink.viewLink:before { background-position:-48px -112px; }
-.adminLink.editLink:before { background-position:0 -48px; }
-.adminLink.deleteLink:before { background-position:-16px -64px; }
-.adminLink.goToLink:before { background-position:-80px -160px; }
-.adminLink.duplicateLink:before { background-position:-64px -48px; }
-.adminLink.saveLink:before { background-position:-160px -64px; }
-.adminLink.cancelLink:before { background-position:-176px -64px; }
-.adminLink.addLink.disabled:before { background-position:-48px -80px; }
-.adminLink.editLink.disabled:before { background-position:-32px -48px; }
-.adminLink.deleteLink.disabled:before { background-position:-16px -80px; }
-.adminLink.duplicateLink.disabled:before { background-position:-80px -48px; }
-.adminLink.saveLink.disabled:before { background-position:-160px -80px; } 
-.adminLink.cancelLink.disabled:before { background-position:-176px -64px; }
+.addLink:before,
+.actionBtn.addLink .value:before { background-position:-48px -64px; }
+.listViewLink:before { background-position:-192px -48px; }
+.viewLink:before { background-position:-48px -112px; }
+.editLink:before,
+.actionBtn.editLink .value:before { background-position:0 -48px!important; }
+.deleteLink:before,
+.actionBtn.deleteLink .value:before { background-position:-16px -64px; }
+.goToLink:before { background-position:-80px -160px; }
+.duplicateLink:before { background-position:-64px -48px; }
+.saveLink:before { background-position:-160px -64px; }
+.cancelLink:before { background-position:-176px -64px; }
+.filterLink:before,
+.actionBtn.filterLink .value:before { background-position:-128px -112px; }
+.addLink.disabled:before,
+.actionBtn.addLink.disabled .value:before { background-position:-48px -80px; }
+.editLink.disabled:before,
+.actionBtn.editLink.disabled .value:before { background-position:-32px -48px; }
+.deleteLink.disabled:before,
+.actionBtn.deleteLink.disabled .value:before { background-position:-16px -80px; }
+.duplicateLink.disabled:before { background-position:-80px -48px; }
+.saveLink.disabled:before { background-position:-160px -80px; } 
+.cancelLink.disabled:before { background-position:-176px -64px; }
 .adminTable .adminLink.addLink .value { display:inline-block; vertical-align:middle; }
 .adminTable .adminLink.focus,
 .adminTable .adminLink:focus { outline:1px dotted #000; }
@@ -198,14 +221,24 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminTable thead .title .comment .detail { width:200px; height:auto; overflow:hidden; padding:5px; display:none; position:absolute; right:-150px; bottom:15px; background:white; border:1px solid black; font-size:84.6%; color:#000; text-align:left; }
 .adminTable thead .title .comment:hover .detail,
 .adminTable thead .title .comment.hover .detail { display:block; z-index:1000; }
+.adminTable thead td { border-color:#aaa #aaa #aaa #fff; }
 .adminTable tbody tr.ui-selected th,
 .adminTable tbody tr.ui-selected td { background:#E0E8A4; }
-.adminTable tbody td.idCol { width:3em; }
+.adminTable td.idCol { width:3em; }
 .adminTable tbody td.typeVarchar .value { min-width:10em; }
 .adminTable tr.noData td { text-align:center; }
+.adminTable .colFilterBlock { margin:2px 5px; }
+.adminTable .colFilterBlock input { width:98%; padding:0; }
+.adminTable .colFilterBlock select { }
+.adminTable .colFilterBlock input.search,
+.adminTable .colFilterBlock input[type=search] { width:auto; padding-left:20px; }
+.adminTable .colFilterBlock input[type=number],
+.adminTable .colFilterBlock input.number { width:3em; max-width:11em; }
+.adminTable tr.filtersRow { display:none; }
+ 
 
 .relationTable { width:auto; border:1px solid #ABADB3 }
-.relationTable tr td:hover { outline:none; }
+.relationTable tr td:hover { outline:none; }  
 .relationTable caption { display:table-caption; }
 .relationTable thead th { text-align:center; }
 .relationTable tbody tr td:last-child,
@@ -226,6 +259,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminListBlock tbody tr.hover,
 .adminListBlock tbody tr:hover { position:relative; }
 .adminListBlock thead th.actionsCol,
+.adminListBlock thead td.actionsCol,
 .adminListBlock tbody td.actionsCol { width:0; padding:0; border:none!important; }
 .adminListBlock tbody tr.hover .actionsCol .actions,
 .adminListBlock tbody tr:hover .actionsCol .actions { width:20px; margin-top:-38px; padding:2px 0 2px 4px; height:auto; position:absolute; display:block; left:-26px; background:yellow; background:rgba(0,256,256,0.5); border:2px solid #5590D2; border-right:none; border-radius:5px 0 0 5px; -moz-border-radius:5px 0 0 5px; -webkit-border-radius:5px; -webkit-border-top-right-radius:0; -webkit-border-bottom-right-radius:0; }

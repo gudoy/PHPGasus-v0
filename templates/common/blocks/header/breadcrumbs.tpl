@@ -7,8 +7,8 @@
 		<span class="value">admin</span>
 	</a>
 	{foreach $data.meta.breadcrumbs as $item}
-	<a {if $item@last}class="current"{/if} href="{$data.metas[$item].fullAdminPath}">
-		<span class="value">{$data.metas[$item].shortname}</span>
+	<a {if $item@last}class="current"{/if} href="{$smarty.const._URL_ADMIN}{$item}">
+		<span class="value">{$item}</span>
 	</a>
 	{/foreach}
 </div>

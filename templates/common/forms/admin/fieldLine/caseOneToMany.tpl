@@ -1,10 +1,11 @@
+{$resources=$data._resources}
 {$relResource=$field.relResource|default:$fieldName}
 {$relField=$field.relField|default:'id'}
 {$pivotResource=$field.pivotResource|default:{$resourceName|cat:$relResource}}
-{$pivotTable=$data.resources[$pivotResource]['table']|default:$pivotResource}
+{$pivotTable=$resources[$pivotResource]['table']|default:$pivotResource}
 {$pivotIdField=$pivotTable|cat:'_id'}
-{$pivotLeftField=$field.pivotLeftField|default:{$data.resources[$resourceName]['singular']|cat:'_id'}}
-{$pivotRightField=$field.pivotRightField|default:{$data.resources[$relResource]['singular']|cat:'_id'}}
+{$pivotLeftField=$field.pivotLeftField|default:{$resources[$resourceName]['singular']|cat:'_id'}}
+{$pivotRightField=$field.pivotRightField|default:{$resources[$relResource]['singular']|cat:'_id'}}
 <table class="commonTable adminTable relationTable">
 	<thead>
 		<tr>
@@ -39,7 +40,7 @@
 						{$relPostFieldName=$data.meta.singular|cat:{$pivotRightField|ucfirst}}
 						<input type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggest{$resourceFieldName}"{/if} class="normal search" />
 						<input type="hidden" name="{$relPostFieldName}" id="{$relPostFieldName}" />
-						{$labelField=$data.resources[$relResource].defaultNameField}
+						{$labelField=$resources[$relResource].defaultNameField}
 						{if $html5 && $browser.support.datalist}datalist
 							{foreach $data[$relResource] as $option}
 							<datalist class="suggest hidden" id="suggest{$resourceFieldName}">

@@ -1,6 +1,11 @@
+{$rModel=$data.dataModel[$resourceName]}
 <form id="frmAdmin{$resourceName|capitalize}" action="" class="commonForm" method="post" enctype="multipart/form-data">
 	
+	{if $smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
+	{include file='common/blocks/admin/resource/list/toolbar.tpl' position='top'}
+	{else}
 	{include file='common/blocks/admin/handleMulti.tpl' position='top'}
+	{/if}
 	
 	<div class="tableWrapperBlock" id="{$resourceName}TableWrapperBlock">
 		<table class="commonTable adminTable" id="{$resourceName}Table">
@@ -18,19 +23,19 @@
 					<th class="col actionsCol">
 			          	<span class="title">{t}Actions{/t}</span>
 					</th>
-					{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
+					{foreach name='tableFields' from=$rModel key='fieldName' item='field'}
 					{if $field.list}
 					{if $smarty.get.sortBy == $fieldName || (strpos($smarty.get.sortBy,',') !== false && strpos($smarty.get.sortBy,$fieldName) !== false)}
 						{$isSorted=true}
 					{else}
 						{$isSorted=false}
 					{/if}
-					{$isDefaultNamefield=($data.metas[$resourceName].defaultNameField===$fieldName)?true:false}
+					{$isDefaultNamefield=($data.meta.defaultNameField===$fieldName)?true:false}
 					<th class="col {$fieldName}Col type{$field.type|ucfirst} {if $isDefaultNamefield}defaultNameField{/if} {if $isSorted}ui-state-active{/if} {if !$field.list}hidden{/if}" id="{$fieldName}Col" scope="col">
 						<a class="title {if $isSorted}sort {$smarty.get.orderBy|default:'asc'}{/if}" 
 							href="{$data.meta.fullAdminPath}?sortBy={$fieldName}&amp;orderBy={if $smarty.get.orderBy == 'asc'}desc{else}asc{/if}" 
 							title="{t}Sort by{/t}{t}:{/t} {$fieldName} {if $smarty.get.orderBy == 'asc'}descending{else}ascending{/if}"
-							>{if $field.fk}{$field.displayName|default:$data.metas[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
+							>{if $field.fk}{$field.displayName|default:$data._resources[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
 					</th>
 					{math assign='displayedFieldsNb' equation="x+2" x=$displayedFieldsNb}
 					{/if}
@@ -49,8 +54,24 @@
 						</div>
 					</th>
 				</tr>
+				{if $smarty.const._APP_USE_ADMIN_LIST_FILTERS_V2}
+				<tr class="filtersRow" id="{$resourceName}FiltersRow">
+                    <td class="col firstcol colSelectResources"></td>
+                    <td class="col actionsCol"></td>
+				    {foreach $rModel as $colName => $column}
+				    {$i=$column@iteration}
+				    {$type=$column.type}
+				    {$subtype=$column.subtype}
+                    <td id="{$colName}FilterCol" class="col {$colName}Col type{$type|ucfirst} {if $subtype}subtype{$subtype|ucfirst}{/if}  {if $column.relResource}typeRel{/if} {if !$column.list}hidden{/if}" scope="col" headers="{$colName}Col">
+                        {include file='common/blocks/admin/resource/list/colFilter.tpl'}
+				    </td>
+				    {/foreach}
+				    <td class="col colsHandlerCol last"></td>
+				</tr>
+				{/if}
 			</thead>
 			<tbody>
+				{if !$smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
 				<tr class="{cycle values='odd'} addRow">
 					<td colspan="{$displayedFieldsNb+4}">
 						{include file='common/blocks/admin/resource/actions/listAdd.tpl'}
@@ -59,6 +80,7 @@
 						</div>
 					</td>
 				</tr>
+				{/if}
 				{foreach name=$resourceName from=$data[$resourceName] item='resource'}
 				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource.id}" data-fullAdminPath="{$data.meta.fullAdminPath}{$resource.id}" scope="row">
 					<td class="col firstcol colSelectResources">
@@ -121,14 +143,14 @@
 									{/foreach}
 								{/if}
 								{assign var='relDisplayVal' value=$relDisplayVal|default:$resource[$field.relGetAs]}
-								<a class="relResourceLink" href="{$data.metas[$field.relResource].fullAdminPath}{$value}?method=retrieve" title="{t}[require javascript]{/t}">
+								<a class="relResourceLink" href="{$smarty.const._URL_ADMIN}{$field.relResource}/{$value}?method=retrieve" title="{t}[require javascript]{/t}">
 									{$resource[$fieldName]} - {$relDisplayVal|default:'[untitled]'}
 								</a>
 								*}
 							{if $field.fk}
 								{$relResource=$field.relResource}
 								{$relField=$field.relField}
-								<a class="relResourceLink" href="{$data.metas[$relResource].fullAdminPath}{$value}">
+								<a class="relResourceLink" href="{$smarty.const._URL_ADMIN}{$relResource}/{$value}">
 									{*<span class="relField">{$resource[$fieldName]}</span>*}
 									{$resource[{$field.relGetAs|default:$field.relGetFields}]|default:''}
 								</a>
@@ -160,6 +182,7 @@
 					</td>
 				</tr>
 				{/foreach}
+                {if !$smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
 				<tr class="{cycle values='odd'} addRow">
 					<td colspan="{$displayedFieldsNb+4}">
 						{include file='common/blocks/admin/resource/actions/listAdd.tpl'}
@@ -168,10 +191,15 @@
 						</div>
 					</td>
 				</tr>
+				{/if}
 			</tbody>
 		</table>
 	</div>
 	
-	{include file='common/blocks/admin/handleMulti.tpl' position='bottom'}
+    {if $smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
+    {include file='common/blocks/admin/resource/list/toolbar.tpl' position='bottom'}
+    {else}
+    {include file='common/blocks/admin/handleMulti.tpl' position='bottom'}
+    {/if}
 	
 </form>

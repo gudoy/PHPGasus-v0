@@ -18,7 +18,7 @@
 	<span class="relDisplayVal">
 		{$relDisplayVal|default:'[untitled]'}
 	</span>
-	<a class="actionBtn changeValBtn" href="{$data.metas[$field.relResource].fullAdminPath}" title="{t}[require javascript]{/t}">
+	<a class="actionBtn changeValBtn" href="{$smarty.const._URL_ADMIN}{$resourceName}" title="{t}[require javascript]{/t}">
 		<span class="ninja fieldCurrentVal">{$resource[$fieldName]|default:'&nbsp;'}</span>
 		<span class="ninja formFieldName">{$resourceFieldName}</span>
 		<span class="ninja relResource">{$relResource}</span>

@@ -36,7 +36,7 @@
 		{$editBntId='edit'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
 		{include file='common/blocks/actionBtn.tpl' mode='button' btnLabel={'edit URL'|gettext} btnClasses='editFileLink' btnId=$editBntId btnTitle={'Manually edit file URL'|gettext|cat:{'[require javascript]'|gettext}}}
 		<span class="or">{t}or{/t}</span>
-		<a class="actionBtn deleteFileLink" id="delete{$resourceFieldName|ucfirst}FileLink" href="{$data.metas[$resourceName].fullAdminPath}{$resource.id}/{$fieldName}?method=update&amp;forceFileDeletion=1" title="{t}Delete this file{/t}">
+		<a class="actionBtn deleteFileLink" id="delete{$resourceFieldName|ucfirst}FileLink" href="{$smarty.const._URL_ADMIN}{$resourceName}{$resource.id}/{$fieldName}?method=update&amp;forceFileDeletion=1" title="{t}Delete this file{/t}">
 			<span class="label">{t}remove{/t}</span>
 		</a>
 		<span class="or">{t}or{/t}</span>

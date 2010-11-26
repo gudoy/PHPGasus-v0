@@ -15,7 +15,7 @@ class MResources extends Model
 		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'name';
 		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
 		
-		return parent::index($options);
+		return parent::index($o);
 	}
 	
 	public function retrieve($options = array())
@@ -24,7 +24,7 @@ class MResources extends Model
 		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'name';
 		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
 		
-		return parent::index($options);
+		return parent::retrieve($o);
 	}
 
 }

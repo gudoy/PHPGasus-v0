@@ -44,18 +44,27 @@ class AdminView extends View
 		// Get the metadata for each of the resources of the current admin group (or all resources if no groups defined)
 		//$this->data['current']['groupResources'] = !empty($this->resourceGroupName) ? $resourceGroups[$tmpGroupName]['resources'] : $this->dataModel['resources'];
 		
-		// Compute the metadata for each of the resources
-		foreach((array) $this->dataModel['resources'] as $key => $val)
-		{
-			$rName 							= is_numeric($key) ? $val : $key;
-			$this->data['metas'][$rName] 	= $this->meta($rName);
-		}
 		
+		if ( !defined('_APP_USE_ADMIN_METAS') || _APP_USE_ADMIN_METAS )
+        {
+            // Deprecated
+            // Compute the metadata for each of the resources
+            foreach((array) $this->dataModel['resources'] as $key => $val)
+            {
+                $rName                          = is_numeric($key) ? $val : $key;
+                $this->data['metas'][$rName]    = $this->meta($rName);
+            }            
+        }		
 		
 		$this->data = array_merge($this->data, array(
-			'dataModel' 			=> $this->dataModel['resourcesFields'],
-			//'resourceGroups' 		=> $this->dataModel['resourceGroups'],
-			'resources' 			=> $this->dataModel['resources'],
+			'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
+			//'resourceGroups' 		=> &$this->dataModel['resourceGroups'],
+			//'resources' 			=> &$this->dataModel['resources'],    // deprecated. use _resources instead
+			
+			//'_dataModel'          => &$this->dataModel['resourcesFields'],
+			'_resources'             => &$this->dataModel['resources'],
+			
+            // '__config' => array('resources' => $resources, 'columns' => &$dataModel );
 		));
 		
 //$this->dump($this->data);
@@ -76,11 +85,11 @@ class AdminView extends View
 	
 	public function meta($resourceName = null)
 	{
-		if ( empty($resourceName) ){ return null; }
+		if ( empty($resourceName) ){ return array(); }
 		
-		$r 							= $resourceName;
-		$dmR 						= $this->dataModel['resources'];
-		//$dmGp						= $this->dataModel['resourceGroups'];
+		$r 							= &$resourceName;
+		$dmR 						= &$this->dataModel['resources'];
+		//$dmGp						= &$this->dataModel['resourceGroups'];
 		
 		$m 							= array();
 		$m['name'] 					= $r;
@@ -273,6 +282,8 @@ class AdminView extends View
 				$this->resourceName 	=> $this->C->index(array_merge($this->options, array('mode' => 'count'))),
 			),
 		));
+        
+        $this->handleRelations();
 		
 		$this
 			->beforeRender(array('function' => __FUNCTION__));
@@ -576,9 +587,9 @@ class AdminView extends View
 		
 		if ( !in_array($this->options['output'], array('html','xhtml')) )
 		{
-			unset($this->data['dataModel']);
+			unset($this->data['_dataModel'], $this->data['_resources'], $this->data['dataModel'], $this->data['resources']);
 			
-			if ( empty($this->resourceName) || $this->resourceName !== 'resources' )  unset($this->data['resources']);
+			//if ( empty($this->resourceName) || $this->resourceName !== 'resources' )  unset($this->data['resources']);
 		}
 		
 		return parent::beforeRender($options);
@@ -589,7 +600,8 @@ class AdminView extends View
 	{
 		if ( !empty($this->resourceName) )
 		{
-			$tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['metas'][$this->resourceName]['breadcrumbs']));
+			//$tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['metas'][$this->resourceName]['breadcrumbs']));
+            $tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['meta']['breadcrumbs']));
 		}
 		else if ( !empty($this->resourceGroupName) )
 		{
@@ -610,7 +622,8 @@ class AdminView extends View
 		
 		if ( !empty($this->resourceName) )
 		{
-			foreach ($this->data['metas'][$this->resourceName]['breadcrumbs'] as $item){ $tmp .= 'admin' . ucfirst($item) . ' '; }
+			//foreach ($this->data['metas'][$this->resourceName]['breadcrumbs'] as $item){ $tmp .= 'admin' . ucfirst($item) . ' '; }
+			foreach ($this->data['meta']['breadcrumbs'] as $item){ $tmp .= 'admin' . ucfirst($item) . ' '; }
 		}
 		
 		//$method = !empty($this->data['current']['method']) ? $this->data['current']['method'] : 'index';
@@ -646,9 +659,13 @@ class AdminView extends View
 
 		// Update current meta
 		// TODO: remove when resource group getting will have been move to meta()
-		$this->data['meta'] 					= !empty($this->resourceName) ? $this->data['metas'][$this->resourceName] : null;
+		//$this->data['meta'] 					= !empty($this->resourceName) ? $this->data['metas'][$this->resourceName] : null;
+		$this->data['meta']                   = $this->meta($this->resourceName);
 								
 		$this->data['current']['resource'] 		= !empty($this->resourceName) ? $this->resourceName : null;
+		
+		// Deprecated. Safe to be removed?
+		// TODO: remove
 		$this->data['current']['resourceGroup'] = $this->resourceGroupName;
 		
 		//if ( $m === 'update' || $m === 'delete' )

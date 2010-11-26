@@ -266,6 +266,8 @@ $dataModel = array(
 	'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'list' => 1, 'editable' => 0),
 	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
 	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
+	// TODO: type custom (firstname)
+	//'name' 					=> array('type' => 'varchar', 'length' => 128, 'list' => 1),
 	'auth_level' 			=> array('type' => 'enum', 'default' => 'user', 'possibleValues' => array('user','contributor','admin','superadmin','god'), 'editable' => 0),
 	'auth_level_nb' 		=> array('type' => 'int', 'default' => 10, 'editable' => 0, 'comment' => '10=user, 100=contributor, 500=admin, 1000=superadmin, 10000=god'),
 	//'groups' 				=> array('type' => 'onetomany', 'relResource' => 'groups', 'relField' => 'id', 'pivotResource' => 'users_groups', 'pivotLeftField' => 'user_id', 'pivotRightField' => 'group_id', 'getFields' => 'admin_title'),

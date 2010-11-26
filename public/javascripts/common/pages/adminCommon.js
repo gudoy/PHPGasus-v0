@@ -650,6 +650,17 @@ var adminIndex =
 				
 				admin.del($('tbody tr.ui-selected', self.context));
 			});
+		
+		$('.filterLink')
+		.css('border','1px solid red')
+		.bind('click', function(e)
+		{
+		    e.preventDefault();
+		    
+		    var destId = $(this).attr('href');
+            
+            $(destId).fadeToggle();
+		});	       
 
 		// Loop over all the delete buttons in the table
 		$(self.context)
@@ -744,6 +755,8 @@ var adminIndex =
 				
 				//admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
 			});
+			
+		self.handleFilters();
 		
 		
 		return this;
@@ -759,6 +772,38 @@ var adminIndex =
 		 $(a).siblings(context).toggleClass('hidden');
 		
 		return this;
+	},
+	
+	handleFilters: function()
+	{
+	    var self = this;
+	    
+	    $('thead tr.filtersRow :input', self.context).bind('keyup', function(e)
+	    {
+	        e.preventDefault();
+	        
+            var $this   = $(this),
+                val     = $this.val(),
+                colName = $this.closest('td').attr('headers');
+
+            $('tbody td.' + colName, self.context).each(function()
+            {
+                var $this   = $(this),
+                    //$tr     = $this.closest('tr').show(),
+                    $tr     = $this.closest('tr').css('display','table-row'),
+                    match   = val && $this.is('.value:contains(' + val + ')');
+                
+                if ( val === '' ) { return; }
+                
+                //$this.find('.value:contains(' + val + ')').closest('td').css('border','1px solid green');
+                $this.find('.value').not(':contains(' + val + ')').closest('tr').hide();
+                         
+                //if ( match ) { $tr.hide(); }
+            });
+
+	    });
+	    
+	    return this;
 	},
 	
 	toggleAll: function()

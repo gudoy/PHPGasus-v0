@@ -1,4 +1,5 @@
-{$relDisplayField=$field.relGetFields|default:$data.resources[$relResource].defaultNameField}
+{$resources=$data._resources}
+{$relDisplayField=$field.relGetFields|default:$resources[$relResource].defaultNameField}
 <select name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}>
 	<option>&nbsp;</option>
 	{foreach $data[$relResource] as $item}

@@ -11,7 +11,8 @@
     {if $smarty.get.limit}{$paginationParams=$paginationParams|cat:'&limit='|cat:$smarty.get.limit}{/if}
 	
 	{* Filtering params *}
-	{if !defined('_APP_ADMIN_USE_LIST_FILTERS_V2') || !$smarty.const._APP_ADMIN_USE_LIST_FILTERS_V2}
+	{if $smarty.const._APP_USE_ADMIN_LIST_FILTERS_V2}
+	{else}
         {if $smarty.get.by}{assign var='filteringParams' value=$filteringParams|cat:'&by='|cat:$smarty.get.by}{/if}
         {if $smarty.get.by && $smarty.get.values}{assign var='filteringParams' value=$filteringParams|cat:'&values='|cat:$smarty.get.values}{/if}
         {if $smarty.get.operation && $smarty.get.values}{assign var='filteringParams' value=$filteringParams|cat:'&operation='|cat:$smarty.get.operation}{/if}

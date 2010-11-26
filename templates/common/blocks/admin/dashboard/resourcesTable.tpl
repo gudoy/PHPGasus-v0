@@ -1,7 +1,7 @@
 {block name='resourcesTableBlock'}
 
 {$useAclV2=$smarty.const._APP_USE_ACL_V2|default:false}
-{$resources=$data.resources}
+{$resources=$data._resources}
 
 <div class="box adminBlock adminListBlock" id="adminResourcesListBlock">
 	
@@ -9,7 +9,7 @@
 
 	{block name='adminResourcesTable'}
 	<div class="adminListingBlock" id="adminResourcesBlock">
-		{if $data.resources|count > 0}
+		{if $resources|count > 0}
 		<table class="commonTable adminTable" id="resourcesTable">
 			<caption>{t}Resource management table{/t}</caption>
 			<thead class="titleBlock sortables">
