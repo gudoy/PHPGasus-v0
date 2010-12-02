@@ -1,12 +1,12 @@
 <?php
 
-class COrders extends Controller
+class CCommercials extends CUsers
 {
 	private static $_instance;
 	
 	public function __construct()
 	{
-        $this->setResource(array('class' => __CLASS__)); 
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

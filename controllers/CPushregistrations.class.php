@@ -1,15 +1,12 @@
 <?php
 
-class_exists('Controller') 	|| require(_PATH_LIBS . 'Controller.class.php');
-class_exists('MPushregistrations') || require(_PATH_MODELS . 'MPushregistrations.class.php');
-
 class CPushregistrations extends Controller
 {
 	private static $_instance;
 	
 	public function __construct()
 	{
-		$this->resourceName = strtolower(preg_replace('/^C(.*)/','$1', __CLASS__));
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

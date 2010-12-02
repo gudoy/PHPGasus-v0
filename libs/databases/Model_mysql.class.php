@@ -118,10 +118,6 @@ class Model extends Application
 			// HOW TO handle RETURNING clause for mysql ??? 
 			if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
 			{
-
-//$this->dump('here1');
-//$this->dump($o);
-
 				$this->fetchResults($queryResult, $o);
 				
 				$this->fixSpecifics($o);
@@ -134,8 +130,6 @@ class Model extends Application
 				// 
 				if ( !empty($o['getFields']) && count($o['getFields']) === 1 )
 				{
-//var_dump($o['getFields']);
-//var_dump($this->data);
 					$this->data = !empty($this->data[$o['getFields'][0]]) ? $this->data[$o['getFields'][0]] : null;
 //var_dump($this->data);
 				}
@@ -1749,6 +1743,8 @@ class Model extends Application
 			$fields        = is_string($fields) && strpos($fields, ',') !== false ? $this->arrayify($fields) : $fields;
 			$values        = is_string($values) && strpos($values, ',') !== false ? $this->arrayify($values) : $values;
 			$condKeyword   = $i === 0 && empty($o['extra']) ? 'WHERE ' : 'AND ';
+//$this->dump(@$condition[3]);
+            $condKeyword    = $i > 0 && isset($condition[3]) && strtolower($condition[3]) === 'or' ? 'OR ' : $condKeyword;
 			
 			$output .= $condKeyword;
 
@@ -1769,7 +1765,7 @@ class Model extends Application
 			}
 			
 			// Handle 'or' conditions
-			if ( isset($condition[4]) && strtolower($condition[4]) === 'or' )
+			if ( isset($condition[3]) && strtolower($condition[3]) === 'or' )
 			{
 				// TODO: get next triplets: [5],[6],[7]???? and loop over itself geting the ouput $orConditions
 			}
@@ -2094,7 +2090,7 @@ class Model extends Application
 		$o 				= &$options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		//$o['values'] 	= !empty($o['values']) ? $this->magic($o['values']) : null;
-		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( count($o['values']) <= 1 ? 'onlyOne' : null );
+		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( empty($o['values']) || count($o['values']) <= 1 ? 'onlyOne' : null );
         $o['values']    = !empty($o['values']) ? $this->arrayify($o['values']) : null;
 		// Using LIMIT 1 (by default) for perf issues
 		$o['limit'] 	= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;

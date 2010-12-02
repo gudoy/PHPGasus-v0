@@ -6,7 +6,7 @@ class CApiclients extends Controller
 	
 	public function __construct()
 	{
-		$this->resourceName = strtolower(preg_replace('/^C(.*)/','$1', __CLASS__));
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

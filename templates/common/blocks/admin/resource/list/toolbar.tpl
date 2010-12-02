@@ -14,11 +14,11 @@
         {strip}
             {$crudability=$data._resources[$resourceName].crudability|default:'CRUD'}
             {$disabled=(strpos($crudability, 'U')>-1)?0:1}
-            <a class="actionBtn editLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
+            <a class="actionBtn editLink editAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
                 <span class="label value">{'edit'|gettext}</span>
             </a>
             {$disabled=(strpos($crudability, 'D')>-1)?0:1}
-            <a class="actionBtn deleteLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
+            <a class="actionBtn deleteLink deleteAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=delete{else}#{/if}">
                 <span class="label value">{'delete'|gettext}</span>
             </a>
         {/strip}

@@ -111,7 +111,7 @@ var admin =
 	del: function(jqObj)
 	{
 		var self 		= this
-			multiple 	= jqObj.length >= 1,							// Is their several objects to delete
+			multiple 	= jqObj.length >= 1,							// Is there several objects to delete
 			url 		= !multiple ? $(jqObj).attr('href') : null; // If not use the object href as url otherwise we will set it later
 			
 		// When handling multiple resources, we need to get all theirs id to be able to build the proper request URL 
@@ -218,7 +218,6 @@ var admin =
 		});
 		
 		$('a.addRelatedItemsLink', 'form')
-//.css('border','1px solid red')
 			.live('click', function(e)
 		{
 			e.preventDefault();
@@ -419,7 +418,7 @@ var admin =
 					suggest 	= jqOjb.siblings('.suggest');
 									
 //Tools.log(val.length);
-Tools.log(k);
+//Tools.log(k);
 								
 				if ( k === 27 )
 				{
@@ -643,16 +642,15 @@ var adminIndex =
 		
 		if ( $(self.context).width() > $(self.context).closest('.adminListingBlock', '#mainCol').width() ){ $(self.context).css({'display':'block','overflow':'hidden','overflow-x':'scroll'}); }
 		
-		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn')
+		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink')
 			.click(function(e)
 			{
 				e.preventDefault();
 				
-				admin.del($('tbody tr.ui-selected', self.context));
+				admin.del($('tbody tr.ui-selected:visible', self.context));
 			});
 		
 		$('.filterLink')
-		.css('border','1px solid red')
 		.bind('click', function(e)
 		{
 		    e.preventDefault();
@@ -666,7 +664,7 @@ var adminIndex =
 		$(self.context)
 			.selectable(
 			{
-				filter: 'tr',
+				filter: 'tr.dataRow',
 				distance: 20,
 				cancel: 'div.value, input',
 				selecting: function(event, ui)
@@ -727,7 +725,6 @@ var adminIndex =
 				else if ( a.hasClass('selectAll') ) 			{ return self.toggleAll('check'); }
 				else if ( a.hasClass('selectNone') ) 			{ return self.toggleAll('uncheck'); }
 				else if ( a.hasClass('relResourceLink') )		{ admin.relatedResource(a, e); }
-				else if ( a.hasClass('colsHandlerLink') )		{ return self.handleTableCols(a , e); }
 				else if ( href )								{ window.location.href = href; }
 				
 				//window.location.href = a.attr('href');
@@ -756,7 +753,9 @@ var adminIndex =
 				//admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
 			});
 			
-		self.handleFilters();
+		self
+		  .handleFilters()
+		  .handleTableCols();
 		
 		
 		return this;
@@ -764,41 +763,104 @@ var adminIndex =
 	
 	handleTableCols: function()
 	{
-		var self 	= this,
-			args 	= arguments,
-			a 		= args[0] || null,
-			context = '.colsHandlerManagerBlock';
-			
-		 $(a).siblings(context).toggleClass('hidden');
+		var self      = this,
+		    list      = $('#colsHandlerManagerBlock');
+		    
+		$('a.colsHandlerLink', self.context).each(function()
+		{
+		    var $this     = $(this),
+                cBlock    = $this.next('.colsHandlerManagerBlock'),   // jQuery reference to the columns handler block
+		        tbodyH    = $('tbody', self.context).outerHeight(),
+		        newH      = ( tbodyH 
+		                      - parseInt(cBlock.css('padding-top')) - parseInt(cBlock.css('padding-bottom')) 
+		                      - parseInt(cBlock.css('border-top-width')) - parseInt(cBlock.css('border-bottom-width'))
+		                    ) || cBlock.css('height');
+		    
+//Tools.log('tbodyH:' + tbodyH);
+		    
+		    // Display the block
+		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); cBlock.toggleClass('hidden') });
+		    
+		    cBlock
+		      // TODO: open a dialog instead of handling height dynamically 
+		      // (will prevents overflow issues when the table only contains few results)
+		      .height(newH)
+		      .bind('click', function(e)
+		    {
+		        //e.preventDefault();
+		        e.stopPropagation();
+		        
+		        var t         = e.target,     // Get the target
+		            $t        = $(t);         // jQuery reference to the target
+		            
+		        // Do not continue if the target is neither an input nor a label element
+		        if ( !$t.is('label') && !$(t).is('input') ){ return; }
+		        
+		        var $input    = $(t).is('input') ? $t : $t.parent().find('input'),        // jQuery reference to the input
+		            colName   = $input.attr('id').replace(/Display/,'') || '',            // Get the related column name
+		            $cols     = $('th.' + colName + ', td.' + colName, self.context);     // Get the matching cols and store the jQuery reference 
+		            
+		        if    ( $input.is(':checked') ){ $cols.removeClass('hidden'); }
+		        else  { $cols.addClass('hidden'); }
+		    });
+		});
 		
 		return this;
 	},
 	
 	handleFilters: function()
 	{
-	    var self = this;
+	    var self   = this,
+	        $tr    = $('tbody tr', self.context);                      // Store a jquery reference containing all the rows
 	    
-	    $('thead tr.filtersRow :input', self.context).bind('keyup', function(e)
+	    // Loop over the filters inputs, listening for keyup events
+	    $('thead tr.filtersRow', self.context)
+	       .bind('keyup change', function(e)
 	    {
 	        e.preventDefault();
+	        e.stopPropagation();
 	        
-            var $this   = $(this),
-                val     = $this.val(),
-                colName = $this.closest('td').attr('headers');
-
-            $('tbody td.' + colName, self.context).each(function()
+            var t       = e.target,
+                $t      = $(t);
+                
+            // Does not handle targets that are not inputs
+            if ( !$t.is(':input') ){ return; }
+                
+            var $input  = $t,
+                $td     = $input.closest('td'),
+                val     = $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') ? $input.find(':selected').text().trim() : $input.val(),
+                colName = $td.attr('headers') || '';
+                
+            // Do not continue if no input has been found
+            if ( !$input.length ) { return; }
+            
+            // Loop over the rows, re-displaying them by the way
+            $tr.each(function()
             {
-                var $this   = $(this),
-                    //$tr     = $this.closest('tr').show(),
-                    $tr     = $this.closest('tr').css('display','table-row'),
-                    match   = val && $this.is('.value:contains(' + val + ')');
+                var $this   = $(this);
                 
-                if ( val === '' ) { return; }
+                // If the filter value is empty
+                if ( val === '' )
+                {
+                    // Re-display the previously hidden rows for the current filter
+                    $this.filter('.' + colName + 'Filtered').removeClass(colName + 'Filtered').show();
+                    
+                    return;
+                }
+                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
+                // and that are not filtered by the current column 
+                else if ( !$this.is(':visible') && !$this.hasClass(colName + 'Filtered') ){ return; }
                 
-                //$this.find('.value:contains(' + val + ')').closest('td').css('border','1px solid green');
-                $this.find('.value').not(':contains(' + val + ')').closest('tr').hide();
-                         
-                //if ( match ) { $tr.hide(); }
+                var $td     = $this.find('td.' + colName),
+                    match   = $td.find('.value:contains(' + val + ')').length; //
+                    
+                // If the 
+                if ( !match )
+                {
+                    // Hide the row adding a class of the name by which it has been filtered  
+                    $this.hide().addClass(colName + 'Filtered');
+                }
+                else { $this.show(); }
             });
 
 	    });
@@ -813,7 +875,7 @@ var adminIndex =
 			action 	= args[0] && typeof args[0] === 'string' 
 						? (args[0] === 'check' ? 'check' : 'uncheck')
 						: ($(args[0]).is(':checked') ? 'check' : 'uncheck'),
-			all 	= $('input:checkbox', self.context);
+			all 	= $('input:checkbox:visible', self.context);
 		
 		if ( action === 'check' )	{ all.attr('checked','checked').closest('tr').addClass('ui-selected'); }
 		else 						{ all.removeAttr('checked'); }
@@ -1492,4 +1554,56 @@ var adminUpdate =
 		
 		return this;
 	}
-}
+};
+
+var adminSearch = 
+{
+    formContext: '#adminSearchForm',
+    
+    init: function()
+    {
+        adminIndex.init();
+        
+        return this.updateResults();
+    },
+    
+    updateResults: function()
+    {
+        var self = this;
+        
+        $(self.formContext)
+            .bind('submit', function(e)
+            {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var $this   = $(this),
+                    url     = $this.attr('action') || window.location.href,
+                    $tbody  = $('tbody', self.context);
+                    
+                $.ajax(
+                {
+                    url: url,
+                    type: 'GET',
+                    data: $this.serialize(),
+                    dataType: 'html',
+                    beforeSend: function()
+                    {
+                        var $tr         = $tbody.find('tr'),
+                            colsNb      = $tbody.find(':first-child').find('td').length,
+                            $loading    = $('<tr class="loading"><td colspan="' + colsNb + '"><span class="message loading">loading...</span></td></tr>');
+    
+                        $tbody.empty().append($loading);
+                    },
+                    success: function(response)
+                    {
+                        var r = response;
+                        
+                        $tbody.html($(r).find('tbody').html());
+                    }
+                });
+            });
+        
+        return this;
+    }
+};

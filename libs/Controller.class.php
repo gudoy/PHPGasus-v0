@@ -180,7 +180,7 @@ class Controller extends Application
         $this->warnings   = array();
 	
 		$resourceData     = $this->filterPostData();
-
+        
 		if ( !empty($resourceData) )
 		{			
 			// Launch the creation
@@ -352,7 +352,7 @@ class Controller extends Application
 			// For the api, we use 'normal' forms fieldnames/$resource fields whitout prefix
 			// But for everywhere else, they are prefixed by the name of the resource (to avoid conflicts) [ex: userLogin, productSummary, entryExpirationtime]
 			$f = $isApi ? $fieldName : $this->resourceSingular . ucFirst($fieldName);
-			
+            
 			// If the field is required but not present, throw an error
 			// TODO: continue looping over the fields to list all missing ones
 			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[] = 1002; return; }

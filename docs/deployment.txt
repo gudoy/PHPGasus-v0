@@ -42,5 +42,4 @@ svn co https://svn.yourdomain.com/mynewproject/trunk/
 
 CHMOD tmp/ 777
 CHMOD templates/templates_c/ 777
-CHMOD libs/templating/smarty3/cache/ 777
-CHMOD public/widgets/builds/ 777 
+CHMOD libs/templating/smarty3/cache/ 777 

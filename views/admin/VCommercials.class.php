@@ -1,11 +1,11 @@
 <?php
 
-class VVersions extends AdminView
+class VCommercials extends AdminView
 {
 	public function __construct()
 	{
         $this->setResource(array('class' => __CLASS__));
-		$this->filePath 		= dirname(__FILE__);
+        $this->filePath         = dirname(__FILE__);
 		
 		parent::__construct();
 		

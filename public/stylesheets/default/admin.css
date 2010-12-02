@@ -38,7 +38,7 @@ form .labelBlock span.label { margin-top:5px; }
 form .labelBlock.hasInfos label,
 form .labelBlock.hasInfos span.label { margin-top:0; }
 form .line { width:auto; padding:0 10px; float:none; }
-form .line:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
+form .line::after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
 form .line.buttonsLine { width:auto; margin-bottom:0; padding:10px; float:none; background:#C9E2FC; }
 form .line.buttonsLine .fieldBlock { margin-top:0; }
 form .labelBlock input.multi,
@@ -95,15 +95,15 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 }
 
 .actionBtn .label.value { padding-left:5px; padding-right:10px; }
-.actionBtn.addLink .value:before,
-.actionBtn.editLink .value:before,
-.actionBtn.deleteLink .value:before,
-.actionBtn.filterLink .value:before { width:16px; height:16px; margin-right:5px; overflow:hidden; display:inline-block; content:' '; background-image:url(images/commonIconsSprites.png); vertical-align:middle; text-decoration:none; font-size:1%; }
+.actionBtn.addLink .value::before,
+.actionBtn.editLink .value::before,
+.actionBtn.deleteLink .value::before,
+.actionBtn.filterLink .value::before { width:16px; height:16px; margin-right:5px; overflow:hidden; display:inline-block; content:' '; background-image:url(images/commonIconsSprites.png); vertical-align:middle; text-decoration:none; font-size:1%; }
 
 .toolbar { padding:5px 10px; }
 .toolbar .group { margin-right:50px; display:inline-block; vertical-align:bottom; }
-.toolbar .group .title { display:block; text-shadow:1px 1px 1px #fff; font-weight:bold; text-transform:capitalize; }
-.toolbar .group .buttons { display:block; clear:both; }
+.toolbar .group .title { display:inline-block; text-shadow:1px 1px 1px #fff; font-weight:bold; text-transform:capitalize; }
+.toolbar .group .buttons { display:inline-block; /*clear:both;*/ }
 .toolbar .group .buttons .actionBtn:not(:only-of-type):not(:last-of-type) { -moz-border-radius-topright:0; -moz-border-radius-bottomright:0; border-top-right-radius:0; border-bottom-right-radius:0; border-right:none; }
 .toolbar .group .buttons .actionBtn:not(:only-of-type):not(:last-of-type) .value { -moz-border-radius-topright:0; -moz-border-radius-bottomright:0; border-top-right-radius:0; border-bottom-right-radius:0; }
 .toolbar .group .buttons .actionBtn:not(:only-of-type):last-of-type { -moz-border-radius-topleft:0; -moz-border-radius-bottomleft:0; border-top-left-radius:0; border-bottom-left-radius:0; border-left:none; }
@@ -112,34 +112,34 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminLink { width:auto; margin-right:10px; display:inline-block; text-decoration:none; }
 .adminLink:last-child { margin-right:0; }
 .adminLink.disabled { color:8e8e8e; text-decoration:line-through; }
-.adminLink:before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat 0 0; vertical-align:middle; text-decoration:none; }
+.adminLink::before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat 0 0; vertical-align:middle; text-decoration:none; }
 .adminLink .key { display:none; }
 .adminLink .value { display:none; text-decoration:underline; }
 .adminLink:hover { /*background-color:#959595; border:3px solid; border-color:#292929 #c9c9c9 #c9c9c9 #292929;*/ }
 .adminLink.disabled { cursor:default; }
-.addLink:before,
-.actionBtn.addLink .value:before { background-position:-48px -64px; }
-.listViewLink:before { background-position:-192px -48px; }
-.viewLink:before { background-position:-48px -112px; }
-.editLink:before,
-.actionBtn.editLink .value:before { background-position:0 -48px!important; }
-.deleteLink:before,
-.actionBtn.deleteLink .value:before { background-position:-16px -64px; }
-.goToLink:before { background-position:-80px -160px; }
-.duplicateLink:before { background-position:-64px -48px; }
-.saveLink:before { background-position:-160px -64px; }
-.cancelLink:before { background-position:-176px -64px; }
-.filterLink:before,
-.actionBtn.filterLink .value:before { background-position:-128px -112px; }
-.addLink.disabled:before,
-.actionBtn.addLink.disabled .value:before { background-position:-48px -80px; }
-.editLink.disabled:before,
-.actionBtn.editLink.disabled .value:before { background-position:-32px -48px; }
-.deleteLink.disabled:before,
-.actionBtn.deleteLink.disabled .value:before { background-position:-16px -80px; }
-.duplicateLink.disabled:before { background-position:-80px -48px; }
-.saveLink.disabled:before { background-position:-160px -80px; } 
-.cancelLink.disabled:before { background-position:-176px -64px; }
+.addLink::before,
+.actionBtn.addLink .value::before { background-position:-48px -64px; }
+.listViewLink::before { background-position:-192px -48px; }
+.viewLink::before { background-position:-48px -112px; }
+.editLink::before,
+.actionBtn.editLink .value::before { background-position:0 -48px!important; }
+.deleteLink::before,
+.actionBtn.deleteLink .value::before { background-position:-16px -64px; }
+.goToLink::before { background-position:-80px -160px; }
+.duplicateLink::before { background-position:-64px -48px; }
+.saveLink::before { background-position:-160px -64px; }
+.cancelLink::before { background-position:-176px -64px; }
+.filterLink::before,
+.actionBtn.filterLink .value::before { background-position:-128px -112px; }
+.addLink.disabled::before,
+.actionBtn.addLink.disabled .value::before { background-position:-48px -80px; }
+.editLink.disabled::before,
+.actionBtn.editLink.disabled .value::before { background-position:-32px -48px; }
+.deleteLink.disabled::before,
+.actionBtn.deleteLink.disabled .value::before { background-position:-16px -80px; }
+.duplicateLink.disabled::before { background-position:-80px -48px; }
+.saveLink.disabled::before { background-position:-160px -80px; } 
+.cancelLink.disabled::before { background-position:-176px -64px; }
 .adminTable .adminLink.addLink .value { display:inline-block; vertical-align:middle; }
 .adminTable .adminLink.focus,
 .adminTable .adminLink:focus { outline:1px dotted #000; }
@@ -191,13 +191,13 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 #header #mainNavBlock { margin-right:100px; }
 
 #header #mainNavBlock { width:auto; margin:0; float:none; clear:both; background:#666666; }
-#header #mainNavBlock:after { height:0; clear:both; content:'.'; display:block; visibility:hidden; } 
+#header #mainNavBlock::after { height:0; clear:both; content:'.'; display:block; visibility:hidden; } 
 #header #mainNavBlock #mainNav { display:none; }
 #header #mainNavBlock ul { margin:0; }
 #header #mainNavBlock #accountNav { margin:0 10px 0 0; float:right; }
 #header #mainNavBlock #adminMainNav { margin:0 0 0 10xp; float:left; }
-#header #mainNavBlock li:before,
-#header #mainNavBlock li:after { display:none; }
+#header #mainNavBlock li::before,
+#header #mainNavBlock li::after { display:none; }
 #header #mainNavBlock a { padding:5px; text-transform:capitalize; }
 
 #adminSideNavBlock li { margin:0; padding:10px 10px; clear:both; list-style:none; border-bottom:1px solid #ccc; }
@@ -214,7 +214,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 
 .adminTable { width:100%; /*height:auto; overflow:auto; display:block;*/ clear:both; border:none; border-top:5px solid #5590D2; }
 .adminTable caption { display:none; }
-.adminTable thead th { height:24px; padding:0; background:#ddd; background:-moz-linear-gradient(top, #fff, #ddd); background:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); border-color:#aaa; border-right-color:#aaa; border-left-color:white; border-bottom-width:1px; }
+.adminTable thead th { /*height:24px;*/ min-height:24px; padding:0; background:#ddd; background:-moz-linear-gradient(top, #fff, #ddd); background:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); border-color:#aaa; border-right-color:#aaa; border-left-color:white; border-bottom-width:1px; }
 .adminTable thead th.ui-state-active { background:#aaa; background:-moz-linear-gradient(top, #ddd, #fff); background:-webkit-gradient(linear, left top, left bottom, from(#ddd), to(#fff)); border-color:#aaa; border-right-color:#aaa; border-left-color:white; border-bottom-width:1px; }
 .adminTable thead .title { position:relative; color:#000; text-shadow:1px 1px 0 #fff; font-weight:bold; }
 .adminTable thead .title .comment { width:16px; height:16px; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -64px -64px; vertical-align:middle; }
@@ -267,28 +267,28 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminListBlock tbody tr:hover .actionsCol { outline:none; }
 
 .selectionLinksBlock a { color:white; font-weight:normal; text-decoration:none; }
-.selectionLinksBlock a:after { content:', '; }
-.selectionLinksBlock a:last-child:after { display:none; }
+.selectionLinksBlock a::after { content:', '; }
+.selectionLinksBlock a:last-child::after { display:none; }
 
 .subResourcesToggler { display:inline-block; text-decoration:none; visibility:hidden; }
-.subResourcesToggler:before { width:8px; height:6px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -196px -166px; vertical-align:middle; text-decoration:none; }
+.subResourcesToggler::before { width:8px; height:6px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -196px -166px; vertical-align:middle; text-decoration:none; }
 .subResourcesToggler .key { display:none; }
 .subResourcesToggler .value { display:none; text-decoration:underline; }
-.expanded .subResourcesToggler:before { background-position:212px 165px; }
+.expanded .subResourcesToggler::before { background-position:212px 165px; }
 
 .paginationBlock { text-align:center; }
 .paginationBlock a { text-align:left; }
 .paginationBlock > a { vertical-align:middle; }
 .paginationBlock > a .label { display:none; }
-.paginationBlock > a:before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat 0 0; vertical-align:middle; }
-.paginationBlock > a.firstLink:before { background-position:-64px -16px; }
-.paginationBlock > a.firstLink.disabled:before { background-position:-80px -16px; }
-.paginationBlock > a.prevLink:before { background-position:0 -16px; }
-.paginationBlock > a.prevLink.disabled:before { background-position:-16px -16px; }
-.paginationBlock > a.nextLink:before { background-position:-32px -16px; }
-.paginationBlock > a.nextLink.disabled:before { background-position:-48px -16px; }
-.paginationBlock > a.lastLink:before { background-position:-96px -16px; }
-.paginationBlock > a.lastLink.disabled:before { background-position:-96px -16px; }
+.paginationBlock > a::before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat 0 0; vertical-align:middle; }
+.paginationBlock > a.firstLink::before { background-position:-64px -16px; }
+.paginationBlock > a.firstLink.disabled::before { background-position:-80px -16px; }
+.paginationBlock > a.prevLink::before { background-position:0 -16px; }
+.paginationBlock > a.prevLink.disabled::before { background-position:-16px -16px; }
+.paginationBlock > a.nextLink::before { background-position:-32px -16px; }
+.paginationBlock > a.nextLink.disabled::before { background-position:-48px -16px; }
+.paginationBlock > a.lastLink::before { background-position:-96px -16px; }
+.paginationBlock > a.lastLink.disabled::before { background-position:-96px -16px; }
 .paginationBlock#topPaginationBlock { margin-bottom:0; }
 .paginationBlock ul.nav.paginationList { height:auto; margin:0; display:inline-block; background:none; vertical-align:middle; }
 .paginationBlock ul.nav.paginationList li,
@@ -306,7 +306,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminBlock h2 .actionsBlock { margin-left:10px; display:inline-block; position:relative; z-index:100; vertical-align:middle; }
 .adminBlock h2 .actionsBlock a.adminLink { display:inherit; background:inherit }
 .adminBlock .paginationBlock { margin:-28px 0 10px 0; display:inline-block; position:relative; float:right; }
-.adminBlock .paginationBlock:after { height:0; clear:both; content:'.'; display:block; visibility:hidden; }
+.adminBlock .paginationBlock::after { height:0; clear:both; content:'.'; display:block; visibility:hidden; }
 .adminBlock .notifierBlock { margin:10px 20px; } 
 .adminCreateBlock .paginationBlock { display:none; }
 
@@ -333,7 +333,7 @@ body.firefox form fieldset legend span { margin-left:10px; padding-left:100%; te
 .adminCreateBlock form .comment .detail { width:auto; padding:0; display:block; position:static; background:inherit; border:none; color:inherit; font-size:inherit; }
 
 
-.adminResourceDetailBlock:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
+.adminResourceDetailBlock::after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
 .adminResourceDetailBlock .odd { background:#959595; border:1px solid #959595; }
 .adminResourceDetailBlock .even { background:#565656; border:1px solid #565656; }
 .adminResourceDetailBlock dt { width:45%; min-height:22px; padding:3px 1%; display:block; float:left; clear:both; border-right:1px solid black; /*font-size:107%;*/ font-weight:bold; color:white; text-align:right; }
@@ -375,18 +375,18 @@ body#adminMessagespushIndex form .line:not(.legendLine) { width:auto; float:none
 
 .adminBlock { margin-bottom:20px; }
 
-.adminStatsBlock dl:after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; }
+.adminStatsBlock dl::after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; }
 .adminStatsBlock dt { width:38%; padding:3px 1%; display:block; float:left; clear:both; background:#eee; border:1px solid #ccc; border-width:0 1px 1px 0; }
 .adminStatsBlock dd .value { margin-left:10px; }
 .adminStatsBlock dd { padding:3px 1% 3px 40%; display:block; }
 .adminStatsBlock dd ul.value { display:inline; }
 .adminStatsBlock dd ul.value li { display:inline; }
-.adminStatsBlock dd ul.value li:after { content:', '; }
-.adminStatsBlock dd ul.value li:last-child:after { display:none; }
+.adminStatsBlock dd ul.value li::after { content:', '; }
+.adminStatsBlock dd ul.value li:last-child::after { display:none; }
 
 .admin p.notification { text-align:left; font-weight:bold; position:relative; }
 .admin p.notification:hover {}
-.admin p.notification:after { width:16px; height:16px; display:block; content:' '; position:absolute; right:5px; top:3px; background:url(images/commonIconsSprites.png) no-repeat -112px -80px; font-size:1%; cursor:pointer; }
+.admin p.notification::after { width:16px; height:16px; display:block; content:' '; position:absolute; right:5px; top:3px; background:url(images/commonIconsSprites.png) no-repeat -112px -80px; font-size:1%; cursor:pointer; }
 
 #adminMainNav { margin:0; padding:3px 20px; display:block; clear:both; }
 

@@ -62,12 +62,12 @@ class VUnittests extends View
 		$test10 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array(array('id','=',array(1,2)))));
 		$pass10			= !empty($test10) && count($test10) === 2 && !empty($test10[0]['email']) && $test10[0]['email'] === 'nobody@anonymous.com' 
 							&& !empty($test10[1]['email']) && $test10[1]['email'] === 'guyllaume@clicmobile.com';
+// TODO: change with proper data (that will allways be in the default database)
+$test11 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id,auth_level_nb' => '1')));
+$pass11 		= !empty($test11) && count($test11) === 1 && !empty($test11[0]['email']) && $test11[0]['email'] === 'nobody@anonymous.com';
 
-		$test11 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id,auth_level_nb' => '10')));
-		$pass11 		= !empty($test11) && count($test11) === 1 && !empty($test11[0]['email']) && $test11[0]['email'] === 'rlacroix@photomaton.com';
-		
-		$test12 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id,auth_level_nb' => 10)));
-		$pass12 		= !empty($test12) && count($test12) === 1 && !empty($test12[0]['email']) && $test12[0]['email'] === 'rlacroix@photomaton.com';
+$test12 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id,auth_level_nb' => 1)));
+$pass12 		= !empty($test12) && count($test12) === 1 && !empty($test12[0]['email']) && $test12[0]['email'] === 'nobody@anonymous.com';
 		
 		$test13 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array(array('id','<','2'))));
 		$pass13 		= !empty($test13) && count($test13) === 1 && !empty($test13[0]['email']) && $test13[0]['email'] === 'nobody@anonymous.com';
@@ -129,21 +129,21 @@ class VUnittests extends View
 		$pass31 		= !empty($test31) && count($test30) === 2 && !empty($test31[0]['email']) && $test31[0]['email'] === 'nobody@anonymous.com' 
 							&& !empty($test31[1]['email']) && $test31[1]['email'] === 'guyllaume@clicmobile.com';
 
-							
-		# Tests timestamps
-		$test32 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('creation_date' => strtotime('2010-09-28 14:20:52'))));
-		$pass32 		= !empty($test32) && count($test32) === 1 && !empty($test32[0]['email']) && $test32[0]['email'] === 'nobody@anonymous.com';
-		
-		$test33 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('creation_date' => '1285683652')));
-		$pass33 		= !empty($test33) && count($test33) === 1 && !empty($test33[0]['email']) && $test33[0]['email'] === 'nobody@anonymous.com';
-		
-		$test34 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('creation_date' => 1285683652)));
-		$pass34 		= !empty($test34) && count($test34) === 1 && !empty($test34[0]['email']) && $test34[0]['email'] === 'nobody@anonymous.com';
+// TODO: change with proper data (that will allways be in the default database)							
+# Tests timestamps
+$test32 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('creation_date' => strtotime('2010-09-28 14:20:52'))));
+$pass32 		= !empty($test32) && count($test32) === 1 && !empty($test32[0]['email']) && $test32[0]['email'] === 'nobody@anonymous.com';
+
+$test33 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('creation_date' => '1285683652')));
+$pass33 		= !empty($test33) && count($test33) === 1 && !empty($test33[0]['email']) && $test33[0]['email'] === 'nobody@anonymous.com';
+
+$test34 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('creation_date' => 1285683652)));
+$pass34 		= !empty($test34) && count($test34) === 1 && !empty($test34[0]['email']) && $test34[0]['email'] === 'nobody@anonymous.com';
     
     
 		# Tests null
 		$test35 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('name' => null)));
-		$pass35 		= !empty($test35) && count($test35) === 1 && !empty($test35[0]['email']) && $test34[0]['email'] === 'nobody@anonymous.com';
+		$pass35 		= !empty($test35) && count($test35) === 1 && !empty($test35[0]['email']) && $test35[0]['email'] === 'nobody@anonymous.com';
 
 		$test36 		= $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array('name' => 'null')));
 		$pass36 		= !empty($test36) && count($test36) === 1 && !empty($test36[0]['email']) && $test36[0]['email'] === 'nobody@anonymous.com';
@@ -253,19 +253,19 @@ class VUnittests extends View
         $test70         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('id','lower or equal','2'))));
         $pass70         = !empty($test70) && count($test70) === 1 && !empty($test70[0]['email']) && $test70[0]['email'] === 'nobody@anonymous.com';
 
+// TODO: change with proper data (that will allways be in the default database)
+# Tests like, contains, not like, does not contains 
+$test71         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','like','doe'))));
+$pass71         = !empty($test71) && count($test71) === 1 && !empty($test71[0]['email']) && $test71[0]['email'] === 'nobody@anonymous.com';
 
-        # Tests like, contains, not like, does not contains 
-        $test71         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','like','doe'))));
-        $pass71         = !empty($test71) && count($test71) === 1 && !empty($test71[0]['email']) && $test71[0]['email'] === 'nobody@anonymous.com';
-        
-        $test72         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','contains','doe'))));
-        $pass72         = !empty($test72) && count($test72) === 1 && !empty($test72[0]['email']) && $test72[0]['email'] === 'nobody@anonymous.com';
-        
-        $test73         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','not like','doe'))));
-        $pass73         = !empty($test73) && count($test73) === 1 && !empty($test73[0]['email']) && $test73[0]['email'] === 'guyllaume@clicmobile.com';
-        
-        $test74         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','does not contains','doe'))));
-        $pass74         = !empty($test74) && count($test74) === 1 && !empty($test74[0]['email']) && $test74[0]['email'] === 'guyllaume@clicmobile.com';
+$test72         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','contains','doe'))));
+$pass72         = !empty($test72) && count($test72) === 1 && !empty($test72[0]['email']) && $test72[0]['email'] === 'nobody@anonymous.com';
+
+$test73         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','not like','doe'))));
+$pass73         = !empty($test73) && count($test73) === 1 && !empty($test73[0]['email']) && $test73[0]['email'] === 'guyllaume@clicmobile.com';
+
+$test74         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('last_name','does not contains','doe'))));
+$pass74         = !empty($test74) && count($test74) === 1 && !empty($test74[0]['email']) && $test74[0]['email'] === 'guyllaume@clicmobile.com';
         
         $test75         = $CUsers->index(array('getFields' => 'id, email', 'limit' => 1, 'conditions' => array(array('email','starts by','nobody@'))));
         $pass75         = !empty($test75) && count($test75) === 1 && !empty($test75[0]['email']) && $test75[0]['email'] === 'nobody@anonymous.com';

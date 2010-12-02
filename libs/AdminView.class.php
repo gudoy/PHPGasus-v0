@@ -15,6 +15,7 @@ class AdminView extends View
 		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
+        // TODO: used? double bloom with $this->data['_resources'] & $this->data['resourcesFields']?
 		$this->dataModel = array(
 			'resources' 		=> &$resources,
 			'resourcesFields' 	=> &$dataModel,
@@ -45,6 +46,7 @@ class AdminView extends View
 		//$this->data['current']['groupResources'] = !empty($this->resourceGroupName) ? $resourceGroups[$tmpGroupName]['resources'] : $this->dataModel['resources'];
 		
 		
+		// TODO: remove when no longer needed for backward compat
 		if ( !defined('_APP_USE_ADMIN_METAS') || _APP_USE_ADMIN_METAS )
         {
             // Deprecated
@@ -56,6 +58,7 @@ class AdminView extends View
             }            
         }		
 		
+        // TODO: safe to be cleaned?
 		$this->data = array_merge($this->data, array(
 			'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
 			//'resourceGroups' 		=> &$this->dataModel['resourceGroups'],
@@ -76,6 +79,7 @@ class AdminView extends View
 	{
 		parent::configSmarty();
 		
+        // TODO: really needed?
 		// Force cache disabling in admin
 		$this->Smarty->caching = 0;
 		
@@ -162,7 +166,7 @@ class AdminView extends View
 		$this->log(__METHOD__);
 		
 		// Shortcut for options
-		$o 						= $options;
+		$o 						= &$options;
 		
 		// 
 		$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
@@ -200,50 +204,76 @@ class AdminView extends View
                 $gids           = !empty($u['group_ids']) ? $u['group_ids'] : array();          // Get user group ids
                 $opts           = array('by' => 'group_id', 'values' => $gids);                 // Set options
                 $gpsAuths       = CGroupsauths::getInstance()->index($opts);                    // Try to get user groups auth
-                $uAuths         = array();                                                      // Init user auths array resource indexed array
-                $knownAuths     = array('display','create','retrieve','update','delete');                               // List of knowns auth
-                $actionAuths    = array();                                                      // Init user auths actions indexed array
-                
-                // Loop over the group auths
-                foreach ( (array) $gpsAuths as $gpAuths )
-                {
-                    // Shortcut for the group auth resource name
-                    $rname              = !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
-                    
-                    // Do not continue if the resource name has not been found 
-                    if ( empty($rname) ) { continue; }
-                    
-                    // Loop over the know auths
-                    foreach($knownAuths as $auth)
-                    {
-                        $aN                     = 'allow_' . $auth;                                                             // Shortcut for auth name
-                        $cN                     = '__can_' . $auth;                                                             // Shortcut for 
-                        $uAuths[$rname][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;                                // Update the auth for the current resource
-                        
-                        $actionAuths[$cN]       = !isset($actionAuths[$cN]) ? array() : $actionAuths[$cN];
-                        if ( !empty($gpAuths[$aN]) ) { $actionAuths[$cN][] = $rname; }
-                    }
-                }
-    
-                
-                $uAuths         += $actionAuths;
-                $u['auths']     = $uAuths;
+                $knownActions = array('display','create','retrieve','update','delete');                               // List of knowns auth
+                //$actionAuths    = array();                                                    // Init user auths actions indexed array
                 
                 // Can the user access the admin
                 $ugps           = !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
-                $u['auths']['__can_access_admin'] = in_array('admins', $ugps) || in_array('superadmins', $ugps) || in_array('gods', $ugps);
-                
-                $match  = !empty($u['auths']['__can_access_admin']) 
-                            && ( empty($this->resourceName) || in_array($this->resourceName, $u['auths']['__can_display']) );
-                            
-//var_dump($u['auths']['__can_display']);
-//sort($u['auths']['__can_display']);
-//var_dump($u['auths']['__can_display']);
-            }
+                $isGod          = in_array('gods', $ugps);
+                $u['auths']     = array(
+                    '__can_access_admin' => $isGod || in_array('superadmins', $ugps) || in_array('admins', $ugps) 
+                );
+                $uAuths         = &$u['auths'];                                                      
+/*
+var_dump($u);
+var_dump($gids);                
+var_dump($gpsAuths);
+*/
 
+
+                if ( $isGod )
+//if ( 1 === 2 )
+                {
+                    $resList = array_keys($this->dataModel['resources']);
+                    
+                    foreach ($knownActions as $action)
+                    {
+                        $cN             = '__can_' . $action;
+                        $uAuths[$cN]    = $resList;
+                    }
+                    
+                    foreach ( $resList as $rName )
+                    {
+                        foreach ($knownActions as $action)
+                        {
+                            $aN                     = 'allow_' . $action;     // Shortcut for auth name 
+                            $uAuths[$rName][$aN]    = true;                 // Update the auth for the current resource
+                        } 
+                    }
+                }
+                else
+                {
+                    // Loop over the group auths
+                    foreach ( (array) $gpsAuths as $gpAuths )
+                    {
+                        // Shortcut for the group auth resource name
+                        $rName              = !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
+                        
+                        // Do not continue if the resource name has not been found 
+                        if ( empty($rName) ) { continue; }
+                        
+                        // Loop over the known auths
+                        foreach ($knownActions as $actions)
+                        {
+                            $aN                     = 'allow_' . $actions;     // Shortcut for auth name
+                            $cN                     = '__can_' . $actions;     // Shortcut for 
+                            $uAuths[$rName][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;  // Update the auth for the current resource
+                            
+                            $uAuths[$cN]            = !isset($uAuths[$cN]) ? array() : $uAuths[$cN];
+                            if ( !empty($gpAuths[$aN]) ) { $uAuths[$cN][] = $rName; }
+                        }
+                    }
+                }
+
+                $match  = !empty($uAuths['__can_access_admin']) && ( empty($this->resourceName) || in_array($this->resourceName, $uAuths['__can_display']) );            
+            }
+                       
 //var_dump($u);
+//var_dump($u['auths']);
+//var_dump($u['auths']['__can_display']);
 //var_dump($match);
 //die();
+
 			
 			// Store the current user, after having remove sensitive data (password, .... ?)
 			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
@@ -257,12 +287,208 @@ class AdminView extends View
 		return !$match ? $this->redirect($redir) : true;
 	}
 	
+    
+    public function handleSearch()
+    {
+        $args           = func_get_args();
+        $criteria       = array();                                                  // Initialise search criteria array
+        $searchable     = array();                                                  // Initialise searchable resources array
+        $sType          = isset($this->resourceName) 
+                            && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
+                          ? 'contextual' : 'global';
+        $s              = &$this->data['search'];                                   // Shortcut for search data
+        $s['type']      = $sType;
+
+        // $criteria = array(
+        //      'type'          => passed type || 'or',
+        //      'resource'      => passed resource || current resource,
+        //      'columns'       => passed columns || resource.searchableColumns,
+        //      'operator'      => '=',
+        //      'values'        => array(),
+        //);
+        
+        // Handle URIs like
+        // search/{resourceName}/{queryString} 
+        // search/{resourceName}?method=search&queryString={$queryString}
+        $sQuery         = !empty($_GET['searchQuery']) ? filter_var($_GET['searchQuery'], FILTER_SANITIZE_STRING) : null;
+        $values         = $this->arrayify($sQuery);
+        $s['query']     = $sQuery;
+        
+        // Do not continue if no search query has been found
+        if ( empty($sQuery) ){ return $this; }
+        
+        $rList          = $s['type'] === 'contextual' ? (array) $this->resourceName : array_keys($this->data['_resources']);
+        
+        // Get searchable resources and searchable colums for each one of them
+        foreach ( $rList as $resource )
+        {
+            if ( empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
+            
+            $r              = &$resource;                       // Shortcut for the current resource name
+            $rModel         = &$this->data['dataModel'][$r];    // Shortcut for the current resource model
+            $sCols          = array();                          // Initialise the searchable colums array for the current resource
+            
+            // Loop ovet the resource columns
+            foreach( array_keys($rModel) as $column )
+            {
+                if ( empty($rModel[$column]['searchable']) ) { continue; }
+                
+                // Add the column to the searchable ones
+                $sCols[] = $column;
+            }
+            
+            $searchable[$r] = array( 'resource' => $r, 'columns' => $sCols, );
+        }
+        
+//$this->dump($searchable);
+        
+        
+        // First case, contextual search on a defined resource
+        if ( $sType === 'contextual' )
+        {
+//$this->dump('case contextual search');
+
+            $rName          = $this->resourceName;
+
+            // Get searchable cols for the current resource
+            $cols = $searchable[$rName]['columns'];
+            //foreach ($cols as $col){ $this->options['conditions'][] = array($col,'in',$sQuery,'or'); }
+            foreach ($cols as $col){ $this->options['conditions'][] = array($col,'contains',$s['query'],'or'); }
+            
+            // Get results with the search criteria
+            $results =$this->C->index($this->options);
+
+//$this->dump($this->options['conditions']);
+
+            // Set output data      
+            $this->data = array_merge($this->data, array(
+                $this->resourceName     => $results,
+                'success'               => $this->C->success, 
+                'errors'                => $this->C->errors,
+                'warnings'              => $this->C->warnings,
+                'current'               => array_merge($this->data['current'], array(
+                    'url'                       => $this->currentURL(),
+                    'offset'                    => $this->options['offset'],
+                    'limit'                     => $this->options['limit'],
+                    'sortBy'                    => $this->options['sortBy'],
+                )),
+                'total'                 => array(
+                    $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
+                ),
+                'search' => array_merge($s, array(
+                    //'query'         => $sQuery,
+                    //'criteria'  => array(), // TODO
+                    'totalResults' => count($results),
+                )),
+            ));
+        }
+        // Second case, global search on every searchable resource on every searchable columns
+        // TODO
+        else
+        {
+$this->dump('case global search');
+
+            // Instanciate searchable resources and get search results for each one of them
+            foreach ( array_keys($searchable) as $rName )
+            {
+                $cName  = 'C' . ucfirst($rName);            // Build controller name
+                $$cName = new $cName();                     // Instanciate controller
+                
+                $cols = $searchable[$rName]['columns'];     // Get searchable cols for the current resource
+                $this->options['conditions'] = array();     // Force conditions to be empty (only handle search conditions)
+                
+                foreach ($cols as $col){ $this->options['conditions'][] = array($col,'contains',$s['query'],'or'); }
+                
+                $results    = $$cName->search($this->options);
+                $count      = count($results);
+                
+                $s['groups'][$rName] = array(
+                    'results'   => $results,
+                    'resource'  => $rName,
+                    'count'     => $count,
+                );
+                $s['totalResults'] = (isset($s['totalResults']) ? $s['totalResults'] : 0) + $count;
+                
+                // If the current resource is the current one (in case of global search on a resource page)
+                if ( !empty($this->resourceName) && $rName === $this->resourceName && empty($this->data[$rName]) )
+                {
+                    //$this->data[$rName] = &$results;
+                    // Set output data      
+                    $this->data = array_merge($this->data, array(
+                        $this->resourceName     => $results,
+                        'success'               => $this->C->success, 
+                        'errors'                => $this->C->errors,
+                        'warnings'              => $this->C->warnings,
+                        'current'               => array_merge($this->data['current'], array(
+                            'url'                       => $this->currentURL(),
+                            'offset'                    => $this->options['offset'],
+                            'limit'                     => $this->options['limit'],
+                            'sortBy'                    => $this->options['sortBy'],
+                        )),
+                        'total'                 => array(
+                            $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
+                        ),
+                        'search' => array_merge($s, array(
+                            //'query'         => $sQuery,
+                            //'criteria'  => array(), // TODO
+                            'totalResults' => count($results),
+                        )),
+                    ));
+                }
+            }
+
+            /*
+            // TODO: handle search query properly
+            $tmpCriteria    = explode(',', $sQuery);
+            $criteria       = !empty($sQuery) ? $criteria + array(
+                array('type' => 'or', 'resources' => 'machines', 'columns' => array('code', 'number', 'model'), 'operator' => '=', 'values' => $values),
+                array('type' => 'or', 'resources' => 'technicians', 'columns' => array('firstname','lastname','email'), 'operator' => '=', 'values' => $values),
+                array('type' => 'or', 'resources' => 'commercials', 'columns' => array('firstname','lastname','email'), 'operator' => '=', 'values' => $values),
+            ) : $critera;
+            */
+        }
+        
+        return $this;
+    }
+    
+    
+    public function search()
+    {
+        $this->handleSearch();
+
+/*
+        // Set output data      
+        $this->data = array_merge($this->data, array(
+            $this->resourceName     => $this->C->index($this->options),
+            'success'               => $this->C->success, 
+            'errors'                => $this->C->errors,
+            'warnings'              => $this->C->warnings,
+            'current'               => array_merge($this->data['current'], array(
+                'url'                       => $this->currentURL(),
+                'offset'                    => $this->options['offset'],
+                'limit'                     => $this->options['limit'],
+                'sortBy'                    => $this->options['sortBy'],
+            )),
+            'total'                 => array(
+                $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
+            ),
+        ));
+ */
+        
+        $this->handleRelations();
+        
+        $this
+            ->beforeRender(array('function' => __FUNCTION__));
+            
+        return $this->render();
+    }
+    
 	
 	//public function index($resourceId = null, $options = null)
 	public function index()
 	{
 		$args = func_get_args();
-		$this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate'));
+		$this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));
 		
 		$this->log(__METHOD__);
 		
@@ -660,9 +886,13 @@ class AdminView extends View
 		// Update current meta
 		// TODO: remove when resource group getting will have been move to meta()
 		//$this->data['meta'] 					= !empty($this->resourceName) ? $this->data['metas'][$this->resourceName] : null;
-		$this->data['meta']                   = $this->meta($this->resourceName);
+		
+		// TODO: already assigned in the __construct()
+		// safe to remove? 
+		//$this->data['meta']                       = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
 								
 		$this->data['current']['resource'] 		= !empty($this->resourceName) ? $this->resourceName : null;
+        $this->data['current']['menu']          = &$this->data['current']['resource'];
 		
 		// Deprecated. Safe to be removed?
 		// TODO: remove

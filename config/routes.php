@@ -73,6 +73,8 @@ define("_URL_REFERENCES", 					_URL . 'references/');
 define("_URL_ADMIN_DASHBOARD", 				_URL_ADMIN . 'dashboard/');
 define("_URL_ADMIN_SETUP", 					_URL_ADMIN . 'setup/');
 define("_URL_ADMIN_SETUP_RESOURCES", 		_URL_ADMIN_SETUP . 'resources/');
+define("_URL_ADMIN_SEARCH",                 _URL_ADMIN . 'search/');
+
 
 
 # APP SPECIFIC URIS

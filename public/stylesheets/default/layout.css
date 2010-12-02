@@ -129,7 +129,7 @@
 .container_16 .suffix_15 { padding-right:900px; }
 
 
-.clearfix:after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; } 
+.clearfix::after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; } 
 .clearfix { display:inline-block; }
-* html .clearfix { height:1%; }
+* html .clearfix { /*height:1%;*/ zoom:1; }
 .clearfix { display:block; }

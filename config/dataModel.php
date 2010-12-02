@@ -51,7 +51,7 @@ $resources = array(
 'apiclients' 		=> array('singular' => 'apiclient', 'table' => 'api_clients', 'alias' => 'apicl', 'defaultNameField' => 'name'),
 'apps' 				=> array('singular' => 'app', 'alias' => 'app', 'defaultNameField' => 'admin_title'),
 'appsplatforms' 	=> array('singular' => 'appsplatform', 'table' => 'apps_platforms', 'alias' => 'appptf', 'defaultNameField' => 'id', 'displayName' => 'apps platforms'),
-'clients' 			=> array('singular' => 'client', 'alias' => 'c', 'defaultNameField' => 'admin_title'),
+'clients' 			=> array('singular' => 'client', 'alias' => 'cl', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title', 'searchable' => 1),
 'contents' 			=> array('singular' => 'content', 'table' => 'issue_contents', 'alias' => 'ic', 'defaultNameField' => 'admin_title'),
 'entries' 			=> array('singular' => 'entry', 'alias' => 'e', 'defaultNameField' => 'admin_title'),
 'issues' 			=> array('singular' => 'issue', 'alias' => 'i', 'defaultNameField' => 'number'),
@@ -66,9 +66,12 @@ $resources = array(
 'pushregistrations' => array('singular' => 'pushregistration','table' => 'push_registrations', 'alias' => 'pshreg','defaultNameField' => 'device_id','displayName' => 'push registrations'),
 'resources' 		=> array('singular' => 'resource', 'alias' => 'res', 'crudability' => 'CRUD', 'defaultNameField' => 'name'),
 'sessions' 			=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'id'),
-'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email'),	
+'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'searchable' => 1),
 'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'defaultNameField' => 'user_id'),		
 'versions' 			=> array('singular' => 'version', 'alias' => 'v', 'crudability' => 'CRUD', 'defaultNameField' => 'value'),
+
+//'commercials'       => array('type' => 'filter', 'singular' => 'commercial', 'extends' => 'users'),
+//'technicians'       => array('type' => 'filter', 'singular' => 'technician', 'extends' => 'users'),		
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
@@ -110,9 +113,9 @@ $dataModel = array(
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
 'clients' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'admin_title' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'name' 					=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1, 'searchable' => 1),
+	'admin_title' 			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
 	'logo_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
 	'website_url' 			=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
@@ -156,7 +159,7 @@ $dataModel = array(
 	'price_euros' 			=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
 	'pdf_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => true, 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
 'groups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
@@ -250,8 +253,14 @@ $dataModel = array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'singular' 				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+	'type'                   => array('type' => 'enum', 'default' => 'native', 'possibleValues' => array('native','filter'), 'list' => 1),
+	'table'                 => array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'alias'                 => array('type' => 'varchar', 'length' => 8, 'list' => 0),
+	'extends'              => array('type' => 'varchar', 'length' => 8, 'list' => 0),
+	'displayName'              => array('type' => 'varchar', 'length' => 32, 'list' => 0),
+	'defaultNameField'     => array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
 'usersgroups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
@@ -262,12 +271,14 @@ $dataModel = array(
 ),
 'users' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'email' 				=> array('type' => 'varchar', 'subtype' => 'email', 'list' => 1),
-	'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'list' => 1, 'editable' => 0),
-	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
-	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))'),
+	'email' 				=> array('type' => 'varchar', 'subtype' => 'email', 'list' => 1, 'searchable' => 1),
+	//'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'list' => 1, 'editable' => 0),
+	'password'                 => array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 0),
+	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 1),
+	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 1),
 	// TODO: type custom (firstname)
 	//'name' 					=> array('type' => 'varchar', 'length' => 128, 'list' => 1),
+	//'name'                     => array('type' => 'varchar', 'length' => 128, 'searchable' => 1),
 	'auth_level' 			=> array('type' => 'enum', 'default' => 'user', 'possibleValues' => array('user','contributor','admin','superadmin','god'), 'editable' => 0),
 	'auth_level_nb' 		=> array('type' => 'int', 'default' => 10, 'editable' => 0, 'comment' => '10=user, 100=contributor, 500=admin, 1000=superadmin, 10000=god'),
 	//'groups' 				=> array('type' => 'onetomany', 'relResource' => 'groups', 'relField' => 'id', 'pivotResource' => 'users_groups', 'pivotLeftField' => 'user_id', 'pivotRightField' => 'group_id', 'getFields' => 'admin_title'),
@@ -309,6 +320,7 @@ $dataModel = array(
 
 // Filter resources
 // TODO:
-//$dataModel['technicians'] = &$dataModel['users'];
+$dataModel['technicians'] = &$dataModel['users'];
+$dataModel['commercials'] = &$dataModel['users'];
 
 ?>

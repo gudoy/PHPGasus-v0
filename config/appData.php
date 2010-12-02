@@ -37,7 +37,7 @@ define('_APP_USE_CSS_OPERA', 					false);
 ### MISC SNIFFING & FEATURES DETECTION
 define('_APP_SNIFF_PLATFORM', 					true); 			// Disable this if you don't want to try getting the platform data (prevent unnecessary processing)
 define('_APP_SNIFF_BROWSER', 					true); 			// Disable this if you don't want to try getting the browser data (prevent unnecessary processing)
-define('_APP_USE_MODERNIZR', 					true); 			// If allowed, Modernizr (js lib) will be added to detect user browser capabilities adding subsenquent classes to the <HTML> tag
+define('_APP_USE_MODERNIZR', 					false); 			// If allowed, Modernizr (js lib) will be added to detect user browser capabilities adding subsenquent classes to the <HTML> tag
 
 
 // IOS (iPhone/iPad/i???) OPTIONS
@@ -70,7 +70,7 @@ define('_APP_HAS_RELATED_WIDGET', 				false);
 define('_APP_WIDGET_VERSION', 					'0.1.1');
 define('_APP_WIDGET_NAME', 						_APP_NAMESPACE . '_' .  _APP_CONTEXT . '_' . _APP_WIDGET_VERSION . '.wgt');
 
-define('_PHPGASUS_VERSION', 					'0.5.3.0');
+define('_PHPGASUS_VERSION', 					'0.6.0.0');
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');
@@ -83,15 +83,16 @@ define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:
 define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 
 ### FEATURES & REFACTORING
-define('_APP_ADMIN_GET_USERS_STATS',            true);
-define('_APP_ADMIN_GET_RESOURCES_DATA',         true);
+define('_APP_ADMIN_GET_USERS_STATS',            false);
+define('_APP_ADMIN_GET_RESOURCES_DATA',         false);
 define('_APP_USE_ACL_V2',                       true);
-define('_APP_USE_SQL_TYPEFIXING', 				false);
+define('_APP_USE_SQL_TYPEFIXING', 				true);
 define('_APP_USE_ONFETCH_TYPEFIXING', 			true);
 define('_APP_USE_CONDITIONS_HANDLER_V2', 		true);
 define('_APP_USE_ADMIN_LIST_FILTERS_V2',        true);
 define('_APP_USE_ADMIN_LIST_TOOLBAR_V2',        true);
 define('_APP_USE_ADMIN_METAS',                  false);
+define('_APP_SEARCH_ALWAYS_GLOBAL',             false);
 
 
 ?>

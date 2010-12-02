@@ -1,4 +1,5 @@
 {$rModel=$data.dataModel[$resourceName]}
+{$rCount=$data[$resourceName]|@count}
 <form id="frmAdmin{$resourceName|capitalize}" action="" class="commonForm" method="post" enctype="multipart/form-data">
 	
 	{if $smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
@@ -19,11 +20,11 @@
 					<th class="col firstCol colSelectResources" id="toggleAllCel">
 						<input type="checkbox" id="toggleAll" name="toggleAll" />
 					</th>
-					{assign var='displayedFieldsNb' value=0}
+					{$displayedFieldsNb=0}
 					<th class="col actionsCol">
 			          	<span class="title">{t}Actions{/t}</span>
 					</th>
-					{foreach name='tableFields' from=$rModel key='fieldName' item='field'}
+					{foreach $rModel as $fieldName => $field}
 					{if $field.list}
 					{if $smarty.get.sortBy == $fieldName || (strpos($smarty.get.sortBy,',') !== false && strpos($smarty.get.sortBy,$fieldName) !== false)}
 						{$isSorted=true}
@@ -41,17 +42,19 @@
 					{/if}
 					{/foreach}
 					<th class="col colsHandlerCol last">
-						<a class="colsHandlerLink" href="#">
-							<span class="label">{t}Manage columns{/t}</span>
-						</a>
-						<div class="colsHandlerManagerBlock hidden">
-							{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
-							<div class="colLine">
-								<input type="checkbox" id="{$fieldName}DisplayColChooser" class="multi" {if $field.list}checked="checked"{/if} />
-								<label class="span" for="{$fieldName}DisplayColChooser">{$fieldName}</label>
-							</div>
-							{/foreach}
-						</div>
+					   <div class="colsHandlerBlock" id="colsHandlerBlock">
+					       <a class="colsHandlerLink" href="#">
+					           <span class="label">{t}Manage columns{/t}</span>
+					       </a>
+					       <div class="colsHandlerManagerBlock hidden" id="colsHandlerManagerBlock" style="height:{$rCount*20}px;">
+					       {foreach array_keys($rModel) as $column}
+					           <div class="colLine">
+					               <input type="checkbox" id="{$column}ColDisplay" class="multi" {if $rModel[$column].list}checked="checked"{/if} />
+					               <label class="span" for="{$column}ColDisplay">{$column|replace:'_':' '}</label>
+					           </div>
+					       {/foreach}
+					       </div>
+					   </div> 
 					</th>
 				</tr>
 				{if $smarty.const._APP_USE_ADMIN_LIST_FILTERS_V2}
@@ -76,20 +79,20 @@
 					<td colspan="{$displayedFieldsNb+4}">
 						{include file='common/blocks/admin/resource/actions/listAdd.tpl'}
 						<div class="resourcesCount">
-							<span class="value">{$data[$resourceName]|@count} {t}of{/t} {$data.total[$resourceName]}</span>
+							<span class="value">{$rCount} {t}of{/t} {$data.total[$resourceName]}</span>
 						</div>
 					</td>
 				</tr>
 				{/if}
 				{foreach name=$resourceName from=$data[$resourceName] item='resource'}
-				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource.id}" data-fullAdminPath="{$data.meta.fullAdminPath}{$resource.id}" scope="row">
+				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource.id}" {*data-fullAdminPath="{$data.meta.fullAdminPath}{$resource.id}"*} scope="row">
 					<td class="col firstcol colSelectResources">
 						<input type="checkbox" name="ids[]" value="{$resource.id}" {if $smarty.post.ids && in_array($resource.id, $smarty.post.ids)}checked="checked"{/if} />
 					</td>
 					<td class="col actionsCol">
 						<span class="actions">{include file='common/blocks/admin/resource/actions/listActions.tpl'}</span>
 					</td>
-					{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
+					{foreach $rModel as $fieldName => $field}
 					{$isDefaultNamefield=($data.metas[$resourceName].defaultNameField===$fieldName)?true:false}
 					{$value=$resource[$fieldName]}
 					{if $field.list}
@@ -187,7 +190,7 @@
 					<td colspan="{$displayedFieldsNb+4}">
 						{include file='common/blocks/admin/resource/actions/listAdd.tpl'}
 						<div class="resourcesCount">
-							<span class="value">{$data[$resourceName]|@count} {t}of{/t} {$data.total[$resourceName]}</span>
+							<span class="value">{$rCount} {t}of{/t} {$data.total[$resourceName]}</span>
 						</div>
 					</td>
 				</tr>

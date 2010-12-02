@@ -39,6 +39,7 @@ class CMachines extends Controller
         
         $rowNb                  = 1;
         $imported               = 0;
+        $updated                = 0;
         //$this->data           = array();
         $csvModel               = null;
         $maildmn                = '@' . 'photomaton.com';
@@ -61,18 +62,12 @@ class CMachines extends Controller
             // Do not continue if the row is empty
             if ( empty($row) ){ continue; }
             
-if ( $rowNb > 30 ){ break; }
-            
-//$this->dump($row);
-//var_dump($row);
+if ( $rowNb > 60 ){ break; }
         
             $tmpData            = explode(";", substr($row, 0, -1));
             
             // Remove "" wrapping string values
             foreach ( $tmpData as $k => $v ){ $tmpData[$k] = is_string($v) ? str_replace(array('"'), array(''), $v) : $v; }
-            
-//$this->dump($tmpData);
-//var_dump($tmpData);
 
             // Handle the commercial
             if ( !empty($tmpData[29]) )
@@ -92,7 +87,11 @@ if ( $rowNb > 30 ){ break; }
                 $uid = $CUsers->retrieve(array(
                     'getFields'     => 'id',
                     'conditions'    => array('first_name' => $u['first_name'], 'last_name' => $u['last_name']),
+                    'limit'         => 1,
                 ));
+                
+//$this->dump($uid);                
+//$this->dump('commercial id:' . $uid);
                 
                 // If the commercial user id has not beed found, create it
                 if ( empty($uid) )
@@ -109,7 +108,7 @@ if ( $rowNb > 30 ){ break; }
                     $CUsersgroups->create();
                 }
                 
-                $ccialid = &$uid;
+                $ccialid = $uid;
             }
             
             // Handle the technician
@@ -121,7 +120,7 @@ if ( $rowNb > 30 ){ break; }
                 );
                 $u          = &$techn;              // Shortcut for the user data
                 $u          += array(
-
+                    'name'      => $u['first_name'] . ' ' . $u['last_name'],
                     'email'     => !empty($u['first_name']) && !empty($u['last_name']) ? $u['first_name'][0] . $u['last_name'] . $maildmn : null,
                     'password'  => md5(time()),
                 );
@@ -130,7 +129,11 @@ if ( $rowNb > 30 ){ break; }
                 $uid = $CUsers->retrieve(array(
                     'getFields'     => 'id',
                     'conditions'    => array('first_name' => $u['first_name'], 'last_name' => $u['last_name']),
+                    'limit'         => 1,
                 ));
+
+//$this->dump($uid);                
+//$this->dump('technician id:' . $uid);
                 
                 // If the commercial user id has not beed found, create it
                 if ( empty($uid) )
@@ -147,7 +150,7 @@ if ( $rowNb > 30 ){ break; }
                     $CUsersgroups->create();
                 }
                 
-                $technid = &$uid;
+                $technid = $uid;
             }
             
             /*
@@ -157,7 +160,7 @@ if ( $rowNb > 30 ){ break; }
             */
 
             $machine = array(
-                'code'                  => $tmpData[0],
+                'code'                  => trim($tmpData[0]),
                 'number'                => $tmpData[1],
                 'position'              => (int) $tmpData[2],
                 'model'                 => $tmpData[3],
@@ -202,24 +205,34 @@ if ( $rowNb > 30 ){ break; }
             foreach ( $machine as $k => $v ){ $_POST['machine' . ucfirst($k)] = $v; }
 //var_dump($_POST);
             $CMachines->create();
-            $result =  $CMachines->success;
+            $result = $CMachines->success;
 
-
+            // If a 4030 error (creation error due to unique key constraint) is returned
+            // try to update instead
+            if ( in_array(4030, $CMachines->errors) )
+            {
+                $CMachines->update(array('by' => 'code', 'values' => $machine['code']));
+                $updateResult = $CMachines->success;
+                
+                $updated = $updateResult ? $updated++ : $updated;                
+            }
             
 //$this->logError('Machine ' . $rowNb . ' : ' . ($result ? 'OK' : 'ERROR'));
 $this->logError(!$result ? 'Error on line ' . (string) ($rowNb) : '');
 $this->logError(!$result ? 'Raw data:' . (string) ($row) : '');
-if (!$result)
+
+if ( !$result && empty($updateResult) )
 {
-var_dump($tmpData);
+//var_dump($tmpData);
 var_dump($CMachines->errors);
 }
+
 $this->logError(!$result && isset($CMachines->model->launchedQuery) ? $CMachines->model->launchedQuery : '');
 $this->logError(!$result ? '--------------------------------------' : '');
 
             if ( $result ){ $imported++; }
 
-            unset($tmpData, $machine, $ccial, $techn);
+            unset($tmpData, $machine, $ccial, $techn, $updateResult);
             $rowNb++;
         }
         
@@ -228,7 +241,8 @@ $this->logError(!$result ? '--------------------------------------' : '');
         
         $succesLog = 'TOTAL: processed in: ' . $ptime . 's' . $this->lb;
         $succesLog .= 'TOTAL: ' . $rowNb . ' row(s) found' . $this->lb;
-        $succesLog .= 'TOTAL: ' . $imported . ' record(s) successfully inserted' . $this->lb;
+        $succesLog .= 'TOTAL: ' . $imported . ' record(s) inserted' . $this->lb;
+        $succesLog .= 'TOTAL: ' . $updated . ' record(s) updated' . $this->lb;
         $succesLog .= 'BATCH END ----' . $this->lb;
         print_r($succesLog);
         

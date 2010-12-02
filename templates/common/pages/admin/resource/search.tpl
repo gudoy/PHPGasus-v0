@@ -1,0 +1,1 @@
+{include file='common/pages/admin/resource/index.tpl'}
