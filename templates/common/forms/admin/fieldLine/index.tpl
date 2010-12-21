@@ -21,7 +21,8 @@
 		{strip}
 		{if $field.relResource}
 		<label for="{$resourceFieldName}{$itemIndex}">{$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
-			{if isset($field.required) && $field.required || $field.pk || $field.fk}<span class="required">*</span>{/if}
+			{*if isset($field.required) && $field.required || $field.pk || $field.fk}<span class="required">*</span>{/if*}
+			{if isset($field.required) && $field.required || $field.pk}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}
 		<span class="label">{$fieldName|capitalize|replace:'_':' '}{if $field.required}<span class="required">*</span>{/if}</span>

@@ -8,6 +8,5 @@ class MApiclients extends Model
 		
 		return parent::__construct($application);
 	}
-
 }
 ?>

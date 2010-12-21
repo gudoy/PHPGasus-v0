@@ -86,7 +86,8 @@ var admin =
 				jTR
 					.clone(true)
 					//.appendTo('table.adminTable tbody').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
-					.insertBefore('table.adminTable tbody tr:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
+					//.insertBefore('table.adminTable tbody tr:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
+					.insertAfter('table.adminTable tbody tr.dataRow:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
 					.find('td.colSelectResources :checkbox').val(createdId).end()
 					.find('td.actionsCol a')
 						//.attr('href', function(){ return $(this).attr('href').replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
@@ -166,6 +167,23 @@ var admin =
 		return this;
 	},
 	
+	edit: function(jqObj)
+	{
+        var self = this;
+	    
+	    if ( !jqObj.length )           { return this; }
+	    else if ( jqObj.length === 1 )
+	    {
+	        jqObj.find('td.actionsCol a.editLink').click();
+	    }
+	    else
+	    {
+	        alert('Sorry, for the moment, edit is only available for 1 item at a time');
+	    }
+	    
+        return this;  
+	},
+	
 	handleForeigKeyFields: function()
 	{
 		var self = this;
@@ -174,13 +192,13 @@ var admin =
 		{
 			e.preventDefault();
 			
-			var a 				= $(this),											// Store a reference to the clicked anchor
-				curVal 			= a.find('> .fieldCurrentVal:first').text(), 		// Get the current value of the fied
-				relResource 	= a.find('> .relResource:first').text(),			// Get the related table name
-				fName 			= a.find('> .formFieldName:first').text(),			// Get the form field name
-				relField 		= a.find('> .relField:first').text() || null,		// Get the relation field
-				relDisplayAs 	= a.find('> .relDisplayAs:first').text() || null,	// Get the relation field 
-				relGetFields 	= a.find('> .relGetFields:first').text() || null;	// Get the related fields to get
+			var $a 				= $(this),											// Store a reference to the clicked anchor
+				curVal 			= $a.find('> .fieldCurrentVal:first').text(), 		// Get the current value of the fied
+				relResource 	= $a.find('> .relResource:first').text(),			// Get the related table name
+				fName 			= $a.find('> .formFieldName:first').text(),			// Get the form field name
+				relField 		= $a.find('> .relField:first').text() || null,		// Get the relation field
+				relDisplayAs 	= $a.find('> .relDisplayAs:first').text() || null,	// Get the relation field 
+				relGetFields 	= $a.find('> .relGetFields:first').text() || null;	// Get the related fields to get
 			
 			$.ajax(
 			{
@@ -188,12 +206,21 @@ var admin =
 				data:'limit=-1',
 				type: "GET",
 				dataType: 'json',
+				beforeSend: function()
+				{
+				    $a
+				        .siblings('.relDisplayVal')
+				        .andSelf()
+				        .addClass('hidden')
+				        .parent()
+				            .append($('<span />', {'class':'loading','text':'loading...'}));
+				},
 				success: function(response)
 				{
 					var r = response;									// Shortcut for response
 					
 					$('#' + fName).remove();
-					$('<select />').attr({id:fName, name:fName}).appendTo( a.closest('.relField').hide().parent() );					
+					$('<select />').attr({id:fName, name:fName}).appendTo( $a.closest('.relField').hide().parent() );					
 					
 					$.each(r[relResource], function(i,item)
 					{
@@ -325,7 +352,10 @@ var admin =
 	
 	handleOneToManyFields: function()
 	{
-//Tools.log('handleOneToManyFields');
+        $('a.addOneToManyItemLink').click(function(e)
+        {
+            $(this).addClass('hidden').next('.suggestBlock').removeClass('hidden');
+        });
 		
 		var suggestFields =
 		{
@@ -642,13 +672,9 @@ var adminIndex =
 		
 		if ( $(self.context).width() > $(self.context).closest('.adminListingBlock', '#mainCol').width() ){ $(self.context).css({'display':'block','overflow':'hidden','overflow-x':'scroll'}); }
 		
-		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink')
-			.click(function(e)
-			{
-				e.preventDefault();
-				
-				admin.del($('tbody tr.ui-selected:visible', self.context));
-			});
+		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
+        $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
+        $('a.duplicateAllLink').click(function(e) { e.preventDefault(); admin.duplicate($('tbody tr.ui-selected:visible', self.context)); });
 		
 		$('.filterLink')
 		.bind('click', function(e)
@@ -658,6 +684,7 @@ var adminIndex =
 		    var destId = $(this).attr('href');
             
             $(destId).fadeToggle();
+            //$(destId).show();
 		});	       
 
 		// Loop over all the delete buttons in the table
@@ -724,7 +751,7 @@ var adminIndex =
 				else if ( a.hasClass('duplicateLink') )			{ return admin.duplicate(a); }
 				else if ( a.hasClass('selectAll') ) 			{ return self.toggleAll('check'); }
 				else if ( a.hasClass('selectNone') ) 			{ return self.toggleAll('uncheck'); }
-				else if ( a.hasClass('relResourceLink') )		{ admin.relatedResource(a, e); }
+				//else if ( a.hasClass('relResourceLink') )		{ admin.relatedResource(a, e); }
 				else if ( href )								{ window.location.href = href; }
 				
 				//window.location.href = a.attr('href');
@@ -882,6 +909,8 @@ var adminIndex =
 		
 		return this;
 	},
+	
+	//delete
 	
 	getResourceId: function(jqObj)
 	{
@@ -1534,6 +1563,7 @@ var adminCreate =
 			.handleForeigKeyFields()
 			.handleSlugFields()
 			.handleDateFields()
+			.handleOneToManyFields()
 			.handleFileFields();
 		
 		return this;
@@ -1550,6 +1580,7 @@ var adminUpdate =
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()
+			.handleOneToManyFields()
 			.handleFileFields();
 		
 		return this;
@@ -1580,6 +1611,9 @@ var adminSearch =
                 var $this   = $(this),
                     url     = $this.attr('action') || window.location.href,
                     $tbody  = $('tbody', self.context);
+                
+                // For touch devices, forces keyboard to disappear
+                if ( app.support.touch ) { $this.find('input[type=search]').blur(); }
                     
                 $.ajax(
                 {

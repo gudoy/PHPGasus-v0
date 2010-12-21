@@ -8,6 +8,5 @@ class MUsersgroups extends Model
 		
 		return parent::__construct($application);
 	}
-
 }
 ?>

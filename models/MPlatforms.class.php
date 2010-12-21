@@ -8,6 +8,5 @@ class MPlatforms extends Model
 		
 		return parent::__construct($application);
 	}
-	
 }
 ?>

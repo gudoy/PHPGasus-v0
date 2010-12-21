@@ -316,13 +316,24 @@ var_dump($gpsAuths);
         
         // Do not continue if no search query has been found
         if ( empty($sQuery) ){ return $this; }
+        //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->index($args) : $this; }
         
-        $rList          = $s['type'] === 'contextual' ? (array) $this->resourceName : array_keys($this->data['_resources']);
+        // If the search is contextual, just use the current resource
+        // Otherwise, use the resources that the current user is allowed to display 
+        //$rList          = $s['type'] === 'contextual' ? array($this->resourceName) : array_keys($this->data['_resources']);
+        $rList          = $s['type'] === 'contextual' 
+                            ? array($this->resourceName) 
+                            : !empty($this->data['current']['user']['auths']['__can_display'])
+                                ? $this->data['current']['user']['auths']['__can_display'] 
+                                //? array_intersect(array_keys($this->data['_resources']), $this->data['current']['user']['auths']['__can_display']) 
+                                : array();
         
         // Get searchable resources and searchable colums for each one of them
         foreach ( $rList as $resource )
         {
-            if ( empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
+            // For contextual search
+            //if ( empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
+            if ( $s['type'] === 'global' && empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
             
             $r              = &$resource;                       // Shortcut for the current resource name
             $rModel         = &$this->data['dataModel'][$r];    // Shortcut for the current resource model
@@ -340,25 +351,19 @@ var_dump($gpsAuths);
             $searchable[$r] = array( 'resource' => $r, 'columns' => $sCols, );
         }
         
-//$this->dump($searchable);
-        
-        
         // First case, contextual search on a defined resource
         if ( $sType === 'contextual' )
         {
-//$this->dump('case contextual search');
-
             $rName          = $this->resourceName;
 
             // Get searchable cols for the current resource
-            $cols = $searchable[$rName]['columns'];
-            //foreach ($cols as $col){ $this->options['conditions'][] = array($col,'in',$sQuery,'or'); }
+            $cols = !empty($searchable[$rName]['columns']) ? $searchable[$rName]['columns'] : array();
             foreach ($cols as $col){ $this->options['conditions'][] = array($col,'contains',$s['query'],'or'); }
             
             // Get results with the search criteria
             $results =$this->C->index($this->options);
-
-//$this->dump($this->options['conditions']);
+            
+            $curURL     = $this->currentURL();
 
             // Set output data      
             $this->data = array_merge($this->data, array(
@@ -367,7 +372,8 @@ var_dump($gpsAuths);
                 'errors'                => $this->C->errors,
                 'warnings'              => $this->C->warnings,
                 'current'               => array_merge($this->data['current'], array(
-                    'url'                       => $this->currentURL(),
+                    'url'                       => $curURL,
+                    'urlParams'                 => $this->getURLParams($curURL),
                     'offset'                    => $this->options['offset'],
                     'limit'                     => $this->options['limit'],
                     'sortBy'                    => $this->options['sortBy'],
@@ -376,17 +382,16 @@ var_dump($gpsAuths);
                     $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
                 ),
                 'search' => array_merge($s, array(
-                    //'query'         => $sQuery,
+                    'allowed'       => !empty($cols),
                     //'criteria'  => array(), // TODO
-                    'totalResults' => count($results),
+                    'totalResults'  => count($results),
                 )),
             ));
         }
         // Second case, global search on every searchable resource on every searchable columns
-        // TODO
         else
         {
-$this->dump('case global search');
+//$this->dump('case global search');
 
             // Instanciate searchable resources and get search results for each one of them
             foreach ( array_keys($searchable) as $rName )
@@ -394,12 +399,12 @@ $this->dump('case global search');
                 $cName  = 'C' . ucfirst($rName);            // Build controller name
                 $$cName = new $cName();                     // Instanciate controller
                 
-                $cols = $searchable[$rName]['columns'];     // Get searchable cols for the current resource
+                $cols   = $searchable[$rName]['columns'];     // Get searchable cols for the current resource
                 $this->options['conditions'] = array();     // Force conditions to be empty (only handle search conditions)
                 
                 foreach ($cols as $col){ $this->options['conditions'][] = array($col,'contains',$s['query'],'or'); }
                 
-                $results    = $$cName->search($this->options);
+                $results    = $$cName->search(array_merge($this->options, array('limit' => '-1')));
                 $count      = count($results);
                 
                 $s['groups'][$rName] = array(
@@ -413,29 +418,33 @@ $this->dump('case global search');
                 if ( !empty($this->resourceName) && $rName === $this->resourceName && empty($this->data[$rName]) )
                 {
                     //$this->data[$rName] = &$results;
-                    // Set output data      
-                    $this->data = array_merge($this->data, array(
-                        $this->resourceName     => $results,
-                        'success'               => $this->C->success, 
-                        'errors'                => $this->C->errors,
-                        'warnings'              => $this->C->warnings,
-                        'current'               => array_merge($this->data['current'], array(
-                            'url'                       => $this->currentURL(),
-                            'offset'                    => $this->options['offset'],
-                            'limit'                     => $this->options['limit'],
-                            'sortBy'                    => $this->options['sortBy'],
-                        )),
-                        'total'                 => array(
-                            $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
-                        ),
-                        'search' => array_merge($s, array(
-                            //'query'         => $sQuery,
-                            //'criteria'  => array(), // TODO
-                            'totalResults' => count($results),
-                        )),
-                    ));
+                    // Set output data                         
+                    $this->data[$rName] = $results;
                 }
             }
+
+            $curURL     = $this->currentURL();
+            $this->data = array_merge($this->data, array(
+                //$this->resourceName     => $results,
+                //'success'               => $this->C->success, 
+                //'errors'                => $this->C->errors,
+                //'warnings'              => $this->C->warnings,
+                'current'               => array_merge($this->data['current'], array(
+                    'url'                       => $curURL,
+                    'urlParams'                 => $this->getURLParams($curURL),
+                    'offset'                    => $this->options['offset'],
+                    'limit'                     => $this->options['limit'],
+                    'sortBy'                    => $this->options['sortBy'],
+                )),
+                //'total'                 => array(
+                //    $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
+                //),
+                //'search' => array_merge($s, array(
+                    //'query'         => $sQuery,
+                    //'criteria'  => array(), // TODO
+                    //'totalResults' => count($results),
+                //)),
+            ));
 
             /*
             // TODO: handle search query properly
@@ -455,30 +464,8 @@ $this->dump('case global search');
     public function search()
     {
         $this->handleSearch();
-
-/*
-        // Set output data      
-        $this->data = array_merge($this->data, array(
-            $this->resourceName     => $this->C->index($this->options),
-            'success'               => $this->C->success, 
-            'errors'                => $this->C->errors,
-            'warnings'              => $this->C->warnings,
-            'current'               => array_merge($this->data['current'], array(
-                'url'                       => $this->currentURL(),
-                'offset'                    => $this->options['offset'],
-                'limit'                     => $this->options['limit'],
-                'sortBy'                    => $this->options['sortBy'],
-            )),
-            'total'                 => array(
-                $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
-            ),
-        ));
- */
-        
         $this->handleRelations();
-        
-        $this
-            ->beforeRender(array('function' => __FUNCTION__));
+        $this->beforeRender(array('function' => __FUNCTION__));
             
         return $this->render();
     }
@@ -491,6 +478,8 @@ $this->dump('case global search');
 		$this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));
 		
 		$this->log(__METHOD__);
+        
+        $curURL     = $this->currentURL();
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
@@ -499,7 +488,8 @@ $this->dump('case global search');
 			'errors'				=> $this->C->errors,
 			'warnings' 				=> $this->C->warnings,
 			'current'				=> array_merge($this->data['current'], array(
-				'url' 						=> $this->currentURL(),
+                'url'                       => $curURL,
+                'urlParams'                 => $this->getURLParams($curURL),
 				'offset'					=> $this->options['offset'],
 				'limit'						=> $this->options['limit'],
 				'sortBy' 					=> $this->options['sortBy'],
@@ -586,7 +576,10 @@ $this->dump('case global search');
 	public function duplicate($resourceId = null, $options = null)
 	{
 		$args 				= func_get_args(); 						// Get the passed arguments
-		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+        //$this->resourceId     = !empty($args[0]) ? $args[0] : null;   // Assume that the first argument passed if the resource identifier
+        $this->resourceId     = !empty($args[0]) 
+                                  ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
+                                  : null;           // Assume that the first argument passed if the resource identifier
 		
 		// Log current method
 		$this->log(__METHOD__);
@@ -630,7 +623,10 @@ $this->dump('case global search');
 	public function retrieve()
 	{
 		$args 				= func_get_args(); 						// Get the passed arguments
-		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+        //$this->resourceId     = !empty($args[0]) ? $args[0] : null;   // Assume that the first argument passed if the resource identifier
+        $this->resourceId     = !empty($args[0]) 
+                                  ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
+                                  : null;           // Assume that the first argument passed if the resource identifier
 		
 		// Log current method
 		$this->log(__METHOD__);
@@ -662,7 +658,10 @@ $this->dump('case global search');
 	public function update()
 	{
 		$args 				= func_get_args(); 						// Get the passed arguments
-		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+		//$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	        // Assume that the first argument passed if the resource identifier 
+		$this->resourceId     = !empty($args[0]) 
+		                          ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
+                                  : null;           // Assume that the first argument passed if the resource identifier
 		
 		// Log current method
 		$this->log(__METHOD__);
@@ -747,7 +746,10 @@ $this->dump('case global search');
 	public function delete()
 	{
 		$args 				= func_get_args(); 						// Get the passed arguments
-		$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+		//$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
+        $this->resourceId     = !empty($args[0]) 
+                                  ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
+                                  : null;           // Assume that the first argument passed if the resource identifier
 		
 		// Log current method
 		$this->log(__METHOD__);
@@ -794,14 +796,30 @@ $this->dump('case global search');
 	public function paginate()
 	{
 		$this->log(__METHOD__);
+        
+        // Do not continue if the resourceId is not found
+        if ( empty($this->resourceId) ) { return $this; }
 		
-		$id = !empty($this->resourceId) ? (int) $this->resourceId : null;
-
-		$this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsLower', 'sortBy' => 'id', 'orderBy' => 'DESC'));
-		$this->data['pagination']['prev'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
-
-		$this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsGreater', 'sortBy' => 'id', 'orderBy' => 'ASC'));
-		$this->data['pagination']['next'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
+		$id                       = (int) $this->resourceId;
+        $this->data['pagination'] = array();
+        
+        // If the new conditions handler is not activated
+        if ( !defined('_APP_USE_CONDITIONS_HANDLER_V2') || !_APP_USE_CONDITIONS_HANDLER_V2 )
+        {
+            $this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsLower', 'sortBy' => 'id', 'orderBy' => 'DESC'));
+            $this->data['pagination']['prev'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
+            
+            $this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsGreater', 'sortBy' => 'id', 'orderBy' => 'ASC'));
+            $this->data['pagination']['next'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
+        }
+        else
+        {
+            $opts                       = array('getFields' => 'id', 'sortBy' => 'id', 'limit' => 1);
+            $this->data['pagination']   = array(
+                'prev' => $this->C->retrieve($opts + array('conditions' => array(array('id', '<', $id)), 'orderBy' => 'DESC')),
+                'next' => $this->C->retrieve($opts + array('conditions' => array(array('id', '>', $id)), 'orderBy' => 'ASC')),
+            );
+        }
 
 		return $this;
 	}
@@ -897,7 +915,7 @@ $this->dump('case global search');
 		// Deprecated. Safe to be removed?
 		// TODO: remove
 		$this->data['current']['resourceGroup'] = $this->resourceGroupName;
-		
+        
 		//if ( $m === 'update' || $m === 'delete' )
 		if ( in_array($m, array('update','delete')) )
 		{

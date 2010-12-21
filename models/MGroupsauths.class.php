@@ -24,8 +24,7 @@ class MGroupsauths extends Model
 		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'group_name, resource_name';
 		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
 		
-		return parent::index($options);
+		return parent::retrieve($options);
 	}
-
 }
 ?>

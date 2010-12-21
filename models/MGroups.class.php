@@ -8,6 +8,5 @@ class MGroups extends Model
 		
 		return parent::__construct($application);
 	}
-
 }
 ?>

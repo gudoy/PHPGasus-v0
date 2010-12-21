@@ -1,12 +1,12 @@
 <?php
 
-class CSamples extends Controller
+class CCountries extends Controller
 {
 	private static $_instance;
 	
 	public function __construct()
 	{
-        $this->setResource(array('class' => __CLASS__, 'singular' => null));
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

@@ -230,6 +230,25 @@ class Application
 		return $this;
 	}
 	
+    public function getURLParams($url = '')
+    {
+        $url    = !empty($url) ? $this->currentURL() : $url;
+        $params = array();
+	
+        if ( empty($url) ){ return $params; }
+        
+        $urlParts   = parse_url($url);
+        $query      = !empty($urlParts['query']) ? $urlParts['query'] : '';
+        
+        foreach ( (array) explode('&', $query) as $item)
+        {
+            $parts              = explode('=', $item);
+            $params[$parts[0]]  = !empty($parts[1]) ? $parts[1] : null; 
+        }
+        
+        return $params;
+    }
+    
 	
 	/* 
 	 * This function gets, in an URL string, the value of the param given in the function call
@@ -707,9 +726,16 @@ class Application
 		
 		$o = array_merge(array(
 			'type' => 'xml',
+			'parent' => null,
 		), $options);
 		
 		$array 		= !$recursive ? (array) simplexml_load_file($xml) : $xml;
+		//$array        = !$recursive ? (array) simplexml_load_file($xml, 'SimpleXMLElement', LIBXML_COMPACT) : $xml;
+
+//var_dump($array);
+//var_dump('-----------------');
+//var_dump('-----------------');
+        $fixTextNodesAttr = defined('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES') && _XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES;
 
 		$data 		= array();
 		foreach ($array as $propName => $propVal)
@@ -721,7 +747,62 @@ class Application
 			
 			$type 				= in_array(gettype($propVal), array('object','array')) ? 'multi' : 'simple';
 			
-			$data[$propName] 	= $type === 'multi' ? self::XML2Array((array) $propVal, true, $o) : $propVal;
+          
+# Fix for text nodes having attributes that are ignored
+// If the element is an object
+if ( $fixTextNodesAttr && is_object($propVal) )
+{
+    $fixed = array();
+
+    // Loop over its childens    
+    foreach ( $propVal as $k => $v )
+    {
+        // Only handle text nodes which have both @attributes and a 0 indexed property        
+        if ( ($v = (array) $v) && isset($v['@attributes']) && isset($v[0]) )
+        {
+            $fixed[$k][] = array('@attributes' => $v['@attributes'], 'text' => $v[0]);
+        }
+    }
+
+    $propVal = array_merge((array)$propVal, $fixed);
+} 
+# End of the fix
+
+/*
+
+            # Fix for text nodes having attributes that are ignored
+            // Loop over the props to find text nodes with attributes
+            $toBeFixed  = array();
+            $tmpPropVal = $propVal;
+            foreach ( (array) $tmpPropVal as $k => $v)
+            {
+if ( $propName === 'Services' || $propName === 'Alerts')
+{
+//var_dump($tmpPropVal);
+//var_dump($k);
+//var_dump($propVal->Alert);
+} 
+                
+                if ( is_array($v) && isset($v[0]) && is_numeric(key($v)) && is_string($v[0]) ){ $toBeFixed[] = $k; }
+            }
+            
+            foreach ( $toBeFixed as $member )
+            {
+                $count  = count($propVal->$member);
+                $obj    = $propVal->$member;
+                $fix    = array();
+                for($i=0; $i<$count; $i++)
+                {
+                    $tmp = (array)$obj[$i];
+                    $fix[$i] = array('@attributes' => $tmp['@attributes'], 'text' => $tmp[0]);
+                }
+                $propVal = (array) $propVal;
+                $propVal[$member] = $fix;
+            }
+            # End fix
+*/
+			
+			$data[$propName] 	= $type === 'multi' ? self::XML2Array((array) $propVal, true, $o + array('parent' => $propVal)) : $propVal;
 		}
 		
 		return $data;

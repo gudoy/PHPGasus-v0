@@ -26,6 +26,5 @@ class MResources extends Model
 		
 		return parent::retrieve($o);
 	}
-
 }
 ?>

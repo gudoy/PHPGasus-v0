@@ -127,7 +127,7 @@ class View extends Application
 		}
 		*/
 				
-		$o 			= &$options; 
+		$o 			= &$options;
 		$rm 		= strtolower($_SERVER['REQUEST_METHOD']); 													// Shortcut for request method
 		$a 			= isset($this->options['method']) ? $this->options['method'] : null; 						// Shortcut for "forced method" 
 		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
@@ -139,9 +139,10 @@ class View extends Application
 		$allowed 	= !empty($o['allowed']) ? explode(',', $o['allowed']) : array(); 							// Get the allowed methods
 		
 		$this->data['view']['method'] = $m;
-		
+        
 		// If the method is not index and belongs to the allowed methods, call it
 		if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
+		//if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func(array($this, $m), $args); }
 		// Otherwise, just continue
 		else if ( $m === 'index' ) { /* simply continue */ }
 		else
@@ -309,7 +310,7 @@ class View extends Application
 
 		// Known options
 		$known = array(
-			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values',
+			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
 			//'operation','isIphone','iphone','isAndroid','android','debug',
 			'operation','debug','confirm',
 			'errors','successes','warnings','notifications'
@@ -354,6 +355,14 @@ class View extends Application
 		
 		$tmpLim = (int) $this->options['limit'];
 		$this->options['limit'] = $tmpLim > 0 ? $tmpLim : ( $tmpLim === -1 ? null : _ADMIN_RESOURCES_NB_PER_PAGE );
+        
+        if ( !empty($this->options['page']) )
+        {
+            $this->options['offset'] = ((int) $this->options['page'] - 1) * $this->options['limit'];
+            //$offset = ((int) $this->options['page'] - 1) * $this->options['limit'];
+            
+//var_dump($offset);
+        }
 		
 		return $this;
 	}
@@ -596,6 +605,10 @@ class View extends Application
 		// Special case for HTML (default)
 		if ( $of === 'html' || $of === 'xhtml' )
 		{
+
+//$this->dump('memory used: ' . memory_get_usage());
+//$this->dump('memory allocated: ' . memory_get_usage(true));        
+            
 			$cacheId = !empty($this->data['view']['cacheId']) ? $this->data['view']['cacheId'] : null;
             
 			$this
@@ -643,7 +656,10 @@ class View extends Application
 			$this->headers[] = 'Content-type: application/plist+xml; charset=utf-8;';
 			$this->writeHeaders();
 			$output = $Plist->convertIntoPlist($this->data, false);
-			$output = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '"', "'", '"'), $output);
+            //$output = html_entity_decode($output, ENT_COMPAT, 'UTF-8');
+            //$output = html_specialchars_decode($output, ENT_COMPAT, 'UTF-8');
+            //$output = str_replace(array('<;','>'), array("&lt;", '&gt;'), $output);
+			//$output = str_replace(array("<", '>', "'", '"'), array('&lt;','&gt;', '&apos;', '&quot;'), $output);
 			exit($output);
 		}
 		else if ( $of === 'plistxml' )

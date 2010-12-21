@@ -5,6 +5,8 @@
 	{$resourceId=$data.resourceId}
 	{$resource=$data.$resourceName}
 
+    {block name="admin{$resourceName|ucfirst}DeleteBlock"}
 	{include file='common/blocks/admin/resource/delete.tpl'}
+	{/block}
 
 {/block}

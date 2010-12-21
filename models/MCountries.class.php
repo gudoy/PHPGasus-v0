@@ -24,6 +24,5 @@ class MCountries extends Model
 		
 		return parent::retrieve($options);
 	}
-
 }
 ?>

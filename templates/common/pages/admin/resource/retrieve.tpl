@@ -6,6 +6,8 @@
 	{$resourceId=$data.resourceId}
 	{$resource=$data.$resourceName}
 
+    {block name="admin{$resourceName|ucfirst}RetrieveBlock"}
 	{include file='common/blocks/admin/resource/retrieve.tpl'}
+	{/block}
 
 {/block}

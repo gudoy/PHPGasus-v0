@@ -8,6 +8,5 @@ class MVersions extends Model
 		
 		return parent::__construct($application);
 	}
-
 }
 ?>

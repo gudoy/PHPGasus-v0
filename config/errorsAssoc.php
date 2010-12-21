@@ -8,7 +8,7 @@ $errorsAssoc = array(
 					'front' => _('Missing required parameter: %s.')),
 	'1002' => array('back' => 'Missing required fields',
 					'front' => _('Please fill all the required fields')),
-	'1003' => array('back' => 'Missing required fields',
+	'1003' => array('back' => 'Missing required field(s)',
 					'front' => _('Please fill all the required fields:<br/> %s')),
 					
 	'1010' => array('back' => 'Wrong %s value',
@@ -60,7 +60,6 @@ $errorsAssoc = array(
 	'6110' => array('back' => 'File upload error.',
 					'front' => _('An error occured during the file upload.')),
 	
-				
 	'9000' => array('back' => 'Access unauthorized.',
 					'front' => _('You don\'t have the permissions to access this page/section.')),
 

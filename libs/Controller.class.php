@@ -10,23 +10,11 @@ class Controller extends Application
 	public $data 					= array();
 	
 	public function __construct()
-	{
-		// TODO: use get_called_class if PHP 5.3
-		// Use the class name to get the resource name
-		//$this->resourceName 		= strtolower(preg_replace('/^V(.*)/','$1', __CLASS__));
-		
-		// Remove the expedted final 's' from the resource name to get it's singular (overload in proper class if needed)
-		/* 
-		if ( !empty($this->resourceName) )
-		{
-			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : preg_replace('/(.*)s$/','$1', $this->resourceName);
-			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
-		}*/
-		
+	{		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		//$this->dataModel = $dataModel;
-		$this->application->dataModel = $dataModel;
+		$this->application->dataModel = &$dataModel;
 		
 		if ( isset($this->resourceName) )
 		{
@@ -115,7 +103,7 @@ class Controller extends Application
         $this->errors     = array();
         $this->warnings   = array();
 		
-		$resourceData     = $this->filterPostData($options);
+		$resourceData     = $this->filterPostData((array) $options + array('method' => 'create'));
 
 		if ( !empty($resourceData) )
 		{
@@ -178,8 +166,8 @@ class Controller extends Application
         $this->success    = false;
         $this->errors     = array();
         $this->warnings   = array();
-	
-		$resourceData     = $this->filterPostData();
+    
+		$resourceData     = $this->filterPostData((array) $options + array('method' => 'update'));
         
 		if ( !empty($resourceData) )
 		{			
@@ -312,7 +300,9 @@ class Controller extends Application
 	
 	/*
 	 * @Deprecated???
+     * Safe to be remove
 	 */
+	/*
 	public function checkRequiredFields($options = array())
 	{
 		$o 		= &$options; 		// Shortcut for options
@@ -329,7 +319,8 @@ class Controller extends Application
 		}
 		
 		return $return;
-	}
+	} 
+    */
 	
 	public function filterPostData($options = null)
 	{
@@ -339,14 +330,16 @@ class Controller extends Application
 		// Do not continue if the resource has not been defined
 		if ( empty($this->resourceName) ) { return; }
 		
-		$resourceData = array();
+		$resourceData     = array();
+		$rName            = &$this->application->dataModel[$this->resourceName];
 		
 		//$isApi = strpos($_SERVER['PATH_INFO'], '/api/') !== false;
-		$isApi = !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
+		$isApi            = !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
 		
 		// Loop over the data model of the resource
 		//foreach ($this->dataModel[$this->resourceName] as $fieldName => $field)
-		foreach ($this->application->dataModel[$this->resourceName] as $fieldName => $field)
+		//foreach ($this->application->dataModel[$this->resourceName] as $fieldName => $field)
+		foreach ($rName as $fieldName => $field)
 		{
 			// Shortcut for the field name
 			// For the api, we use 'normal' forms fieldnames/$resource fields whitout prefix
@@ -356,7 +349,14 @@ class Controller extends Application
 			// If the field is required but not present, throw an error
 			// TODO: continue looping over the fields to list all missing ones
 			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[] = 1002; return; }
-			if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[1002] = $f; return; }
+			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) )
+			if ( isset($field['required']) && $field['required'] && empty($_FILES[$f]) && empty($_POST[$f])
+			         && ( empty($o['method']) || $o['method'] !== 'update' )
+               )
+			{
+			    $this->errors[1003] = $f;
+			    return;
+            }
 			
 			// if the POST data for each field exists
 			if ( isset($_FILES[$f]) || isset($_POST[$f]) )

@@ -64,15 +64,16 @@
 .container_16 .grid_14 { width:820px; }
 .container_16 .grid_15 { width:880px; }
 
-/* =Prefix Extra Space >> Global */
+
+/* Prefixes */
+/*
 .container_12 .prefix_3,
 .container_16 .prefix_4 { padding-left:240px; }
 .container_12 .prefix_6,
 .container_16 .prefix_8 { padding-left:480px; }
 .container_12 .prefix_9,
-.container_16 .prefix_12 { padding-left:720px; }
 
-/* =Prefix Extra Space >> 12 Columns */
+.container_16 .prefix_12 { padding-left:720px; }
 .container_12 .prefix_1 { padding-left:80px; }
 .container_12 .prefix_2 { padding-left:160px; }
 .container_12 .prefix_4 { padding-left:320px; }
@@ -82,7 +83,6 @@
 .container_12 .prefix_10 { padding-left:800px; }
 .container_12 .prefix_11 { padding-left:880px; }
 
-/* =Prefix Extra Space >> 16 Columns */
 .container_16 .prefix_1 { padding-left:60px; }
 .container_16 .prefix_2 { padding-left:120px; }
 .container_16 .prefix_3 { padding-left:180px; }
@@ -95,8 +95,10 @@
 .container_16 .prefix_13 { padding-left:780px; }
 .container_16 .prefix_14 { padding-left:840px; }
 .container_16 .prefix_15 { padding-left:900px; }
+*/
 
-/* =Suffix Extra Space >> Global */
+/* Suffixes */
+/*
 .container_12 .suffix_3,
 .container_16 .suffix_4 { padding-right:240px; }
 .container_12 .suffix_6,
@@ -104,7 +106,6 @@
 .container_12 .suffix_9,
 .container_16 .suffix_12 { padding-right:720px; }
 
-/* =Suffix Extra Space >> 12 Columns */
 .container_12 .suffix_1 { padding-right:80px; }
 .container_12 .suffix_2 { padding-right:160px; }
 .container_12 .suffix_4 { padding-right:320px; }
@@ -114,7 +115,6 @@
 .container_12 .suffix_10 { padding-right:800px; }
 .container_12 .suffix_11 { padding-right:880px; }
 
-/* =Suffix Extra Space >> 16 Columns */
 .container_16 .suffix_1 { padding-right:60px; }
 .container_16 .suffix_2 { padding-right:120px; }
 .container_16 .suffix_3 { padding-right:180px; }
@@ -127,6 +127,7 @@
 .container_16 .suffix_13 { padding-right:780px; }
 .container_16 .suffix_14 { padding-right:840px; }
 .container_16 .suffix_15 { padding-right:900px; }
+*/
 
 
 .clearfix::after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; } 

@@ -13,6 +13,7 @@ var app =
 	isIphone: ua.indexOf('iPhone') > -1 || ua.indexOf('iPod') > -1 || Tools.getURLParamValue(window.location.href,'isIphone') == true,
 	isIpad: ( ua.indexOf('iPad') > -1 || Tools.getURLParamValue(window.location.href,'isIpad') == true ),
 	isAndroid: ua.indexOf('Android') > -1,
+	support: {touch: (typeof Touch == "object")},
 	orientation: 'landscape',
 	
 	init: function()
@@ -20,6 +21,8 @@ var app =
 		var self = this;
 		
 		ui.init();
+		
+		$('input:first', '#frmLogin').focus();
 		
 		return this;
 	},

@@ -20,12 +20,14 @@ class CMachines extends Controller
     
     public function import()
     {
+        ini_set('max_execution_time',900);
+        
         $t1         = microtime(true);
         $this->lb   = '<br/>';
         
-        //$srcFilePath = _URL_PUBLIC . 'FUSION.txt';
+        $srcFilePath = _URL_PUBLIC . 'FUSION.ini.txt';
         //$srcFilePath = _PATH_PUBLIC . 'machines_log';
-        $srcFilePath = _PATH_PUBLIC . 'machines_log - Copie';
+        //$srcFilePath = _PATH_PUBLIC . 'machines_log - Copie';
         
 //$this->dump($srcFilePath);
         
@@ -62,9 +64,20 @@ class CMachines extends Controller
             // Do not continue if the row is empty
             if ( empty($row) ){ continue; }
             
-if ( $rowNb > 60 ){ break; }
+//if ( $rowNb > 500 ){ break; }
         
+            // expects 38 columns
+            $xpectedCount       = 38;
             $tmpData            = explode(";", substr($row, 0, -1));
+            
+            // Skip row if it does not have the expected columns count
+            if ( count($tmpData) !== $xpectedCount )
+            {
+$this->logError('Wrong data count for line ' . (string) $rowNb . '. Expected count: ' . $xpectedCount . ' ');
+$this->logError('Raw data:' . (string) $row);
+                $rowNb++;
+                continue;
+            }
             
             // Remove "" wrapping string values
             foreach ( $tmpData as $k => $v ){ $tmpData[$k] = is_string($v) ? str_replace(array('"'), array(''), $v) : $v; }
@@ -93,7 +106,7 @@ if ( $rowNb > 60 ){ break; }
 //$this->dump($uid);                
 //$this->dump('commercial id:' . $uid);
                 
-                // If the commercial user id has not beed found, create it
+                // If the user id has not beed found, create it
                 if ( empty($uid) )
                 {
                     // Create the user
@@ -104,6 +117,11 @@ if ( $rowNb > 60 ){ break; }
                     // Insert him into the proper groups
                     $_POST      = array();
                     $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['commercials']['id']);
+                    foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
+                    $CUsersgroups->create();
+                    
+                    $_POST      = array();
+                    $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['admins']['id']);
                     foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
                     $CUsersgroups->create();
                 }
@@ -120,9 +138,10 @@ if ( $rowNb > 60 ){ break; }
                 );
                 $u          = &$techn;              // Shortcut for the user data
                 $u          += array(
-                    'name'      => $u['first_name'] . ' ' . $u['last_name'],
-                    'email'     => !empty($u['first_name']) && !empty($u['last_name']) ? $u['first_name'][0] . $u['last_name'] . $maildmn : null,
-                    'password'  => md5(time()),
+                    'name'          => $u['first_name'] . ' ' . $u['last_name'],
+                    'email'         => !empty($u['first_name']) && !empty($u['last_name']) ? $u['first_name'][0] . $u['last_name'] . $maildmn : null,
+                    'password'      => md5(time()),
+                    'sector_code'   => $tmpData[14],
                 );
                 
                 // Try to find the user in the db
@@ -131,11 +150,8 @@ if ( $rowNb > 60 ){ break; }
                     'conditions'    => array('first_name' => $u['first_name'], 'last_name' => $u['last_name']),
                     'limit'         => 1,
                 ));
-
-//$this->dump($uid);                
-//$this->dump('technician id:' . $uid);
                 
-                // If the commercial user id has not beed found, create it
+                // If the user id has not beed found, create it
                 if ( empty($uid) )
                 {
                     // Create the user
@@ -148,9 +164,49 @@ if ( $rowNb > 60 ){ break; }
                     $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['technicians']['id']);
                     foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
                     $CUsersgroups->create();
+                    
+                    $_POST      = array();
+                    $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['admins']['id']);
+                    foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
+                    $CUsersgroups->create();
                 }
                 
                 $technid = $uid;
+            }
+
+            // Handle the team chief
+            if ( !empty($tmpData[22]) )
+            {
+                /*
+                // Try to find the user in the db
+                $uid = $CUsers->retrieve(array(
+                    'getFields'     => 'id',
+                    'conditions'    => array('sector_code' => $tmpData[22]),
+                    'limit'         => 1,
+                ));
+                
+                // If the commercial user id has not beed found, create it
+                if ( empty($uid) )
+                {
+                    // Create the user
+                    $_POST      = array();
+                    foreach ($u as $k => $v) { $_POST['user' . ucfirst($k)] = $v; }
+                    $uid    = $CUsers->create(array('returning' => 'id'));
+                    
+                    // Insert him into the proper groups
+                    $_POST      = array();
+                    $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['teamchiefs']['id']);
+                    foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
+                    $CUsersgroups->create();
+                    
+                    $_POST      = array();
+                    $ugp        = array( 'user_id' => $uid, 'group_id' => $groups['admins']['id']);
+                    foreach ($ugp as $k => $v) { $_POST['usersgroup' . ucfirst($k)] = $v; }
+                    $CUsersgroups->create();
+                }
+                
+                $teamChiefId = $uid;
+                */
             }
             
             /*
@@ -172,15 +228,15 @@ if ( $rowNb > 60 ){ break; }
                 'sector_code'           => $tmpData[14],
                 'technician_user_id'    => $technid,
                 // [skip], [skip], [skip], [skip], [skip
-                //'client_code'             => $tmpData[15],
+                'client_code'           => $tmpData[15],
                 'technical_area_code'   => $tmpData[18],
                 'technical_area_name'   => $tmpData[19],
-                
+                //
                 'model_name'            => $tmpData[21],
                 'team_chief_code'       => $tmpData[22],
                 // [skip],
                 'company_code'          => $tmpData[24],
-                'model_category_name'   => $tmpData[25], // <= model_group_name?
+                'model_category_name'   => $tmpData[25],
                 'client_category_name'  => $tmpData[26],
                 'model_family'          => $tmpData[27],
                 // [skip],
@@ -194,16 +250,9 @@ if ( $rowNb > 60 ){ break; }
                 //'warranty_end_date'       => !empty($tmpData[37]) ? DateTime::createFromFormat('d/m/Y H:i:s', $tmpData[37])->getTimestamp() : null,
             );
             
-//var_dump($machine);
-//var_dump($ccial);
-//var_dump($techn);
-//var_dump($client);
-//var_dump('--------------------------------------');
-            
             // Add the machine to the db
             $_POST = array();
             foreach ( $machine as $k => $v ){ $_POST['machine' . ucfirst($k)] = $v; }
-//var_dump($_POST);
             $CMachines->create();
             $result = $CMachines->success;
 
@@ -218,17 +267,17 @@ if ( $rowNb > 60 ){ break; }
             }
             
 //$this->logError('Machine ' . $rowNb . ' : ' . ($result ? 'OK' : 'ERROR'));
-$this->logError(!$result ? 'Error on line ' . (string) ($rowNb) : '');
-$this->logError(!$result ? 'Raw data:' . (string) ($row) : '');
+//$this->logError(!$result && !$updated ? 'Error on line ' . (string) ($rowNb) : '');
+//$this->logError(!$result && !$updated ? 'Raw data:' . (string) ($row) : '');
 
-if ( !$result && empty($updateResult) )
+if ( !$result && !$updated && !empty($CMachines->errors) )
 {
 //var_dump($tmpData);
 var_dump($CMachines->errors);
 }
 
-$this->logError(!$result && isset($CMachines->model->launchedQuery) ? $CMachines->model->launchedQuery : '');
-$this->logError(!$result ? '--------------------------------------' : '');
+//$this->logError(!$result && !$updated && isset($CMachines->model->launchedQuery) ? $CMachines->model->launchedQuery : '');
+//$this->logError(!$result && !$updated ? '--------------------------------------' : '');
 
             if ( $result ){ $imported++; }
 
@@ -284,5 +333,6 @@ $this->logError(!$result ? '--------------------------------------' : '');
         
         return $this;
     }
+    
 }
 ?>

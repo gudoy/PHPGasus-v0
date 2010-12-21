@@ -1,4 +1,4 @@
-<?
+<?php
 /**
 * 
 * PHP Plist Parser Class
@@ -183,7 +183,9 @@ class Plist
 				// primitive types
 				case "string": 
 					//$exp .= "<string>" . ( !empty($array[$i]) ? $array[$i] : ' ') . "</string>".$nl; 
-					$exp .= "<string>" . $array[$i] . "</string>".$nl;
+					//$exp .= "<string>" . $array[$i] . "</string>".$nl;
+					// Fix alexis for special chars replacement
+					$exp .= "<string>" . str_replace(array("&", "<", '>', "'", '"'), array('&amp;', '&lt;','&gt;', '&apos;', '&quot;'), $array[$i]) . "</string>".$nl;
 					break;
 				// numerical primitives
 				case "boolean":

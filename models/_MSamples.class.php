@@ -8,6 +8,5 @@ class MSamples extends Model
 		
 		return parent::__construct($application);
 	}
-
 }
 ?>

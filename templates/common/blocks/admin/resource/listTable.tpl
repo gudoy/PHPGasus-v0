@@ -1,13 +1,13 @@
 {$rModel=$data.dataModel[$resourceName]}
 {$rCount=$data[$resourceName]|@count}
-<form id="frmAdmin{$resourceName|capitalize}" action="" class="commonForm" method="post" enctype="multipart/form-data">
+
 	
 	{if $smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
 	{include file='common/blocks/admin/resource/list/toolbar.tpl' position='top'}
 	{else}
 	{include file='common/blocks/admin/handleMulti.tpl' position='top'}
 	{/if}
-	
+	<form id="frmAdmin{$resourceName|capitalize}" action="" class="commonForm" method="post" enctype="multipart/form-data">
 	<div class="tableWrapperBlock" id="{$resourceName}TableWrapperBlock">
 		<table class="commonTable adminTable" id="{$resourceName}Table">
 			<caption>{$resourceName}</caption>
@@ -34,7 +34,7 @@
 					{$isDefaultNamefield=($data.meta.defaultNameField===$fieldName)?true:false}
 					<th class="col {$fieldName}Col type{$field.type|ucfirst} {if $isDefaultNamefield}defaultNameField{/if} {if $isSorted}ui-state-active{/if} {if !$field.list}hidden{/if}" id="{$fieldName}Col" scope="col">
 						<a class="title {if $isSorted}sort {$smarty.get.orderBy|default:'asc'}{/if}" 
-							href="{$data.meta.fullAdminPath}?sortBy={$fieldName}&amp;orderBy={if $smarty.get.orderBy == 'asc'}desc{else}asc{/if}" 
+							href="{$curURLbase}sortBy={$fieldName}&amp;orderBy={if $smarty.get.orderBy == 'asc'}desc{else}asc{/if}" 
 							title="{t}Sort by{/t}{t}:{/t} {$fieldName} {if $smarty.get.orderBy == 'asc'}descending{else}ascending{/if}"
 							>{if $field.fk}{$field.displayName|default:$data._resources[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
 					</th>
@@ -97,7 +97,7 @@
 					{$value=$resource[$fieldName]}
 					{if $field.list}
 					<td id="{$fieldName}Col{$resource.id}" class="col dataCol {$fieldName}Col type{$field.type|ucfirst} {if $field.subtype}subtype{$field.subtype|ucfirst}{/if} {if $isDefaultNamefield}defaultNameField{/if} {if $field.relResource}typeRel{/if} {if !$field.list}hidden{/if}" headers="row{$resource.id} {$fieldName}Col">
-						<div class="value dataValue" id="{$fieldName}{$resource.id}" {if $field.type === 'timestamp'}title="{$value|date_format:"%Y-%m-%d %H:%M:%S"}"{/if}>{strip}
+						<div class="value dataValue" id="{$fieldName}{$resource.id}" {if $field.type === 'timestamp'}title="{$value|date_format:"%Y-%m-%d %H:%M:%S"}"{/if} data-exactValue="{$value}">{strip}
 						{if $field.type === 'timestamp' || $field.type === 'datetime'}
 						{$value|date_format:"%d %B %Y, %Hh%M"}
 						{$storedValue=$value}{* Remove and directly use $value  *}
@@ -198,11 +198,10 @@
 			</tbody>
 		</table>
 	</div>
+    </form>
 	
     {if $smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
     {include file='common/blocks/admin/resource/list/toolbar.tpl' position='bottom'}
     {else}
     {include file='common/blocks/admin/handleMulti.tpl' position='bottom'}
     {/if}
-	
-</form>

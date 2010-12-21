@@ -44,6 +44,7 @@
 // [pivotResource]: 	name of the resource used as the pivot. default = {current column}_{relResource}. (ie: groups)
 // [pivotLeftField]:	name of the 1st column used in the pivot relation. default = singular(current resource})_id. (ie: user_id)
 // [pivotRightField]:	name of the 2nd column used in the pivot relation.default = singular(current resource})_id. (ie: group_id)
+// [html]:              default = false. Allow text columns to contains html. htmlentities() is applied on the output 
 
 
 ### DATAMODEL: RESOURCES ###
@@ -253,10 +254,11 @@ $dataModel = array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'singular' 				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'type'                   => array('type' => 'enum', 'default' => 'native', 'possibleValues' => array('native','filter'), 'list' => 1),
+	'type'                   => array('type' => 'enum', 'default' => 'native', 'possibleValues' => array('native','relation','filter'), 'list' => 1),
 	'table'                 => array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'alias'                 => array('type' => 'varchar', 'length' => 8, 'list' => 0),
 	'extends'              => array('type' => 'varchar', 'length' => 8, 'list' => 0),
+	//'displayName'          => array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'length' => 32, 'list' => 0),
 	'displayName'              => array('type' => 'varchar', 'length' => 32, 'list' => 0),
 	'defaultNameField'     => array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
@@ -279,21 +281,21 @@ $dataModel = array(
 	// TODO: type custom (firstname)
 	//'name' 					=> array('type' => 'varchar', 'length' => 128, 'list' => 1),
 	//'name'                     => array('type' => 'varchar', 'length' => 128, 'searchable' => 1),
-	'auth_level' 			=> array('type' => 'enum', 'default' => 'user', 'possibleValues' => array('user','contributor','admin','superadmin','god'), 'editable' => 0),
-	'auth_level_nb' 		=> array('type' => 'int', 'default' => 10, 'editable' => 0, 'comment' => '10=user, 100=contributor, 500=admin, 1000=superadmin, 10000=god'),
+	//'auth_level' 			=> array('type' => 'enum', 'default' => 'user', 'possibleValues' => array('user','contributor','admin','superadmin','god'), 'editable' => 0),
+	//'auth_level_nb' 		=> array('type' => 'int', 'default' => 10, 'editable' => 0, 'comment' => '10=user, 100=contributor, 500=admin, 1000=superadmin, 10000=god'),
 	//'groups' 				=> array('type' => 'onetomany', 'relResource' => 'groups', 'relField' => 'id', 'pivotResource' => 'users_groups', 'pivotLeftField' => 'user_id', 'pivotRightField' => 'group_id', 'getFields' => 'admin_title'),
 	'groups' 				=> array('type' => 'onetomany', 'getFields' => 'id,admin_title'),
-	'company' 				=> array('type' => 'varchar', 'length' => 64),
-	'address' 				=> array('type' => 'varchar'),
-	'zipcode' 				=> array('type' => 'varchar', 'length' => 16),
-	'city' 					=> array('type' => 'varchar', 'length' => 32),
-	'country' 				=> array('type' => 'varchar', 'length' => 64),
-	'TCS_accepted' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'comment' => 'Terms and Condtions of Sales accepted?'),
-	'TU_accepted' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'comment' => 'Terms of Use accepted?'),
-	'billing_address' 		=> array('type' => 'varchar'),
-	'billing_zipcode' 		=> array('type' => 'varchar', 'length' => 16),
-	'billing_city' 			=> array('type' => 'varchar', 'length' => 32),
-	'billing_country' 		=> array('type' => 'varchar', 'length' => 64),
+	//'company' 				=> array('type' => 'varchar', 'length' => 64),
+	//'address' 				=> array('type' => 'varchar'),
+	//'zipcode' 				=> array('type' => 'varchar', 'length' => 16),
+	//'city' 					=> array('type' => 'varchar', 'length' => 32),
+	//'country' 				=> array('type' => 'varchar', 'length' => 64),
+	//'TCS_accepted' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'comment' => 'Terms and Condtions of Sales accepted?'),
+	//'TU_accepted' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'comment' => 'Terms of Use accepted?'),
+	//'billing_address' 		=> array('type' => 'varchar'),
+	//'billing_zipcode' 		=> array('type' => 'varchar', 'length' => 16),
+	//'billing_city' 			=> array('type' => 'varchar', 'length' => 32),
+	//'billing_country' 		=> array('type' => 'varchar', 'length' => 64),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),

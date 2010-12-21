@@ -29,7 +29,6 @@ function smarty_block_html5($params, $content)
 		//'command' 	=> array('alt' => 'span', 'class' => 'command'),
 		
 		'summary' 		=> array('alt' => 'p', 'class' => 'summary'),
-		
 
 		'mark' 			=> array('alt' => 'span', 'class' => 'mark'),
 		'time' 			=> array('alt' => 'span', 'class' => 'time'),

@@ -16,9 +16,12 @@
 	{/if}
 	{$relDisplayVal=$relDisplayVal|default:$resource[$field.relGetAs]}
 	<span class="relDisplayVal">
-		{$relDisplayVal|default:'[untitled]'}
+		{if $relDisplayVal}{$relDisplayVal}{else}{/if}
 	</span>
-	<a class="actionBtn changeValBtn" href="{$smarty.const._URL_ADMIN}{$resourceName}" title="{t}[require javascript]{/t}">
+    {*if $postedVal || $resource[$fieldName]}
+    <input type="hidden" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if $field.length}maxlength="{$field.length}"{/if} value="{$postedVal|default:$resource[$fieldName]}" />
+    {/if*}
+	<a class="actionBtn changeValBtn" href="{$smarty.const._URL_ADMIN}{$relResource}" title="{t}[require javascript]{/t}">
 		<span class="ninja fieldCurrentVal">{$resource[$fieldName]|default:'&nbsp;'}</span>
 		<span class="ninja formFieldName">{$resourceFieldName}</span>
 		<span class="ninja relResource">{$relResource}</span>
@@ -36,10 +39,7 @@
 		{/strip}
 		<span class="ninja relGetFields">{$tmpRelGetFields|default:$field.relGetFields}</span>
 		<span class="ninja relDisplayAs">{$field.relDisplayAs|default:$resource[$field.relGetAs]|default:'&nbsp;'}</span>
-		<span class="label">{t}change{/t}</span>
-	</a>
-	<a class="hidden searchLink" href="#">
-		<span class="label">{t}search{/t}</span>
+		<span class="label">{if $relDisplayVal}{t}change{/t}{else}{t}choose{/t}{/if}</span>
 	</a>
 </div>
 {/if}

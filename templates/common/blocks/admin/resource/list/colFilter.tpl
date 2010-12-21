@@ -23,14 +23,16 @@
         <option value="0">{t}no{/t}</option>
         <option value="1">{t}yes{/t}</option>
     </select>
+{*
 {elseif $subtype === 'email' || $type === 'email'}
     <input class="sized" type="{if $html5}email{else}text{/if}" name="{$filterName}" id="{$filterId}" />
+*}
 {elseif $subtype === 'color' || $type === 'color'}
     <input class="sized" type="{if $html5}color{else}text{/if}" name="{$filterName}" id="{$filterId}" />
 {elseif in_array($subtype, array('url','file','image')) || in_array($type, array('url','file','image'))}
     <input class="sized" type="{if $html5}url{else}text{/if}" name="{$filterName}" id="{$filterId}" />
 {elseif $type === 'int' && !$column.fk}
-    <input class="sized number" type="{if $html5}number{else}text{/if}" name="{$filterName}" id="{$filterId}" step="1" value="0" />
+    <input class="sized number" type="{if $html5}number{else}text{/if}" name="{$filterName}" id="{$filterId}" step="1" {*value="0"*} />
 {else}
     <input class="sized" type="{if $html5}search{else}text{/if}" name="{$filterName}" id="{$filterId}" />
 {/if}

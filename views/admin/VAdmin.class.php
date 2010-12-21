@@ -158,12 +158,6 @@ class VAdmin extends AdminView
 
 		$this->render(__FUNCTION__);
 	}
-
-    public function importMachines()
-    {
-        CMachines::getInstance()->import();   
-    }
-
 	
 };
 

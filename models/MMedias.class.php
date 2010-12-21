@@ -8,6 +8,5 @@ class MMedias extends Model
 		
 		return parent::__construct($application);
 	}
-
 }
 ?>

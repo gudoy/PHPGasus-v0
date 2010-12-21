@@ -1,6 +1,11 @@
 {$resources=$data._resources}
 {$search=$data.search}
 {$current=$data.current}
+{if $search.type === 'contextual' && !$search.allowed}
+<p>
+    {t}Sorry but the search is not activated for the current resource{/t}
+</p>
+{else}
 <a id="searchToggler" href="#adminSearchBlock"><span class="label">{t}toggle search{/t}</span></a>
 {html5 tag='section' class='searchBlock adminSearchBlock' id='adminSearchBlock'}
 
@@ -110,3 +115,4 @@
 	</div>
 	
 {/html5}
+{/if}

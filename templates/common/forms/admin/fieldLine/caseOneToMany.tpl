@@ -6,6 +6,7 @@
 {$pivotIdField=$pivotTable|cat:'_id'}
 {$pivotLeftField=$field.pivotLeftField|default:{$resources[$resourceName]['singular']|cat:'_id'}}
 {$pivotRightField=$field.pivotRightField|default:{$resources[$relResource]['singular']|cat:'_id'}}
+{if !empty($resource[$fieldName])}
 <table class="commonTable adminTable relationTable">
 	<thead>
 		<tr>
@@ -22,12 +23,14 @@
 		</tr>
 	</thead>
 	<tbody>
+{*
 		<tr class="odd">
 			<td colspan="3">
-				<a class="adminLink addLink" href="#">
-					<span class="value">{t}add{/t}</span>
+				<a class="adminLink addLink addOneToManyItemLink" href="#">
+					<span class="value label">{t}add{/t}</span>
 				</a>
 				<div class="suggestBlock">
+*}
 					{*
 					$relResource:{$relResource}<br/>
 					$pivotResource:{$pivotResource}<br/>
@@ -37,6 +40,7 @@
 					$pivotRightField:{$pivotRightField}<br/>
 					count:{$data[$relResource]|@count}<br/>
 					*}
+{*
 						{$relPostFieldName=$data.meta.singular|cat:{$pivotRightField|ucfirst}}
 						<input type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggest{$resourceFieldName}"{/if} class="normal search" />
 						<input type="hidden" name="{$relPostFieldName}" id="{$relPostFieldName}" />
@@ -60,6 +64,7 @@
 				</div>
 			</td>
 		</tr>
+*}
 		{foreach $resource[$fieldName] as $item}
 		<tr class="{cycle values='even,odd'}">
 			{foreach $item as $propName => $propVal}
@@ -80,3 +85,8 @@
 		{/foreach}
 	</tbody>	
 </table>
+{else}
+<p>
+    {t}none{/t}
+</p>
+{/if}
