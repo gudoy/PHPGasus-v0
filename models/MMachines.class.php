@@ -8,6 +8,24 @@ class MMachines extends Model
 		
 		return parent::__construct($application);
 	}
+    
+    /*
+    public function index($options = array())
+    {
+        //$options['conditions'][] = array('uninstall_date','is','null');
+        //$options['conditions'][] = array('uninstall_date','!=','0000-00-00 00:00:00');
+        
+        return parent::index($options);
+    }
+    
+    public function retrieve($options = array())
+    {
+        //$options['conditions'][] = array('uninstall_date','is','null');
+        //$options['conditions'][] = array('uninstall_date','!=','0000-00-00 00:00:00');
+        
+        
+        return parent::retrieve($options);
+    }*/
 
 }
 ?>

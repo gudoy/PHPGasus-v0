@@ -729,15 +729,11 @@ class Application
 			'parent' => null,
 		), $options);
 		
-		$array 		= !$recursive ? (array) simplexml_load_file($xml) : $xml;
-		//$array        = !$recursive ? (array) simplexml_load_file($xml, 'SimpleXMLElement', LIBXML_COMPACT) : $xml;
-
-//var_dump($array);
-//var_dump('-----------------');
-//var_dump('-----------------');
-        $fixTextNodesAttr = defined('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES') && _XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES;
-
-		$data 		= array();
+		$array                = !$recursive ? (array) simplexml_load_file($xml) : $xml;
+		//$array              = !$recursive ? (array) simplexml_load_file($xml, 'SimpleXMLElement', LIBXML_COMPACT) : $xml;
+		$fixTextNodesAttr     = defined('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES') && _XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES;
+		$data 		          = array();
+        
 		foreach ($array as $propName => $propVal)
 		{
 			if ( $o['type'] === 'rss' && $propName === 'description' )
@@ -747,60 +743,25 @@ class Application
 			
 			$type 				= in_array(gettype($propVal), array('object','array')) ? 'multi' : 'simple';
 			
-          
-# Fix for text nodes having attributes that are ignored
-// If the element is an object
-if ( $fixTextNodesAttr && is_object($propVal) )
-{
-    $fixed = array();
-
-    // Loop over its childens    
-    foreach ( $propVal as $k => $v )
-    {
-        // Only handle text nodes which have both @attributes and a 0 indexed property        
-        if ( ($v = (array) $v) && isset($v['@attributes']) && isset($v[0]) )
-        {
-            $fixed[$k][] = array('@attributes' => $v['@attributes'], 'text' => $v[0]);
-        }
-    }
-
-    $propVal = array_merge((array)$propVal, $fixed);
-} 
-# End of the fix
-
-/*
-
             # Fix for text nodes having attributes that are ignored
-            // Loop over the props to find text nodes with attributes
-            $toBeFixed  = array();
-            $tmpPropVal = $propVal;
-            foreach ( (array) $tmpPropVal as $k => $v)
+            // If the element is an object
+            if ( $fixTextNodesAttr && is_object($propVal) )
             {
-if ( $propName === 'Services' || $propName === 'Alerts')
-{
-//var_dump($tmpPropVal);
-//var_dump($k);
-//var_dump($propVal->Alert);
-} 
-                
-                if ( is_array($v) && isset($v[0]) && is_numeric(key($v)) && is_string($v[0]) ){ $toBeFixed[] = $k; }
-            }
+                $fixed = array();
             
-            foreach ( $toBeFixed as $member )
-            {
-                $count  = count($propVal->$member);
-                $obj    = $propVal->$member;
-                $fix    = array();
-                for($i=0; $i<$count; $i++)
+                // Loop over its childens    
+                foreach ( $propVal as $k => $v )
                 {
-                    $tmp = (array)$obj[$i];
-                    $fix[$i] = array('@attributes' => $tmp['@attributes'], 'text' => $tmp[0]);
+                    // Only handle text nodes which have both @attributes and a 0 indexed property        
+                    if ( ($v = (array) $v) && isset($v['@attributes']) && isset($v[0]) )
+                    {
+                        $fixed[$k][] = array('@attributes' => $v['@attributes'], 'text' => $v[0]);
+                    }
                 }
-                $propVal = (array) $propVal;
-                $propVal[$member] = $fix;
-            }
-            # End fix
-*/
+            
+                $propVal = array_merge((array)$propVal, $fixed);
+            } 
+            # End of the fix
 			
 			$data[$propName] 	= $type === 'multi' ? self::XML2Array((array) $propVal, true, $o + array('parent' => $propVal)) : $propVal;
 		}

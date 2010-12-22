@@ -38,3 +38,12 @@
 <div class="col grid_13" id="mainCol">
 {$smarty.block.parent}
 {/block}
+
+{* TODO: create rule via js instead??? *}
+{block name='dynamicCss' nocache}
+{if $data.search.query}
+<style class="dynamicCSS" id="searchDynamicCSS">
+.commonTable.adminTable td .dataValue[data-exactValue*='{$data.search.query}'] { background:lightyellow; }
+</style>
+{/if}
+{/block}

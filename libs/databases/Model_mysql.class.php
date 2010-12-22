@@ -2073,7 +2073,8 @@ class Model extends Application
 		$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby')) ? '%' : '';
 		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby')) ? '%' : '';   
 		
-		if ( $defType === 'timestamp' )                           { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
+		//if ( $defType === 'timestamp' )                           { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
+		if ( $defType === 'timestamp' && !is_null($val) )         { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
 		else if ( is_int($val) )                                  { $val = (int) $val; }
 		else if ( is_float($val) )                                { $val = (float) $val; }
 		else if ( is_bool($val) )                                 { $val = (int) $val; }
@@ -2210,7 +2211,7 @@ class Model extends Application
 	
 	
 	public function index($options = array())
-	{
+	{        
 		// Set default params
 		// TODO: use $this->options instead, and use array_merge
 		$o 				= &$options;

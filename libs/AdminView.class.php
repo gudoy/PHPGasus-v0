@@ -479,6 +479,8 @@ var_dump($gpsAuths);
 		
 		$this->log(__METHOD__);
         
+        $this->Events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        
         $curURL     = $this->currentURL();
 		
 		// Set output data		
@@ -630,6 +632,8 @@ var_dump($gpsAuths);
 		
 		// Log current method
 		$this->log(__METHOD__);
+        
+        $this->Events->trigger('onBeforeRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
 		//$this->data['view']['method'] 	= __FUNCTION__;
@@ -640,7 +644,8 @@ var_dump($gpsAuths);
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
-			$this->resourceName 	=> $this->C->retrieve(array('values' => $this->resourceId)),
+			//$this->resourceName 	=> $this->C->retrieve(array('values' => $this->resourceId)),
+			$this->resourceName  => $this->C->retrieve(array('by' => 'id', 'values' => $this->resourceId)),
 			'resourceId' 			=> $this->resourceId,
 		));
 		
@@ -922,7 +927,7 @@ var_dump($gpsAuths);
 			$this->data['resourceId'] = $this->resourceId;
 		}
 		
-//$this->dump($this->data);
+$this->dump($this->data);
 		
 		return parent::prepareTemplate();
 	}

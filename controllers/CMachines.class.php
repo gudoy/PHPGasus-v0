@@ -21,6 +21,7 @@ class CMachines extends Controller
     public function import()
     {
         ini_set('max_execution_time',900);
+        ini_set('memory_limit', '512M');
         
         $t1         = microtime(true);
         $this->lb   = '<br/>';
@@ -47,11 +48,22 @@ class CMachines extends Controller
         $maildmn                = '@' . 'photomaton.com';
         
         // Instanciate proper controllers
-        foreach ( array('machines','users','groups','usersgroups') as $item)
+        foreach ( array('machines','users','groups','usersgroups','tasks') as $item)
         {
             $cname  = 'C' . ucfirst($item);
             $$cname = new $cname();
         }
+
+        // Create a task an get the task id
+        $task = array(
+            'admin_title'           => 'machinesImport' . strftime('%d-%m-%y-%Hh%Mm%Ss', $_SERVER['REQUEST_TIME']), 
+            'type'                  => 'machinesImport',
+            'creation_date'         => $_SERVER['REQUEST_TIME'],
+        );
+        $_POST = array();
+        foreach ( $task as $k => $v ){ $_POST['task' . ucfirst($k)] = $v; }
+        $tId = $CTasks->create(array('returning' => 'id'));
+        $_POST = null;
         
         // Get groups
         $groups                 = $CGroups->index(array('reindexby' => 'name', 'isUnique' => 1));
@@ -64,7 +76,10 @@ class CMachines extends Controller
             // Do not continue if the row is empty
             if ( empty($row) ){ continue; }
             
-//if ( $rowNb > 500 ){ break; }
+            // Remove "" wrapping string values
+            $row = str_replace('"','', $row);
+            
+//if ( $rowNb > 10000 ){ break; }
         
             // expects 38 columns
             $xpectedCount       = 38;
@@ -73,14 +88,18 @@ class CMachines extends Controller
             // Skip row if it does not have the expected columns count
             if ( count($tmpData) !== $xpectedCount )
             {
-$this->logError('Wrong data count for line ' . (string) $rowNb . '. Expected count: ' . $xpectedCount . ' ');
-$this->logError('Raw data:' . (string) $row);
+                $this->logError('Wrong data count for line ' . (string) $rowNb . '. Expected count: ' . $xpectedCount . ' ');
+                $this->logError('Raw data:' . (string) $row);
                 $rowNb++;
                 continue;
             }
             
+//var_dump($tmpData);
+            
             // Remove "" wrapping string values
-            foreach ( $tmpData as $k => $v ){ $tmpData[$k] = is_string($v) ? str_replace(array('"'), array(''), $v) : $v; }
+            //foreach ( $tmpData as $k => $v ){ $tmpData[$k] = is_string($v) ? str_replace(array('"'), array(''), $v) : $v; }
+            
+//var_dump($tmpData);
 
             // Handle the commercial
             if ( !empty($tmpData[29]) )
@@ -266,6 +285,8 @@ $this->logError('Raw data:' . (string) $row);
                 $updated = $updateResult ? $updated++ : $updated;                
             }
             
+//var_dump($machine);
+            
 //$this->logError('Machine ' . $rowNb . ' : ' . ($result ? 'OK' : 'ERROR'));
 //$this->logError(!$result && !$updated ? 'Error on line ' . (string) ($rowNb) : '');
 //$this->logError(!$result && !$updated ? 'Raw data:' . (string) ($row) : '');
@@ -287,6 +308,18 @@ var_dump($CMachines->errors);
         
         $t2     = microtime(true);
         $ptime  = ($t2 - $t1);
+        
+        // Update the task with the processed items number
+        if ( ($imported + $updated) > 0 )
+        {
+            $task = array(
+                'processed_items_nb'    => $imported + $updated,
+            );
+            $_POST = array();
+            foreach ( $task as $k => $v ){ $_POST['task' . ucfirst($k)] = $v; }
+            $CTasks->update(array('by' => 'id', 'values' => $tId));
+            $_POST = null;
+        }
         
         $succesLog = 'TOTAL: processed in: ' . $ptime . 's' . $this->lb;
         $succesLog .= 'TOTAL: ' . $rowNb . ' row(s) found' . $this->lb;

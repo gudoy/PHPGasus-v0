@@ -568,7 +568,8 @@ var admin =
 	handleDateFields: function()
 	{
 		$('input.datetime', 'form')
-			.datepicker({ 
+			//.datepicker({
+            .datetimepicker({ 
 				duration: '',  
 				//dateFormat: 'yy-mm-dd',
 				dateFormat: $.datepicker.W3C,
@@ -781,6 +782,7 @@ var adminIndex =
 			});
 			
 		self
+		  .handleToolbars()
 		  .handleFilters()
 		  .handleTableCols();
 		
@@ -917,6 +919,65 @@ var adminIndex =
 		var tr = jqObj.closest('tr');
 		
 		return tr.attr('id').replace(/row/,'');
+	},
+	
+	
+	handleToolbars: function()
+	{
+	    var self           = this;
+	       //toolbarsContext = '.adminListToolbar';
+	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
+	       
+	    $(toolbarsContext)
+	    .each(function()
+	    {
+	        $(this)
+	           .find('select')
+               .bind('change', function(e)
+               {
+                   e.preventDefault();
+                   
+                   var $t   = $(this);
+                       
+                   if ( $t.is('#itemsPerPageTop') || $t.is('#itemsPerPageBottom') )
+                   {
+                        var newLimit   = $t.val(), 
+                            curURL      = window.location.href,
+                            cleaned     = Tools.removeQueryParam(curURL, 'limit'),
+                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'limit=' + newLimit;
+
+                        window.location.href = newURL;
+                   }
+               })
+               /*
+               .end()
+               .find('input')
+	           .css('border','1px solid red')
+	           .bind('submit', function(e)
+	           {
+	               e.preventDefault();
+	               e.stopPropagation();
+	               
+	               var $t   = $(this);
+	                   
+	               if ( $t.is('#pageOffsetTop') || $t.is('#pageOffsetBottom') )
+                   {
+                        var newOffset   = (($t.val() || 0) - 1)*($t.closest('.toolbar').find('select.itemPerPage').val() || 50), 
+                            curURL      = window.location.href,
+                            //newURL      = curURL.replace(/(.*[\?|\&])(offset\=[\d]*)([\?|\&|$])(.*)$/, '$1limit=' + newLimit + '$3$4');
+                            //newURL      = curURL.replace(/(.*[\?|\&])(offset\=[\d]*)([\&|\&amp;]*)(.*)$/, '$1limit=' + newLimit + '$3$4');
+                            //cleaned     = curURL.replace(/limit\=[\d]*([\&|\&amp;|$])/, '$1'),
+                            cleaned     = Tools.removeQueryParam(curURL, 'offset'),
+                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'offset=' + newOffset;
+Tools.log('curURL:' + curURL);
+Tools.log('newOffset:' + newOffset);
+Tools.log('newURL:' + newURL);
+                        //window.location.href = newURL;
+                   }
+	           });*/
+	    });
+	    
+	    return this;  
 	},
 	
 	inlineEdit: function(jqObj)
@@ -1623,6 +1684,8 @@ var adminSearch =
                     dataType: 'html',
                     beforeSend: function()
                     {
+                        $('#searchDynamicCSS').html('');
+                        
                         var $tr         = $tbody.find('tr'),
                             colsNb      = $tbody.find(':first-child').find('td').length,
                             $loading    = $('<tr class="loading"><td colspan="' + colsNb + '"><span class="message loading">loading...</span></td></tr>');
@@ -1631,9 +1694,14 @@ var adminSearch =
                     },
                     success: function(response)
                     {
-                        var r = response;
+                        var r       = response,
+                            query   = $('#searchQuery').val() || '';
+                            rule    = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }";
                         
                         $tbody.html($(r).find('tbody').html());
+                        
+                         
+                        $('#searchDynamicCSS').html(rule);
                     }
                 });
             });

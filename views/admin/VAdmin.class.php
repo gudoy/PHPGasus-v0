@@ -25,10 +25,8 @@ class VAdmin extends AdminView
 			'errorsBlock' 	=> false,
 		));
 		
+        $this->dashboard();
 
-        $this->resourcesData();
-		$this->usersStats();
-			
 		$this->render();
 	}
 	
@@ -158,6 +156,35 @@ class VAdmin extends AdminView
 
 		$this->render(__FUNCTION__);
 	}
+	
+    public function dashboard()
+    {
+        //$this->resourcesData();
+        //$this->usersStats();
+        
+        //$this->statuses();
+    }
+	
+    /*
+    public function createResource()
+    {
+        $rName      = 'Tests';
+        $rSingular  = 'test';
+        $cName      = 'C' . ucfirst($rName);
+        $ext        = '.class.php';
+        
+        // Create controller
+        $cctnt      = file_get_contents(_PATH_CONTROLLERS  . '_CSamples' . $ext);
+var_dump($cctnt);
+        
+        $cctnt      = preg_replace(array('/CSamples/', '/singular/'), array($cName, $rSingular), $cctnt);
+        
+        $created    = file_put_contents(_PATH_CONTROLLERS . $cName . $ext, $cctnt);
+        
+var_dump($cctnt);
+    }*/
+    
+
 	
 };
 

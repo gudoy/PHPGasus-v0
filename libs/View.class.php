@@ -40,6 +40,8 @@ class View extends Application
 			// onBeforeDelete (admin)
 			// onDeleteSuccess (admin)
 			// onDeleteError (admin)
+			// onBeforeIndex (admin)
+			// onBeforeRetrieve (admin)
 			// onBeforeCreate (admin)
 			// onCreateSuccess (admin)
 			// onCreateError (admin)

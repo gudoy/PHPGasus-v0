@@ -13,6 +13,7 @@ Class Events
 	// Usage: register('onUpdateSuccess', 'fakeFunction')
 	// Usage: register('onUpdateSuccess', array('class' => 'AdminUtils', 'method' => 'incrementVersionNb'))
 	// Usage: register('onUpdateSuccess', array('function' => 'fakeFunction', 'arguments' => array('foo','bar','foobar')))
+	// Usage: register('onUpdateSuccess', array('class' => &$this, 'method' => 'foobar'))
 	public function register()
 	{		
 		// Get passed arguments
@@ -52,7 +53,7 @@ Class Events
 	
 	//public function trigger($eventName, $options = array())
 	public function trigger()
-	{		
+	{        
 		// Get passed arguments
 		$args 		= func_get_args();
 		
@@ -67,8 +68,9 @@ Class Events
 		foreach ($this->registered[$n] as $e)
 		{			
 			// Do not process the current item if the class or the method does not exists
-			if ( ( !class_exists($e['class']) || !method_exists($e['class'], $e['method']) ) 
-				&& !function_exists($e['function']) ) { continue; }
+			if ( ( !is_object($e['class']) && 
+			     ( !class_exists($e['class']) || !method_exists($e['class'], $e['method']) ) && !function_exists($e['function']) ) ) 
+            { continue; }
 			
 			if ( !empty($e['function']) )
 			{
