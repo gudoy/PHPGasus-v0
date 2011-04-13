@@ -1,6 +1,6 @@
 <?php
 
-class MProducts extends Model
+class MCategories extends Model
 {
 	public function __construct($application = null)
 	{

@@ -2,6 +2,10 @@ var adminHome =
 {
 	init: function ()
 	{
+	    admin.init();
+	    
+	    //adminSearch.init();
+	    
 		$('#connectedUsersLink').click(function(e)
 		{
 			e.preventDefault();
@@ -12,3 +16,11 @@ var adminHome =
 		return this;
 	}
 }
+
+var adminResourcesCreate =
+{
+	init: function()
+	{
+		
+	}	
+};

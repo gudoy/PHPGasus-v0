@@ -5,7 +5,7 @@ class AdminView extends View
 	//protected 	$debug 	= false;
 	var $resourceGroupName = null;
 	
-	public function __construct()
+    public function __construct(&$application)
 	{
 		//$this->log(__METHOD__);
 		
@@ -22,7 +22,7 @@ class AdminView extends View
 			//'resourceGroups' 	=> $resourceGroups,
 		);
 		
-		parent::__construct();
+		parent::__construct($application);
 		
 		$this
 			->requireLogin()								// Require that the user is logged
@@ -61,11 +61,11 @@ class AdminView extends View
         // TODO: safe to be cleaned?
 		$this->data = array_merge($this->data, array(
 			'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
-			//'resourceGroups' 		=> &$this->dataModel['resourceGroups'],
 			//'resources' 			=> &$this->dataModel['resources'],    // deprecated. use _resources instead
 			
 			//'_dataModel'          => &$this->dataModel['resourcesFields'],
 			'_resources'             => &$this->dataModel['resources'],
+			'_resourcesGroups'       => &$_resourcesGroups,
 			
             // '__config' => array('resources' => $resources, 'columns' => &$dataModel );
 		));
@@ -77,6 +77,8 @@ class AdminView extends View
 	
 	public function configSmarty()
 	{
+        $this->log(__METHOD__);
+        
 		parent::configSmarty();
 		
         // TODO: really needed?
@@ -89,6 +91,8 @@ class AdminView extends View
 	
 	public function meta($resourceName = null)
 	{
+        $this->log(__METHOD__);
+        
 		if ( empty($resourceName) ){ return array(); }
 		
 		$r 							= &$resourceName;
@@ -130,7 +134,13 @@ class AdminView extends View
 	
 	public function handleRelations()
 	{
+        $this->log(__METHOD__);
+		
+		// Handled resources
+		$hr = array();
+        
 		// Do not continue if the resource is not defined
+		// or if it has already been handle (i.e: if a resource relates to another one on several columns)
 		if ( empty($this->resourceName) ){ return $this; }
 		
 		// Array of related resource for the current resource 
@@ -138,7 +148,7 @@ class AdminView extends View
 		
 		// Loop over the resource colums
 		foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
-		{
+		{			
 			// Do not continue if the type is not found and the field is not a foreign key
 			if ( empty($f['type']) && empty($f['fk']) ){ continue; }
 			
@@ -146,12 +156,17 @@ class AdminView extends View
 			//else if ( $f['type'] === 'onetomany' || $f['type'] === 'onetoone' )
 			else if ( $f['type'] === 'onetomany' || !empty($f['fk']) )
 			{
+				if ( in_array($this->resourceName, $hr) ){ continue; }
+				
 				 $relResName 				= !empty($f['relResource']) ? $f['relResource'] : $name; 	// Get the related resource or default it to current column name
 				 $relResources[] 			= $relResName;												// Add it to the related resources array
 				 $ctrlrName 				= 'C' . ucfirst($relResName);								// Build its controller name
 				 $ctrlr 					= new $ctrlrName(); 										// Instanciate it
 				 $count 					= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
 				 $this->data[$relResName] 	= $count < 100 ? $ctrlr->index() : null;
+				 
+				// Store that we handled this related resource
+				$hr[] = $this->resourceName;
 			}
 		}
 		
@@ -172,6 +187,8 @@ class AdminView extends View
 		$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
 		$o['authLevel'] 		= !empty($o['authLevel']) && !is_array($o['authLevel']) ? (array) $o['authLevel'] : $o['authLevel'];
 		$o['failureRedirect'] 	= !empty($o['redirection']) ? $o['redirection'] : ( isset($this->authFailureRedirect) ? $this->authFailureRedirect : _URL_HOME );
+        
+        $knownActions   = array('display','create','retrieve','update','delete','search');    // List of knowns auth
 		
 		$curURL 		= $this->currentURL();
 		$t 				= parse_url($curURL); 
@@ -203,9 +220,8 @@ class AdminView extends View
                 # Get user credentials
                 $gids           = !empty($u['group_ids']) ? $u['group_ids'] : array();          // Get user group ids
                 $opts           = array('by' => 'group_id', 'values' => $gids);                 // Set options
-                $gpsAuths       = CGroupsauths::getInstance()->index($opts);                    // Try to get user groups auth
-                $knownActions = array('display','create','retrieve','update','delete');                               // List of knowns auth
-                //$actionAuths    = array();                                                    // Init user auths actions indexed array
+                $gpsAuths       = CGroupsauths::getInstance()->index($opts);                        // Try to get user groups auth
+                //$actionAuths    = array();                                                        // Init user auths actions indexed array
                 
                 // Can the user access the admin
                 $ugps           = !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
@@ -214,21 +230,20 @@ class AdminView extends View
                     '__can_access_admin' => $isGod || in_array('superadmins', $ugps) || in_array('admins', $ugps) 
                 );
                 $uAuths         = &$u['auths'];                                                      
-/*
-var_dump($u);
-var_dump($gids);                
-var_dump($gpsAuths);
-*/
 
 
+                // Gods are allmighty
                 if ( $isGod )
-//if ( 1 === 2 )
                 {
                     $resList = array_keys($this->dataModel['resources']);
                     
                     foreach ($knownActions as $action)
                     {
                         $cN             = '__can_' . $action;
+                        
+                        // Do not handle search action auths here
+                        if ( $action === 'search' ){ $uAuths[$cN] = array(); continue; }
+                        
                         $uAuths[$cN]    = $resList;
                     }
                     
@@ -236,9 +251,17 @@ var_dump($gpsAuths);
                     {
                         foreach ($knownActions as $action)
                         {
-                            $aN                     = 'allow_' . $action;     // Shortcut for auth name 
-                            $uAuths[$rName][$aN]    = true;                 // Update the auth for the current resource
+                            $aN                     = 'allow_' . $action;       // Shortcut for auth name 
+                            $uAuths[$rName][$aN]    = true;                     // Update the auth for the current resource
                         } 
+                        
+                        // Special case for search action that should be allowed if retrieve action is allowed
+                        // AND if the resource is searchable
+                        if ( $action === 'search' && !empty($this->dataModel['resources'][$rName]['searchable']) )
+                        {
+                            $uAuths[$rName][$aN]        = true;
+                            $uAuths['__can_search'][]   = $rName;
+                        }
                     }
                 }
                 else
@@ -253,33 +276,36 @@ var_dump($gpsAuths);
                         if ( empty($rName) ) { continue; }
                         
                         // Loop over the known auths
-                        foreach ($knownActions as $actions)
+                        foreach ($knownActions as $action)
                         {
-                            $aN                     = 'allow_' . $actions;     // Shortcut for auth name
-                            $cN                     = '__can_' . $actions;     // Shortcut for 
-                            $uAuths[$rName][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;  // Update the auth for the current resource
-                            
+                            $aN                     = 'allow_' . $action;                              // Shortcut for auth name
+                            $cN                     = '__can_' . $action;                              // Shortcut for auth resources list for the current action 
+                            $uAuths[$rName][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;    // Update the auth for the current resource
                             $uAuths[$cN]            = !isset($uAuths[$cN]) ? array() : $uAuths[$cN];
+                            
                             if ( !empty($gpAuths[$aN]) ) { $uAuths[$cN][] = $rName; }
+                            
+                            // Special case for search action that should be allowed if retrieve action is allowed
+                            // AND if the resource is searchable                        
+                            if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->dataModel['resources'][$rName]['searchable']) )
+                            {
+                                $uAuths[$rName][$aN]    = true;
+                                $uAuths[$cN][]          = $rName;
+                            }
                         }
                     }
                 }
 
                 $match  = !empty($uAuths['__can_access_admin']) && ( empty($this->resourceName) || in_array($this->resourceName, $uAuths['__can_display']) );            
             }
-                       
-//var_dump($u);
-//var_dump($u['auths']);
-//var_dump($u['auths']['__can_display']);
-//var_dump($match);
-//die();
-
 			
 			// Store the current user, after having remove sensitive data (password, .... ?)
 			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
 			unset($u['password']);
 			$this->data['current']['user'] = $u;
 		}
+
+//var_dump($this->data['current']['user']);
 
 		// TODO: redirect + notify ('you dont have credentials to access this area')???
 		$redir = $o['failureRedirect'];
@@ -290,14 +316,16 @@ var_dump($gpsAuths);
     
     public function handleSearch()
     {
+        $this->log(__METHOD__);
+        
         $args           = func_get_args();
         $criteria       = array();                                                  // Initialise search criteria array
         $searchable     = array();                                                  // Initialise searchable resources array
-        $sType          = isset($this->resourceName) 
+        $s              = &$this->data['search'];                                   // Shortcut for search data
+        $s['type']      = isset($this->resourceName) 
                             && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
                           ? 'contextual' : 'global';
-        $s              = &$this->data['search'];                                   // Shortcut for search data
-        $s['type']      = $sType;
+        //$s['type']      = $sType;
 
         // $criteria = array(
         //      'type'          => passed type || 'or',
@@ -311,12 +339,14 @@ var_dump($gpsAuths);
         // search/{resourceName}/{queryString} 
         // search/{resourceName}?method=search&queryString={$queryString}
         $sQuery         = !empty($_GET['searchQuery']) ? filter_var($_GET['searchQuery'], FILTER_SANITIZE_STRING) : null;
-        $values         = $this->arrayify($sQuery);
+        $values         = Tools::toArray($sQuery);
         $s['query']     = $sQuery;
         
         // Do not continue if no search query has been found
         if ( empty($sQuery) ){ return $this; }
         //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->index($args) : $this; }
+        //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->index(array('dispatch' => false)) : $this; }
+        //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->C->index($this->options) : $this; }
         
         // If the search is contextual, just use the current resource
         // Otherwise, use the resources that the current user is allowed to display 
@@ -340,7 +370,7 @@ var_dump($gpsAuths);
             $sCols          = array();                          // Initialise the searchable colums array for the current resource
             
             // Loop ovet the resource columns
-            foreach( array_keys($rModel) as $column )
+            foreach( array_keys((array) $rModel) as $column )
             {
                 if ( empty($rModel[$column]['searchable']) ) { continue; }
                 
@@ -351,17 +381,37 @@ var_dump($gpsAuths);
             $searchable[$r] = array( 'resource' => $r, 'columns' => $sCols, );
         }
         
+        $this->events->trigger('onBeforeSearch', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        
         // First case, contextual search on a defined resource
-        if ( $sType === 'contextual' )
+        if ( $s['type'] === 'contextual' )
         {
             $rName          = $this->resourceName;
 
+            $this->events->trigger('onBeforeSearch' . ucfirst($rName), array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+
             // Get searchable cols for the current resource
-            $cols = !empty($searchable[$rName]['columns']) ? $searchable[$rName]['columns'] : array();
-            foreach ($cols as $col){ $this->options['conditions'][] = array($col,'contains',$s['query'],'or'); }
+            $cols       = !empty($searchable[$rName]['columns']) ? $searchable[$rName]['columns'] : array();
+            
+            $colsCount  = count($cols);
+            $i          = 0;
+            foreach ($cols as $col)
+            {
+                //$cond                           = array($col,'contains',$s['query'],'or');
+                $cond                           = array($col,'contains',$s['query']);
+                
+                # Handle parenthesis wrappers for 'OR' conditions
+                if 		( $i === 0 && $colsCount = 1 ) 	{ $cond[] = ''; }
+				elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
+				else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
+				else                                	{ $cond[] = 'or'; }
+                
+                $this->options['conditions'][]  = $cond;
+                $i++;
+            }
             
             // Get results with the search criteria
-            $results =$this->C->index($this->options);
+            $results = $this->C->index($this->options);
             
             $curURL     = $this->currentURL();
 
@@ -373,7 +423,7 @@ var_dump($gpsAuths);
                 'warnings'              => $this->C->warnings,
                 'current'               => array_merge($this->data['current'], array(
                     'url'                       => $curURL,
-                    'urlParams'                 => $this->getURLParams($curURL),
+                    'urlParams'                 => Tools::getURLParams($curURL),
                     'offset'                    => $this->options['offset'],
                     'limit'                     => $this->options['limit'],
                     'sortBy'                    => $this->options['sortBy'],
@@ -387,12 +437,12 @@ var_dump($gpsAuths);
                     'totalResults'  => count($results),
                 )),
             ));
+            
+//var_dump($results);
         }
         // Second case, global search on every searchable resource on every searchable columns
         else
         {
-//$this->dump('case global search');
-
             // Instanciate searchable resources and get search results for each one of them
             foreach ( array_keys($searchable) as $rName )
             {
@@ -402,10 +452,35 @@ var_dump($gpsAuths);
                 $cols   = $searchable[$rName]['columns'];     // Get searchable cols for the current resource
                 $this->options['conditions'] = array();     // Force conditions to be empty (only handle search conditions)
                 
-                foreach ($cols as $col){ $this->options['conditions'][] = array($col,'contains',$s['query'],'or'); }
+                $colsCount  = count($cols);
+				
+				// Do not continue if there's no col to search against
+				if ( $colsCount === 0 ) { continue; }
+				
+                $i          = 0;
+	            foreach ($cols as $col)
+	            {
+	                //$cond                           = array($col,'contains',$s['query'],'or');
+	                $cond                           = array($col,'contains',$s['query']);
+	                
+	                # Handle parenthesis wrappers for 'OR' conditions
+	                if 		( $i === 0 && $colsCount = 1 ) 	{ $cond[] = ''; }
+					elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
+					else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
+					else                                	{ $cond[] = 'or'; }
+	                
+	                $this->options['conditions'][]  = $cond;
+	                $i++;
+	            }
+             
+                $this->events->trigger('onBeforeSearch' . ucfirst($rName), array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+
+                $count      = $$cName->index(array_merge($this->options, array('mode' => 'count')));
+                //$results    = $$cName->search(array_merge($this->options, array('limit' => '-1')));
+                $results    = $$cName->search(array_merge($this->options, array('limit' => 25)));
+                //$count      = count($results);
                 
-                $results    = $$cName->search(array_merge($this->options, array('limit' => '-1')));
-                $count      = count($results);
+//var_dump($rName . ' count: ' . $count);
                 
                 $s['groups'][$rName] = array(
                     'results'   => $results,
@@ -424,14 +499,12 @@ var_dump($gpsAuths);
             }
 
             $curURL     = $this->currentURL();
+            
+            /*
             $this->data = array_merge($this->data, array(
-                //$this->resourceName     => $results,
-                //'success'               => $this->C->success, 
-                //'errors'                => $this->C->errors,
-                //'warnings'              => $this->C->warnings,
                 'current'               => array_merge($this->data['current'], array(
                     'url'                       => $curURL,
-                    'urlParams'                 => $this->getURLParams($curURL),
+                    'urlParams'                 => Tools::getURLParams($curURL), 
                     'offset'                    => $this->options['offset'],
                     'limit'                     => $this->options['limit'],
                     'sortBy'                    => $this->options['sortBy'],
@@ -445,6 +518,7 @@ var_dump($gpsAuths);
                     //'totalResults' => count($results),
                 //)),
             ));
+            */
 
             /*
             // TODO: handle search query properly
@@ -457,13 +531,26 @@ var_dump($gpsAuths);
             */
         }
         
+//$this->dump($this->data['search']);
+        
+        $hasRes     = !empty($s['totalResults']);
+        $evtName    = 'onSearchReturned' . ($hasRes ? '' : 'no') . 'results'; // onSearchReturned or onSearchReturnedNoResults
+        
+        $this->events->trigger($evtName, array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        $this->events->trigger('onAfterSearch', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        
         return $this;
     }
     
     
     public function search()
     {
+        $this->log(__METHOD__);
+        
         $this->handleSearch();
+        
+        if ( $this->data['search']['type']['contextual'] ){ $this->data['view']['template'] = 'specific/pages/admin/resource/search.tpl'; }
+        
         $this->handleRelations();
         $this->beforeRender(array('function' => __FUNCTION__));
             
@@ -471,17 +558,28 @@ var_dump($gpsAuths);
     }
     
 	
-	//public function index($resourceId = null, $options = null)
 	public function index()
 	{
-		$args = func_get_args();
-		$this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));
+        $this->log(__METHOD__);
+        
+		$args 	= func_get_args();
+		$p    	= !empty($args[0]) && is_array($args[0]) ? $args[0] : array();
+		$p 		= array_merge(array( 
+            'dispatch' => true,
+        ), $p);
+		
+        
+        // TODO: handle this properly using. Extract everything after the call to the 'dispatchMethods' into a 'listAll' method???
+        if ( $p['dispatch'] )
+        {
+            $this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));    
+        }
 		
 		$this->log(__METHOD__);
         
-        $this->Events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
         
-        $curURL     = $this->currentURL();
+        //$curURL     = $this->currentURL();
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
@@ -489,17 +587,12 @@ var_dump($gpsAuths);
 			'success' 				=> $this->C->success, 
 			'errors'				=> $this->C->errors,
 			'warnings' 				=> $this->C->warnings,
-			'current'				=> array_merge($this->data['current'], array(
-                'url'                       => $curURL,
-                'urlParams'                 => $this->getURLParams($curURL),
-				'offset'					=> $this->options['offset'],
-				'limit'						=> $this->options['limit'],
-				'sortBy' 					=> $this->options['sortBy'],
-			)),
 			'total'					=> array(
 				$this->resourceName 	=> $this->C->index(array_merge($this->options, array('mode' => 'count'))),
 			),
 		));
+		
+		$this->events->trigger('onAfterIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
         
         $this->handleRelations();
 		
@@ -516,7 +609,7 @@ var_dump($gpsAuths);
 		// Log current method
 		$this->log(__METHOD__);
 		
-		$this->Events->trigger('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->events->trigger('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
 		//$this->data['view']['method'] 	= __FUNCTION__;
@@ -534,7 +627,8 @@ var_dump($gpsAuths);
 		if ( !empty($_POST) )
 		{			
 			// Launch the creation
-			$this->C->create();
+			//$this->C->create();
+			$this->resourceId = $this->C->create(array('returning' => 'id'));
 		}
 		else if ( !empty($referer) && strpos($cleanURL, $referer) !== false && empty($_POST) )
 		{
@@ -551,12 +645,16 @@ var_dump($gpsAuths);
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
 		{
+			$this->logAdminAction(array('action' => __FUNCTION__));
+						
 			$successRedir = !empty($_POST['successRedirect']) ? $_POST['successRedirect'] : false;
 			
-			$this->Events->trigger('onCreateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->events->trigger('onCreateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 			//if ( !empty($_POST['successRedirect']) ) { $this->redirect($_POST['successRedirect']); }
 			if ( $successRedir ) { $this->redirect($successRedir); }
+			
+			
 			
 			$this->statusCode(201);
 			
@@ -564,8 +662,10 @@ var_dump($gpsAuths);
 		}
 		else
 		{
-			$this->Events->trigger('onCreateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->events->trigger('onCreateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
+		
+		$this->events->trigger('onAfterCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		$this
 			//->paginate()
@@ -577,6 +677,8 @@ var_dump($gpsAuths);
 	
 	public function duplicate($resourceId = null, $options = null)
 	{
+        $this->log(__METHOD__);
+        
 		$args 				= func_get_args(); 						// Get the passed arguments
         //$this->resourceId     = !empty($args[0]) ? $args[0] : null;   // Assume that the first argument passed if the resource identifier
         $this->resourceId     = !empty($args[0]) 
@@ -624,6 +726,8 @@ var_dump($gpsAuths);
 	//public function retrieve($resourceId = null, $options = null)
 	public function retrieve()
 	{
+        $this->log(__METHOD__);
+        
 		$args 				= func_get_args(); 						// Get the passed arguments
         //$this->resourceId     = !empty($args[0]) ? $args[0] : null;   // Assume that the first argument passed if the resource identifier
         $this->resourceId     = !empty($args[0]) 
@@ -633,7 +737,7 @@ var_dump($gpsAuths);
 		// Log current method
 		$this->log(__METHOD__);
         
-        $this->Events->trigger('onBeforeRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        $this->events->trigger('onBeforeRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
 		//$this->data['view']['method'] 	= __FUNCTION__;
@@ -662,16 +766,15 @@ var_dump($gpsAuths);
 	//public function update($resourceId = null, $options = null)
 	public function update()
 	{
+        $this->log(__METHOD__);
+        
 		$args 				= func_get_args(); 						// Get the passed arguments
 		//$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	        // Assume that the first argument passed if the resource identifier 
 		$this->resourceId     = !empty($args[0]) 
 		                          ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
                                   : null;           // Assume that the first argument passed if the resource identifier
 		
-		// Log current method
-		$this->log(__METHOD__);
-		
-		$this->Events->trigger('onBeforeUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->events->trigger('onBeforeUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
 		//$this->data['view']['method'] 	= __FUNCTION__;
@@ -715,27 +818,33 @@ var_dump($gpsAuths);
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
 		{
+			$this->logAdminAction(array('action' => __FUNCTION__));
+			
+			// Try to get success redirect URL
 			$successRedir = !empty($_POST['successRedirect']) ? $_POST['successRedirect'] : false;
 			
-			$this->Events->trigger('onUpdateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			// Trigger proper events
+			$this->events->trigger('onUpdateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 			
 			if ( !empty($_GET['forceFileDeletion']) )
 			{
 				$curURL 	= $this->currentURL();
-				$cleanURL 	= $this->removeQueryParams('forceFileDeletion', $curURL);
+				//$cleanURL 	= $this->removeQueryParams('forceFileDeletion', $curURL);
+				$cleanURL   = Tools::removeQueryParams('forceFileDeletion', $curURL);
 				
 				$this->redirect($cleanURL);
 			}
 			
-			//else if ( !empty($_POST['successRedirect']) ) { $this->redirect($_POST['successRedirect']); }
 			else if ( $successRedir ) { $this->redirect($successRedir); }
 			
 			unset($_POST);
 		}
 		else
 		{
-			$this->Events->trigger('onUpdateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->events->trigger('onUpdateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
+		
+		$this->events->trigger('onAfterUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 
 		$this
 			->paginate()
@@ -750,16 +859,15 @@ var_dump($gpsAuths);
 	//public function delete($resourceId = null, $options = null)
 	public function delete()
 	{
+        $this->log(__METHOD__);
+        
 		$args 				= func_get_args(); 						// Get the passed arguments
 		//$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
         $this->resourceId     = !empty($args[0]) 
                                   ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
                                   : null;           // Assume that the first argument passed if the resource identifier
 		
-		// Log current method
-		$this->log(__METHOD__);
-		
-		$this->Events->trigger('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->events->trigger('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set the current method
 		//$this->data['view']['method'] 	= __FUNCTION__;
@@ -785,12 +893,16 @@ var_dump($gpsAuths);
 		
 		if ( $this->data['success'] )
 		{
-			$this->Events->trigger('onDeleteSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->logAdminAction(array('action' => __FUNCTION__));
+			
+			$this->events->trigger('onDeleteSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
 		else
 		{
-			$this->Events->trigger('onDeleteError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->events->trigger('onDeleteError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
+		
+		$this->events->trigger('onAfterDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		$this->beforeRender(array('function' => __FUNCTION__));
 				
@@ -812,17 +924,26 @@ var_dump($gpsAuths);
         if ( !defined('_APP_USE_CONDITIONS_HANDLER_V2') || !_APP_USE_CONDITIONS_HANDLER_V2 )
         {
             $this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsLower', 'sortBy' => 'id', 'orderBy' => 'DESC'));
+            //$this->C->retrieve(array('getFields' => 'id', 'conditions' => array(array('id','>',$id)), 'sortBy' => 'id', 'orderBy' => 'DESC'));
             $this->data['pagination']['prev'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
             
             $this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsGreater', 'sortBy' => 'id', 'orderBy' => 'ASC'));
+            //$this->C->retrieve(array('getFields' => 'id', 'conditions' => array(array('id','>',$id)), 'sortBy' => 'id', 'orderBy' => 'DESC'));
             $this->data['pagination']['next'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
         }
         else
         {
-            $opts                       = array('getFields' => 'id', 'sortBy' => 'id', 'limit' => 1);
+        	// Define common options
+        	$opts = array('getFields' => 'id', 'sortBy' => 'id', 'limit' => 1);
+			
+			// Get prev and next id
+        	$prev = $this->C->retrieve(array_merge($opts, array('conditions' => array(array('id', '<', $id)), 'orderBy' => 'DESC')));
+			$next = $this->C->retrieve(array_merge($opts, array('conditions' => array(array('id', '>', $id)), 'orderBy' => 'ASC')));
+			
+			// Assign the values to pagination data
             $this->data['pagination']   = array(
-                'prev' => $this->C->retrieve($opts + array('conditions' => array(array('id', '<', $id)), 'orderBy' => 'DESC')),
-                'next' => $this->C->retrieve($opts + array('conditions' => array(array('id', '>', $id)), 'orderBy' => 'ASC')),
+                'prev' => is_array($prev) && isset($prev['id']) ? $prev['id'] : ( is_numeric($prev) ? $prev : null),
+                'next' => is_array($next) && isset($next['id']) ? $next['id'] : ( is_numeric($next) ? $next : null),
             );
         }
 
@@ -836,7 +957,13 @@ var_dump($gpsAuths);
 		
 		if ( !in_array($this->options['output'], array('html','xhtml')) )
 		{
-			unset($this->data['_dataModel'], $this->data['_resources'], $this->data['dataModel'], $this->data['resources']);
+			unset(
+                $this->data['_dataModel'],
+                $this->data['_resources'],
+                $this->data['dataModel'],
+                //$this->data['resources'],
+                $this->data['_resourcesGroups']
+            );
 			
 			//if ( empty($this->resourceName) || $this->resourceName !== 'resources' )  unset($this->data['resources']);
 		}
@@ -847,6 +974,8 @@ var_dump($gpsAuths);
 	
 	public function smartname()
 	{
+        $this->log(__METHOD__);
+        
 		if ( !empty($this->resourceName) )
 		{
 			//$tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['metas'][$this->resourceName]['breadcrumbs']));
@@ -865,8 +994,11 @@ var_dump($gpsAuths);
 	}
 	
 	
+	/*
 	public function smartclasses()
 	{
+        $this->log(__METHOD__);
+        
 		$tmp = '';
 		
 		if ( !empty($this->resourceName) )
@@ -876,10 +1008,18 @@ var_dump($gpsAuths);
 		}
 		
 		//$method = !empty($this->data['current']['method']) ? $this->data['current']['method'] : 'index';
-		$method = !empty($this->data['view']['method']) ? $this->data['view']['method'] : 'index';
+		$method       = !empty($this->data['view']['method']) ? $this->data['view']['method'] : 'index';
 		
-		return 'admin ' . ( 'admin' . ucfirst($method) ) . ' ' . $tmp . $this->data['view']['smartname'];
+        // Add user groups
+        $gpClasses  = '';
+        $uGps       = !empty($this->data['current']['user']['group_admin_titles']) 
+                        ? explode(',',$this->data['current']['user']['group_admin_titles']) 
+                        : array();
+        foreach ( $uGps as $gp ){ $gpClasses .= ' group' . ucfirst($gp); }
+        
+		return 'admin ' . ( 'admin' . ucfirst($method) ) . ' ' . $tmp . $this->data['view']['smartname'] . ' ' . $gpClasses;
 	}
+	*/
 	
 	
 	public function render()
@@ -891,6 +1031,8 @@ var_dump($gpsAuths);
 	
 	public function prepareTemplate()
 	{
+        $this->log(__METHOD__);
+        
 		$v = !empty($this->data['view']) ? $this->data['view'] : null; 	// Shortcut for view data
 		$m = !empty($v['method']) ? $v['method'] : 'index'; 			// Shortcut for view method
 		
@@ -903,8 +1045,8 @@ var_dump($gpsAuths);
 			), ( isset($this->data['view']) ? (array) $this->data['view'] : array()) );
 		}
 		
-		$this->data['view']['smartname'] 	= $this->smartname();
-		$this->data['view']['smartclasses'] = $this->smartclasses();
+		//$this->data['view']['smartname'] 	= $this->smartname();
+		//$this->data['view']['smartclasses'] = $this->smartclasses();
 
 		// Update current meta
 		// TODO: remove when resource group getting will have been move to meta()
@@ -913,13 +1055,35 @@ var_dump($gpsAuths);
 		// TODO: already assigned in the __construct()
 		// safe to remove? 
 		//$this->data['meta']                       = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
+		
+        //$curURL     = $this->currentURL();
 								
-		$this->data['current']['resource'] 		= !empty($this->resourceName) ? $this->resourceName : null;
-        $this->data['current']['menu']          = &$this->data['current']['resource'];
+        $this->data = array_merge($this->data, array(
+            'current'               => array_merge($this->data['current'], array(
+            	// url & urlParams have been moved to View class
+                //'url'                       => $curURL,
+                //'urlParams'                 => Tools::getURLParams($curURL),
+                'offset'                    => $this->options['offset'],
+                'limit'                     => $this->options['limit'],
+                'sortBy'                    => $this->options['sortBy'],
+                'orderBy'                   => $this->options['orderBy'],
+                'resource'                  => !empty($this->resourceName) ? $this->resourceName : null,
+                
+                // TODO, handle this properly via dispatcher/breadcrumbs
+                'menu'                      => !empty($this->resourceName) ? $this->resourceName : 'admin',
+                
+                // Deprecated. Safe to be removed?
+                // TODO: remove
+                'resourceGroup'             => $this->resourceGroupName,
+            )),
+        ));
+								
+		//$this->data['current']['resource'] 		= !empty($this->resourceName) ? $this->resourceName : null;
+        //$this->data['current']['menu']          = &$this->data['current']['resource'];
 		
 		// Deprecated. Safe to be removed?
 		// TODO: remove
-		$this->data['current']['resourceGroup'] = $this->resourceGroupName;
+		//$this->data['current']['resourceGroup'] = $this->resourceGroupName;
         
 		//if ( $m === 'update' || $m === 'delete' )
 		if ( in_array($m, array('update','delete')) )
@@ -930,6 +1094,32 @@ var_dump($gpsAuths);
 $this->dump($this->data);
 		
 		return parent::prepareTemplate();
+	}
+
+
+	private function logAdminAction($params = array())
+	{
+		$p = array_merge(array(
+			'resource_name' => $this->resourceName,
+			'resource_id' 	=> $this->resourceId,
+			'user_id' 		=> $_SESSION['user_id'], 
+		), $params);
+		
+		// Log the performed action
+		$oldPOST = $_POST;
+		$log = array(
+			//'admin_title' 		=> '',
+			'action' 			=> $p['action'],
+			'resource_name' 	=> $p['resource_name'],
+			'resource_id' 		=> $p['resource_id'],
+			'user_id' 			=> $p['user_id'],
+			//'revert_query' 	=> ''
+		);
+		$_POST = $log;
+		CAdminlogs::getInstance()->create(array('isApi' => 1));
+		$_POST = $oldPOST;
+		
+		return $this;
 	}
 		
 }

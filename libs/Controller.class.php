@@ -24,12 +24,27 @@ class Controller extends Application
             
 			// Instanciate the resource model
 			$mName  	= 'M' . ucfirst($this->resourceName);
-			$this->model 		= new $mName(&$this->application);
+			$this->model 		= new $mName($this->application);
 			//$this->m 			= &$this->model; 						// Shortcut for model 
 		}
 		
 		return $this;
 	}
+    
+    /*
+     * // ex: findByCode();
+     * // ex: findMachine_idByTask_id();
+     * // ex: getMachine_idByTask_id();
+    public function __call($method, $args)
+    {
+var_dump(__METHOD__);
+var_dump($method);
+var_dump($args);
+
+        // TODO: split $method on /([a-zA-Z]{1}[a-z]*)[A-Z]{1}/
+        // try to find 'get','find','by'
+
+    }*/
 
 	
 	public function index($options = array())
@@ -39,7 +54,7 @@ class Controller extends Application
 		$this->errors     = array();
 		$this->warnings   = array();
 		
-		$this->data       = $this->model->index($options);
+		$this->data       = $this->model->index($o);
 		$this->success    = $this->model->success;
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
@@ -58,7 +73,7 @@ class Controller extends Application
 			$this->extendsData($options);
 		}
 		
-		if ( !empty($o['reindexby']) ){ self::reindex($options); }
+		if ( !empty($o['reindexby']) ){ self::reindex($o); }
 		
 		return $this->data;
 	}
@@ -70,8 +85,8 @@ class Controller extends Application
         $this->success    = false;
         $this->errors     = array();
         $this->warnings   = array();
-		
-		$this->data       = $this->model->search($options);
+        
+		$this->data       = $this->model->search($o);
 		$this->success    = $this->model->success;
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
@@ -87,28 +102,28 @@ class Controller extends Application
 		}
 		else
 		{
-			$this->extendsData($options);
+			$this->extendsData($o);
 		}
 		
-		if ( !empty($o['reindexby']) ){ self::reindex($options); }
+		if ( !empty($o['reindexby']) ){ self::reindex($o); }
 		
 		return $this->data;
 	}
 	
 
-	public function create($options = null)
+	public function create($options = array())
 	{	
         $o                = &$options;
         $this->success    = false;
         $this->errors     = array();
         $this->warnings   = array();
 		
-		$resourceData     = $this->filterPostData((array) $options + array('method' => 'create'));
+		$resourceData     = $this->filterPostData(array_merge($o,array('method' => 'create')));
 
 		if ( !empty($resourceData) )
 		{
 			// Launch the creation
-			$this->data = $this->model->create($resourceData, $options);
+			$this->data = $this->model->create($resourceData, $o);
 			
 			// Get the success of the request
 			$this->success 	= $this->model->success;
@@ -140,7 +155,7 @@ class Controller extends Application
         $this->errors     = array();
         $this->warnings   = array();
 		
-		$this->data       = $this->model->retrieve($options);
+		$this->data       = $this->model->retrieve($o);
 		$this->success    = $this->model->success;		
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 
@@ -167,12 +182,12 @@ class Controller extends Application
         $this->errors     = array();
         $this->warnings   = array();
     
-		$resourceData     = $this->filterPostData((array) $options + array('method' => 'update'));
+		$resourceData     = $this->filterPostData(array_merge($o, array('method' => 'update')));
         
 		if ( !empty($resourceData) )
 		{			
 			// Launch the creation
-			$this->data = $this->model->update($resourceData, $options);
+			$this->data = $this->model->update($resourceData, $o);
 			
 			// Get the success of the request
 			$this->success 	= $this->model->success;
@@ -200,7 +215,7 @@ class Controller extends Application
         $this->warnings   = array();
 
 		// Launch the creation
-		$this->model->delete($options);
+		$this->model->delete($o);
 		
 		// Get the success of the request
 		$this->success    = $this->model->success;
@@ -223,12 +238,8 @@ class Controller extends Application
 	
 	public function handleModelErrors()
 	{
-//var_dump($this->model->errors);
-		
 		foreach ((array) $this->model->errors as $errNb => $err )
-		{
-//var_dump($errNb);
-			
+		{			
 			if 		( $errNb === 1054 ){ $this->errors[4100] = $err; continue; } 	// Unknown column
 			else if ( $errNb === 1062 ){ $this->errors[] = 4030; continue; } 		// Duplicate entry error (unique key constraint)
 			elseif 	( $errNb === 1064 ){ $this->errors[] = 4020; continue; } 		// Request syntax error
@@ -238,8 +249,6 @@ class Controller extends Application
 			$this->errors[] = 4010; 
 		}
 		
-//var_dump($this->errors);
-		
 		return $this;
 	}
 	
@@ -248,7 +257,7 @@ class Controller extends Application
 	{
 		// Shortcut for options and default options
 		$o 					= &$options;
-		$rModel 			= $this->application->dataModel[$this->resourceName];
+		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		$o['indexModifier'] = !empty($o['indexModifier']) ? $o['indexModifier'] : null;
 
 		// Do not continue if there's no data to process of if data is not an array( ie: for count operations) 
@@ -333,8 +342,8 @@ class Controller extends Application
 		$resourceData     = array();
 		$rName            = &$this->application->dataModel[$this->resourceName];
 		
-		//$isApi = strpos($_SERVER['PATH_INFO'], '/api/') !== false;
-		$isApi            = !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
+		//$isApi            = !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
+		$isApi            = ( !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ) || ( isset($o['isApi']) && $o['isApi'] );
 		
 		// Loop over the data model of the resource
 		//foreach ($this->dataModel[$this->resourceName] as $fieldName => $field)
@@ -346,16 +355,26 @@ class Controller extends Application
 			// But for everywhere else, they are prefixed by the name of the resource (to avoid conflicts) [ex: userLogin, productSummary, entryExpirationtime]
 			$f = $isApi ? $fieldName : $this->resourceSingular . ucFirst($fieldName);
             
-			// If the field is required but not present, throw an error
+			// If the field is required
 			// TODO: continue looping over the fields to list all missing ones
 			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[] = 1002; return; }
 			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) )
-			if ( isset($field['required']) && $field['required'] && empty($_FILES[$f]) && empty($_POST[$f])
-			         && ( empty($o['method']) || $o['method'] !== 'update' )
-               )
-			{
-			    $this->errors[1003] = $f;
-			    return;
+			//if ( isset($field['required']) && $field['required'] && empty($_FILES[$f]) && empty($_POST[$f])
+			if ( isset($field['required']) && $field['required'] 
+				&& empty($_FILES[$f]) && empty($_POST[$f])
+				&& ( empty($o['method']) || $o['method'] !== 'update' ) )
+			{				
+				// If a default value is defined, set it
+				//if ( isset($field['default']) || is_null($field['default']) )
+				if ( array_key_exists('default', (array) $field) )
+				{
+					$_POST[$f] = $field['default'];
+				}
+				else
+				{
+				    $this->errors[1003] = $f;
+				    return;	
+				}
             }
 			
 			// if the POST data for each field exists

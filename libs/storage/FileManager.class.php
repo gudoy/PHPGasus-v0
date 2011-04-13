@@ -48,7 +48,7 @@ class FileManager extends Application
 			'text/plain' 						=> 'txt',
 
 			# Image files
-			'image/jpeg' 						=> 'jpeg',
+			'image/jpg' 						=> 'jpg',
 			'image/jpeg' 						=> 'jpg',
 			'image/png' 						=> 'png',
 			'image/gif' 						=> 'gif',
@@ -165,8 +165,6 @@ class FileManager extends Application
 		$cur = $currentFilePath;
 		$new = $newFilePath;
 		
-//var_dump($cur);
-//var_dump($new);
 		
 		$this->success = !empty($cur) && !empty($new) ? @ftp_rename($this->ftp, $cur, $new) : false;
 		

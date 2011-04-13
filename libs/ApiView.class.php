@@ -4,6 +4,12 @@ class_exists('View') || require(_PATH_LIBS . 'View.class.php');
 
 class ApiView extends View
 {
+	public function __construct(&$application = null)
+	{
+	    $this->application = &$application;
+        
+		parent::__construct($application);
+	}
 	
 	public function validateRequest()
 	{
@@ -36,7 +42,8 @@ class ApiView extends View
 		$m = !empty($v['method']) ? $v['method'] : 'index'; 			// Shortcut for view method
 		
 		$this->data['view']['template'] 	= !empty($v['template']) ? $v['template'] : 'common/pages/api/resource/' . $m . '.tpl';
-		$this->data['view']['resourceName'] = !empty($this->resourceName) ? $this->resourceName : null;
+		// DEPRECATED: use $data.current.resource instead
+		//$this->data['view']['resourceName'] = !empty($this->resourceName) ? $this->resourceName : null;
 		$this->data['view']['css'] 			= array('api');
 		
 		// Only for html/xhtml output, we want to be able to build a 'smart' form from the resource datamodel 
@@ -45,7 +52,7 @@ class ApiView extends View
 			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 			
 			$this->data['dataModel'] = $dataModel;
-			$this->data['resources'] = $resources;
+			$this->data['_resources'] = $resources;
 		}
 		
 		return parent::render();

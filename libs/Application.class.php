@@ -5,7 +5,8 @@
 class Application
 {
 	var $debug 	= false;
-	var $logged = null;
+	//var $logged = null;
+	var $logged = false;
 	var $inited = false;
 	
 	public function __construct()
@@ -15,19 +16,24 @@ class Application
 	
 	public function init()
 	{
+        $this->log(__METHOD__);
+        
 		if ( $this->inited ) { return $this; }
 		
 		// 
 		spl_autoload_register('Application::__autoload'); 
 		
+        //$this->configEnv();
 		$this->handleSession();
 		$this->setlanguage();
+        
 		
 		$this->inited = true;
 	}
 	
 	static function __autoload($className)
 	{
+        
 		$firstLetter 	= $className[0];
 		$secondIsUpper 	= $className[1] === strtoupper($className[1]);
 		
@@ -42,6 +48,8 @@ class Application
     
     public function setResource($options = array())
     {
+        //$this->log(__METHOD__);
+        
         // Do not continue if the resourceName is already defined
         if ( !empty($this->resourceName) ){ return $this; }
         
@@ -54,7 +62,8 @@ class Application
         if ( !empty($o['class']) ){ $name = strtolower(substr($o['class'], 1)); }
         
         $this->resourceName     = $name;
-        $this->resourceSingular = !empty($singular) ? $singular : $this->singularize((string) $name);
+        //$this->resourceSingular = !empty($singular) ? $singular : $this->singularize((string) $name);
+        $this->resourceSingular = !empty($singular) ? $singular : Tools::singularize((string) $name);
         
         return $this;
     }
@@ -63,7 +72,7 @@ class Application
 	// TODO: clean & refactor
 	public function setlanguage($lang = '')
 	{
-		//$this->log(__METHOD__);
+		$this->log(__METHOD__);
 		
 		$accept 	= !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null;
 		$detected 	= array(
@@ -105,9 +114,9 @@ class Application
 	}
 	
 	
-	final public function handleSession()
+	public function handleSession()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Do not continue if the accounts system (and so db sessions) is not used
 		if ( !_APP_USE_ACCOUNTS ){ return $this; }
@@ -157,8 +166,6 @@ class Application
 			'limit' => 1,
 			'conditions' 	=> array(
 				'name' => $sid,
-				//array('expiration_time', '>', ("FROM_UNIXTIME('" . time() . "')")),
-				//array('expiration_time', '>', time()),
 				array('expiration_time', '>', ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) ),
 				
 			)
@@ -175,9 +182,9 @@ class Application
 	
 	
 	
-	final public function isLogged()
+	public function isLogged()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Do not continue if the accounts system (and so db sessions) is not used
 		if ( !_APP_USE_ACCOUNTS ){ return $this; }
@@ -194,21 +201,16 @@ class Application
 		$sessExp	 	= !empty($session) 
 							? (is_numeric($session['expiration_time']) ? $session['expiration_time'] : strtotime($session['expiration_time']) )
 							: null;
-		//$this->logged 	= !empty($sessExp) && $sessExp > time() && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
 		$time 			= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
 		$this->logged 	= !empty($sessExp) && $sessExp > $time && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
-		
-		
-		
-//$this->dump('islogged: ' . $this->logged);
 		
 		return $this->logged;
 	}
 	
 	
-	final public function requireLogin()
+	public function requireLogin()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Do not continue if the accounts system (and so db sessions) is not used
 		if ( !_APP_USE_ACCOUNTS ){ return $this; }
@@ -219,7 +221,7 @@ class Application
 		$curURL = $this->currentURL();
 		$t 		= parse_url($curURL);
 		$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
-		
+        
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
 		if ( !$this->isLogged() )
 		{	
@@ -230,25 +232,6 @@ class Application
 		return $this;
 	}
 	
-    public function getURLParams($url = '')
-    {
-        $url    = !empty($url) ? $this->currentURL() : $url;
-        $params = array();
-	
-        if ( empty($url) ){ return $params; }
-        
-        $urlParts   = parse_url($url);
-        $query      = !empty($urlParts['query']) ? $urlParts['query'] : '';
-        
-        foreach ( (array) explode('&', $query) as $item)
-        {
-            $parts              = explode('=', $item);
-            $params[$parts[0]]  = !empty($parts[1]) ? $parts[1] : null; 
-        }
-        
-        return $params;
-    }
-    
 	
 	/* 
 	 * This function gets, in an URL string, the value of the param given in the function call
@@ -258,7 +241,7 @@ class Application
 	// TODO: refactor using parse_str() ???
 	public function getURLParamValue($requestedURL, $requestedParamName)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Get start position of the param from the ?
 		$markP 			= strpos($requestedURL, "?");
@@ -287,7 +270,7 @@ class Application
 	
 	public function dispatch($uri = '')
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$uri 			= $uri === '' ? $_SERVER["PATH_INFO"] : $uri;
 		$s 				= explode("/", $uri);				// Split the URI into segments
@@ -361,59 +344,61 @@ class Application
 		}
 	}
 	
+    
 	public function dump($data, $options = null)
-	{		
+	{        
 		//if ( in_array(_APP_CONTEXT, array('local','dev')) || $this->options['debug'] )
 		if ( in_array(_APP_CONTEXT, array('local','dev')) )
 		{
-			class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
+			//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
+			//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHP/fb.php'); 
+            //class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHP/Init.php');
+            class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');
+            
+            //var_dump($data);
 			FirePHP::getInstance(true)->log($data);
 		}
 		
-		//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
-		//FirePHP::getInstance(true)->log($data);
-		
 		return $this;
 	}
+    
+    
+    public function log($data = null, $options = null)
+    {        
+        return ($this->debug || (isset($this->options['debug']) && $this->options['debug'])) ? $this->dump($data, $options) : null;
+    }
 
 
 	public function isInDebugMod()
 	{
+        $this->log(__METHOD__);
+        
 		return ($this->debug || $this->options['debug']) && in_array(_APP_CONTEXT, array('local','dev', 'preprod'));
 	}
 
 	
-	public function log($data = null, $options = null)
-	{
-		if ( $this->debug && _ALLOW_FIREPHP_LOGGING && !empty($data) && ( in_array(_APP_CONTEXT, array('local','dev', 'preprod')) || $this->options['debug'] ) )
-		{
-			class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
-			
-			//ob_start();
-			
-			FirePHP::getInstance(true)->log($data);
-			
-		}
-		
-		return $this;
-	}
-	
-	
 	public function configEnv()
-	{		
+	{
+        $this->log(__METHOD__);
+        
 		$this->env = array(
 			'name' => _APP_CONTEXT,
 			'type' => in_array(_APP_CONTEXT, array('local','dev')) && !isset($_GET['PRODJS']) ? "dev" : "prod",
 		);
-		
+        
 		if ( $this->env['type'] === 'dev' )
 		{
 			if ( _ALLOW_FIREPHP_LOGGING )
 			{		
-				//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
 				ob_start();
 				
-				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');	
+				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');
+                //class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHP/Init.php');
+				
+                //define('INSIGHT_IPS', '*');
+                //define('INSIGHT_AUTHKEYS', 'AAC8FCFBD667AE9AC51A54D3318CA411');
+                //define('INSIGHT_PATHS', _PATH_LIBS . 'tools/FirePHP/Insight');
+                //define('INSIGHT_SERVER_PATH', '/index.php');	
 			}
 			
 			error_reporting(E_ALL);
@@ -421,7 +406,8 @@ class Application
 			//$this->Smarty->debugging 		= true;
 			
 			ini_set('xdebug.var_display_max_depth', 6);
-			ini_set('xdebug.var_display_max_data', 4096);
+			//ini_set('xdebug.var_display_max_data', 4096);
+			ini_set('xdebug.var_display_max_data', 40000);
 		}
 		else
 		{
@@ -430,33 +416,29 @@ class Application
 		}
 
 		// Force timezone
+		//$old = date_default_timezone_get();
 		date_default_timezone_set('UTC');
-		
-		$this->log(__METHOD__);
 		
 		return $this;
 	}
 	
 	
-	/**
-	 * Return the current URL
-	 * 
-	 * @return string
-	 */	
 	public function currentURL()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		if ( isset($this->currentURL) ){ return $this->currentURL; }
 		
-		$this->currentURL = 'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' :'' ) . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+		//$this->currentURL = 'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' :'' ) . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+		$this->currentURL = Tools::getCurrentURL();
 		
 		return $this->currentURL;
 	}
 	
+    
 	public function isSubdomain($subdomain)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$domain = _DOMAIN;
 		$sn 	= $_SERVER['SERVER_NAME']; // Shortcut for server name
@@ -476,7 +458,7 @@ class Application
 	
 	public function requireClass($name, $type, $shortPath = '')
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		switch ($type)
 		{
@@ -493,9 +475,10 @@ class Application
 		return $this;
 	}
 	
+    
 	public function requireControllers($names)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$names = is_string($names) ? explode(',',$names) : $names;
 		
@@ -507,9 +490,10 @@ class Application
 		return $this;	
 	}
 	
+    
 	public function requireModels($names)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$names = is_string($names) ? explode(',',$names) : $names;
 		
@@ -521,9 +505,10 @@ class Application
 		return $this;	
 	}
 
+
 	public function requireViews($names)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$names = is_string($names) ? explode(',',$names) : $names;
 		
@@ -535,9 +520,10 @@ class Application
 		return $this;	
 	}	
 	
+    
 	public function requireLibs($names)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		foreach ( (array) $names as $key => $val )
 		{
@@ -548,181 +534,9 @@ class Application
 	}
 	
 	
-	/**
-	 * Remove params (and theirs values) from a string (or url)
-	 * 
-	 * @param string|array $paramNames name of a param or array of params name
-	 * @param string $replaceIn a string or URL in valid query format (param1=value1&param2=value2...)
-	 * @return string cleaned string
-	 */
-	public function removeQueryParams($paramNames, $replaceIn)
-	{
-		$this->log(__METHOD__);
-		
-		$cleaned = $replaceIn;
-		
-		foreach ((array)$paramNames as $paramName)
-		{
-			$cleaned = preg_replace('/(.*)[&]$/', '$1', preg_replace('/(.*)' . $paramName . '[=|%3D|%3d](.*)(&|$)/U','$1', $cleaned));
-		}
-		
-		return $cleaned;
-	}
-	
-	
-	public function singularize($plural)
-	{		
-		$len 	= strlen($plural);
-		$sing 	= $plural;  		// Default
-		
-		if 		( $len >= 5 && substr($plural, -4) === 'uses' )		{ $sing = preg_replace('/(.*)uses/','$1us', $plural); }
-		else if ( $len >= 4 && substr($plural, -3) === 'ses' )		{ $sing = preg_replace('/(.*)ses/','$1ss', $plural); }
-		else if ( $len >= 4 && substr($plural, -3) === 'hes' )		{ $sing = preg_replace('/(.*)hes/','$1h', $plural); }
-		else if ( $len >= 4 && substr($plural, -3) === 'ies' )		{ $sing = preg_replace('/(.*)ies$/','$1y', $plural); }
-		else if ( $len >= 4 && substr($plural, -3) === 'oes' )		{ $sing = preg_replace('/(.*)oes$/','$1o', $plural); }
-		else if ( $len >= 4 && substr($plural, -3) === 'ves' )		{ $sing = preg_replace('/(.*)ves$/','$1f', $plural); }
-		else if ( $len >= 2 && $plural[$len-1] === 'a' ) 			{ $sing = preg_replace('/(.*)a$/','$1um', $plural); }
-		else if ( $len >= 2 && $plural[$len-1] === 's' ) 			{ $sing = preg_replace('/(.*)s$/','$1', $plural); }
-		
-		return $sing;
-	}
-	
-	public function pluralize($singular)
-	{		
-		$len = strlen($singular);
-		$plu = $singular;  			// Default
-		
-		if 		( $len >= 3 && substr($singular, -2) === 'us' )		{ $plu = preg_replace('/(.*)us/','$1uses', $singular); }
-		else if ( $len >= 3 && substr($singular, -2) === 'ss' )		{ $plu = preg_replace('/(.*)ss/','$1ses', $singular); }
-		else if ( $len >= 3 && $singular[$len-1] === 'h' )			{ $plu = preg_replace('/(.*)h/','$1hes', $singular); }
-		else if ( $len >= 3 && $singular[$len-1] === 'y' )			{ $plu = preg_replace('/(.*)y/','$1ies', $singular); }
-		else if ( $len >= 3 && $singular[$len-1] === 'o' )			{ $plu = preg_replace('/(.*)o/','$1oes', $singular); }
-		else if ( $len >= 3 && $singular[$len-1] === 'f' )			{ $plu = preg_replace('/(.*)f/','$1ves', $singular); }
-		else if ( $len >= 3 && substr($singular, -2) === 'um' )		{ $plu = preg_replace('/(.*)um/','$a', $singular); }
-		else if ( $len >= 2 )										{ $plu = $singular . 's'; }
-		
-		return $plu;
-	}
-
-	
-	public function deaccentize($str)
-	{
-		$charsTable = array(
-			'Š'=>'S', 'š'=>'s', 'Đ'=>'Dj', 'đ'=>'dj', 'Ž'=>'Z', 'ž'=>'z', 'Č'=>'C', 'č'=>'c', 'Ć'=>'C', 'ć'=>'c',
-			'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
-			'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O',
-			'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss',
-			'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e',
-			'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o',
-			'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b',
-			'ÿ'=>'y', 'Ŕ'=>'R', 'ŕ'=>'r',
-		);
-		return strtr($str,$charsTable);
-	}
-	
-	public function strtolower_utf8($string)
-	{
-		$convert_to = array(
-		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
-		"v", "w", "x", "y", "z", "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï",
-		"ð", "ñ", "ò", "ó", "ô", "õ", "ö", "ø", "ù", "ú", "û", "ü", "ý", "а", "б", "в", "г", "д", "е", "ё", "ж",
-		"з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы",
-		"ь", "э", "ю", "я"
-		);
-		$convert_from = array(
-		"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U",
-		"V", "W", "X", "Y", "Z", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï",
-		"Ð", "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж",
-		"З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ъ",
-		"Ь", "Э", "Ю", "Я"
-		);
-		
-		return str_replace($convert_from, $convert_to, $string); 
-	}
-	
-	/*
-	 * Always returns an array. If a string is passed, explodes it on ',' 
-	 */
-	public final function arrayify($value)
-	{
-		return is_array($value) ? $value : preg_split("/,+\s*/", (string) $value);
-	} 
-	
-	
-	// function found on http://forum.webrankinfo.com/fonctions-pour-creer-slug-seo-friendly-url-t99376.html
-	/*
-	public function slugify( $url, $type = '' )
-	{
-	    $url = preg_replace("`\[.*\]`U","",$url);
-	    $url = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$url);
-	    $url = htmlentities($url, ENT_NOQUOTES, 'utf-8');
-	    $url = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig);`i","\\1", $url );
-	    $url = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $url);
-	    $url = ( $url == "" ) ? $type : strtolower(trim($url, '-'));
-		
-	    return $url;
-	}*/
-	
-	// function found on http://forum.webrankinfo.com/fonctions-pour-creer-slug-seo-friendly-url-t99376.html
-    public function slugify($string)
-    {
-        // remplace les caractères accentués par leur version non accentuée
-        //$id = strtr($string,'ŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ', 'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
-        $id = $this->deaccentize($string);
-
-        // remplace les caractères non standards
-        $id = preg_replace(
-                array(
-                    '`^[^A-Za-z0-9]+`',
-                    '`[^A-Za-z0-9]+$`',
-                    '`[^A-Za-z0-9]+`' ),
-                array('','','-'),
-                $id );
-
-        return $id;
-    }
-	
-	
-	public function generateUniqueID($options = array())
-	{
-		// Get passed options or default them
-		$o 			= array_merge(array(
-			'length' 			=> 8,
-			//'check' 			=> true,
-			'resource' 			=> null,
-			'field' 			=> null,
-			'preventNumsOnly' 	=> true,
-			'preventAlphaOnly' 	=> false, // TODO
-		), $options);
-		
-		$alpha 		= 'abcdefghjkmnpqrstuvwxyz'; 	// all letters except i,o,l (prevent reading confusions)
-		$num 		= '23456789'; 					// all numerics except 1 (prevent reading confusions)
-		$wref 		= '';
-		while ( strlen($wref) < $o['length'] )
-		{
-			$wref .= mt_rand(1,2) === 1 ? $alpha[mt_rand(1, 23)-1] : $num[mt_rand(0, 7)];
-		}
-		
-		// Prevents id having numerics only to prevent conflict with ids in database on "smart searchs" ( retrieve(array('by' => 'id,uid', 'value' => $value)) 
-		if ( $o['preventNumsOnly'] && is_numeric($wref) ) { $this->generateUniqueID($o); }
-		
-		// TODO: check if resource & resource field exist in datamodel
-		if ( !empty($o['resource']) && !empty($o['resource'])  )
-		{
-			$cName 		= 'C' . ucfirst($o['resource']);
-			$ctrl 		= new $cName();
-			$isUnique 	= $ctrl->retrieve(array('by' => $o['field'], 'values' => $wref, 'mode' => 'count'));
-			
-			if ( !empty($isUnique) || ($o['preventNumsOnly'] && is_numeric($wref)) ) { $this->generateUniqueID($o); }	
-		}
-		
-		return $wref;
-	}
-	
-	
 	public function XML2Array($xml, $recursive = false, $options = array())
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$o = array_merge(array(
 			'type' => 'xml',
@@ -772,7 +586,7 @@ class Application
 	
 	public function wsCall($uri, $options = array())
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$o = $options; // Shortcut for options
 		

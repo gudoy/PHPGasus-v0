@@ -200,7 +200,11 @@ class Plist
 					$exp .= "<integer>".$array[$i]."</integer>".$nl; 
 					break;
 				case "double": 
+					$oldLocale = setlocale(LC_ALL, NULL);
+					setlocale(LC_ALL, "en_US.utf8");
 					$exp .= "<real>".$array[$i]."</real>".$nl;
+					//$exp .= "<real>".number_format($array[$i], 10, '.')."</real>".$nl;
+					setlocale(LC_ALL, $oldLocale);
 					break;
 				default:
 			}

@@ -1,20 +1,52 @@
 var admin =
 {
-	//resourceName: ($('table.adminTable').attr('id') || '').replace(new RegExp('Table','g'),''),
 	resourceName: $('#resourceName').attr('class') || '',
-	resourceSingular: $('#resourceSingular').attr('class') || '',
+	resourceSingular: $('#resourceName').attr('data-singular') || '',
 	
 	relResTimeout: null,
 	relResHideTimeout: null,
 	
 	init: function()
 	{
-		return this.menu();
+//Tools.log('isMobile: ' + app.isMobile);
+		
+		// We do not need selectable rows on mobile
+		/*
+		if ( !app.isMobile )
+		{
+		    Tools.loadJS([
+	            {url:'/public/javascripts/common/libs/jquery-ui-1.8.9.custom.min.js'},
+	            {url:'/public/javascripts/common/libs/jquery-ui-timepicker-addon.js'},
+	        ], function()
+	        {
+	        });
+		}*/
+		
+		//Tools.loadCSS('/public/stylesheets/default/jquery-ui-1.8.9.custom.css');
+        
+	    adminSearch.init();
+	    
+	    this.menu();
+	    
+		return this;
 	},
 	
 	menu: function()
 	{
 		//app.intercept('#adminMenuBlock, #topPaginationBlock, #bottomPaginationBlock', {action:'clickDelegate', dest:'#mainCol'});
+		
+		$('#adminMainNav').bind('click',function(e)
+		{
+		    var $this     = $(this),
+		        t         = e.target,
+		        $t        = $(t),
+		        $LIlv1    = $t.closest('li.item-lv1', $this);
+		        
+            $LIlv1
+                .toggleClass('expanded')
+                .siblings().removeClass('expanded');
+		         
+		});
 		
 		return this;
 	},
@@ -88,14 +120,15 @@ var admin =
 					//.appendTo('table.adminTable tbody').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
 					//.insertBefore('table.adminTable tbody tr:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
 					.insertAfter('table.adminTable tbody tr.dataRow:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
-					.find('td.colSelectResources :checkbox').val(createdId).end()
+					.find('td.colSelectResources :checkbox').val(createdId).attr('checked','false').end()
 					.find('td.actionsCol a')
 						//.attr('href', function(){ return $(this).attr('href').replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 						.attr('href', function(i,value){ return value.replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 					.find('td.idCol .value')
 						//.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
 						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); })
-						.text(createdId).siblings('.exactValue').text(createdId).end()
+						//.text(createdId).siblings('.exactValue').text(createdId).end()
+						.text(createdId).attr('data-exactvalue','createdId')
 					.find('td.dataCol .value')
 						//.attr('id', function(){ return $(this).attr('id').replace(new RegExp(cloneId), createdId); }).end()
 						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
@@ -567,19 +600,23 @@ var admin =
 	
 	handleDateFields: function()
 	{
-		$('input.datetime', 'form')
-			//.datepicker({
-            .datetimepicker({ 
-				duration: '',  
-				//dateFormat: 'yy-mm-dd',
-				dateFormat: $.datepicker.W3C,
-				showTime: true,  
-				constrainInput: false,  
-				stepMinutes: 1,  
-				stepHours: 1,  
-				altTimeField: '',  
-				time24h: true  
-		});
+		// If the datepicker module is loaded
+		if ( $.datetimepicker )
+		{
+			$('input.datetime', 'form')
+				//.datepicker({
+	            .datetimepicker({ 
+					duration: '',  
+					//dateFormat: 'yy-mm-dd',
+					dateFormat: $.datepicker.W3C,
+					showTime: true,  
+					constrainInput: false,  
+					stepMinutes: 1,  
+					stepHours: 1,  
+					altTimeField: '',  
+					time24h: true  
+			});	
+		}
 		
 		return this;
 	},
@@ -666,17 +703,15 @@ var adminIndex =
 	context: 'table.adminTable',
 	
 	init: function()
-	{
+	{	    
 		var self 	= this;
-			
+
 		admin.init();
-		
-		if ( $(self.context).width() > $(self.context).closest('.adminListingBlock', '#mainCol').width() ){ $(self.context).css({'display':'block','overflow':'hidden','overflow-x':'scroll'}); }
 		
 		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
         $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
         $('a.duplicateAllLink').click(function(e) { e.preventDefault(); admin.duplicate($('tbody tr.ui-selected:visible', self.context)); });
-		
+
 		$('.filterLink')
 		.bind('click', function(e)
 		{
@@ -684,35 +719,42 @@ var adminIndex =
 		    
 		    var destId = $(this).attr('href');
             
-            $(destId).fadeToggle();
+            //$(destId).fadeToggle( function(){} );
             //$(destId).show();
-		});	       
+            $(destId).toggleClass('active');
+		});
+
+		// We do not need selectable rows on mobile
+		if ( !app.isMobile )
+		{
+			$(self.context)
+				.find('tbody')
+				.selectable(
+				{
+					filter: 'tr.dataRow',
+					distance: 20,
+					cancel: 'div.value, input',
+					selecting: function(event, ui)
+					{
+						$(ui.selecting)
+							.find('td.colSelectResources input:checkbox')
+							.attr('checked','checked')
+					},
+					unselecting: function()
+					{
+						$(ui.selecting)
+							.find('td.colSelectResources input:checkbox')
+							.removeAttr('checked');
+					}
+				});
+		}
 
 		// Loop over all the delete buttons in the table
 		$(self.context)
-			.selectable(
-			{
-				filter: 'tr.dataRow',
-				distance: 20,
-				cancel: 'div.value, input',
-				selecting: function(event, ui)
-				{
-					$(ui.selecting)
-						.find('td.colSelectResources input:checkbox')
-						.attr('checked','checked')
-				},
-				unselecting: function()
-				{
-					$(ui.selecting)
-						.find('td.colSelectResources input:checkbox')
-						.removeAttr('checked');
-				}
-			})
 			.parent()
 			.click(function(e)
 			{
-//Tools.log('index click handler');
-				
+
 				var t 			= e.target, 						// Shortcut for event target
 					jt 			= $(t),								// Shortcut for event target jqueryfied
 					tmpA 		= jt.closest('a'),					// Try to get closest anchor tag
@@ -757,29 +799,7 @@ var adminIndex =
 				
 				//window.location.href = a.attr('href');
 			})
-			.find('a')
-			.hover(function(e)
-			{
-				var t 			= e.target, 					// Shortcut for event target
-					a			= $(t).closest('a') || null, 	// Try to get closest anchor tag
-					intercept 	= a !== null ? true : false; 	// Do we need to intercept click (no if no an anchor)
-					
-				// Just return if we do not need to intercept the click
-	
-				
-				if ( a.hasClass('relResourceLink') )
-				{
-					//admin.relResTimeout = setTimeout(function(){ admin.relatedResource(a,e); }, 250);
-				}
-				
-			}, function(e)
-			{
-				var that = this;
-				
-				//clearTimeout(admin.relResTimeout);
-				
-				//admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
-			});
+			;
 			
 		self
 		  .handleToolbars()
@@ -804,8 +824,6 @@ var adminIndex =
 		                      - parseInt(cBlock.css('padding-top')) - parseInt(cBlock.css('padding-bottom')) 
 		                      - parseInt(cBlock.css('border-top-width')) - parseInt(cBlock.css('border-bottom-width'))
 		                    ) || cBlock.css('height');
-		    
-//Tools.log('tbodyH:' + tbodyH);
 		    
 		    // Display the block
 		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); cBlock.toggleClass('hidden') });
@@ -907,12 +925,10 @@ var adminIndex =
 			all 	= $('input:checkbox:visible', self.context);
 		
 		if ( action === 'check' )	{ all.attr('checked','checked').closest('tr').addClass('ui-selected'); }
-		else 						{ all.removeAttr('checked'); }
+		else 						{ all.removeAttr('checked').closest('tr').removeClass('ui-selectee ui-selected'); }
 		
 		return this;
 	},
-	
-	//delete
 	
 	getResourceId: function(jqObj)
 	{
@@ -921,7 +937,6 @@ var adminIndex =
 		return tr.attr('id').replace(/row/,'');
 	},
 	
-	
 	handleToolbars: function()
 	{
 	    var self           = this;
@@ -929,53 +944,52 @@ var adminIndex =
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
 	       
 	    $(toolbarsContext)
-	    .each(function()
-	    {
-	        $(this)
-	           .find('select')
-               .bind('change', function(e)
-               {
-                   e.preventDefault();
-                   
-                   var $t   = $(this);
-                       
-                   if ( $t.is('#itemsPerPageTop') || $t.is('#itemsPerPageBottom') )
-                   {
-                        var newLimit   = $t.val(), 
+		    .each(function()
+		    {
+		    	var $this = $(this);
+		    	
+		        $this
+		           .find('select')
+		               .bind('change', function(e)
+	                   {
+	                       e.preventDefault();
+	                       
+	                       var $t   = $(this);
+	                           
+	                       if ( $t.is('#itemsPerPageTop') || $t.is('#itemsPerPageBottom') )
+	                       {
+	                            var newLimit   	= $t.val(), 
+	                                curURL      = window.location.href,
+	                                cleaned     = Tools.removeQueryParam(curURL, 'limit'),
+	                                newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'limit=' + newLimit;
+	    
+	                            window.location.href = newURL;
+	                       }
+	                   })
+	               .end()
+	               .find('input.pageNb')
+	               .bind('change', function(e)
+	               {
+	               		e.preventDefault();
+	               		e.stopPropagation();
+	               	
+                        var input 		= $(this);
+                        	newPage   	= input.val(), 
                             curURL      = window.location.href,
-                            cleaned     = Tools.removeQueryParam(curURL, 'limit'),
-                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'limit=' + newLimit;
-
-                        window.location.href = newURL;
-                   }
-               })
-               /*
-               .end()
-               .find('input')
-	           .css('border','1px solid red')
-	           .bind('submit', function(e)
-	           {
-	               e.preventDefault();
-	               e.stopPropagation();
-	               
-	               var $t   = $(this);
-	                   
-	               if ( $t.is('#pageOffsetTop') || $t.is('#pageOffsetBottom') )
-                   {
-                        var newOffset   = (($t.val() || 0) - 1)*($t.closest('.toolbar').find('select.itemPerPage').val() || 50), 
-                            curURL      = window.location.href,
-                            //newURL      = curURL.replace(/(.*[\?|\&])(offset\=[\d]*)([\?|\&|$])(.*)$/, '$1limit=' + newLimit + '$3$4');
-                            //newURL      = curURL.replace(/(.*[\?|\&])(offset\=[\d]*)([\&|\&amp;]*)(.*)$/, '$1limit=' + newLimit + '$3$4');
-                            //cleaned     = curURL.replace(/limit\=[\d]*([\&|\&amp;|$])/, '$1'),
-                            cleaned     = Tools.removeQueryParam(curURL, 'offset'),
-                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'offset=' + newOffset;
-Tools.log('curURL:' + curURL);
-Tools.log('newOffset:' + newOffset);
-Tools.log('newURL:' + newURL);
-                        //window.location.href = newURL;
-                   }
-	           });*/
-	    });
+                            cleaned     = Tools.removeQueryParam(curURL, 'page'),
+                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'page=' + newPage,
+                            form 		= input.closest('form');
+                           
+                        //if ( !Modernizr.input.formaction )
+                        {
+                        	form.attr('action',newURL).append($('<input />', {'type':'hidden','name':'method','value':'index'})).submit();	
+                        }
+                        // Otherwise, the formaction attribute should override the one of the form
+                        // everything should go well
+						
+	               })
+	               //.find('> .paginationButtons').bind('click', function(e){ $(this).toggleClass('expanded'); })
+		    });
 	    
 	    return this;  
 	},
@@ -984,8 +998,6 @@ Tools.log('newURL:' + newURL);
 	{		
 		this.init = function(jqObj)
 		{
-//Tools.log('inlineedit init');
-			
 			var self = this;
 			
 			this.context = jqObj;
@@ -997,21 +1009,20 @@ Tools.log('newURL:' + newURL);
 			this.subtypeClass 	= this.classes.match(/subtype[A-Z]{1}\w*/g) ? this.classes.match(/subtype[A-Z]{1}\w*/g)[0] : '',
 			this.type 			= this.typeClass.replace(/type/g,'').toLowerCase(); 					// Get the column data type
 			this.subtype 		= this.subtypeClass.replace(/subtype/g,'').toLowerCase(); 					// Get the column data type
-			this.valCtnr 		= this.context.find('> .dataValue:first'); 								// Store a reference to the value container
+			//this.valCtnr 		= this.context.find('> .dataValue:first'); 								// Store a reference to the value container
+			this.valCtnr 		= this.context.find('> .dataValue'); 								// Store a reference to the value container
 			this.curVal 		= this.valCtnr.text() || ''; 											// Get the current value
-			this.exactVal 		= this.valCtnr.siblings('.exactValue').text() || '';
+			//this.exactVal 		= this.valCtnr.siblings('.exactValue').text() || '';
+			this.exactVal 		= this.valCtnr.attr('data-exactvalue') || '';
 			this.boolVal		= this.valCtnr.find('.validity').hasClass('valid') || false
 			//this.colName 		= $('> .columName:first', this.context).text() || ''; 							// Get the column name
 			this.colName 		= admin.resourceSingular + Tools.ucfirst(this.context.attr('headers').split(' ')[1] || '').replace(/(.*)Col/,'$1'); 							// Get the column name
 			this.resId 			= this.context.closest('tr').attr('id').replace(/row/,'') || '';
 			//this.url 			= $('> .fullAdminPath:first', this.context).text() || false; 						// Get the resource url
-			this.url 			= window.location.href.replace(/(.*)[\?|$](.*)/,'$1') + this.resId;
+			this.url 			= window.location.href.replace(/(.*)[\?|$](.*)/,'$1').replace(/(.*)\/$/,'$1') + '/' + this.resId;
 			this.saving 		= false;
 			//this.inputType 	= this.type === 'timestamp' ? 'datetime' : 'text';
 			this.inputType 		= 'text';
-
-//Tools.log(this.colName);
-//Tools.log(this.url);
 
 			if ( !this.url ){ return this; }
 			
@@ -1037,11 +1048,9 @@ Tools.log('newURL:' + newURL);
 					break;
 			}
 
-			this.buttonsHTML 	= '<div class="actionsBlock">'
-									+ '<button class="adminLink saveLink" type="submit" id="saveLink' + this.resId +'">' 
-									+ '</button>'
-									+ '<button class="adminLink cancelLink" type="cancel" id="cancelLink' + this.resId +'">' 
-									+ '</button>'
+			this.buttonsHTML 	= '<div class="actions actionsBlock">'
+									+ '<button class="action save adminLink saveLink" type="submit" id="saveLink' + this.resId +'">save</button>'
+									+ '<button class="action cancel adminLink cancelLink" type="cancel" id="cancelLink' + this.resId +'">cencel</button>'
 								+ '</div>';
 			this.HTML 			= '<div class="ui-inlineedit-form"><form>' + this.fieldHTML + this.buttonsHTML + '</form></div>';
 
@@ -1060,8 +1069,6 @@ Tools.log('newURL:' + newURL);
 		
 		this.create = function()
 		{
-//Tools.log('create');
-			
 			var self 	= this;
 			
 			self.context
@@ -1086,8 +1093,6 @@ Tools.log('newURL:' + newURL);
 						
 						var input 	= $(this),
 							k 		= e.keyCode; 			// Shortcut for pressed keycode
-							
-//Tools.log('k:' + k);
 	
 						// If 'esc' key has been pressed, we have to destroy the inlineeditor for this field
 						if 		( k === 27 ){ self.destroy(); }
@@ -1126,8 +1131,6 @@ Tools.log('newURL:' + newURL);
 		
 		this.save = function()
 		{
-//Tools.log('save');
-			
 			// Prevent the saving request from being called twice
 			//if ( this.saving ) { return this; }
 			
@@ -1256,7 +1259,8 @@ Tools.log('newURL:' + newURL);
 								self.valCtnr.text(SHA1(input.val()));
 							});
 						}
-						else { self.valCtnr.text(input.val()).siblings('.exactValue').text(input.val()); }
+						//else { self.valCtnr.text(input.val()).siblings('.exactValue').text(input.val()); }
+						else { self.valCtnr.text(input.val()).attr('data-exactvalue',input.val()); }
 						
 						//self.context.addClass('success', 2000, function(){ self.context.removeClass('success', 2000); self.destroy(); });
 						self.context.addClass('success').removeClass('success', 5000, function(){ self.destroy(); });
@@ -1284,8 +1288,6 @@ var adminRetrieve =
 	init: function()
 	{
 		var subResContext 	= '#adminSubResourcesBlock',
-			relResContext 	= '#relatedResourcesFinder',
-		
 			context 		= 'table.adminTable',
 			self 			= this;
 			
@@ -1316,302 +1318,8 @@ var adminRetrieve =
 				
 				admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
 			});
-			
-		this.finder();
 		
 		return this;
-	},
-	
-	finder: function()
-	{
-		this.context 		= '#relatedResourcesFinder';
-		this.listContext 	= '#adminRelatedListingBlock';
-		this.displayed 		= [];
-		this.maxGroupsNb 	= 0; // Maximum number of groups found in 1 col
-		this.headersH 		= 0; // Outer height of the group headers
-		this.gpContentH 	= 0; // Outer height of the displayed group content
-		this.defaultH 		= 200;
-		this.listViewInited = false;
-			
-		this.init 			= function()
-		{
-			var self = this;
-			
-			$(self.context)
-				// Set finder height 
-				.height(self.defaultH)
-				//.bind('accordionchange click', function(e, ui)
-				.bind('click', function(e, ui)
-				{
-					// Prevent default action
-					e.preventDefault();
-					
-					var t 	= e.target, 							// Shortcut for event target
-						jT 	= $(t),									// Store a reference to the jquery target object
-						a	= jT.is('a') 
-								? jT 
-								: (ui ? ui.newHeader.find('a:first') : $('.current a:first', self.context));
-						
-					if 		( a.hasClass('relatedResourceLink') ) 		{ self.updateGroup(a); }
-					else if ( a.hasClass('relatedResourceItemLink') ) 	{ self.updateList(a); }
-				})
-				// Loop over the headers
-				.find('.ui-finder-group-header')
-					// And store group resource name into the displayed ones list, for later use 
-					.each(function(){ var resName = $(this).find('a:first').text().replace(/\s/g,'_'); self.displayed[resName] = 1; })
-				.end()
-				// Loop over the cols
-				.find('.ui-finder-col')
-					.accordion(
-					{
-						autoHeight: false,
-						clearStyle: true,
-						header: '.ui-finder-group-header'
-					})
-					//.find('.ui-finder-group:first .ui-finder-group-header a:first').click()
-					.end()
-				.end()
-				;
-			
-			return this;	
-		};
-		
-		this.updateSize = function()
-		{
-			var self 		= this;
-			
-			$('.ui-finder-col', self.context).each(function()
-			{
-				// Get the current of groups in the current col
-				var gpsNb = $('.ui-finder-group', this).length;
-				
-				// If the current item has more group than the stored maxGroupsNb   
-				if ( gpsNb > self.maxGroupsNb )
-				{
-					// Update this maxGroupsNb
-					self.maxGroupsNb = gpsNb;
-					
-					// Get the headers height, active group height and calculate total finder height accordingly
-					var headersH 	= self.headersH || $('.ui-finder-group:first .ui-finder-group-header', this).outerHeight();
-						gpContentH 	= self.gpContentH || $('.ui-accordion-content-active', this).outerHeight(),
-						tmpfH 		= self.maxGroupsNb * headersH + gpContentH,
-						fH 			= (tmpfH > self.defaultH ? tmpfH : self.defaultH) + 17; // 17 = scroll height
-						
-					// Then, update the finder height
-					$(self.context).height(fH);
-				} 
-			});
-			
-			return this;
-		}
-		
-		this.initCols = function(jCollection)
-		{
-			var self = this;
-			
-			jCollection.each(function()
-			{
-				$(this)
-					.resizable(
-					{
-						//alsoResize: $(this).siblings('.ui-finder-col')
-					});
-			});
-			
-			return this;
-		}
-		
-		this.updateGroup = function()
-		{
-			var self 			= this,
-				args 			= arguments, 										// Shortcut for arguments
-				a 				= args[0],											// Shortcut clicked <A> tag, wrapped by jquery
-				o				= args.length > 1 
-									? args[1] 
-									: {updateList:true, relParams:''},  			// Shortcut for options
-				c 				= self.context,										// Shortcut for context
-				group 			= a.closest('.ui-finder-group'),					// Shortcut for the current group
-				col 			= group.closest('.ui-finder-col'),					// Shortcut for the current column
-				curColIndex 	= $('.ui-finder-col', c).index(col), 				// Index of the current find column
-				col2createIndex = curColIndex + 1, 									// Index of the colum to create/update
-				url 			= a.attr('href') || '';
-			
-			if ( o.updateList ) { this.updateList(a, {fullList:true, updateGroup:false}); }
-			
-			$.ajax(
-			{
-				url: url,
-				//data: 'tplSelf=1' + ( self.valueFilter ? '&values=' + self.valueFilter : '' ),
-				data: 'tplSelf=1' + ( self.valueFilter ? '&values=' + self.valueFilter : '') + '&' + o.relParams,
-				type: 'GET',
-				dataType: 'html',
-				success: function(response)
-				{
-					var r		= response,
-						jR 		= $(r).css('visibility','hidden'),
-						jNewCol = $('.ui-finder-col:eq(' + col2createIndex + ')', c); 
-					
-					// If the columm to create already exists, update id
-					if ( jNewCol.length ){ jNewCol.replaceWith(jR); } 
-					
-					// Otherwise, create it
-					else
-					{ jR.appendTo(c); }
-					
-					// Reselect the newCol since it may not exists when we selected it first
-					jNewCol = $('.ui-finder-col:eq(' + col2createIndex + ')', c);
-					
-					// Before adding the data, we have to clean them (remove already displayed resource nodes)
-					self.cleanCols(jNewCol);
-					
-					jNewCol.accordion({ autoHeight: false, clearStyle: true, header: '.ui-finder-group-header'});
-
-					self
-						.initCols(jNewCol)
-						.resizeCol(jNewCol)
-						.updateSize();
-
-
-					jNewCol
-						.css('visibility','visible') 									// Make the new col visible
-						.resizable();
-
-					var newColGps 	= jNewCol.find('.ui-finder-group'), // Get the new col groups
-						newColGpsNb = newColGps.length; 				// Get their count
-						
-					// If there's only one group in the new col, force cascading
-					if ( newColGpsNb === 1 )
-					{
-						self.updateGroup(newColGps.eq(0).accordion('activate',0).find('.ui-finder-group-header a:first'), {updateList:false});
-						
-					}
-				}
-			});
-			
-			return this;
-		};
-		
-		this.cleanCols = function(jCollection)
-		{
-			var self = this;
-
-			// Loop over the passed cols
-			jCollection.each(function()
-			{
-				// For each one
-				$(this)
-					// loop over the group headers
-					.find('.ui-finder-group-header')
-						.each(function()
-						{
-							// Get the resource name and make it array index friendly
-							var resName 	= $(this).find('a:first').text().replace(/\s/g,'_'),
-								colIndex 	= $('.ui-finder-col', self.context).index($(this).closest('.ui-finder-col'));
-
-							// If the resource is not already displayed in the finder, add it to the displayed ones list
-							if ( !self.displayed[resName] ) { self.displayed[resName] = colIndex+1; }
-							// Othewise
-							else
-							{
-								// We have to delete it, but only if it is present in another col than the current one 
-								if ( self.displayed[resName] !== colIndex+1 ){ $(this).closest('.ui-finder-group').remove(); }
-							}
-						});
-			});
-			
-			return this;
-		};
-		
-		this.resizeCol = function(jCol)
-		{
-			var self 		= this,
-				maxColsW 	= 0;		// Store the max group width found
-			
-			// Loop over the group contents
-			jCol.find('.ui-finder-group-content').each(function()
-			{
-				var curMaxW = $(this).width(); // Get the current group width
-				
-				// If the current group width is highger than the store max group width
-				if ( curMaxW > maxColsW )
-				{
-					// Update the store one
-					maxColsW = curMaxW;
-					
-					// Resize the col accordingly
-					$(this).closest('.ui-finder-col').width(curMaxW);
-				}
-			});
-			
-			return this;
-		};
-		
-		this.updateList = function()
-		{
-			var self 			= this,
-				args 			= arguments, 										// Shortcut for arguments
-				a 				= args[0],											// Shortcut clicked <A> tag, wrapped by jquery
-				o				= args.length > 1 
-									? args[1] 
-									: {updateGroup:true, fullList:false},			// Shortcut for options
-				c 				= self.context,										// Shortcut for the context
-				lc 				= self.listContext, 								// Shortcut for the listView Block
-				item 			= a.closest('.ui-finder-item'),						// Get the item
-				url 			= a.attr('href') || '', 							// Get the url to use for the request
-				groupHeader		= item.closest('.ui-finder-group-content').prev(), 	// Get the group header
-				by 				= '';
-				
-			if ( o.fullList )
-			{
-//Tools.log('case 1');
-				var resL = a.siblings('.relatedResourceList').find('a');
-				 
-				url = resL.attr('href') || ''; 	// Get the url
-				by 	= resL.attr('rel') || ''; 	// Get the column name on which to filter filters by
-				//self.valueFilter = '';
-			}
-			else
-			{
-//Tools.log('case 2');
-
-				// Store the current value Filter (resource id)
-				self.valueFilter = Tools.getURLParamValue(url, 'values');
-				
-				// Update 'current' states
-				if 	( item.hasClass('current') ){ item.removeClass('current'); self.valueFilter = ''; }
-				else 							{ item.addClass('current').siblings().removeClass('current'); }
-					
-				var relParams = a.attr('href').replace(/(.*)\?(.*)/,'$2') || '';
-					
-				if ( o.updateGroup ) { this.updateGroup($('a:first', groupHeader), {updateList:false, relParams:relParams}) }				
-			}
-			
-			// Clean the url, removing the 'values' param
-			url = Tools.removeQueryParam(url, 'values');
-			
-			// Do not continue if the url is empty
-			if ( !url ){ return this; }
-			
-			$.ajax(
-			{
-				url: url,
-				data: 'tplSelf=1' + ( self.valueFilter ? '&values=' + self.valueFilter : '') + ( self.valueFilter && by ? '&by=' + by : ''),
-				type: 'GET',
-				dataType: 'html',
-				success: function(response)
-				{
-					var r = response;
-					
-					$(lc).html($('table', r));
-					
-					if ( !self.listViewInited ){ self.listViewInited = true; adminIndex.init(); }
-				}
-			});
-			
-			return this;
-		};
-		
-		this.init();
 	}
 }
 
@@ -1620,6 +1328,8 @@ var adminCreate =
 {
 	init: function()
 	{
+		admin.init();
+		
 		admin
 			.handleForeigKeyFields()
 			.handleSlugFields()
@@ -1635,7 +1345,9 @@ var adminCreate =
 var adminUpdate = 
 {
 	init: function()
-	{		
+	{
+		admin.init();
+		
 		admin
 			.handleForeigKeyFields()
 			.handleSlugFields()
@@ -1654,7 +1366,7 @@ var adminSearch =
     
     init: function()
     {
-        adminIndex.init();
+        //adminIndex.init();
         
         return this.updateResults();
     },
@@ -1662,6 +1374,18 @@ var adminSearch =
     updateResults: function()
     {
         var self = this;
+        
+        $('#adminSearchResultsBlock').live('click', function(e)
+        {
+            var $this 	= $(this),
+                t   	= e.target,
+                $t  	= $(t);
+                
+            if ( $t.closest('header', $this).length )
+            {
+                $t.closest('header').parent().removeClass('current').toggleClass('expanded');
+            }
+        });
         
         $(self.formContext)
             .bind('submit', function(e)
@@ -1671,7 +1395,12 @@ var adminSearch =
                 
                 var $this   = $(this),
                     url     = $this.attr('action') || window.location.href,
+                    reqData = $this.serialize();
                     $tbody  = $('tbody', self.context);
+                    
+                // TODO: handle this server-side instead
+                // If the the search query is empty, force the request to attack the 'index' method instead of the 'search' one
+                //if ( $('#searchQuery').val() === '') { url = url.replace(/\?(.*)/,''); reqData = null; alert(url); }
                 
                 // For touch devices, forces keyboard to disappear
                 if ( app.support.touch ) { $this.find('input[type=search]').blur(); }
@@ -1680,27 +1409,47 @@ var adminSearch =
                 {
                     url: url,
                     type: 'GET',
-                    data: $this.serialize(),
+                    data: reqData,
                     dataType: 'html',
                     beforeSend: function()
                     {
-                        $('#searchDynamicCSS').html('');
+                        $('body').append($(app.loadingBlock).attr('id','loadingBlock'));
                         
+                        if ( $('#adminSearchResultsBlock').length )
+                        {
+                            
+                            $('#adminSearchResultsBlock').empty();
+                            $('#searchDynamicCSS').empty();
+                        }
+                        else
+                        {
+                            $('#mainCol').empty();
+                        }
+                        
+                        /*
                         var $tr         = $tbody.find('tr'),
                             colsNb      = $tbody.find(':first-child').find('td').length,
                             $loading    = $('<tr class="loading"><td colspan="' + colsNb + '"><span class="message loading">loading...</span></td></tr>');
     
                         $tbody.empty().append($loading);
+                        */
+                    },
+                    error: function()
+                    {
+                        $('#loadingBlock').remove();
                     },
                     success: function(response)
                     {
-                        var r       = response,
-                            query   = $('#searchQuery').val() || '';
-                            rule    = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }";
+                        var r               = response,
+                            query           = $('#searchQuery').val() || '',
+                            rule            = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }",
+                            $resultsCtnr    = $('#adminSearchResultsBlock'), 
+                            $dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
                         
-                        $tbody.html($(r).find('tbody').html());
+                        $dest.html($(r));
                         
-                         
+                        $('#loadingBlock').remove();
+                        
                         $('#searchDynamicCSS').html(rule);
                     }
                 });

@@ -11,9 +11,8 @@ class Model extends Application
 	var $numRows       = null;
 	var $data          = null;
 	var $afterQuery    = null;
+	var $safeWrapper   = '`';
 	var $launchedQuery = null;
-	
-	private $safeWrapper   = '`';
 	
 	// Default options
 	var $options = array(
@@ -26,8 +25,8 @@ class Model extends Application
 		//'limit'                   => null, // TODO
 	);
 	
-	public function __construct(&$application)
-	{		
+	public function __construct($application)
+	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		//$this->dataModel 	= $dataModel;
@@ -38,8 +37,8 @@ class Model extends Application
         // Handle filters
 		if ( !empty($rProps['extends']) && isset($this->resources[$rProps['extends']]) )
         {
-            $parentName     = &$rProps['extends'];
-            $parentProps    = &$this->resources[$parentName];
+            $parentName     = $rProps['extends'];
+            $parentProps    = $this->resources[$parentName];
             $this->alias    = !empty($parentProps['alias']) ? $parentProps['alias'] : $parentName;
             $this->table    = !empty($parentProps['table']) ? $parentProps['table']: $parentName;            
         }
@@ -52,24 +51,10 @@ class Model extends Application
 		//  
 		if ( !empty($this->resourceName) )
 		{
-			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
-			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singularize((string) $this->resourceName);
+			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
 		}
 		
 		return $this->connect();
-	}
-
-
-    /*
-    public function log($data = null, $options = array())
-    {
-        return $this->debug ? $this->dump($data, $options): $this;
-    }*/
-
-    
-    public function dump($data = null, $options = array())
-	{
-		return $this->debug ? parent::dump($data, $options) : $this;
 	}
     
     public function init($options = array())
@@ -87,27 +72,26 @@ class Model extends Application
 	public function connect()
 	{
 		// Open a connection on the db server
-		$this->db 			= @mysql_connect(_DB_HOST, _DB_USER, _DB_PASSWORD);
+		//$this->db 			= @mysql_connect(_DB_HOST, _DB_USER, _DB_PASSWORD);
+		//$this->db           = new mysqli(_DB_HOST, _DB_USER, _DB_PASSWORD, _DB_NAME);
+		$this->db             = mysqli_connect(_DB_HOST, _DB_USER, _DB_PASSWORD, _DB_NAME);
+      
+//var_dump($this->db);
 		
 		// TODO: use error codes
 		//if ( !is_resource($this->db) ){ die('Database connection error ' . mysql_error()); }
-		if ( !is_resource($this->db) ){ $this->errors[] = 4000; die('Database connection error : ' . mysql_errno() . ": " . mysql_error()); }
-		
-		$this->selectedDb 	= @mysql_select_db(_DB_NAME, $this->db);
-		
-		// TODO: use error codes
-		if ( !$this->selectedDb ) { $this->errors[] = 4001; die('Database selection error'); }
-		
+		if ( !$this->db ){ $this->errors[] = 4000; die('Database connection error : ' . mysqli_connect_errno() . ": " . mysqli_connect_error()); }
+        
 		// Tell mysql we are sending already utf8 encoded data
-		mysql_query("SET NAMES 'UTF8'");
+		//mysql_query("SET NAMES 'UTF8'");
+		//$this->db->query("SET NAMES 'UTF8'");
+		mysqli_set_charset($this->db, "utf8");
 		
 		return $this;
 	}
 	
 	public function query($query, $options = null)
 	{
-	    if ( defined('_APP_USE_SQL_FETCH_V2') && _APP_USE_SQL_FETCH_V2 ){ return $this->query_new($query, $options); }
-        
 		$this->data = null;
 		
 		// Connect to the db
@@ -120,32 +104,39 @@ class Model extends Application
 		$this->launchedQuery 	= $query;
 		
 		// Do the query
-		$queryResult 			= mysql_query($query, $this->db);
+		//$queryResult 			= mysql_query($query, $this->db);
+        $this->queryResult          = mysqli_query($this->db, $query);
 		
-//$this->dump($queryResult);
-		
-		// 
-		//$this->success 			= is_bool($queryResult) && $queryResult === false ? false : true;
-		$this->success 			= is_bool($queryResult) && !$queryResult ? false : true;
-		//$this->success 			= !(is_bool($queryResult) && !$queryResult);
-		//$this->success 				= is_bool($queryResult) && $queryResult;
+        
+$this->dump($this->queryResult);
+        
+		$this->success 			= is_bool($this->queryResult) && $this->queryResult;
 
 		// If the request succeed
 		if ( $this->success )
 		{
 			// Get number of rows affetected by a insert, update, delete request
-			$this->affectedRows = mysql_affected_rows($this->db);
+			//$this->affectedRows = mysql_affected_rows($this->db);
+            $this->affectedRows = mysqli_affected_rows($this->db);
+      
+//var_dump($this->affectedRows);    
+//die();
 			
 			// Get number of selected rows (for select request)
-			$this->numRows 		= is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
+            //$this->numRows 		= is_resource($this->queryResult) ? mysql_num_rows($this->queryResult) : 0;
+            $this->numRows      = is_resource($this->queryResult) ? mysqli_num_rows($this->queryResult) : 0;
+            
+            
+//var_dump($this->numRows);
 			
-			if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
+            if ( $o['type'] === 'insert' ){ $this->insertedId = mysqli_insert_id($this->db); }
 			
 			// If the request returns results
 			// HOW TO handle RETURNING clause for mysql ??? 
 			if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
 			{                
-				$this->fetchResults($queryResult, $o);
+				//$this->fetchResults($this->queryResult, $o);
+				$this->fetchResults($this->queryResult, $o);
 				
 				$this->fixSpecifics($o);
 				
@@ -153,7 +144,6 @@ class Model extends Application
 				if ( !empty($o['returning']) ) { $this->data['id'] = $this->insertedId; }
 				
 				//if ( !empty($o['getFields']) && count($o['getFields']) === 1 )
-				/*
 				if ( !empty($o['getFields']) && count($o['getFields']) === 1 )
 				{
                     $colName = $o['getFields'][0];
@@ -175,7 +165,7 @@ class Model extends Application
                     }
 
 					
-				}*/
+				}
 			}
 			
 			// For insert, we may need to do some process once the request succeed
@@ -185,65 +175,12 @@ class Model extends Application
 		{			
 			// Get the last error returned by the db
 			//$this->errors = mysql_error($this->db);
-			$errId = mysql_errno($this->db);
-			$this->errors[$errId] = mysql_error($this->db);
+			$errId = mysqli_errno($this->db);
+			$this->errors[$errId] = mysqli_error($this->db);
 		}	
 		
 		return $this;
-	}
-
-
-    public function query_new($query, $options = null)
-    {
-        $this->data = null;
-        
-        // Connect to the db
-        if ( !$this->db ) { $this->connect(); }
-        
-        $this->errors           = array();
-        $o                      = &$options;                                    // Shortcut for options
-        $o['type']              = !empty($o['type']) ? $o['type'] : 'select';   // Set query type to select by default if not already setted
-        
-        $this->launchedQuery    = $query;
-        
-        // Do the query
-        $queryResult            = mysql_query($query, $this->db);
-        
-        // 
-        $this->success          = is_bool($queryResult) && !$queryResult ? false : true;
-
-        // If the request succeed
-        if ( $this->success )
-        {
-            // Get number of rows affetected by a insert, update, delete request
-            $this->affectedRows = mysql_affected_rows($this->db);
-            
-            // Get number of selected rows (for select request)
-            $this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
-            
-            if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
-            
-            // If the request returns results
-            // HOW TO handle RETURNING clause for mysql ??? 
-            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
-            {                
-                $this->fetchResults_new($queryResult, $o);
-            }
-            
-            // For insert, we may need to do some process once the request succeed
-            if ( $o['type'] === 'insert' && !empty($this->afterQuery) ){ $this->afterQuery(); }
-        }
-        else
-        {           
-            // Get the last error returned by the db
-            //$this->errors = mysql_error($this->db);
-            $errId                  = mysql_errno($this->db);
-            $this->errors[$errId]   = mysql_error($this->db);
-        }   
-        
-        return $this;
-    }
-
+	}	
 	
 	private function fixSpecifics($options = null)
 	{
@@ -362,15 +299,12 @@ class Model extends Application
                 
                 $relResource    = !empty($field['relResource']) ? $field['relResource'] : preg_replace('/(.*)_(.*)$/U', '$1');
                 $relField       = !empty($field['relField']) ? $field['relField'] : preg_replace('/(.*)_(.*)$/U', '$2');
-                //$relGetFields   = !empty($field['relGetFields']) ? Tools::toArray($field['relGetFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
-                $relGetFields   = !empty($field['relGetFields']) 
-                					? Tools::toArray($field['relGetFields']) 
-									: ( isset($this->resources[$relResource]['defaultNameField']) 
-										? array($relField, $this->resources[$relResource]['defaultNameField'])
-										// TODO: if id not defined, use first field 
-										: array('id') 
-									);
-                $getFields      = !empty($field['relGetAs']) ? Tools::toArray($field['relGetAs']) : $relGetFields;
+                $relGetFields   = !empty($field['relGetFields']) ? $this->arrayify($field['relGetFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
+                $getFields      = !empty($field['relGetAs']) ? $this->arrayify($field['relGetAs']) : $relGetFields;
+                
+//$this->dump('$relResources: ' . $relResource);
+//$this->dump('$relField: ' . $relField );
+//$this->dump($relGetFields);
                 
                 $i = 0;
                 foreach ($getFields as $item)
@@ -381,7 +315,8 @@ class Model extends Application
                     $relFieldModel  = array($item => &$this->application->dataModel[$relResource][$relGetFields[$i]]);
                     $fixed          = $this->fixSpecificsSingle($tmp, array('rModel' => $relFieldModel));
                     $dataRow[$item] = $fixed[$item];
-                    
+//$this->dump($tmp);
+//$this->dump($relFieldModel);
                     $i++;
                 }
             }
@@ -420,22 +355,15 @@ class Model extends Application
                 if ( !$o['fixManyToMany'] ){ continue; }
                 
 				$relResource 	= !empty($field['relResource']) ? $field['relResource'] : $name;
-                $relField           = !empty($field['relField']) ? $field['relField'] : 'id'; 
-				$getFields      = !empty($field['getFields']) ? Tools::toArray($field['getFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
+				$getFields 		= !empty($field['getFields']) ? $this->arrayify($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
 				$pivotResource 	= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . $relResource;
 				$pivotTable 	= !empty($this->resources[$pivotResource]['table']) ? $this->resources[$pivotResource]['table'] : $pivotResource;
-                $pivotLeftField     = !empty($field['pivotLeftField']) ? $field['pivotLeftField'] : $this->resourceSingular . '_' . 'id';
-                $pivotRightField    = !empty($field['pivotRightField']) ? $field['pivotRightField'] : $this->resources[$relResource]['singular'] . '_' . 'id';
 				$tmpData 		= array();
-                $relFieldModel      = array();
 				
 				// Special case for pivolIdField
 				$getFields 		= isset($dataRow[$pivotTable . '_id']) ? array_merge($getFields, array($pivotTable . '_id')) : $getFields;
 				
                 $relFieldModel = array();
-                
-                // Array containing unique keys for the gotten fields (used to remove doubles)
-                $uniqueKeys = array();
                 
 				// Loop over the gotten fields
 				foreach ($getFields as $item)
@@ -443,27 +371,18 @@ class Model extends Application
 					// Build the name used for the database output
 					$storingName 	= strpos($item, $pivotTable) !== false ? $item : $this->resources[$relResource]['singular'] . '_' . $item . 's';
 					
-                    // Do not continue if the field is not found with the expected name
 					if ( !isset($dataRow[$storingName]) ){ continue; }
 					
-					// Split the value which should be a concatenated string of the all the field values
+					// split the field value which should be a concatenated string of the all the field values
 					$tmp 			= explode(',', $dataRow[$storingName]);
 					
-                    //                     
-                    if ( $item === $relField ){ $uniqueKeys = $tmp; }
-					
+                    //$relFieldModel = &$this->application->dataModel[$relResource][$item];
                     $relFieldModel[$item] = &$this->application->dataModel[$relResource][$item];   
 					
 					// Loop over the splited value and reassign into the proper final array
 					foreach ( $tmp as $k => $v )
 					{
-                        $uniqueKey = $uniqueKeys[$k];
-                        
-                        // Do not continue if the value has already been set for this key
-                        if ( isset($tmpData[$uniqueKey][$item]) ) { continue; }
-                        
-                        //$tmpData[$k][$item] = $v;
-                        $tmpData[$uniqueKey][$item] = $v;
+                        $tmpData[$k][$item] = $v;
                         
                         //$tmpData[$k][$item] = $this->fixSpecificsSingle($v, array('rModel' => array($item => $relFieldModel), 'forceProcess' => true));
                     }
@@ -471,24 +390,18 @@ class Model extends Application
 					// If the field is not a native one and thus does not belong to dataModel for this resource
 					// remove if from the output since it has been reassigned elsewhere 
 					//if ( !isset($rModel[$storingName]) ){ unset($dataRow[$storingName]); }
-					
-					// Once the field has been processed, remove doubles from the concatenated string
-					$dataRow[$storingName] = join(',', array_unique($tmp)); 
 				}
 				
-                // Now that we are sure that we do not have doubles, we can reindex with numeric keys
-                $tmpData = array_values($tmpData);
-                
-                // Remove doubles from pivot ids too
-                if ( isset($dataRow[$pivotResource . '_ids']) )
-                {
-                    $dataRow[$pivotResource . '_ids'] = join(',', array_unique(explode(',', $dataRow[$pivotResource . '_ids']))); 
-                }
+//$this->dump($relFieldModel);
 
                 // TODO: find a way to fix type directly instead of having to loop over the resource model for each row
                 foreach ($tmpData as &$tmpRow)
                 {
+//$this->dump($tmpRow);
+//$this->dump('here1');
                     $tmpRow = $this->fixSpecificsSingle($tmpRow, array('rModel' => $relFieldModel));
+//$this->dump('here2');
+//$this->dump($tmpRow);
                 }
 				
 				$dataRow[$name] = $tmpData;
@@ -498,125 +411,6 @@ class Model extends Application
 		return $dataRow;
 		//return $this;
 	}
-
-
-    public function getDataType($colName = '', $params = array())
-    {
-//var_dump(__FUNCTION__);
-//var_dump($colName);
-        $p = array_merge(array(
-            'resource' => $this->resourceName,
-        ), $params);
-        $rModel = &$this->application->dataModel[$p['resource']];      // Shortcut for current resource dataModel
-        $rProps = &$rModel[$colName];
-        
-        if      ( !empty($rProps['pk']) )   { $type = 'primarykey'; } 
-        elseif  ( !empty($rProps['fk']) )   { $type = 'onetoone'; }
-        else if ( !empty($rProps['type']) ) { $type = $rProps['type']; }
-        else                                { $type = 'string'; }       // Default type to string
-        
-        return $type;
-    }
-
-
-    public function fixData(&$data, $params = array())
-    {        
-        // Extends default param values with passed ones 
-        $p      = array_merge(array(
-        ), $params);
-
-//var_dump(__FUNCTION__);        
-//var_dump($data);
-        
-        // If data is an array, 
-        if ( is_array($data) )
-        {
-            // Loop over it's fields
-            foreach ( $data as $k => $v )
-            {
-                // Fix each value (using column type)
-                $data[$k] = $this->fixDataValue($v, array('type' => $this->getDataType($k))); 
-            }
-        }
-        // Or if it's a string, directly fix the value
-        else if ( is_string($data) )
-        {
-            // Fix each value (using column type)
-            $data = $this->fixDataValue($data, array('colName' => $p['colName']));
-        }
-        
-        return $data;
-    }
-    
-    public function fixDataValue(&$value, $params = array())
-    {
-//var_dump(__FUNCTION__);
-        
-        // Shortcuts
-        //$p = &$params;
-        $p = array_merge(array(
-            'resource'  => $this->resourceName, // Use current resource if not passed
-            'colName'   => null, 
-        ), $params);
-        $v = &$value;
-        
-        // Get data type
-        $t = !empty($p['type']) ? $p['type']  : ( !empty($p['colName']) ? $this->getDataType($p['colName']) : '' );
-
-//var_dump('colName: ' . $p['colName']);        
-//var_dump('type: ' . $t);
-        
-        if ( is_null($value) ){ $v = null; return $v; }
-        
-        switch($t)
-        {
-            case 'onetomany':
-            case 'manytomany':
-            case 'onetomany':
-            
-            case 'timestamp':   $v = is_numeric($v) ? (int) $v : $v; break;
-            
-            case 'bool':
-            case 'boolean':     $v = in_array($v, array(true,1,'1','true','t')) ? true : false; break;
-                                
-            case 'float':       $v = (float) $v; break;
-
-            case 'serial':
-            case 'primarykey':
-            case 'pk':            
-            case 'onetoone':
-            case 'int':         $v = (int) $v;  break;
-            
-            case 'file':
-            case 'fileduplicate':
-                /*
-                    $v = !empty($v) && !empty($p[$colProps]['destBaseURL']) && filter_var($v, FILTER_VALIDATE_URL) === false
-                            ? $p[$colProps]['destBaseURL'] . preg_replace('/^\/(.*)/','$1',$v)
-                            : $v;
-                 */
-
-            case 'datetime':
-            case 'time':
-            case 'year':
-            case 'month':
-            case 'day':
-            case 'hours':
-            case 'minutes':
-            case 'seconds':
-            
-            case 'html':
-            case 'text':
-            case 'image':
-            case 'video':
-            case 'sound':
-            case 'url':
-            case 'email':
-            case 'enum':
-            default:            $v = $v; break;
-        }
-        
-        return $v;
-    }
 	
 
 	private function fetchResults($queryResult, $options = null)
@@ -629,147 +423,43 @@ class Model extends Application
 		// So, we do not want it to be put into an array but want it instead to be directly returned
 		if ( $o['mode'] === 'count' )
 		{
-			$this->data = mysql_result($queryResult, 0,0);
+			$this->data = mysqli_result($queryResult, 0,0);
 		}
-		//else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning'])) && $this->numRows != 0 )
-        //else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning']) || count($o['getFields']) === 1) && $this->numRows != 0 )
-        //else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning']) || count($o['getFields']) === 1) && $this->numRows === 1 )
-        else if ( $this->numRows > 0 && ($o['mode'] === 'onlyOne' || !empty($o['returning']) || (count($o['getFields']) === 1 && $this->numRows === 1)) )
+		else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning'])) && $this->numRows != 0 )
 		{
-//$this->dump('1 row, x cols');
-			$this->data = mysql_fetch_array($queryResult, MYSQL_ASSOC);
-            
+//$this->dump('case 2');
+			$this->data = mysqli_fetch_array($queryResult, MYSQLI_ASSOC);
+//$this->dump($this->data);
             $this->data = $fixTypes ? $this->fixSpecificsSingle($this->data) : $this->data;
-			
-			if ( count($o['getFields']) === 1 )
-			{
-				$this->data = isset($this->data[$o['getFields'][0]]) ? $this->data[$o['getFields'][0]] : null;
-			}
+//$this->dump($this->data);
 		}
 		// Otherwise, fetch the query results set
 		else
-		{            
+		{
 			if ( $this->numRows > 0 ) 
 			{
-				while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
+				while ($row = mysqli_fetch_array($queryResult, MYSQLI_ASSOC))
 				{
-//var_dump($o['getFields']);
-					
-                    // If we only get 1 column in the results
-                    if ( ( count($o['getFields']) === 1 && empty($o['count'])) 
-                        || ( $o['mode'] === 'distinct' && !empty($o['field']) ) )
-                    {
-//$this->dump('several rows, 1 col');
-						
-                        $row            = $fixTypes ? $this->fixSpecificsSingle($row) : $row;
-                        $usedField      = $o['mode'] === 'distinct' && !empty($o['field']) ? $o['field'] : $o['getFields'][0];
-//$this->dump($usedField);
-//var_dump($row);
-                        $this->data[]   = $row[$usedField];
-                    }
-                    else
-                    {
-//$this->dump('several rows, several cols');
-                        //$this->data[] = $row;
-                        $this->data[] = $fixTypes ? $this->fixSpecificsSingle($row) : $row;
-                    }
+					//$this->data[] = $row;
+					$this->data[] = $fixTypes ? $this->fixSpecificsSingle($row) : $row;
 				}
 			}
-			else { $this->data = array(); }
+			else 						{ $this->data = array(); }
 		}
 		
-		if ( is_resource($queryResult) ) { mysql_free_result($queryResult); }
+		if ( is_resource($queryResult) ) { mysqli_free_result($queryResult); }
 		
 		return $this;
 	}
-
-
-    private function fetchResults_new($queryResult, $options = null)
-    {       
-        $o          = &$options;
-		$o 			= array_merge(array(
-			'mode' => null,
-		), $o);
-		
-//$this->dump($o);
-        
-        if ( $o['mode'] === 'count' )
-        {
-//var_dump('case count');
-            
-            $this->data = (int) mysql_result($queryResult, 0,0);
-        }
-        else if ( !empty($o['returning']) )
-        {
-//$this->dump($this->insertedId);
-			if 	( $o['returning'] === 'id' ) { $this->data = (int) $this->insertedId; }
-        }
-        // 1 column, 1 row
-        else if ( $o['mode'] === 'onlyOne' && count($o['getFields']) === 1 )
-        {
-//var_dump('1 column 1 row');
-            $this->data = mysql_fetch_array($queryResult, MYSQL_ASSOC);
-            $usedCol    = $o['getFields'][0];
-            $this->data = $this->fixDataValue($this->data[$usedCol], array('colName' => $usedCol));
-        }
-        // several columns, 1 row
-        else if ( $o['mode'] === 'onlyOne' && ( count($o['getFields']) > 1 || empty($o['getFields']) ) )
-        {
-//var_dump('several columns 1 row');
-            $this->data = $this->fixData(mysql_fetch_array($queryResult, MYSQL_ASSOC));
-        }
-        // 1 column, several rows
-        else if ( count($o['getFields']) === 1 && $o['mode'] !== 'onlyOne' )
-        {
-//var_dump('1 column, several rows');
-            if ( $this->numRows > 0 ) 
-            {
-                $usedCol    = $o['getFields'][0];
-                
-                while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
-                {
-                    //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
-					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)));
-                }
-            }
-            else { $this->data = array(); }
-        }
-        // several columns, several rows
-        else
-        {
-//var_dump('several columns, several rows');
-            if ( $this->numRows > 0 ) 
-            {
-                while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
-                {
-                    //$this->data[] = $this->fixData($row);
-                    $this->addToDataArray($this->fixData($row));
-                }
-            }
-            else { $this->data = array(); }
-        } 
-
-//var_dump($this->data);
-        
-        if ( is_resource($queryResult) ) { mysql_free_result($queryResult); }
-        
-        return $this;
-    }
-
-
-	public function addToDataArray($item, $params = array())
-	{
-		$this->data[] = $item;
-	}
-
 
 	public function escapeString($string)
 	{
 		$string = !empty($string) ? (string) $string : '';
 		
-		return mysql_real_escape_string($string);
+		//return mysql_real_escape_string($string);
+		return mysqli_real_escape_string($this->db, $string);
 	}
-
+	
 	
 	private function magicFields($fieldsStringOrArray = null)
 	{
@@ -801,7 +491,7 @@ class Model extends Application
 		if ( !empty($a['rename']) )
 		{
 			// Get the sql id of the resource
-			$lastId 		= mysql_insert_id();
+			$lastId 		= mysqli_insert_id();
 			
 			// Array tha will contains key/value couples to update
 			$updateKeyVals 	= array();
@@ -864,11 +554,13 @@ class Model extends Application
 	    $this->init($options);
         
 		// Set default params
-		$o 					= array_merge($this->options, $options);
-		//$o['mode'] 		= isset($o['mode']) ? $o['mode'] : null;
-		$rModel 			= &$this->application->dataModel[$this->resourceName];
+		$o                = array_merge($this->options, $options);
+		$o['mode']        = isset($o['mode']) ? $o['mode'] : null;
+		$rModel           = &$this->application->dataModel[$this->resourceName];
 		
-		$this->queryData 	= array(
+//$this->dump($o);
+		
+		$this->queryData  = array(
 			'fields' => array(),
 			'tables' => array(),
 		);
@@ -878,69 +570,28 @@ class Model extends Application
 		else 							{ $this->magicFields($rModel); }
 		
 		if ( !empty($o['count']) )
-		{			
-			$o['count'] 		= Tools::toArray($o['count']);
-			//$this->magicFields($o['count']);
-
+		{
+			$o['count'] = Tools::toArray($o['count']);
+			
 			// Get fields to use in the query
 			foreach ($o['count'] as $field)
 			{
-				if ( isset($this->queryData['fields'][$field]) ){ $this->queryData['fields'][$field]['count'] = true; }
-				
-				else
-				{
-					$this->queryData['fields'][$field] = array(
-						'name' => $field,
-						'count' => true,
-					);
-				}
+				if ( isset($this->queryData['fields']) ){ $this->queryData['fields'][$field]['count'] = true; }
 			}
 		}
-
-        if ( !empty($o['groupConcat']) )
-        {
-			$o['groupConcat'] 	= Tools::toArray($o['groupConcat']);
-			
-            // Get fields to use in the query
-            $i = 0;
-            foreach ($o['groupConcat'] as $k => $v)
-            {
-                $as                             = is_numeric($k) ? Tools::pluralize($v) : $v;
-                $colName                        = is_numeric($k) ? $v : $k;
-                $this->queryData['fields'][$as] = array(
-                    'name'          => $colName,
-                    'as'            => $as,
-                    'cast'          => true,
-                    'groupConcat'   => true,  
-                );
-				
-				// Since we use an aggregate function, we have to use a group By clause
-				if ( $i === 0 && empty($o['groupBy']) )
-				{
-					// use the first concatenated fields as grouping column
-					$o['groupBy'] = array($colName);
-				}
-				
-				$i++;
-            }
-        }
-
 		
-		//$where 		= $this->handleOperations($o);
-		//$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
+		$where 		= $this->handleOperations($o);
+		$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
 		
 		// Case where we just want to count the number of records in the table
-		//if ( isset($o['mode']) && $o['mode'] === 'count')
-        if ( $o['mode'] === 'count')
+		if ( isset($o['mode']) && $o['mode'] === 'count')
 		{
 			// Set the field used to do the count. Try the 'id' field if it exists, otherwise use the first one defined in the datamodel
 			$usedfield = isset($rModel['id']) ? 'id' : key($rModel);
 			
-			$where 		= $this->handleOperations($o);
-			$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
-			
 			$query 		= "SELECT COUNT(" . $this->escapeString($usedfield) . ") AS total ";
 			$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
+			//$query 		.= $where;
             $query      .=  $where . $conditions;
             
             // TODO
@@ -949,26 +600,20 @@ class Model extends Application
             //$query      .=  ( !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : '' );
             //$query      .=  ( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : '' );		
 		}
-		else if ( $o['mode'] === 'distinct' && !empty($o['field']))
+		else if ( isset($this->options['mode']) && $this->options['mode'] === 'distinct' && !empty($this->options['field']))
 		{
-			$where 		= $this->handleOperations($o);
-			$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
-					
-			$query 		= "SELECT DISTINCT " . $o['field'] . " ";
-            $query      .= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
-            $query      .=  $where . $conditions;
+			//$query 		= "SELECT DISTINCT" . $o['field'] . " FROM " . _DB_TABLE_PREFIX . $this->dbTableName;		
+			$query 		= "SELECT DISTINCT" . $o['field'] . " FROM " . _DB_TABLE_PREFIX . $this->table;
 		}
 		// Otherwise, do normal select
 		else
-		{	
+		{			
 			// Get tables to use in the query
-			//$queryTables             	= array();
-			$this->queryData['tables'] 	= array();
-			$queryTables 				= &$this->queryData['tables'];
-			$leftJoins               	= array();
-			$alreadyJoinedTables     	= array();
-			$ljcount                 	= 1;
-			$crossJoins             	 = '';
+			$queryTables             = array();
+			$leftJoins               = array();
+			$alreadyJoinedTables     = array();
+			$ljcount                 = 1;
+			$crossJoins              = '';
 			
 //$this->dump($this->queryData['fields']);
 			
@@ -990,7 +635,7 @@ class Model extends Application
 					$pivotLeftField 	= !empty($field['pivotLeftField']) ? $field['pivotLeftField'] : $this->resourceSingular . '_' . 'id';
 					$pivotRightField 	= !empty($field['pivotRightField']) ? $field['pivotRightField'] : $this->resources[$relResource]['singular'] . '_' . 'id';
 					$pivotAlias 		= !empty($this->resources[$pivotResource]['alias']) ? $this->resources[$pivotResource]['alias'] : null;
-					$getFields             = !empty($field['getFields']) ? Tools::toArray($field['getFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
+					$getFields 			= !empty($field['getFields']) ? $this->arrayify($field['getFields']) : array($this->resources[$relResource]['defaultNameField']);
 					
 					$crossJoins 		.= 'LEFT OUTER JOIN ' . $pivotTable . ( !empty($pivotAlias) ? ' AS ' . $pivotAlias : '');
 					$crossJoins 		.= ' ON ' . $this->alias . '.' . $relField . ' = ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotLeftField  . ' ';
@@ -1000,9 +645,8 @@ class Model extends Application
 					// Remove fake column from query fields since we are going to use 'getFields' (defaulted to resource defaultNameField if empty) 
 					unset($this->queryData['fields'][$fieldName]);
 					
-					//$o['groupBy'] 	= !empty($o['groupBy']) ? $this->magic($o['groupBy']) : array();
-					$o['groupBy']      = !empty($o['groupBy']) ? Tools::toArray($o['groupBy']) : array();
-					$o['groupBy'][]    = 'id';
+					$o['groupBy'] 	= !empty($o['groupBy']) ? Tools::toArray($o['groupBy']) : array();
+					$o['groupBy'][] = 'id';
 
 					// Loop over the fields we have to get
 					foreach ($getFields as $item)
@@ -1013,8 +657,8 @@ class Model extends Application
 						// Build the storing name
 						// ie: in a table 'users', a 'groups' with getFields('id,name')
 						// will result in 'group_ids' and 'group_name' fields 
-						//$storingName 	= $this->resources[$relResource]['singular'] . '_' . $this->pluralize($item);
-						$storingName  = $this->resources[$relResource]['singular'] . '_' . Tools::pluralize($item);
+						//$storingName 	= $this->resources[$relResource]['singular'] . '_' . $item . 's';
+						$storingName 	= $this->resources[$relResource]['singular'] . '_' . $this->pluralize($item);
 						
 						$this->queryData['fields'][$storingName] = array(
 										'name' 			=> $item,
@@ -1046,9 +690,14 @@ class Model extends Application
 					
 					// Destroy tmp vars to prevent var name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
-				} 
+					
+//var_dump($this->queryData['fields'][$pivotTable . '_id']);
+//die();
+				}
 				elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
 				{
+//$this->dump('case relation default');
+					
 					// Get proper table name
 					$field['relResource'] = //(!empty($this->resources[$field['relResource']]['tableName']) 
 											(!empty($this->resources[$field['relResource']]['table'])
@@ -1061,7 +710,6 @@ class Model extends Application
 
 					if ( !empty($field['relGetFields']) )
 					{
-						//$tmpFields = $this->magic($field['relGetFields']);
 						$tmpFields = Tools::toArray($field['relGetFields']);
 						
 						// 2 possible models for the fields list:
@@ -1075,17 +723,11 @@ class Model extends Application
 							$tmpFieldName 	= $which === 2 ? $val : $key;
 							
 							// In case where the table has already been joined on, we need to use a new table alias for the current join
-							//$tmpTableAlias 	= !in_array($field['relResource'], $alreadyJoinedTables) 
-							$tmpTableAlias 	= in_array($field['relResource'], $alreadyJoinedTables)
-													//? null
-													? $this->resources[$field['relResource']]['alias'] . $ljcount
-													//: $this->resources[$field['relResource']]['alias'] . $ljcount;
-													: $this->resources[$field['relResource']]['alias'];
+							$tmpTableAlias 	= !in_array($field['relResource'], $alreadyJoinedTables)  
+												? null
+												: $this->resources[$field['relResource']]['alias'] . $ljcount;
 							
-							$storingName 	= $which === 2 ? ( !empty($field['relGetAs']) ? $field['relGetAs'] : null) : $val;
-							
-//$this->dump('rel:' . $field['relResource'] . ', get:' . $storingName . ' , alias:' . $tmpTableAlias);
-							
+							$storingName = $which === 2 ? ( !empty($field['relGetAs']) ? $field['relGetAs'] : null) : $val;
 							$this->queryData['fields'][$storingName] = array(
 											'name' 			=> $tmpFieldName,
 											'as' 			=> $storingName,
@@ -1109,26 +751,31 @@ class Model extends Application
 				}
 			}
 			
+			
+//$this->dump($leftJoins);
+//$this->dump($this->queryData['fields']);
+			
 			// Get fields to use in the query
 			$i = 0;
 			$finalFields = '';
 			
 			foreach ($this->queryData['fields'] as $k => $field)
-			{	
+			{
+//$this->dump($k);
+				
 				// Get the field type
 				$resName 	= !empty($field['resource']) ? $field['resource'] : $this->resourceName;
 				$res 		= &$this->application->dataModel[$resName];
 				$type 		= !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
-				//$type 		= isset($field['name']) && !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
+
+//var_dump($type . ': ' . $k . ' (' . $resName . ')')				
+
+//var_dump($field['as']);
 				
 				$finalFields .= ( $i > 0 ? ", " : '' ) 
 								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? "UNIX_TIMESTAMP(" : '')
 								//. ( $type === 'int' ? "CAST('" : '')
-								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' 
-								. ( !empty($field['groupConcat'])
-								    //? ' GROUP_CONCAT(DISTINCT CAST(' 
-								    ? ' GROUP_CONCAT(CAST('
-                                    : '' )
+								. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? ' GROUP_CONCAT(DISTINCT CAST(' : '' )
 								. ( !empty($field['table']) 
 									//? $field['table']
 									? ( !empty($field['tableAlias']) ? $field['tableAlias'] : $field['table'] ) 
@@ -1136,8 +783,7 @@ class Model extends Application
 									: $this->alias ) . "."
 								. $field['name'] 
 								//. ( !empty($field['as']) ? $field['as'] : $field['name'] )
-								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
-								. ( !empty($field['groupConcat']) ? " AS CHAR) SEPARATOR ',' )" : '' )
+								. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
 								. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
 								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? ") as " . $field['name'] : '' )
 								//. ( $type === 'int' ? "' AS UNSIGNED INTEGER)" : '' )
@@ -1154,22 +800,63 @@ class Model extends Application
 					$finalFields .= ( !empty($finalFields) ? ", " : '' ) . "COUNT(" . $this->alias . "." . $k . ") AS " . $k . "_total";
 				}
 				
+//$this->dump($finalFields);
+				
 				$i++;
 			}
+			
+//$this->dump($leftJoins);
+			
+//$this->dump($finalFields);
+//$this->log($this->queryData['fields']);
 			
 			//$queryTables 	= !empty($getFields) ? '' : join(', ', $queryTables);
 			$queryTables 	= empty($queryTables) ? '' : join(', ', $queryTables);
 			//$leftJoins 		= !empty($getFields) ? '' : join('', $leftJoins);
 			$leftJoins 		= empty($leftJoins) ? '' : join('', $leftJoins);
+
+			// Build GROUP BY
+			$groupBy = '';
+			if ( !empty($o['groupBy']) )
+			{
+				$o['groupBy'] = Tools::toArray($o['groupBy']);
+				
+				// We have to append to the GROUP BY all the requested fields			
+				// So we get the list of requested fields and store it as a local variable
+				$gByFields = $this->queryData['fields'];
+				
+				// Remove from this array, the fiels really used to the grouping
+				foreach ($o['groupBy'] as $field) { unset($gByFields[$field]); }
+				
+				$i = 0;
+				$groupByOthers = '';
+				foreach ($gByFields as $k => $f)
+				{
+					// Skip onetomany gotten fields
+					if ( !empty($f['relation']) && $f['relation'] === 'onetomany' ){ continue; } 
+					
+					//$groupByOthers .= ($i === 0 ? '' : ", ") . ( !empty($f['table']) ? $f['table'] : $this->dbTableShortName ) . "." . $f['name'];
+					$groupByOthers .= ($i === 0 ? '' : ", ") . ( !empty($f['table']) ? $f['table'] : $this->alias ) . "." . $f['name'];
+					
+					//if ( !empty($f['table']) && !empty($f['as']) ){ $groupByOthers .= ( $i > 0 ? ", " : '' ) .  $this->dbTableShortName . "." . $k; }
+					//if ( !empty($f['table']) && !empty($f['as']) ){ $groupByOthers .= ( $i > 0 ? ", " : '' ) .  $this->alias . "." . $k; }
+					// Case for joined columns where an alias could be used for the gotten fields
+					if ( !empty($f['table']) && !empty($f['as']) )
+					{
+						//$groupByOthers .= ( $i > 0 ? ", " : '' ) . $k;
+						$groupByOthers .= ( !empty($groupByOthers) ? ", " : '' ) . $k;
+					}
+					
+					$i++;
+				}
+
+				//$groupByFields 	= is_array($o['groupBy']) ? join(", " . $this->dbTableShortName . ".", $o['groupBy']) : $o['groupBy'];
+				$groupByFields 	= is_array($o['groupBy']) ? join(", " . $this->alias . ".", $o['groupBy']) : $o['groupBy'];
+				//$groupBy 		= "GROUP BY " . $this->dbTableShortName . "." . $groupByFields . (!empty($groupByOthers) ? ", " . $groupByOthers : '') . " ";
+				$groupBy 		= "GROUP BY " . $this->alias . "." . $groupByFields . (!empty($groupByOthers) ? ", " . $groupByOthers : '') . " ";
+			}
 			
-//var_dump($queryTables);
-//$this->dump($this->queryData);
-			
-			$groupBy = $this->handleGroupBy($o);
 			$orderBy = $this->handleOrder($o);
-			
-			$where 		= $this->handleOperations($o);
-			$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
 			
 			// Build final query  
 			$query 		= 	"SELECT " . $finalFields . " ";
@@ -1184,6 +871,11 @@ class Model extends Application
 			$query 		.= 	( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : '' );
 		}
 		
+//var_dump($query);
+//if ( $this->resourceName === 'users' ){ die(); }
+		
+		//$this->launchedQuery = $query;
+		
 		return $query;
 	}
 	
@@ -1195,11 +887,14 @@ class Model extends Application
 		$d 			= &$resourceData;										// Shortcut for resource data
 		$o 			= array_merge($this->options, $options); 				// Shortcut for options
 		
+		//$rModel 	= $this->dataModel[$this->resourceName];
 		$rName 		= &$this->resourceName;
 		$rModel 	= &$this->application->dataModel[$this->resourceName];
 		
 		$fieldsNb 	= count($rModel);		// Get the number of fields for this resource
 		$after 		= array();
+		
+//var_dump($d);
 		
 		// Start writing request
 		//$query 		= "INSERT INTO " . _DB_TABLE_PREFIX . $this->dbTableName . " (";
@@ -1263,19 +958,14 @@ class Model extends Application
 				// If the passed value is not an array, we do not handle file upload and just update db value 
 				$uploadFile 	= is_array($d[$fieldName]);
 				
-                // Shortcut for uploaded file
-                $uf             = &$d[$fieldName];
-				
 				$destRoot 		= !empty($field['destRoot']) ? $field['destRoot'] : ''; 
 				$destFolder 	= $field['destFolder'];
 				
 				// Get the setted destination name or use the uploaded file name 
 				$destName 		= !empty($field['destName'])
-                                    ? str_replace(
-                                           array("%file_extension%", "%file_name%", "%time%"), 
-                                           array($uf['extension'], basename($uf['name'], '.' . $uf['extension']), $_SERVER['REQUEST_TIME']), 
-                                        $field['destName'])
-                                    : $uf['name'];
+									? str_replace("%file_extension%", $d[$fieldName]['extension'], $field['destName'])
+									//: $this->resourceSingular . '_' . time() . '.' . $d[$fieldName]['extension'];
+									: $d[$fieldName]['name'];
 									
 				if ( !$uploadFile )
 				{
@@ -1376,23 +1066,23 @@ class Model extends Application
 					
 					if ( $FileUpload->success )
 					{					
-					    if ( $renameFolder || $renameFile  )
-                        {
-							// Keep a flag if either the file destination folder or name should contain the resource id 
-							// (which is not known as the moment where the file is uploaded)
-							$after['rename'][] = array(
-								'storeOn' 		=> !empty($field['storeOn']) ? $field['storeOn'] : 'ftp',
-								'currentFolder' => $destFolder,
-								'currentName' 	=> $destName,
-								'renameFolder' 	=> $renameFolder,	// has the folder to be renamed
-								'renameFile' 	=> $renameFile, 	// has the file to be renamed
-								'tempName' 		=> $tempName,
-								'dbField' 		=> $fieldName,		// database colum to update on rename success
-								'destRoot' 		=> $destRoot,		// Root folder (may be empty), should not be stored in the db value
-								'acl' 			=> !empty($acl) ? $acl : null,
-							);
-						}
+						// Keep a flag if either the file destination folder or name should contain the resource id 
+						// (which is not known as the moment where the file is uploaded)
+						$after['rename'][] = array(
+							'storeOn' 		=> !empty($field['storeOn']) ? $field['storeOn'] : 'ftp',
+							'currentFolder' => $destFolder,
+							'currentName' 	=> $destName,
+							'renameFolder' 	=> $renameFolder,	// has the folder to be renamed
+							'renameFile' 	=> $renameFile, 	// has the file to be renamed
+							'tempName' 		=> $tempName,
+							'dbField' 		=> $fieldName,		// database colum to update on rename success
+							'destRoot' 		=> $destRoot,		// Root folder (may be empty), should not be stored in the db value
+							'acl' 			=> !empty($acl) ? $acl : null,
+						);
+						
+						//$value = "'" . ( !empty($field['storeAs']) && $field['storeAs'] !== 'filename' ?  '' : $destFolder) . $destName . "'";
 					}
+					//else { continue; }
 					else { $this->warnings[] = 6110; } // error on file upload
 					
 					// Even if the upload did not success, we need to add the value into db
@@ -1417,10 +1107,8 @@ class Model extends Application
 			else if ( !empty($field['subtype']) && $field['subtype'] === 'slug' && !empty($field['from']) )
 			{
 				$tmpVal = !empty($d[$fieldName]) 
-							//? $this->slugify($d[$fieldName])
-							? Tools::slugify($d[$fieldName])
-							//: ( !empty($d[$field['from']]) ? $this->slugify($d[$field['from']]) : '');
-							: ( !empty($d[$field['from']]) ? Tools::slugify($d[$field['from']]) : '');
+							? $this->slugify($d[$fieldName])
+							: ( !empty($d[$field['from']]) ? $this->slugify($d[$field['from']]) : '');
 				$value 	= "'" . $this->escapeString($tmpVal) . "'";
 			}
 			else if ( isset($field['computed']) && $field['computed'] )
@@ -1429,8 +1117,7 @@ class Model extends Application
 				// TODO: use proper str_replace ????
 				else if ( !empty($field['subtype']) && $field['subtype'] === 'URIname' && !empty($field['useField']) )
 				{
-					//$tmpVal = $this->deaccentize($d[$field['useField']]);
-					$tmpVal = Tools::deaccentize($d[$field['useField']]);
+					$tmpVal = $this->deaccentize($d[$field['useField']]);
 					$value 	= "'" . str_replace(' ', '+', $tmpVal) . "'";
 				}
 				//elseif ( $field['type'] === 'timestamp' ){ $value = 'NOW()'; }
@@ -1466,8 +1153,7 @@ class Model extends Application
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
 			{
 				$len 	= !empty($field['length']) ? $field['length'] : 8;
-				//$uniqID = $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
-                $uniqID = Tools::generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName));
+				$uniqID = $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
 				$value 	= "'" . $uniqID . "'";
 			}
 			else if ( $field['type'] === 'enum' )
@@ -1656,11 +1342,14 @@ class Model extends Application
 				// Has the current user higher authorization than the updated one
 				$foundUsersData = !empty($updatedUser) && !empty($currentUser);
 				$hasHigherAuth 	= !$useAclV2 
-				                    // TODO: remove condition since ACL V1 is now deprecated
 				                    ? $foundUsersData && $currentUser['auth_level_nb'] > $updatedUser['auth_level_nb'] && $currentUser['auth_level_nb'] >= 500
 				                    // Only god users, or a superadmins (if the update user is not a god or a superadmin too) have higher auths
                                     : ( in_array('gods', $curUGroups) || ( in_array('superadmins', $curUGroups) && count(array_intersect($upUGroups, array('gods','superadmins'))) ) );
-
+//$this->dump($currentUser);
+//$this->dump($updatedUser);
+//$this->dump($curUGroups);
+//$this->dump($upUGroups);                                    
+//$this->dump($hasHigherAuth);
 				$allowEdit	 	= $foundUsersData && ( $updatedUser['id'] === $currentUser['id'] || $hasHigherAuth);
 				$skip 			= $allowEdit ? false : true;
 				
@@ -1717,16 +1406,11 @@ class Model extends Application
 				// Otherwise (common case)
 				else
 				{					
-				    // Shortcut for uploaded file
-				    $uf = &$d[$fieldName];
-                    			
 					// Get the setted destination name or use the uploaded file name 
 					$destName 		= !empty($field['destName'])
-                                        ? str_replace(
-                                               array("%file_extension%", "%file_name%", "%time%"), 
-                                               array($uf['extension'], basename($uf['name'], '.' . $uf['extension']), $_SERVER['REQUEST_TIME']), 
-                                            $field['destName'])
-                                        : $uf['name'];
+										? str_replace("%file_extension%", $d[$fieldName]['extension'], $field['destName'])
+										//: $this->resourceSingular . '_' . time() . '.' . $d[$fieldName]['extension'];
+										: $d[$fieldName]['name'];
 					
 					if ( !empty($field['duplicates']) )
 					{
@@ -1839,10 +1523,8 @@ class Model extends Application
 			else if ( !empty($field['subtype']) && $field['subtype'] === 'slug' && !empty($field['from']) )
 			{
 				$tmpVal = !empty($d[$fieldName]) 
-							//? $this->slugify($d[$fieldName])
-							? Tools::slugify($d[$fieldName])
-							//: ( !empty($d[$field['from']]) ? $this->slugify($d[$field['from']]) : '');
-							: ( !empty($d[$field['from']]) ? Tools::slugify($d[$field['from']]) : '');
+							? $this->slugify($d[$fieldName])
+							: ( !empty($d[$field['from']]) ? $this->slugify($d[$field['from']]) : '');
 				$value 	= "'" . $this->escapeString($tmpVal) . "'";
 			}
 			//else if ( !empty($field['computed']) && $field['type'] === 'timestamp' ){ $value = $field['computedValue']; }
@@ -1933,8 +1615,7 @@ class Model extends Application
 				$len 	= !empty($field['length']) ? $field['length'] : 8;
 				$uniqID = !empty($d[$fieldName]) 
 							? $d[$fieldName]
-							//: $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
-							: Tools::generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName));
+							: $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
 				$value 	= "'" . $this->escapeString(trim(stripslashes($uniqID))) . "'";
 			}
 			else if ( $field['type'] === 'enum' )
@@ -2040,7 +1721,8 @@ class Model extends Application
 					$opType 	= !empty($condFieldValues[1]) ? $condFieldValues[1] : '='; // Default operator to '='
 					//$condValue 	= $condFieldValues[2];
 					$condValue 	= $argsNb === 3 ? $condFieldValues[2] : $condFieldValues[1];
-					$condValue     = $condValue !== null ? Tools::toArray($condValue) : null;					
+					//$condValue 	= $this->arrayify($condValue);
+					$condValue 	= $condValue !== null ? $this->arrayify($condValue) : null;
 					
 					// Get the field type
 					$type 		= !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
@@ -2202,7 +1884,7 @@ class Model extends Application
             // Special case when operator is IN/NOT IN and value is single, use =/!= instead
             $usedOperator   = in_array($usedOperator, array('IN','NOT IN')) && !$multiValues ? ( $usedOperator === 'NOT IN' ? '!=' : '=' ) : $usedOperator;
 
-            // Special case if the operator is = and the passed value is null, we have to use IS/IS NOT operator instead
+            // Special if the operator is = and the passed value is null, we have to use IS/IS NOT operator instead
             $usedOperator   = in_array($usedOperator, array('=','!=')) && 
                        ( 
                             is_null($values) 
@@ -2216,26 +1898,19 @@ class Model extends Application
 			// Do not continue if the current values are multiple whereas the operator throwing a warning by the way
 			if ( in_array($usedOperator, $uniques) && $multiValues ) { $this->warnings[4215] = $operator . '/' . (string) $values; continue; }
 			
-            $fields        = is_string($fields) && strpos($fields, ',') !== false ? Tools::toArray($fields) : $fields;
-			$values        = is_string($values) && strpos($values, ',') !== false ? Tools::toArray($values) : $values;
+			$fields        = is_string($fields) && strpos($fields, ',') !== false ? $this->arrayify($fields) : $fields;
+			$values        = is_string($values) && strpos($values, ',') !== false ? $this->arrayify($values) : $values;
 			$condKeyword   = $i === 0 && empty($o['extra']) ? 'WHERE ' : 'AND ';
+//$this->dump(@$condition[3]);
             $condKeyword    = $i > 0 && isset($condition[3]) && strtolower($condition[3]) === 'or' ? 'OR ' : $condKeyword;
-            
-            // Handle parenthesis wrappers for 'OR' conditions
-            $oParenthesis   = isset($condition[4]) && strtolower($condition[4]) === 'first' ? '( ' : '';
-			$cParenthesis   = (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
-            //$cParenthesis   = !empty($oParenthesis) || (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
 			
-//$this->dump($oParenthesis);
-//$this->dump($cParenthesis);
+			$output .= $condKeyword;
 
 			// Special case when multiple fields are passed
 			// Since we cannot handle more than 1 field at a time,
 			// we need to explode the array of $fields, handling the first one and making new conditions for the other ones
 			if ( $multiFields )
 			{
-				$output .= $condKeyword . $oParenthesis;
-				
 				// Extract the first element from the fields array
 				$tmpFields  = $fields;
 				$fields     = array_shift($tmpFields);
@@ -2252,11 +1927,6 @@ class Model extends Application
 			{
 				// TODO: get next triplets: [5],[6],[7]???? and loop over itself geting the ouput $orConditions
 			}
-            
-            if ( isset($condition[4]) && strtolower($condition[4]) === 'first' )
-            {
-                
-            }            
 			
 			if ( in_array($usedOperator, array('IN','NOT IN')) )
 			{
@@ -2266,8 +1936,7 @@ class Model extends Application
 				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
 				$opts 	+= array('values' => $values); 
 				
-				$fields = Tools::toArray($fields);
-				$output .= $condKeyword . $oParenthesis;
+				$fields = $this->arrayify($fields);
 				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
 				$output .= ' ' . $usedOperator . ' (' . $this->handleConditionsTypes($opts);
 				$output .= ') ';
@@ -2275,34 +1944,28 @@ class Model extends Application
 			// Case for single field & single value operators
 			else
 			{
+//$this->dump('here1');
+//$this->dump($fields);
+                
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
-				
+				// Try to get the related resource for the current field/column, otherwise assume its the current one
+				$res        = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
 				$col        = &$fields;
- 
-                // TODO: handle this properly (require queryFields to contains joined fields)
                 
+                // TODO: handle this properly (require queryFields to contains joined fields)
                 // If the column name contains a "., assume that it is like 'table'.'column', matching db real structure
                 $useAlias   = strpos($col, '.') === false;
-                $colParts   = !$useAlias ? explode('.',$col) : null;
-				
-				// Try to get the related resource for the current field/column, otherwise assume its the current one
-				$res        = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : ( !$useAlias ? $colParts[0] : $this->resourceName );
-				                
+                $colParts   = !$useAlias ? explode('.',$col) : null;                
                 $alias      = !$useAlias 
                                 ? ( isset($this->resources[$colParts[0]]) ? $this->resources[$colParts[0]]['alias'] : $colParts[0] ) 
                                 : ( !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias );
                 $col        = !$useAlias ? $colParts[1] : $col;
-				
-//$this->dump($res . ':' . $col);
-//$this->dump($this->queryData);
-				
-                // Do not continue if the column is not a known one or if the resource does not belong to the queried ones for this request
-                if ( !isset($this->application->dataModel[$res][$col]) ){ continue; }
                 
-                // TODO: how to handle joined columns????                
+//$this->dump($col);
 				
-				$output .= $condKeyword . $oParenthesis;
+				//$output .= $alias . '.' . $fields . ' = ' . $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col)) . ' ';
+				//$output .= $useAlias ? $alias . '.' : '';
 				$output .= $alias . '.';
                 $output .= $col . ' ' . $usedOperator . ' ';
                 $output .= $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col, 'operator' => $operator)) . ' ';
@@ -2314,7 +1977,7 @@ class Model extends Application
 			// Get extra conditions is there's
 			$output .= !empty($extraOutput) ? $extraOutput : '';
 			
-            $output .= $cParenthesis;
+//$this->dump(@$this->warnings);
 			
 			$i++;
 		}
@@ -2340,6 +2003,7 @@ class Model extends Application
 		$j = 0;
 		foreach( $o['columns'] as $col )
 		{
+//$this->dump($field);
 			$qf = !empty($this->queryData['fields'][$col]) ? $this->queryData['fields'][$col] : null;
 			
             // TODO: handle this properly (require queryFields to contains joined fields)
@@ -2406,19 +2070,15 @@ class Model extends Application
 		$colModel     = !empty($res) && !empty($col) && !empty($this->application->dataModel[$res][$col]) ? $this->application->dataModel[$res][$col] : null;
 		$defType      = !empty($colModel['type']) ? $colModel['type'] : null;
 		$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby')) ? '%' : '';
-		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby')) ? '%' : '';
-		
-//$this->dump($o);
-//$this->dump($defType);
+		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby')) ? '%' : '';   
 		
 		//if ( $defType === 'timestamp' )                           { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
-		if 		( $defType === 'timestamp' && !is_null($val) ) 		{ $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
-		else if ( $defType === 'bool'  ) 							{ $val = in_array($val, array(1,true,'1','true','t')) ? 1 : 0; }
-		else if ( is_int($val) ) 									{ $val = (int) $val; }
-		else if ( is_float($val) ) 									{ $val = (float) $val; }
-		else if ( is_bool($val) ) 									{ $val = (int) $val; }
-		else if ( is_null($val) || strtolower($val === 'null') ) 	{ $val = 'NULL'; }
-		else if ( is_string($val) ) 								{ $val = "'" . $valPrefix . $this->escapeString($val) . $valSuffix . "'"; }
+		if ( $defType === 'timestamp' && !is_null($val) )         { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
+		else if ( is_int($val) )                                  { $val = (int) $val; }
+		else if ( is_float($val) )                                { $val = (float) $val; }
+		else if ( is_bool($val) )                                 { $val = (int) $val; }
+		else if ( is_null($val) || strtolower($val === 'null') )  { $val = 'NULL'; }
+		else if ( is_string($val) )                               { $val = "'" . $valPrefix . $this->escapeString($val) . $valSuffix . "'"; }
 		//else                                                    { $val = "'" . $this->escapeString($val) . "'"; }
 		//else                                                      { $val = $val; }
 
@@ -2436,8 +2096,7 @@ class Model extends Application
 		
 		if ( isset($o['values']) && !empty($o['by']) )
 		{
-			//$whereValues 	= $this->magic($o['values']);
-			$whereValues     = Tools::toArray($o['values']);
+			$whereValues 	= Tools::toArray($o['values']);
 			$op 			= !empty($o['operation']) ? $o['operation'] : '';
 			
 			switch($op)
@@ -2475,7 +2134,7 @@ class Model extends Application
 					break;
 				default:
 					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
-					$by    = Tools::toArray($o['by']);
+					$by 	= $this->arrayify($o['by']);
 					//$where 	= "WHERE " . $this->alias . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
 					$i = 0;
 					$where = "WHERE ";
@@ -2502,7 +2161,7 @@ class Model extends Application
 		if ( !empty($o['sortBy']) )
 		{
 			$o['sortBy'] = Tools::toArray($o['sortBy']);
-			
+					
 			$i = 0;
 			foreach ($o['sortBy'] as $f)
 			{
@@ -2530,56 +2189,9 @@ class Model extends Application
 			$orderBy .= !empty($tmpOrderBy) ? " ORDER BY " . $tmpOrderBy : '';
 		}
 		
-		return $orderBy;
-	}
-
-
-	public function handleGroupBy($options = array())
-	{
-		$o 			= &$options; 		// Shortcut for options
+//$this->dump($orderBy);
 		
-		// Build GROUP BY
-		$groupBy = '';
-		if ( !empty($o['groupBy']) )
-		{
-			$o['groupBy'] = Tools::toArray($o['groupBy']);
-			
-			// We have to append to the GROUP BY all the requested fields			
-			// So we get the list of requested fields and store it as a local variable
-			$gByFields = $this->queryData['fields'];
-			
-			// Remove from this array, the fiels really used to the grouping
-			foreach ($o['groupBy'] as $field) { unset($gByFields[$field]); }
-			
-			$i = 0;
-			$groupByOthers = '';
-			
-			// Disabled
-			// Why was this used? Maybe bad fix for mysql error #1140 - Mixing of GROUP columns
-			/*
-			foreach ($gByFields as $k => $f)
-			{
-				// Skip onetomany gotten fields
-				if ( !empty($f['relation']) && $f['relation'] === 'onetomany' ){ continue; } 
-				
-				$groupByOthers .= ($i === 0 ? '' : ", ") . ( !empty($f['table']) ? $f['table'] : $this->alias ) . "." . $f['name'];
-				
-				// Case for joined columns where an alias could be used for the gotten fields
-				if ( !empty($f['table']) && !empty($f['as']) )
-				{
-					$groupByOthers .= ( !empty($groupByOthers) ? ", " : '' ) . $k;
-				}
-				
-				$i++;
-			}*/
-			
-//var_dump($groupByOthers);
-
-			$groupByFields 	= is_array($o['groupBy']) ? join(", " . $this->alias . ".", $o['groupBy']) : $o['groupBy'];
-			$groupBy 		= "GROUP BY " . $this->alias . "." . $groupByFields . (!empty($groupByOthers) ? ", " . $groupByOthers : '') . " ";
-		}
-
-		return $groupBy;
+		return $orderBy;
 	}
 	
 	
@@ -2590,7 +2202,7 @@ class Model extends Application
 	
 	
 	public function index($options = array())
-	{
+	{        
 		// Set default params
 		// TODO: use $this->options instead, and use array_merge
 		$o 				= &$options;
@@ -2598,21 +2210,18 @@ class Model extends Application
 		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'id';
 		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
 		$o['type'] 		= 'select';
-        $o['mode']      = !empty($o['mode']) ? $o['mode'] : '';         // can be '','count','distinct','onlyOne'
-        $o['getFields'] = !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
+		$o['getFields'] = !empty($o['getFields']) ? $this->arrayify($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
-		//$this->log($query);
-		$this->dump($query);
+		$this->log($query);
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);
 		
 		return $this->data;
 	}
-	
 	
 	public function search($options = array())
 	{        
@@ -2631,43 +2240,13 @@ class Model extends Application
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildInsert($resourceData, $o);
 		
-        //$this->log($query);
-        $this->dump($query);
+		$this->log($query);
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);
 		
 		//return ( !empty($o['returning']) && count((array) $o['returning']) === 1 ) ? $this->data[$o['returning']] : $this;
-		//return !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this;
-		return defined('_APP_USE_SQL_FETCH_V2') && _APP_USE_SQL_FETCH_V2
-			?  $this->data
-			: ( !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this )
-		;
-			
-		
-	}
-	
-	
-	public function createTable($params = array())
-	{
-		$p 			= &$params;
-		
-		$query = "
-			CREATE TABLE IF NOT EXISTS `" . $p['name'] . "` (
-			  `id` int(11) NOT NULL auto_increment,
-			  `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
-			  `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
-			  PRIMARY KEY  (`id`)
-			) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-		";
-		
-		$this->dump($query);
-		
-		// Execute the query and store the returned data
-		//$this->data = $this->query($query)->data;
-		$this->query($query);
-		
-		return $this;
+		return !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this;
 	}
 	
 	
@@ -2677,18 +2256,16 @@ class Model extends Application
 		$o 				= &$options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( empty($o['values']) || count($o['values']) <= 1 ? 'onlyOne' : null );
-        $o['values']    = !empty($o['values']) ? Tools::toArray($o['values']) : null;
-        
+        $o['values']    = !empty($o['values']) ? $this->arrayify($o['values']) : null;
 		// Using LIMIT 1 (by default) for perf issues
 		$o['limit'] 	= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;
 		$o['type'] 		= 'select';
-        $o['getFields'] = !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
+		$o['getFields'] = !empty($o['getFields']) ? $this->arrayify($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
-        //$this->log($query);
-        $this->dump($query);
+		$this->log($query);
         
 		$this->data = $this->query($query, $o)->data;
 		
@@ -2711,8 +2288,7 @@ class Model extends Application
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildUpdate($resourceData, $o);
 		
-        //$this->log($query);
-        $this->dump($query);
+		$this->log($query);
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);
@@ -2734,8 +2310,7 @@ class Model extends Application
 		// Build the proper query
 		$query = $this->buildDelete($o);
 		
-		//$this->log($query);
-		$this->dump($query);
+		$this->log($query);
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);

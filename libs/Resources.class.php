@@ -21,24 +21,6 @@ class Resources extends Application
 			->extendDataModel();
 	}
 	
-	public function singularize(string $plural)
-	{
-		// *s => *
-		// *.ies => y
-		// 
-		$len = strlen($plural);
-		
-		if 		( substr($plural, -2) === 'ses'  )		{ $sing = preg_replace('/(.*)ses/','$1ss', $plural); }
-		else if ( substr($plural, -3) === 'hes' )		{ $sing = preg_replace('/(.*)hes/','$1h', $plural); }
-		else if ( substr($plural, -3) === 'ies' )		{ $sing = preg_replace('/(.*)ies$/','$1y', $plural); }
-		else if ( substr($plural, -3) === 'oes' )		{ $sing = preg_replace('/(.*)oes$/','$1o', $plural); }
-		else if ( substr($plural, -3) === 'ves' )		{ $sing = preg_replace('/(.*)ves$/','$1f', $plural); }
-		else if ( $plural[$len-1] === 'a' ) 			{ $sing = preg_replace('/(.*)a$/','$1um', $plural); }
-		else if ( $plural[$len-1] === 's' ) 			{ $sing = preg_replace('/(.*)s$/','$1', $plural); }
-		
-		return $sing;
-	}
-	
 	public function extendsResources()
 	{
 		foreach ( $this->resources as $k => $v )

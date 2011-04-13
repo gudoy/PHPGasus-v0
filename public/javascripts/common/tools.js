@@ -1,6 +1,26 @@
-
 var Tools = 
-{	
+{
+    /*
+     * This function dynamically loads a css file in the page
+     * @author Guyllaume Doyer guyllaume@clicmobile.com
+     * @return {Object} this object
+     */
+    loadCSS: function(cssFile)
+    {
+        // If the css already exists we do not continue
+        if ( $('link[href*="' + cssFile + '"]', 'head').length ) { return this; }
+        
+        var src = cssFile,
+        
+            h = '<link href="' + src + '" media="all" rel="stylesheet" type="text/css" />';
+        
+        // For IE, we have to add the new css file Before the IE specifics css files
+        //app.isIE ? $j('head link[href*="Site-ie"]').before(h) : $j('head link[type="text/css"]:last').after(h);
+        $('link[type="text/css"]:last', 'head').after(h);
+        
+        return this;
+    },
+    
 	/** 
 	 * @projectDescription	This files defines the global app object of our application and a tools object for containing some misc helpers
 	 *
@@ -16,16 +36,10 @@ var Tools =
 	// usage: Tools.loadJS([{id:'file1', url:'/path/to/your/file1.js', success: function(){ alert('hello world!'); }}, {url:'file2', '/path/to/your/file2.js'}], function(){ /* global calback function code here */ })
 	loadJS: function(jsFiles)
 	{
-		// 
-		//var jsFiles = (typeof(jsFiles) === 'array' || typeof(jsFiles) === 'object' ) 
-		//				? jsFiles 
-		//				: ( (typeof(jsFiles) === 'String' ) ? [{url:jsFiles}] : [] ),
-		
 		// Force jsFiles to be an array 
 		var jsFiles = typeof jsFiles === 'object' ? (jsFiles instanceof Array ? jsFiles : [jsFiles]) : ( typeof jsFiles === 'string' ? [{url:jsFiles}] : [] ),
 		
 		// Main callback (fired when all scripts have been loaded)
-			//mainCallback = (arguments.length >= 1) ? arguments[1] : null,
 			mainCallback = arguments[1] || function(){},
 			
 		// Number of successfully loaded files
@@ -54,8 +68,6 @@ var Tools =
 				
 				return;
 			}
-			
-			//$.getScript(file.url, function() { loadedFiles.push(true); file.success.call(null); handleCallback(); });
 			
             var script = document.createElement('script'),
 				head = document.getElementsByTagName('head')[0];
@@ -107,22 +119,7 @@ var Tools =
 	trim: function(str)
 	{
 		return str.replace(/^\s+/g,'').replace(/\s+$/g,'');
-	},
-	
-	/*
-	strtr: function (str, from, to)
-	{
-    	var subst;
-    	
-		for (i = 0; i < from.length; i++)
-		{
-        	subst 	= (to[i]) ? to[i] : to[to.length-1];
-        	str 	= str.replace(new RegExp(str[str.indexOf(from[i])], 'g'), subst);
-    	}
-		
-	    return str;
-	},*/
-	
+	},	
 	
 	strtr: function (str, charsTable)
 	{
@@ -156,15 +153,6 @@ var Tools =
         var str = Tools.deaccentize(str);
 
         // Replace non-standard chars
-		/*
-        id = preg_replace(
-                array(
-                    '`^[^A-Za-z0-9]+`',
-                    '`[^A-Za-z0-9]+$`',
-                    '`[^A-Za-z0-9]+`' ),
-                array('','','-'),
-                $id );
-         */
 		str = str.replace(/^[^A-Za-z0-9]+/g, '');
 		str = str.replace(/[^A-Za-z0-9]+$/g, '');
 		str = str.replace(/[^A-Za-z0-9]+/g, '-');
@@ -211,95 +199,6 @@ var Tools =
 		var reg = new RegExp('(.*)' + paramName + '=([^\&\#\?]*)(.*)', 'g');
 		
 		return url.replace(reg,'$1$3').replace(/(.*)\?&(.*)/,'$1?$2').replace(/(.*)[&|?]$/,'$1');
-	},
-	
-	var_dump: function(data)
-	{
-		var var_dump = function var_dump(data,addwhitespace,safety,level)
-		{
-		    var rtrn = '',
-				dt,
-				it,
-				spaces = '';
-				
-		    if (!level) {level = 1;}
-			
-		    for (var i=0; i<level; i++) { spaces += '   '; }
-			
-		    if (typeof(data) != 'object')
-			{
-		       dt = data;
-			   
-		       if (typeof(data) == 'string') 
-			   {
-		          if (addwhitespace == 'html')
-				  {
-		             dt = dt.replace(/&/g,'&amp;');
-		             dt = dt.replace(/>/g,'&gt;');
-		             dt = dt.replace(/</g,'&lt;');
-		          }
-				  
-		          dt = dt.replace(/\"/g,'\"');
-		          dt = '"' + dt + '"';
-		       }
-			   
-		       if(typeof(data) == 'function' && addwhitespace)
-			   {
-		          dt = new String(dt).replace(/\n/g,"\n"+spaces);
-				  
-		          if(addwhitespace == 'html')
-				  {
-		             dt = dt.replace(/&/g,'&amp;');
-		             dt = dt.replace(/>/g,'&gt;');
-		             dt = dt.replace(/</g,'&lt;');
-		          }
-				  
-		       }
-		       
-			   if (typeof(data) == 'undefined') { dt = 'undefined'; }
-		       
-			   if (addwhitespace == 'html')
-			   {
-		          if(typeof(dt) != 'string') {  dt = new String(dt);  }
-		          
-				  dt = dt.replace(/ /g,"&nbsp;").replace(/\n/g,"<br>");
-		       }
-			   
-		       return dt;
-		    }
-		    
-			for (var x in data)
-			{
-		       if (safety && (level > safety))
-			   {
-		          dt = '*RECURSION*';
-		       }
-			   else
-			   {
-		          try { dt = var_dump(data[x],addwhitespace,safety,level+1); } catch (e) {continue;}
-		       }
-		       
-			   it = var_dump(x,addwhitespace,safety,level+1);
-		       rtrn += it + ':' + dt + ',';
-		       
-			   if (addwhitespace) {  rtrn += '\n'+spaces; }
-		    }
-		    
-			if (addwhitespace)
-			{
-		       rtrn = '{\n' + spaces + rtrn.substr(0,rtrn.length-(2+(level*3))) + '\n' + spaces.substr(0,spaces.length-3) + '}';
-		    }
-			else
-			{
-		       rtrn = '{' + rtrn.substr(0,rtrn.length-1) + '}';
-		    }
-		    
-			if (addwhitespace == 'html') {  rtrn = rtrn.replace(/ /g,"&nbsp;").replace(/\n/g,"<br>"); }
-		    
-			return rtrn;
-		 };
-		
-		return this.log(var_dump(data));
 	}
 };
 

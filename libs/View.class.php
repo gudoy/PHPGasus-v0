@@ -6,30 +6,34 @@ class View extends Application
 {
 	var $controller        = null;
 	var $headers           = array();
-	var $Events            = null;
+	var $events            = null;
 	var $data              = array(
 		'success' 		=> false,
 		'errors' 		=> array(), 
 		'warnings' 		=> array()
 	);
     
-    var $logged             = false;
+    var $application    = null;
+    //var $logged             = false;
 		
-	public function __construct()
+	public function __construct(&$application = null)
 	{
+	    $this->application = &$application;
+        
 		return $this->init();
 	}
 	
-	
 	public function init()
 	{
+        $this->log(__METHOD__);
+        
 		if ( $this->inited ) { return $this; }
 		
 		// If events are enabled
 		if ( _APP_USE_EVENTS )
 		{
 			$this->requireLibs('Events');
-			$this->Events = new Events();
+			$this->events = new Events();
 			
 			// Triggered events:
 			// onBeforeRender
@@ -37,14 +41,18 @@ class View extends Application
 			// onBeforeUpdate (admin)
 			// onUpdateSuccess (admin)
 			// onUpdateError (admin)
+			// onAfterUpdate (admin)
 			// onBeforeDelete (admin)
+			// onAfterDelete (admin)
 			// onDeleteSuccess (admin)
 			// onDeleteError (admin)
 			// onBeforeIndex (admin)
+			// onAfterIndex (admin)
 			// onBeforeRetrieve (admin)
 			// onBeforeCreate (admin)
 			// onCreateSuccess (admin)
 			// onCreateError (admin)
+			// onAfterCreate(admin)
 		} 
 		
 		$this->configEnv();
@@ -57,7 +65,8 @@ class View extends Application
 		if ( !empty($this->resourceName) )
 		{
 			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : preg_replace('/(.*)s$/','$1', $this->resourceName);
-			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
+			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
+			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singularize((string) $this->resourceName);
 			
 			$cName = 'C' . ucfirst($this->resourceName);
 			$cPath = !empty($this->controllerPath) ? $this->controllerPath : $cName . '.class.php';
@@ -70,18 +79,16 @@ class View extends Application
 			$this->C 				= &$this->controller;
 		}
 		
-//$this->dump($this);
-		
 		//if ( empty($this->inited) )
 		//{
 			$this
-				->configSmarty()
+				//->configSmarty()
 				->getPlatformData()
-				->getBrowserData()
+                ->getDeviceData()
+                ->getBrowserData()
 				->handleOptions()
 				->handleRequest()
-				->outputFormat()
-				->handleAppSpecifics();
+				->outputFormat();
 			
 			// Has the request been made via xhr	
 			$this->isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
@@ -91,22 +98,24 @@ class View extends Application
 			
 		// Get the ancestor resources
 		//$this->breadcrumbs = array();
+		
+		return $this;
 	}
 	
 	
 	public function configSmarty()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Don't reload anything if application is already loaded
 		class_exists('Smarty') || require _PATH_SMARTY . 'libs/Smarty.class.php';
 		
 		// Instanciate a Smarty object and configure it
 		$this->Smarty 						= new Smarty();
-		$this->Smarty->compile_check 		= _SMARTY_COMPILE_CHECK;
-		$this->Smarty->force_compile 		= _SMARTY_FORCE_COMPILE;
-		$this->Smarty->caching 				= _SMARTY_CACHING;
-		$this->Smarty->cache_lifetime 		= _SMARTY_CACHE_LIFETIME;
+		$this->Smarty->compile_check 		= _TEMPLATES_COMPILE_CHECK;
+		$this->Smarty->force_compile 		= _TEMPLATES_FORCE_COMPILE;
+		$this->Smarty->caching 				= _TEMPLATES_CACHING;
+		$this->Smarty->cache_lifetime 		= _TEMPLATES_CACHE_LIFETIME;
 		$this->Smarty->template_dir 		= _PATH_TEMPLATES;
 		$this->Smarty->compile_dir 			= _PATH_TEMPLATES . 'templates_c/';
 		$this->Smarty->cache_dir 			= _PATH_SMARTY . 'cache/';
@@ -118,35 +127,70 @@ class View extends Application
 	}
 	
 	
-	public function dispatchMethods($args = array(), $options = array())
+	// Try to find which method to use in this order in POST || GET || SERVER REQUEST;
+	// If none found, fallback to 'index'
+	public function dispatchMethods($args = array(), $params = array())
 	{
-		/*
-		if ( !empty($_POST['ids']) )
-		{
-			$resourceId 				= join(',', $_POST['ids']);
-			$_SERVER['REQUEST_METHOD'] 	= 'GET';
-			$_GET['method'] 			= $_POST['method'];
-		}
-		*/
-				
-		$o 			= &$options;
-		$rm 		= strtolower($_SERVER['REQUEST_METHOD']); 													// Shortcut for request method
-		$a 			= isset($this->options['method']) ? $this->options['method'] : null; 						// Shortcut for "forced method" 
-		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
-		$bindings 	= array('put' => 'update', 'post' => 'create', 'get' => 'retrieve', 'delete' => 'delete');	// Bind request methods to class methods
-		$m 			= !empty($a) 
-						? $a 
-						: ( !isset($bindings[$rm]) || ( $bindings[$rm] === 'retrieve' && empty($id) ) 
-							? 'index' : $bindings[$rm] ); 														// Get the class method to use
-		$allowed 	= !empty($o['allowed']) ? explode(',', $o['allowed']) : array(); 							// Get the allowed methods
+        $this->log(__METHOD__);
 		
+		if ( isset($args[__METHOD__]) && !$args[__METHOD__] ){ return $this; }
+		
+		// Known methods (alias => used)
+		$known = array(
+			'index' 	=> 'index',
+			'put' 		=> 'update',
+			'update' 	=> 'update',
+			'post' 		=> 'create',
+			'create'	=> 'create',
+			'get' 		=> 'retrieve',
+			'retrieve' 	=> 'retrieve',
+			'delete' 	=> 'delete',
+			'search'	=> 'search',
+		);
+
+		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
+		$p 			= &$params; 																				// Shortcut for params
+		$allowed 	= !empty($p['allowed']) 
+						? ( is_array($p['allowed']) ? $p['allowed'] : explode(',', $p['allowed']) ) 
+						: array(); 																				// Get the allowed methods
+		$gM 		= isset($this->options['method']) ? strtolower($this->options['method']) : null; 			// Shortcut for GET "method" param
+		$pM 		= !empty($_POST['method']) 
+						? strtolower(filter_var($_POST['method'], FILTER_SANITIZE_STRING)) 
+						: null; 																				// Shortcut for POST "method" param
+		$srM 		= isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : null; 		// Shortcut for request method
+		$foundM 	= !empty($pM) ? $pM : ( !empty($gM) ? $gM : ( !empty($srM) ? $srM : null )); 				// 
+		$m 			= !empty($foundM) && isset($known[$foundM]) ? $known[$foundM] : 'index';
+
+/*
+$this->dump('gM: ' . $gM);
+$this->dump('pM: ' . $pM);
+$this->dump('srM: ' . $srM);		
+$this->dump('found: ' . $foundM);
+$this->dump('m: ' . $m);
+$this->dump('id: ' . $id);
+$this->dump($allowed);
+*/
+		
+		// Special case if method is 'retrieve' but resource id is not set
+		// In this case, method is forced back to index 
+		if ( $m === 'retrieve' && is_null($id) ) { $m = 'index'; }
+		
+//$this->dump('m: ' . $m);
+		
+		//$m 			= !empty($pM) 
+		//					? $pM : !empty($gM) 
+		//					? $gM : ( !isset($known[$srM]) || ( $known[$srM] === 'retrieve' && empty($id) ) 
+		// 					? 'index' : $known[$srM] ); 														// Get the class method to use
+		
+		// Store the final method
 		$this->data['view']['method'] = $m;
         
 		// If the method is not index and belongs to the allowed methods, call it
+		//if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
 		if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
-		//if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func(array($this, $m), $args); }
 		// Otherwise, just continue
-		else if ( $m === 'index' ) { /* simply continue */ }
+		else if ( $m === 'index' ) { /* just continue */ }
+		// The following case should not append
 		else
 		{
 			return $this->statusCode(405); // Method not allowed
@@ -155,11 +199,11 @@ class View extends Application
 	
 	
 	/*
-	 * This function tries to find out some browser data like its name and version
+	 * This function tries to find out platform data
 	 */	
 	public function getPlatformData()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Default values
 		$this->platform = array(
@@ -174,7 +218,7 @@ class View extends Application
 		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		
 		// List of known platforms
-		$knownPlatforms = array('Windows','Mac OS','linux','freebsd','iPhone','iPod','iPad','Android','Bada','AdobeAIR','tabbee','mobile','j2me');
+		$knownPlatforms = array('Windows','Mac OS','linux','freebsd','iPhone','iPod','iPad','Android','BlackBerry','Bada','AdobeAIR','tabbee','mobile','j2me');
 		
 		foreach ( $knownPlatforms as $p )
 		{
@@ -194,12 +238,40 @@ class View extends Application
 	}
 
 
+    public function getDeviceData()
+    {
+        $this->log(__METHOD__);
+        
+        $this->device   = array();
+        $d              = &$this->device;
+        
+        
+        // Get resolution
+        $resol          = !empty($_SESSION['resolution']) ? explode('x', strtolower($_SESSION['resolution'])) : array();
+        $w              = !empty($resol[0]) ? (int) $resol[0] : null;
+        $h              = !empty($resol[1]) ? (int) $resol[1] : null;
+        
+        // Default values
+        $d  = array(
+            'resolution'    => array('width' => $w, 'height' => $h),
+            'isMobile'      => isset($_GET['isMobile']) 
+                                ? in_array($_GET['isMobile'], array('1', 'true',1,true))
+                                : ( !empty($w) ? ($w < 800) : null ),
+            'orientation' => !empty($_SESSION['orientation']) 
+                                ? $_SESSION['orientation'] 
+                                : ( $w && $h ? ( $w > $h ? 'landscape' : 'portrait') : null),
+        );
+        
+        return $this;
+    }
+
+
 	/*
-	 * This function tries to find out some browser data like its name and version
+	 * This function tries to find out browser data like name, version, engine
 	 */	
 	public function getBrowserData()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Default values
 		$this->browser 	= array(
@@ -208,7 +280,7 @@ class View extends Application
 			'version' 			=> 'unknownVersion',
 			'engine' 			=> 'unknownEngine',
 			'hasHTML5' 			=> false,
-			'hasHTML5Forms' 	=> false,
+			//'hasHTML5Forms' 	=> false,
 		);
 		
 		// Do not continue if browser sniffing has been disabled
@@ -219,15 +291,16 @@ class View extends Application
 		
 		// Known browsers data
 		$data 			= $this->browser;
-		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml');
+        //$knownEngines   = array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml', 'BlackBerry' => 'blackberry');
+		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml', 'BlackBerry' => 'mango');
 		$knownBrowsers 	= array(
 			'MSIE' 						=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
 			'Firefox' 					=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
-			//'MozillaDeveloperPreview' 	=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*[Firefox|MozillaDeveloperPreview]\/([0-9\.]*)\s?.*/'),
 			'Chrome' 					=> array('name' => 'chrome', 'displayName' => 'Chrome', 'alias' => 'chrome', 'versionPattern' => '/.*(Chrome)\/([0-9\.]*)\s.*/'),
 			'Safari' 					=> array('name' => 'safari', 'displayName' => 'Safari', 'alias' => 'safari', 'versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
 			'Opera' 					=> array('name' => 'opera', 'displayName' => 'Opera', 'alias' => 'opera', 'versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
 			'Konqueror'                 => array('name' => 'konqueror', 'displayName' => 'Konqueror', 'alias' => 'konqueror', 'versionPattern' => '/.*(Konqueror)\/([0-9\.]*)\s.*/'),
+            'BlackBerry'                => array('name' => 'blackberry', 'displayName' => 'BlackBerry', 'alias' => 'blackberry', 'versionPattern' => '/.*(BlackBerry[a-zA-Z0-9]*)\/([0-9\.]*)\s.*/'),
 		);
 				
 		// Try to get the browser data using the User Agent
@@ -269,22 +342,23 @@ class View extends Application
 		}
 		
 		// Features detection
-		$data['hasHTML5'] = $data['alias'] === 'chrome' 
-								|| ($data['alias'] === 'safari' && $data['versionMajor'] >= 4)
-								|| ($data['alias'] === 'ff' && $data['versionMajor'] >= 3 && $data['versionMinor'] >= 5)
-								|| ($data['alias'] === 'opera' && $data['versionMajor'] >= 9)
-								|| ($data['alias'] === 'ie' && $data['versionMajor'] >= 9)
-                                || ($data['alias'] === 'konqueror' && $data['versionMajor'] >= 4 && $data['versionMinor'] >= 4 && $data['build'] >= 4);
-		
-		$als 	= $data['alias'];
+		$maj              = &$data['versionMajor'];
+		$min              = &$data['versionMinor'];
+		$alias            = &$data['alias'];
+		$data['hasHTML5'] = $alias === 'chrome' 
+								|| ($alias === 'safari' && $maj >= 4)
+								|| ($alias === 'ff' && ( ($maj === 3 && $min >= 5) || $maj >= 4 ))
+								|| ($alias === 'opera' && $maj >= 9)
+								|| ($alias === 'ie' && $maj >= 9)
+                                || ($alias === 'konqueror' && $maj >= 4 && $min >= 4 && $data['build'] >= 4);
 		
 		if ( !empty($scheme) )
 		{
 			$v 		= $scheme;
 			$data['support'] = array(
 				'datalist' => 
-								$als === 'opera' && ($v['major'] > 10 || ($v['major'] == 10 && $v['minor'] == 5))
-								|| $als === 'ff' && $v['major'] > 4,
+								$alias === 'opera' && ($v['major'] > 10 || ($v['major'] == 10 && $v['minor'] == 5))
+								|| $alias === 'ff' && $v['major'] > 4,
 			);
 		}
 		
@@ -293,33 +367,27 @@ class View extends Application
 		return $this;
 	}
 
-
-	/**
-	 * This helper function handles optional paramaters setting them depending of the those passed 
-	 * to the function and/or those passed via the URI querystring
-	 * In case of conflicts (a param passed both in function call and in the querystring)
-	 * the value in the querystring will overload the one in the function call
-	 * 
-	 * @author Guyllaume Doyer <guyllaume@clicmobile.com>
-	 * @param object List of parameters
-	 * @return array Array the the options
-	 */
-	public function handleOptions($options = null)
+	public function handleOptions($options = array())
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
-		$o 	= (array) $options; 	// Shortcut for options
+		//$o 	= (array) $options; 	// Shortcut for options
+		$o        = &$options;                 // Shortcut for options
 
 		// Known options
-		$known = array(
-			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
+		$known    = array(
+			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page','reindexby','indexby',
 			//'operation','isIphone','iphone','isAndroid','android','debug',
 			'operation','debug','confirm',
-			'errors','successes','warnings','notifications'
+			'errors','successes','warnings','notifications',
+			'css', 'js', 'minify',
 		);
 		
 		// Specific ones whose default value is 0 (false)
 		$specZero = array('isIphone','iphone','isAndroid','android','offset','limit','debug', 'confirm');
+        
+        // TODO
+        $specOne = array('css', 'js', 'minify',);
 		
 		// Assign the options default values
 		foreach ( $known as $opt )
@@ -333,6 +401,7 @@ class View extends Application
 		
 		// 
 		$this->options['conditions'] = isset($_GET['conditions']) ? $_GET['conditions'] : null;
+		
 		if ( !empty($this->options['conditions']) )
 		{
 			$passedOps 	= explode(';', $this->options['conditions']);
@@ -352,19 +421,21 @@ class View extends Application
 			$this->options['conditions'] = $finalOps;
 		}
 		
-
-
-		
+		// Handle limit
 		$tmpLim = (int) $this->options['limit'];
 		$this->options['limit'] = $tmpLim > 0 ? $tmpLim : ( $tmpLim === -1 ? null : _ADMIN_RESOURCES_NB_PER_PAGE );
         
+		// Handle Page
         if ( !empty($this->options['page']) )
         {
             $this->options['offset'] = ((int) $this->options['page'] - 1) * $this->options['limit'];
             //$offset = ((int) $this->options['page'] - 1) * $this->options['limit'];
-            
-//var_dump($offset);
         }
+
+		// Handle indexBy & reindexby
+		// TODO: replace by following commented line when indexby will be done on requests fetch
+		//if ( !empty($this->options['reindexby']) ){ $this->options['indexby'] = $this->options['reindexby']; }
+		if ( !empty($this->options['indexby']) ){ $this->options['reindexby'] = $this->options['indexby']; }
 		
 		return $this;
 	}
@@ -372,16 +443,15 @@ class View extends Application
 	
 	public function handleRequest($options = array())
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$this->request = array(
-			//'method' 	=> strtoupper($_SERVER['REQUEST_METHOD']),
 			'method' 	=> !empty($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : null,
 			'rawData' 	=> null,
 			'data' 		=> null,
 		);
 		
-		$r = $this->request; // Shortcut for request data
+		$r = &$this->request; // Shortcut for request data
 		
 		// Only handle methods other than GET and POST
 		// We have to emulate $_PUT and $_DELETE global vars for those case 
@@ -401,34 +471,9 @@ class View extends Application
 	}
 	
 	
-	public function handleAppSpecifics()
-	{
-		/*
-		$this->log(__METHOD__);
-		
-		// Handle referer param in url
-		if ( !empty($_GET['referer']) )
-		{
-			// Store it into session
-			$_SESSION['iphoneApp']['referer'] = $_GET['referer'];
-			
-			// Get all the params in it and store them as a specific array
-			$tmp = explode('&', $_SESSION['iphoneApp']['referer']);
-			foreach ($tmp as $param)
-			{
-				$KeyVal = explode('=', $param);
-				$_SESSION['iphoneApp']['refererParams'][$KeyVal[0]] = $KeyVal[1];
-			}
-		}
-		*/
-		
-		return $this;
-	}
-	
-	
 	public function redirect($url = '', $options = null)
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$tplSelf 	= !empty($_GET['tplSelf']) && $_GET['tplSelf'] != 0;
 		$url 		= !empty($_GET['redirect']) ? $_GET['redirect'] : $url;
@@ -444,47 +489,48 @@ class View extends Application
 		
 		if ( $this->isAjaxRequest )
 		{
-			$url = $this->removeQueryParams('tplSelf', $url);
+			//$url = $this->removeQueryParams('tplSelf', $url);
+			$url = Tools::removeQueryParams('tplSelf', $url);
 			//$url = str_replace('tplSelf','',$url);
-			$this->data['redirect'] = $this->removeQueryParams('tplSelf', $url);
+			//$this->data['redirect'] = $this->removeQueryParams('tplSelf', $url);
+			$this->data['redirect'] = Tools::removeQueryParams('tplSelf', $url);
 			//$this->statusCode('302');
 			return $this->render();
 		}
 		else
 		{
-				header("Location:" . $url);
-				die();
+			header("Location:" . $url);
+			die();
 		}
 	}
 	
 	/**
-	 * This function try to guess what should be the output format of the response
+	 * This function tries to guess what should be the output format of the response
 	 * depending of the passed 'output' URI param and/or the 'accepted' header
-	 * By default: uses the _APP_DEFAULT_OUTPUT_FORMAT constant value (see config/appData.php)
+	 * By default: uses the _APP_DEFAULT_OUTPUT_FORMAT constant value (see config)
 	 * @return current object (this) 
-	 * @todo support for RSS, ATOM, RDF format
 	 */
 	public function outputFormat()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Prevent the method form being called twice (could happend in some cases) 
 		// TODO: check why and fix?
 		if ( !empty($this->outputHandled) ){ return $this; }
 		
-		$this->outputHandled 			= true;
+		$this->outputHandled              = true;
+        
+		// Shortcut for options
+		$o                                = &$this->options;
 
 		// Try to get the output format extension on the last resource in path
 		$uriParts 						= @parse_url($_SERVER['REQUEST_URI']); 
-		//$uriParts 						= filter_var($_SERVER['REQUEST_URI'], FILTER_VALIDATE_URL) ? parse_url($_SERVER['REQUEST_URI']) : array();
-		$urlExt 						= !empty($uriParts['path']) ? preg_replace('/(.*)\.(.*)/', '$2', $uriParts['path']) : null;
-		$this->options['output'] 		= !empty($this->options['output']) ? $this->options['output'] : $urlExt;
+        $urlExt 						= strpos($uriParts['path'], '.') !== false ? preg_replace('/(.*)\.(.*)/', '$2', $uriParts['path']) : null;
+		$o['output'] 					= !empty($o['output']) ? $o['output'] : $urlExt;
+		$o['outputExtension'] 			= $urlExt;
 		
-		// Shortcut for options
-		$o 								= $this->options;
-		
-		$this->availableOutputFormats 	= array('html','json','xml','plist','yaml','csv','qr','plistxml','yamltxt');
-		$this->knownOutputMime 			= array(
+		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','qr','plistxml','yamltxt','jsontxt','jsonreport');
+		$this->knownOutputMime            = array(
 			'text/html' 			=> 'html',
 			'application/xhtml+xml' => 'xhtml',
 			'application/json' 		=> 'json',
@@ -492,11 +538,8 @@ class View extends Application
 			'text/xml' 				=> 'xml', 
 			'application/xml' 		=> 'xml',
 			'application/plist+xml' => 'plist',
-			//'application/xml' 		=> 'plistxml', <=== BUG: should have never been here
 			'text/yaml' 			=> 'yaml',
 			'text/csv' 				=> 'csv',
-			//'plain/text' 			=> 'yamltxt', <=== BUG: should have never been here
-			//'image/png' 			=> 'qr',
 			// TODO: RSS
 			// TODO: ATOM
 			// TODO: RDF
@@ -541,7 +584,7 @@ class View extends Application
 			}
 			
 			// Fix this damn big fucking shit of ie that even does not insert text/html as a prefered type 
-			// and prefere being served in their own proprietary formats (word,silverlight,...). MS screw you!!!!  
+			// and prefers being served in their own proprietary formats (word,silverlight,...). MS screw you!!!!  
 			if ( $this->browser['engine'] === 'trident' )
 			{
 				//if ( !isset($prefs['text/html']) ) { $prefs['text/html'] = 150; }
@@ -558,12 +601,14 @@ class View extends Application
 			foreach ($prefs as $pref => $priority)
 			{ 
 				// If it's a known type, stop here
-				if ( isset($this->knownOutputMime[$pref]) ){ $this->options['output'] = $this->knownOutputMime[$pref]; break; }
+				//if ( isset($this->knownOutputMime[$pref]) ){ $this->options['output'] = $this->knownOutputMime[$pref]; break; }
+				if ( isset($this->knownOutputMime[$pref]) ){ $o['output'] = $this->knownOutputMime[$pref]; break; }
 			}
 			
 			// If nothing found, fallback to the default output format
-			if ( empty($this->options['output']) ){ $this->options['output'] = _APP_DEFAULT_OUTPUT_FORMAT; }
-			
+			//if ( empty($this->options['output']) ){ $this->options['output'] = _APP_DEFAULT_OUTPUT_FORMAT; }
+			if ( empty($o['output']) || !in_array($o['output'], $this->availableOutputFormats) ){ $o['output'] = _APP_DEFAULT_OUTPUT_FORMAT; }
+            
 			$this->outputHandled = true;
 		}
 		
@@ -573,19 +618,15 @@ class View extends Application
 	
 	public function display($viewData = array())
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
-		$this->Events->trigger('onBeforeDisplay', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->events->trigger('onBeforeDisplay', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		if ( !empty($this->options['output']) ){ $this->outputFormat(); }
-		$of = $this->options['output']; // Shortcut for the ouptput format
-		
-//var_dump($of);
+		$of = &$this->options['output']; // Shortcut for the ouptput format
 
 		$this->getErrors();
 		$this->getWarnings();
-		
-//$this->dump($this->data['errors']);
 		
 		/*
 		// Download file
@@ -609,7 +650,13 @@ class View extends Application
 		{
 
 //$this->dump('memory used: ' . memory_get_usage());
-//$this->dump('memory allocated: ' . memory_get_usage(true));        
+//$this->dump('memory allocated: ' . memory_get_usage(true));
+
+			// If the output format is xhtml, set the correct xhtml header
+			// Otherwise let the server serve the proper header based on the accept http header passed by the browser
+			if ( $this->options['outputExtension'] === 'xhtml' ){ $this->headers[] = 'Content-type: application/xhtml+xml; charset=utf-8;'; }
+
+			$this->configSmarty();
             
 			$cacheId = !empty($this->data['view']['cacheId']) ? $this->data['view']['cacheId'] : null;
             
@@ -635,6 +682,37 @@ class View extends Application
 			//$json = str_replace(array('&#39;','&#34;'),array("'", '\\"'), $json);
 			$json = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '\\"', "'", '\\"'), $json);
 			exit($json);
+		}
+		if ( $of === 'jsontxt' )
+		{
+			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
+			$this->writeHeaders();
+			$json = json_encode($this->data);
+			//$json = htmlspecialchars_decode($json, ENT_QUOTES); 
+			//$json = html_entity_decode($json, ENT_QUOTES, 'UTF-8');
+			//$json = utf8_encode(str_replace(array('&#39;','&#34;'),array("'", '"'), $json));
+			$json = utf8_encode($json);
+			//$json = str_replace(array('&#39;','&#34;'),array("'", '\\"'), $json);
+			$json = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '\\"', "'", '\\"'), $json);
+			exit($json);
+		}
+		elseif ( $of === 'jsonreport' )
+		{
+			$this->headers[] = 'Content-type: text/html; charset=utf-8;';
+			$this->writeHeaders();
+			$json = json_encode($this->data);
+			//$json = htmlspecialchars_decode($json, ENT_QUOTES); 
+			//$json = html_entity_decode($json, ENT_QUOTES, 'UTF-8');
+			//$json = utf8_encode(str_replace(array('&#39;','&#34;'),array("'", '"'), $json));
+			$json = utf8_encode($json);
+			//$json = str_replace(array('&#39;','&#34;'),array("'", '\\"'), $json);
+			$json = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '\\"', "'", '\\"'), $json);
+			
+			$html = '';
+			$html .= '<script type="text/javascript" src="' . _URL_JS . 'common/libs/jsonreport.js' . '"></script>';
+			$html .= '<script type="text/javascript">window.onload = function(){ var json = document.getElementById("json"); json.innerHTML = _.jsonreport(document.getElementById("json").innerHTML) };</script>';
+			$html .= '<div id="json" class="jsonreport">' . $json . '</div>';
+			exit($html);
 		}
 		else if ( $of === 'xml' )
 		{
@@ -667,6 +745,7 @@ class View extends Application
 		else if ( $of === 'plistxml' )
 		{
 			class_exists('Plist') || require(_PATH_LIBS . 'converters/Plist.class.php');
+            
 			$Plist = new Plist();
 			$this->headers[] = 'Content-type: text/xml; charset=utf-8;';
 			$this->writeHeaders();
@@ -677,6 +756,7 @@ class View extends Application
 		else if ( $of === 'yaml' )
 		{
 			class_exists('Spyc') || require(_PATH_LIBS . 'converters/spyc/spyc.php');
+            
 			$this->headers[] = 'Content-type: text/yaml; charset=utf-8;';
 			$this->writeHeaders();
 			exit(Spyc::YAMLDump($this->data));
@@ -684,6 +764,7 @@ class View extends Application
 		else if ( $of === 'yamltxt' )
 		{
 			class_exists('Spyc') || require(_PATH_LIBS . 'converters/spyc/spyc.php');
+            
 			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
 			$this->writeHeaders();
 			exit(Spyc::YAMLDump($this->data));
@@ -723,7 +804,7 @@ class View extends Application
 	
 	public function cleanOutput()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		unset($this->data['view']);
 		
@@ -733,7 +814,7 @@ class View extends Application
 	
 	public function breadcrumbs()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$data = array();
 		
@@ -744,12 +825,14 @@ class View extends Application
 	
 	public function getCSS()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$this->css = array();
+        
+        if ( isset($this->options['css']) && !$this->options['css']  ){ return $this->css; }
 		
 		// Shortcuts
-		$v 			= $this->data['view'];
+		$v 			= &$this->data['view'];
 		
 		// If the view is explicitely specified as not containing css, do not continue
 		if ( isset($v['css']) && $v['css'] === false ){ return $this->css; }
@@ -814,6 +897,8 @@ class View extends Application
 	
 	public function getCSSgroup($groupeName)
 	{
+        $this->log(__METHOD__);
+        
 		// Load css associations file
 		isset($cssAssoc) || require(_PATH_CONFIG . 'cssAssoc.php');
 		
@@ -827,7 +912,8 @@ class View extends Application
 			if ( empty($val) ){ continue; }
 			
 			// If the value does not contains .css, assume it's a css group name
-			if ( strpos($val, '.css') === false && !empty($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
+			//if ( strpos($val, '.css') === false && !empty($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
+			if ( strpos($val, '.css') === false && isset($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
 			
 			// If the value is prefixed by '--', remove the css from the list
 			else if ( strpos($val, '--') !== false )
@@ -846,12 +932,14 @@ class View extends Application
 	
 	public function getJS()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		$this->js = array();
+        
+        if ( isset($this->options['js']) && !$this->options['js']  ){ return $this->js; }
 		
 		// Shortcuts
-		$v 			= $this->data['view'];
+		$v 			= &$this->data['view'];
 		
 		// If the view is explicitely specified as not containing js, do not continue
 		if ( isset($v['js']) && $v['js'] === false ){ return $this->js; }
@@ -907,6 +995,8 @@ class View extends Application
 	
 	public function getJSgroup($groupeName)
 	{
+        $this->log(__METHOD__);
+        
 		// Load js associations file
 		isset($jsAssoc) || require(_PATH_CONFIG . 'jsAssoc.php');
 		
@@ -932,7 +1022,7 @@ class View extends Application
 	
 	public function getErrors()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// Store current errors (error codes)
 		$urlErrors = !empty($this->options['errors']) ? explode(',',$this->options['errors']) : array();
@@ -979,7 +1069,7 @@ class View extends Application
 	
 	public function getWarnings()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		// If there's no warnings, do not continue
 		if ( empty($this->data['warnings']) ) { return $this; }
@@ -1017,12 +1107,14 @@ class View extends Application
 	
 	public function respondError($statusCode, $entityBody = '')
 	{
+        $this->log(__METHOD__);
+	    
 		return $this->statusCode($statusCode, $entityBody);
 	}
 	
 	public function statusCode($statusCode, $entityBody = '')
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		switch($statusCode)
 		{
@@ -1073,7 +1165,7 @@ class View extends Application
 	
 	public function writeHeaders()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		foreach ($this->headers as $item){ header($item); }
 		
@@ -1087,7 +1179,7 @@ class View extends Application
 	
 	public function beforeRender($options = array())
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
 		return $this;
 	}
@@ -1095,6 +1187,8 @@ class View extends Application
 	
 	public function smartname()
 	{
+        $this->log(__METHOD__);
+        
 		$smartname = '';
 		
 		$v = !empty($this->data['view']) ? $this->data['view'] : array();
@@ -1120,64 +1214,79 @@ class View extends Application
 	
 	public function smartclasses()
 	{
-		/*
-		$tmp = '';
-		
-		if ( !empty($this->resourceName) )
-		{
-			foreach ($this->data['metas'][$this->resourceName]['breadcrumbs'] as $item){ $tmp .= 'admin' . ucfirst($item) . ' '; }
-		}
-		
-		//$method = !empty($this->data['current']['method']) ? $this->data['current']['method'] : 'index';
-		$method = !empty($this->data['view']['method']) ? $this->data['view']['method'] : 'index';
-		
-		return 'admin ' . ( 'admin' . ucfirst($method) ) . ' ' . $tmp . $this->data['view']['smartname'];
-		*/
-//$this->dump(_DOMAIN);
-//$this->dump($_SERVER['HTTP_HOST']);
-		
-		//$subdomain = str_replace('.' . _DOMAIN, '', $_SERVER['HTTP_HOST']);
-		//if ( $this->env['type'] === 'dev' ){ $subdomain = str_replace('dev', '', $subdomain); }
-		//if ( $this->env['type'] === 'dev' ){ $subdomain = str_replace('dev', '', $subdomain); }
+        $this->log(__METHOD__);
 
-//$this->dump(_DOMAIN);
-//$this->dump($_SERVER['HTTP_HOST']);		
-//$this->dump($subdomain);
+		// Set shortcuts
+		$d = &$this->data;
+		$v = &$d['view'];
+				
+		// Get uri parts
+//var_dump(pathinfo($_SERVER['REQUEST_URI']));
+//var_dump(parse_url($_SERVER['REQUEST_URI']));
+		$uriParts = parse_url($_SERVER['REQUEST_URI']);
+//var_dump(explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/')));
+//die();
+ 		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/'));
+//$this->dump($pathParts);
+		
+        // Get user groups
+        $uGps       = !empty($d['current']['user']['group_admin_titles']) ? explode(',',$d['current']['user']['group_admin_titles']) : array();
+		foreach ($uGps as &$gp) { $gp = 'group' . ucfirst($gp); }
 
-//var_dump(_SUBDOMAIN);
+		// 
+		$classes = array_merge(array(
+			//_DOMAIN, 
+			_SUBDOMAIN,																		// subdomain 
+		), $pathParts, array(
+			// TODO: keep only one of the 2 following items
+			isset($this->resourceName) ? (string) $this->resourceName : '', 
+			isset($d['current']['resource']) ? (string) $d['current']['resource'] : '', 	// current resource
+			isset($v['method']) ? (string) $v['method'] : '', 								// current resource method
+			isset($v['name']) 	? (string) $v['name'] 	: '', 								// deprecated
+			isset($v['smartname']) 	? (string) $v['smartname'] 	: '', 						// 
+		), $uGps);
 		
-		//return $subdomain . ( !empty($subdomain) ? ' ' : '' );
-		$subdomain = _SUBDOMAIN;
-		$classes  = $subdomain . ( !empty($subdomain) ? ' ' : '' ) . (@$this->data['view']['name']);
+		$classes = array_unique($classes);
 		
-		return $classes;
+//$this->dump($classes);
+		
+		//return $classes;
+		return join(' ', $classes);
 	}
 	
 	
 	public function prepareTemplate($viewData = array())
 	//public function prepareTemplate()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
-		$this->data = array_merge($viewData, (array) $this->data);
+		$this->data           = array_merge($viewData, (array) $this->data);
 		
-		$v = &$this->data['view'];
+		$v                    = &$this->data['view'];
 		
-		$v['smartname'] 	= $this->smartname();
-		$v['smartclasses'] 	= $this->smartclasses();
-		$v['isAjaxRequest'] = $this->isAjaxRequest;
+		$v['smartname']       = $this->smartname();
+		$v['smartclasses']    = $this->smartclasses();
+		$v['isAjaxRequest']   = $this->isAjaxRequest;
+		
+		$curURL     = $this->currentURL();
 
 		// Merge resourceData, processingData and viewData
 		$this->data = array_merge($this->data, array(
 			'platform' 			=> $this->platform,
 			'browser'			=> $this->browser,
+			'device'            => $this->device,
 			'env' 				=> $this->env,
 			'options'			=> $this->options,
 			'css' 				=> $this->getCSS(),
 			'js' 				=> $this->getJS(),
 			'debug' 			=> $this->debug,
-			'logged' 			=> $this->logged,
-			//'logged' 			=> $this->isLogged(),
+			//'logged'             => $this->logged,
+			'logged' 			=> $this->application->logged,
+			'current' 			=> array_merge((array) @$this->data['current'], array(
+                'url'                       => $curURL,
+                'urlParams'                 => Tools::getURLParams($curURL),
+                'resource' 					=> !empty($this->resourceName) ? $this->resourceName : null,
+			)),
 		));
 		
 		if ( isset($v['cache']) && !$v['cache'] ){ $this->Smarty->caching = 0; }  
@@ -1194,7 +1303,7 @@ class View extends Application
 		$v['template']    = $this->smartTemplate();
 		$this->template   = $v['template'];
 		
-//$this->dump($this->data);
+$this->dump($this->data);
 //var_dump($this);
 	
 		return $this;	
@@ -1203,58 +1312,37 @@ class View extends Application
 	
 	public function smartTemplate()
 	{
-		$v = $this->data['view'];
+        $this->log(__METHOD__);
+        
+		$v = &$this->data['view'];
 		
 		if ( !empty($v['template']) )
 		{
-			$tpl = $v['template'];
+			$tpl         = $v['template'];
 		}
 		else
 		{
-			//$folders = !empty($v[])
 			// TODO: try to gess template folders using breadcrumb ?
-			$folders = !empty($this->breadcrumbs) ? join('/', $this->breadcrumbs) : '';
-			
-			$method = !empty($v['method']) ? $v['method'] : 'index';
-			$this->data['view']['method'] = $method;
-			
-			$name = !empty($v['name']) ? $v['name'] : 'home';
+			$folders     = !empty($this->breadcrumbs) ? join('/', $this->breadcrumbs) : '';
+			$v['method'] = !empty($v['method']) ? $v['method'] : 'index';
+			$v['name']   = !empty($v['name']) ? $v['name'] : 'home';
 			
 			// Otherwise
-			$tpl = 'common/pages/' . ( !empty($folders) ? '/' : '' ) . $name . '/' . $method . '.tpl';
-			//$tpl = 'common/layout/html.tpl';
+			$tpl         = 'common/pages/' . ( !empty($folders) ? '/' : '' ) . $v['name'] . '/' . $v['method'] . '.tpl';
+			//$tpl       = 'common/layout/html.tpl';
 		}
 		
 		return $tpl;
 	}
 		
 	
-	public function render($viewData = array())
-	//public function render()
+	public function render()
 	{
-		$this->log(__METHOD__);
+        $this->log(__METHOD__);
 		
-		$this->Events->trigger('onBeforeRender', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->events->trigger('onBeforeRender', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		return $this->display();
-	}
-	
-	public function renderNew()
-	{
-		$this->log(__METHOD__);
-		
-		$this->data = array_merge(array(
-			'view' => array(
-				'env' 			=> $this->env,
-				'platform' 		=> $this->platform,
-				'browser' 		=> $this->browser,
-				'options' 		=> $this->options,
-				'css' 			=> $this->getCSS,
-				'debug' 		=> $this->debug,
-			)
-		), $this->data);
-		
-		return $this->displayNew();
 	}
 		
 }

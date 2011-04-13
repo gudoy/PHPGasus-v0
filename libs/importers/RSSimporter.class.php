@@ -44,7 +44,8 @@ class RSSimporter extends Application
 			$desc 		= !empty($item['description']) ? $item['description'] : '';
 			$author 	= !empty($item['author']) ? $item['author'] : '';
 			$link 		= !empty($item['link']) ? $item['link'] : '';
-			$slug 		= substr($this->slugify($title), 0,63);
+			//$slug 		= substr($this->slugify($title), 0,63);
+			$slug        = substr(Tools::slugify($title), 0,63);
 			
 			// Do no import already imported entries
 			$entryInDB = $CEntries->retrieve(array('by' => 'admin_title', 'values' => $slug));

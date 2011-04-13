@@ -2,6 +2,8 @@
 
 //class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 
+// TODO: cleanup
+// TODO: remove 'extends Application' (no longer required since $this->singularize() has been replaced with Tools:singularize())
 class php2XML extends Application
 {
 	public $eol 				= PHP_EOL;
@@ -61,7 +63,8 @@ class php2XML extends Application
 			$submode 	= null;
 			//$eltName 	= is_numeric($key) ? substr($parentName, 0, strlen($parentName)-1) : $key;
 			//$eltName 	= is_numeric($key) /*|| !empty($parentName)*/ ? $this->singularize($parentName) : $key;
-			$eltName 	= is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? $this->singularize($parentName) : $key;
+			//$eltName 	= is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? $this->singularize($parentName) : $key;
+			$eltName     = is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? Tools::singularize($parentName) : $key;
 //$this->dump($key);
 //$this->dump($parentName);
 //if ( is_array($val) ) { $this->dump($eltName); } 
