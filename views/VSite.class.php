@@ -4,6 +4,13 @@
 
 class VSite extends View
 {
+    public function __construct(&$application)
+    {
+        parent::__construct($application);
+        
+        return $this;
+    }
+    
 	/**
 	 * This function builds the 404 page/block
 	 * (depending of how the function is called, using tplSelf or not)

@@ -4,9 +4,9 @@ class VUnittests extends View
 {
 	var $noSession = true;
 	
-	public function __construct()
-	{		
-		parent::__construct();
+    public function __construct(&$application)
+    {
+        parent::__construct($application);
         
         $this->options['debug'] = true;
 		
@@ -17,10 +17,65 @@ class VUnittests extends View
 	{
 	    if ( !$this->isInDebugMod() ) { $this->redirect(_URL_HOME); }
         
-		$this->testConditions();
+		//$this->testConditions();
 		
 		//return $this->render();
 	}
+    
+    public function requests()
+    {
+        $CUsers         = new CUsers();
+        
+        // count
+        $test1 = $CUsers->index(array('mode' => 'count', 'conditions' => array('id' => 1)));
+        $pass1 = !empty($test1) && $test1 === 1;
+            
+        // 1 col, 1 row, (type primarykey)
+        $test2 = $CUsers->retrieve(array('getFields' => 'id', 'conditions' => array('id' => 1)));
+        $pass2 = $test2 === 1;
+        
+        // 1 col, 1 row, (type email => string)
+        $test3 = $CUsers->retrieve(array('getFields' => 'email', 'conditions' => array('id' => 1)));
+        $pass3 = $test3 === 'nobody@anonymous.com';
+        
+        // several cols, 1 row
+        $test4 = $CUsers->retrieve(array('getFields' => 'id,email', 'conditions' => array('id' => 1)));
+        $pass4 = is_array($test4) && count($test4) === 2 && $test4['id'] === 1 && $test4['email'] === 'nobody@anonymous.com';
+        
+        // several cols, 1 row
+        $test5 = $CUsers->retrieve(array('conditions' => array('id' => 1)));
+        $pass5 = is_array($test5) && $test5['id'] === 1 && $test5['email'] === 'nobody@anonymous.com';
+		
+//var_dump($test5);
+        
+        // 1 col, several rows
+        $test6 = $CUsers->index(array('getFields' => 'email', 'conditions' => array('id' => '1,2')));
+        $pass6 = is_array($test6) && count($test6) === 2 && $test6[0] === 'nobody@anonymous.com' && $test6[1] === 'guyllaume@clicmobile.com';
+        
+        // several cols, several rows
+        $test7 = $CUsers->index(array('conditions' => array('id' => '1,2')));
+        $pass7 = is_array($test7) && count($test7) === 2 && $test7[0]['email'] === 'nobody@anonymous.com' && $test7[1]['email'] === 'guyllaume@clicmobile.com';
+
+        // 1 col, several rows, indexed by id
+        $test8 = $CUsers->index(array('getFields' => 'id', 'conditions' => array('id' => 1), 'indexBy' => 'id'));
+        $pass8 = $test8 === 1;
+        
+        
+//var_dump(__FUNCTION__);
+$nb = 8;
+$testname = 'test' . $nb;
+$passname = 'pass' . $nb;
+var_dump($$testname);
+var_dump($$passname);
+        
+        //$limit = 0;
+        $limit = 7;
+        for ($i=1; $i<=$limit; $i++)
+        {
+            $pass = 'pass' . $i;
+            echo ($i < 10 ? '0' : '') . $i . ': ' . '<span class="' . ($$pass ? 'valid green">PASS' : 'error red">FAIL') . '</span><br/>';
+        }
+    }
 	
 	
 	public function testConditions()
@@ -30,7 +85,7 @@ class VUnittests extends View
 		
         # Tests basic syntaxes
 		$test1 			= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id' => '1')));
-		$pass1 			= !empty($test1) && count($test1) === 1  && !empty($test1[0]['email']) && $test1[0]['email'] === 'nobody@anonymous.com';
+		$pass1 			= !empty($test1) && count($test1) === 1 && !empty($test1[0]['email']) && $test1[0]['email'] === 'nobody@anonymous.com';
 		
 		$test2 			= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id' => 1)));
 		$pass2 			= !empty($test2) && count($test2) === 1 && !empty($test2[0]['email']) && $test2[0]['email'] === 'nobody@anonymous.com';
@@ -62,10 +117,14 @@ class VUnittests extends View
 		$test10 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array(array('id','=',array(1,2)))));
 		$pass10			= !empty($test10) && count($test10) === 2 && !empty($test10[0]['email']) && $test10[0]['email'] === 'nobody@anonymous.com' 
 							&& !empty($test10[1]['email']) && $test10[1]['email'] === 'guyllaume@clicmobile.com';
+
 // TODO: change with proper data (that will allways be in the default database)
+// auth_level_nb column to be removed from the db since it's deprecated
 $test11 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id,auth_level_nb' => '1')));
 $pass11 		= !empty($test11) && count($test11) === 1 && !empty($test11[0]['email']) && $test11[0]['email'] === 'nobody@anonymous.com';
 
+// TODO: change with proper data (that will allways be in the default database)
+// auth_level_nb column to be removed from the db since it's deprecated
 $test12 		= $CUsers->index(array('getFields' => 'id, email', 'conditions' => array('id,auth_level_nb' => 1)));
 $pass12 		= !empty($test12) && count($test12) === 1 && !empty($test12[0]['email']) && $test12[0]['email'] === 'nobody@anonymous.com';
 		

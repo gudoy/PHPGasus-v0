@@ -2,13 +2,12 @@
 
 class VAccount extends View
 {
-	public function __construct()
-	{
-		//$this->resourceName 	= strtolower(preg_replace('/^V(.*)/','$1', __CLASS__));
+    public function __construct(&$application)
+    {
 		$this->resourceName 	= 'users';
 		$this->filePath 		= dirname(__FILE__);
 		
-		parent::__construct();
+		parent::__construct($application);
 		
 		return $this;
 	}
@@ -37,11 +36,12 @@ class VAccount extends View
 		
 		// Set template data
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
-			'name' 			=> 'account' . ucfirst(__FUNCTION__),
-			'method' 		=> __FUNCTION__,
-			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
-			'resourceName' 	=> $this->resourceName,
-			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('login')),
+			'name'           => 'account' . ucfirst(__FUNCTION__),
+			'method'         => __FUNCTION__,
+			'template'       => 'specific/pages/account/' . __FUNCTION__ . '.tpl',
+			'resourceName'   => $this->resourceName,
+			'title'          => _APP_TITLE . ' - ' . ucfirst(_('login')),
+			'js'             => 'accountLogin'
 		));
 		
 		// If the user is already logged, do not continue & redirect him to the hub
@@ -67,9 +67,11 @@ class VAccount extends View
 			
 			// Get the user data
 			//$this->requireControllers('CUsers');
-			$email 		= !empty($_POST['userEmail']) ? filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL) : null;
-			$pass 		= !empty($_POST['userPassword']) ? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : null; 
-			$user 		= CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email));
+			$email           = !empty($_POST['userEmail']) ? filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL) : null;
+			$pass            = !empty($_POST['userPassword']) ? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : null; 
+			$user            = CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email));
+			$resolution      = $_POST['deviceResolution'] ? filter_var($_POST['deviceResolution'], FILTER_SANITIZE_STRING) : null;
+			$orientation     = $_POST['deviceOrientation'] ? filter_var($_POST['deviceOrientation'], FILTER_SANITIZE_STRING) : null;
 			
 			// If user mail is not found
 			if ( empty($user) ){ $this->data['errors'][] = 10002; $this->statusCode(401); }
@@ -86,6 +88,8 @@ class VAccount extends View
 				'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + (int) _APP_SESSION_DURATION,
 				 
 				'ip' 				=> $_SERVER['REMOTE_ADDR'],
+				//TODO, add this to session datamodel & to sessions db table
+				'resolution'        => $resolution,
 			);
 			foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
 						
@@ -106,7 +110,12 @@ class VAccount extends View
 			unset($_POST);
 			
 			// Store the session data
-			$_SESSION = array_merge((array) $_SESSION, array('id' => $newPOST['name'], 'user_id' => $newPOST['user_id']));
+			$_SESSION = array_merge((array) $_SESSION, array(
+			     'id'            => $newPOST['name'], 
+			     'user_id'       => $newPOST['user_id'],
+			     'resolution'    => $resolution,
+			     'orientation'   => $orientation,
+            ));
 			$this->logged = true;
 			
 			// Clean old expired session for this user id

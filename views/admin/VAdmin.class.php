@@ -2,14 +2,14 @@
 
 class VAdmin extends AdminView
 {
-	public function __construct()
-	{
+    public function __construct(&$application)
+    {
 		// Deprecated
 		//$this->authLevel = array('god','superadmin','admin','contributor');
 		
 		$this->filePath 		= dirname(__FILE__);
 		
-		parent::__construct();
+		parent::__construct($application);
 		
 		return $this;
 	}
@@ -26,14 +26,14 @@ class VAdmin extends AdminView
 		));
 		
         $this->dashboard();
-
+			
 		$this->render();
 	}
 	
     
     public function resourcesData()
     {
-        if ( !defined('_APP_ADMIN_GET_RESOURCES_DATA') || !_APP_ADMIN_GET_RESOURCES_DATA ){ return $this; }
+        //if ( !defined('_APP_ADMIN_GET_RESOURCES_DATA') || !_APP_ADMIN_GET_RESOURCES_DATA ){ return $this; }
         
         // Loop over the resources
         $r = &$this->dataModel['resources'];
@@ -51,7 +51,7 @@ class VAdmin extends AdminView
     
 	public function usersStats()
 	{
-	    if ( !defined('_APP_ADMIN_GET_USERS_STATS') || !_APP_ADMIN_GET_USERS_STATS ){ return $this; }
+	    //if ( !defined('_APP_ADMIN_GET_USERS_STATS') || !_APP_ADMIN_GET_USERS_STATS ){ return $this; }
         
 		$CSessions = new CSessions();
         
@@ -156,35 +156,27 @@ class VAdmin extends AdminView
 
 		$this->render(__FUNCTION__);
 	}
-	
+    
     public function dashboard()
     {
         //$this->resourcesData();
         //$this->usersStats();
+        $this->activity();
         
-        //$this->statuses();
+        $this->handleSearch();
     }
-	
-    /*
-    public function createResource()
-    {
-        $rName      = 'Tests';
-        $rSingular  = 'test';
-        $cName      = 'C' . ucfirst($rName);
-        $ext        = '.class.php';
-        
-        // Create controller
-        $cctnt      = file_get_contents(_PATH_CONTROLLERS  . '_CSamples' . $ext);
-var_dump($cctnt);
-        
-        $cctnt      = preg_replace(array('/CSamples/', '/singular/'), array($cName, $rSingular), $cctnt);
-        
-        $created    = file_put_contents(_PATH_CONTROLLERS . $cName . $ext, $cctnt);
-        
-var_dump($cctnt);
-    }*/
     
-
+	public function activity()
+	{
+		$d = &$this->data;
+		
+		$d['adminlogs'] 	= CAdminlogs::getInstance()->index(array('limit' => 50, 'sortBy' => 'update_date', 'orderBy' => 'DESC'));
+		
+		$CSessions 			= new CSessions();
+		$ssessions 			= $CSessions->index(array('manualQuery' => "SELECT id FROM ( SELECT * FROM sessions ORDER BY expiration_time DESC) as tmp GROUP BY user_id LIMIT 20"));
+		$sIds 				= $CSessions->values('id');
+		$d['activeUsers'] 	= $CSessions->index(array('by' => 'id', 'values' => $sIds, 'sortBy' => 'expiration_time', 'orderBy' => 'desc', 'limit' => 20));
+	}
 	
 };
 

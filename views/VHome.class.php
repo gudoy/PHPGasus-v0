@@ -2,9 +2,9 @@
 
 class VHome extends View
 {
-	public function __construct()
+	public function __construct(&$application)
 	{
-		parent::__construct();
+		parent::__construct($application);
 		
 		return $this;
 	}
@@ -17,7 +17,6 @@ class VHome extends View
 			'method' 		=> __FUNCTION__,
 			'template'		=> 'specific/pages/home/index.tpl',
 		));
-		
 		
 		// Then, render page
 		return $this->render();

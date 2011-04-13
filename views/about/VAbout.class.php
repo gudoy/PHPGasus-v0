@@ -2,9 +2,9 @@
 
 class VAbout extends View
 {
-	public function __construct()
+    public function __construct(&$application)
 	{
-		parent::__construct();
+        parent::__construct($application);
 		
 		return $this;
 	}
