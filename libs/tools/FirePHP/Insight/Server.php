@@ -38,48 +38,51 @@ class Insight_Server
 
     public function getUrl() {
         $info = $this->config->getServerInfo();
-
         $url = array();
-        $host = $_SERVER['HTTP_HOST'];
-        if(isset($info['host'])) {
-            $host = $info['host'];
-        }
-        $port = $_SERVER['SERVER_PORT'];
-        $parts = explode(':', $host);
-        if(count($parts)==2) {
-            $host = $parts[0];
-            $port = $parts[1];
-        }
-        $secure = false;
-        if($port==443) {
-            $secure = true;
-            $port = false;
-        }
-        if(isset($info['port'])) {
-            $port = $info['port'];
-        }
-        if($info['secure']===true || $secure) {
-            $url[] = 'https';
+        if(php_sapi_name()=='cli') {
+            $url[] = 'file://';
         } else {
-            $url[] = 'http';
-        }
-        $url[] = '://';
-        $url[] = $host;
-        if($port && $port>0 && $port!=80) {
-            $url[] = ':' . $port;
-        }
-
-        $path = $info['path'];
-        if(substr($path, 0, 2)=="./") {
-            $pathInfo = parse_url("http://domain.com" . $_SERVER['REQUEST_URI']);
-            $pathParts = explode("/", $pathInfo['path']);
-            // trim filename if applicable
-            if(substr($_SERVER['REQUEST_URI'], -1,1)!='/') {
-                array_pop($pathParts);
+            $host = $_SERVER['HTTP_HOST'];
+            if(isset($info['host'])) {
+                $host = $info['host'];
             }
-            $path = implode("/", $pathParts) . '/' . substr($path, 2);
+            $port = $_SERVER['SERVER_PORT'];
+            $parts = explode(':', $host);
+            if(count($parts)==2) {
+                $host = $parts[0];
+                $port = $parts[1];
+            }
+            $secure = false;
+            if($port==443) {
+                $secure = true;
+                $port = false;
+            }
+            if(isset($info['port'])) {
+                $port = $info['port'];
+            }
+            if($info['secure']===true || $secure) {
+                $url[] = 'https';
+            } else {
+                $url[] = 'http';
+            }
+            $url[] = '://';
+            $url[] = $host;
+            if($port && $port>0 && $port!=80) {
+                $url[] = ':' . $port;
+            }
+    
+            $path = $info['path'];
+            if(substr($path, 0, 2)=="./") {
+                $pathInfo = parse_url("http://domain.com" . $_SERVER['REQUEST_URI']);
+                $pathParts = explode("/", $pathInfo['path']);
+                // trim filename if applicable
+                if(substr($_SERVER['REQUEST_URI'], -1,1)!='/') {
+                    array_pop($pathParts);
+                }
+                $path = implode("/", $pathParts) . '/' . substr($path, 2);
+            }
+            $url[] = $path;
         }
-        $url[] = $path;
         return implode('', $url);
     }
     
@@ -89,25 +92,26 @@ class Insight_Server
     }
 
     public function listen() {
-/*
-        $path = $this->getPath();
 
-        if(substr($_SERVER['REQUEST_URI'], 0, strlen($path))!=$path) {
-            // Not an insight server request
-            return;
-        }
-*/
-        // TODO: Use wildfire headers to check for server request in future?
-        if(Insight_Util::getRequestHeader('x-insight')!='serve') {
+        if(Insight_Util::getRequestHeader('x-insight')=='serve' ||
+          (isset($_GET['x-insight']) && $_GET['x-insight']=='serve')) {
+            // we can respond
+        } else {
             return false;
         }
 
 //        try {
-            $payload = $_POST['payload'];
-            if(get_magic_quotes_gpc()) {
-                $payload = stripslashes($payload);
+            $response = false;
+            if(isset($_POST['payload'])) {
+                $payload = $_POST['payload'];
+                if(get_magic_quotes_gpc()) {
+                    $payload = stripslashes($payload);
+                }
+                $response = $this->respond(Insight_Util::json_decode($payload));
+            } else
+            if(sizeof($_GET)>0) {
+                // TODO: Implement fetching via GET
             }
-            $response = $this->respond(Insight_Util::json_decode($payload));
 
             if(!$response) {
                 header("HTTP/1.0 204 No Content");
@@ -153,7 +157,7 @@ class Insight_Server
         if(!isset($this->plugins[$target])) {
             $file = str_replace('_', '/', $target) . '.php';
             require_once($file);
-            if(!class_exists($target)) {
+            if(!class_exists($target, false)) {
                 throw new Exception('Class ' . $target . ' not defined in: ' . $file);
             }
             $this->plugins[$target] = new $target();

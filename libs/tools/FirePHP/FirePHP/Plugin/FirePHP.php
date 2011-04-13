@@ -3,7 +3,43 @@
 require_once('FirePHP/Plugin/Engine.php');
 
 class FirePHP_Plugin_FirePHP {
-    
+
+    protected $pAutoTriggerInspect = false;
+    protected $pConsole = false;
+
+    public function declareP($console=false, $autoTriggerInspect=false) {
+        $this->pConsole = $console;
+        $this->pAutoTriggerInspect = $autoTriggerInspect;
+        if(!$this->pConsole) {
+            $this->pConsole = FirePHP::to('page')->console();
+        } else
+        if(is_string($this->pConsole)) {
+            $this->pConsole = FirePHP::to('request')->console($this->pConsole);
+        }
+        $this->pConsole = $this->pConsole->options(array(
+            'encoder.trace.offsetAdjustment' => 2
+        ));
+        require_once('FirePHP/p.php');
+    }
+
+    public function p($data, $label=null) {
+        if($label!==null) {
+            $this->pConsole->label($label)->log($data);
+        } else {
+            $this->pConsole->log($data);
+        }
+        if($this->pAutoTriggerInspect && $this->pConsole->option('context')!='page') {
+            $controller = FirePHP::to('controller')->triggerInspect();
+        }
+    }
+
+    public function logVersion($console=false) {
+        if(!$console) {
+            $console = FirePHP::to('page')->console('FirePHP');
+        }
+        $console->log(FirePHP::VERSION);
+    }
+
     public function trapProblems($console=false) {
         if(!$console) {
             $console = FirePHP::to('page')->console('Problems');

@@ -4,12 +4,19 @@
 function FirePHP__main() {
 
     $activate = true;
+    $force = false;
 
-    if(defined('FIREPHP_ACTIVATED') && constant('FIREPHP_ACTIVATED')===false) {
-        $activate = false;
+    if(defined('FIREPHP_ACTIVATED')) {
+        if(constant('FIREPHP_ACTIVATED')===false) {
+            $activate = false;
+        } else
+        if(constant('FIREPHP_ACTIVATED')===true) {
+            $activate = true;
+            $force = true;
+        }
     }
 
-    if($activate) {
+    if($activate && $force===false) {
 
         // Only activate FirePHP if certain header prefixes are found:
         //  * x-wf-
@@ -47,21 +54,29 @@ function FirePHP__main() {
         require_once('FirePHP/Insight.php');
 
         // ensure the FirePHP class included has the correct version
-        $version = '0.0.0master1011090942';    
+        $version = '0.0.0master1101051613';    
         if(FirePHP::VERSION!=$version) {
             throw new Exception("The included FirePHP class has the wrong version! This is likely due to an old version of FirePHP still being on the include path. The old version must be removed or the FirePHP 1.0 classes must have precedence on the include path!");
         }
 
         FirePHP::setInstance(new FirePHP_Insight());
-        
+
+        if($force===true) {
+            $GLOBALS['INSIGHT_FORCE_ENABLE'] = true;
+        }
+
         Insight_Helper__main();
 
         FirePHP::getInstance(true)->setLogToInsightConsole(FirePHP::to('page')->console());
 
     } else {
 
+        if(!defined('FIREPHP_ACTIVATED')) {
+            define('FIREPHP_ACTIVATED', false);
+        }
+
         class FirePHP {
-            const VERSION = '0.0.0master1011090942';    
+            const VERSION = '0.0.0master1101051613';    
             const LOG = 'LOG';
             const INFO = 'INFO';
             const WARN = 'WARN';
@@ -86,6 +101,9 @@ function FirePHP__main() {
                 return false;
             }
             public static function to() {
+                return self::getInstance();
+            }
+            public static function plugin() {
                 return self::getInstance();
             }
             public function __call($name, $arguments) {

@@ -44,7 +44,22 @@ abstract class Wildfire_Channel
         }
         return true;
     }
-    
+
+    public function relayData($data, $receivers=array())
+    {
+        require_once('Wildfire/Channel/Memory.php');
+        $memoryChannel = new Wildfire_Channel_Memory();
+        require_once('Wildfire/Receiver/Relay.php');
+        $receiver = new Wildfire_Receiver_Relay();
+        $receiver->setChannel($memoryChannel);
+        foreach( $receivers as $id ) {
+            $receiver->addId($id);
+        }
+        $receiver->setTargetChannel($this);
+        $memoryChannel->parseReceived($data);
+    }
+
+
     public function getOutgoing()
     {
         return $this->outgoingQueue;
@@ -141,6 +156,17 @@ abstract class Wildfire_Channel
 
     public function parseReceived($rawHeaders)
     {
+        if(is_string($rawHeaders)) {
+            $data = explode("\n", $rawHeaders);
+            $rawHeaders = array();
+            foreach( $data as $header ) {
+                $index = strpos($header, ":");
+                if($index>5) {  // sanity check
+                    $rawHeaders[substr($header, 0, $index)] = trim(substr($header, $index+1));
+                }
+            }
+        }
+
         // parse the raw headers into messages
         foreach( $rawHeaders as $name => $value ) {
             $this->_parseHeader(strtolower($name), $value);
@@ -181,7 +207,7 @@ TODO: implement
             // fetch receivers that support ID
             $targetReceivers = array();
             for( $i=0 ; $i<count($this->receivers) ; $i++ ) {
-                if($receiverKey=='*' || $this->receivers[$i]->getId()==$receiverId) {
+                if($receiverKey=='*' || $this->receivers[$i]->hasId($receiverId)) {
 
                     $obj = $this->receivers[$i];
                     if(method_exists($obj, "onMessageGroupStart")) {
@@ -221,7 +247,7 @@ TODO: implement
             } else {
                 $index = strpos($name, '-', strlen(self::$HEADER_PREFIX));
                 $id = "id:".substr($name, strlen(self::$HEADER_PREFIX), $index-strlen(self::$HEADER_PREFIX));
-                if($this->_parser_protocols[$id]) {
+                if(isset($this->_parser_protocols[$id])) {
                     if(isset($this->_parser_protocolBuffers[$id])) {
                         foreach( $this->_parser_protocolBuffers[$id] as $info) {
                             $this->_parser_protocols[$id]->parse($this->_parser_buffers, $this->_parser_receivers, $this->_parser_senders, $this->_parser_messages, $info[0], $info[1]);
