@@ -1,10 +1,11 @@
 <?php
 
 ### APP META
-define("_APP_NAME", 							'mynewproject');
+//define("_APP_NAME", 							'mynewproject');
 define("_APP_VERSION", 							'0.1.0.0');
 define('_APP_NAMESPACE', 						'pgas');
-define('_APP_TITLE', 							'mynewproject');
+//define('_APP_TITLE', 							'mynewproject');
+define('_APP_TITLE', 							_APP_NAME); // App displayed name
 define('_APP_BASELINE', 						'');
 define('_APP_AUTHOR_NAME', 						'Clicmobile');
 define('_APP_AUTHOR_MAIL', 						'contact@clicmobile.com');
@@ -23,10 +24,10 @@ define('_APP_DEFAULT_OUTPUT_MIME', 				'text/html');	//
 define('_APP_USE_MANIFEST', 					false);			//
 define('_APP_MANIFEST_FILENAME', 				_APP_TITLE . '.manifest'); // 
 define('_APP_META_DECRIPTION', 					'');
-define('_APP_META_KEYWORDS', 					'mynewproject');
-define('_APP_META_ROBOTS_INDEXABLE', 			true);			// Allows/prevents pages to be indexed by Google & Friends?
-define('_APP_META_ROBOTS_ARCHIVABLE', 			true);			// Allows/prevents search engines to display "in cache" links in their search results
-define('_APP_META_ROBOTS_IMAGES_INDEXABLE', 	true);			// Allows/prevents search engines to index your images
+define('_APP_META_KEYWORDS', 					'');
+define('_APP_META_ROBOTS_INDEXABLE', 			false);			// Allows/prevents pages to be indexed by Google & Friends?
+define('_APP_META_ROBOTS_ARCHIVABLE', 			false);			// Allows/prevents search engines to display "in cache" links in their search results
+define('_APP_META_ROBOTS_IMAGES_INDEXABLE', 	false);			// Allows/prevents search engines to index your images
 define('_APP_META_GOOGLE_TRANSLATABLE', 		true);			// Allows/prevents Google to offer translation link/feature for your pages
 define('_APP_USE_CHROME_FRAME', 				true);			// Html pages require Google Chrome Frame plugin? (if yes, displays plugin installation popup)
 define('_APP_USE_CSS_IE', 						false);
@@ -62,9 +63,6 @@ define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minut
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
 define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, when a user login, its sessions older than 1 day are deleted
 
-
-define('_APP_USE_EVENTS', 						true); 			// Disable this if you do not want to use events
-
 ### WIDGETS
 define('_APP_HAS_RELATED_WIDGET', 				false);
 define('_APP_WIDGET_VERSION', 					'0.1.1');
@@ -82,23 +80,30 @@ define('_APP_STORE_URL', 						'http://itunes.apple.com');
 define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:2195');
 define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 
-### FEATURES & REFACTORING
-define('_APP_ADMIN_GET_USERS_STATS',            false); // Get & display logged user data on the admin dashboard
-define('_APP_ADMIN_GET_RESOURCES_DATA',         false); // 
-define('_APP_USE_ACL_V2',                       true);
-define('_APP_USE_SQL_TYPEFIXING', 				false);
-define('_APP_USE_ONFETCH_TYPEFIXING', 			true);
-define('_APP_TYPEFIX_ONETOONE_GETFIELDS',       true);
-define('_APP_TYPEFIX_MANYTOMANY_GETFIELDS',     true);
-define('_APP_USE_CONDITIONS_HANDLER_V2', 		true);
-define('_APP_USE_ADMIN_LIST_FILTERS_V2',        true);
-define('_APP_USE_ADMIN_LIST_TOOLBAR_V2',        true);
-define('_APP_USE_ADMIN_METAS',                  false);
-define('_APP_SEARCH_ALWAYS_GLOBAL',             false);
-define('_APP_USE_DEFERED_JS',                   false); // experimental.
-define('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES',  true); // experimental.
-define('_APP_USE_LIST_PAGINATION_V2',           true);
+### GOOGLE API KEYS (http://www.google.com/apis/maps/signup.html)
+define('_APP_GOOGLE_MAPS_API_KEY',               '');
 
+### FEATURES & REFACTORING
+define('_APP_USE_EVENTS',                       true);          // Disable this if you do not need to use events
+define('_APP_ADMIN_GET_USERS_STATS',            false);         // Get & display logged user data on the admin dashboard
+define('_APP_ADMIN_GET_RESOURCES_DATA',         false);         // 
+define('_APP_USE_ACL_V2',                       true);          //
+define('_APP_USE_SQL_TYPEFIXING',               false);         //
+define('_APP_USE_ONFETCH_TYPEFIXING', 			true);          //
+define('_APP_TYPEFIX_ONETOONE_GETFIELDS',       true);          //
+define('_APP_TYPEFIX_MANYTOMANY_GETFIELDS',     true);          //
+define('_APP_USE_CONDITIONS_HANDLER_V2', 		true);          //
+define('_APP_USE_ADMIN_LIST_FILTERS_V2',        true);          // deprecated. validated featured
+define('_APP_USE_ADMIN_LIST_TOOLBAR_V2',        true);          // deprecated. validated featured 
+define('_APP_USE_ADMIN_METAS',                  false);         //
+define('_APP_SEARCH_ALWAYS_GLOBAL',             false);         //
+define('_APP_USE_DEFERED_JS',                   false);         // experimental.
+define('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES',  true);          // experimental.
+define('_APP_USE_LIST_PAGINATION_V2',           true);          //
+define('_APP_USE_MY_ACCOUNT_BLOCK_V2',          true);          //
+define('_APP_USE_RESOURCESGROUPS',              true);          //
+define('_APP_USE_SQL_FETCH_V2',                 true);          //
+define('_APP_USE_SQL_REINDEXBY_V2',             false);          //
 
 
 ?>

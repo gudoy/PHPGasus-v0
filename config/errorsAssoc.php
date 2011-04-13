@@ -152,6 +152,10 @@ $errorsAssoc = array(
 	'13000' => array('back' => 'Payment declined',
 					'front' => _('The payment has been declined.')),
 					
+					
+	'15010' => array('back' => 'Controller folder unwritable.',
+					'front' => _('The file %s could not be created. The parent folder is not writable.')),
+					
 	### APP SPECIFICS ###
 	// Required params
 	'20010' => array('back' => 'Missing email',

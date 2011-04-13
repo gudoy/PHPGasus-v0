@@ -23,10 +23,13 @@ define("_PATH_I18N", 						_PATH . 'i18n/');
 # BASE URIS
 define("_URL_HOME", 						_URL);
 define("_URL_PUBLIC", 	 					_URL . 'public/');
-define("_URL_PUBLIC_REL", 	 				'/public/');
-define("_URL_STYLESHEETS_REL",				'/public/stylesheets/default/');
+//define("_URL_PUBLIC_REL", 	 				'/public/');
+define("_URL_PUBLIC_REL", 	 				_URL_REL . 'public/');
+//define("_URL_STYLESHEETS_REL",				'/public/stylesheets/default/');
+define("_URL_STYLESHEETS_REL",				_URL_REL . 'public/stylesheets/default/');
 define("_URL_CSS",							_URL_STYLESHEETS_REL);
-define("_URL_JAVASCRIPTS_REL", 	 			'/public/javascripts/');
+//define("_URL_JAVASCRIPTS_REL", 	 			'/public/javascripts/');
+define("_URL_JAVASCRIPTS_REL", 	 			_URL_REL . 'public/javascripts/');
 define("_URL_JS_REL", 	 					_URL_JAVASCRIPTS_REL);
 define("_URL_STYLESHEETS",					_URL . 'public/stylesheets/default/');
 define("_URL_CSS",							_URL_CSS);
