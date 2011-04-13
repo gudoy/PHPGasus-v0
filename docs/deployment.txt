@@ -19,7 +19,7 @@ modules: [mod_alias], [mod_deflate] (or gzip), mod_env, [mod_expires], [mod_head
 PHP
 -------- 
 version : >=5.2.6
-modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, php_gettext, php_http (pecl http), [php_xdebug], php_zip
+modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, php_gettext, php_http (pecl http), [php_xdebug], [php_zip]
 
 
 ************************************
