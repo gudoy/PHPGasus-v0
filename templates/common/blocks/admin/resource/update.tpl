@@ -1,22 +1,16 @@
-<div class="box block adminBlock adminUpdateBlock" id="admin{$resourceName|capitalize}UpdateBlock" title="{$data.meta.displayName} - {$resourceId}">
-	
-	<div class="titleBlock">
-		<h2>
-			<span class="{$resourceName}" id="resourceName">
-				{$data.meta.displayName} - {$resourceId}
-			</span>
-			<span class="{$data.meta.singular}" id="resourceSingular">&nbsp;</span>
-		</h2>
-		<span class="actionsBlock">
-			{include file='common/blocks/admin/resource/actions/actions.tpl'}
+<header class="titleBlock">
+	<h2 class="title">
+        <span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
+			{$data.meta.displayName} - {$resourceId}
 		</span>
-	</div>
-	
+	</h2>
+	<span class="actions actionsBlock">
+		{include file='common/blocks/admin/resource/actions/actions.tpl'}
+	</span>
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='update'}
-	
-	{*if $data.errors}
-		{include file='config/errors.tpl'}
-	{/if*}
+</header>
+
+<div class="box block adminBlock adminUpdateBlock" id="admin{$resourceName|capitalize}UpdateBlock" {*title="{$data.meta.displayName} - {$resourceId}"*}>
 	
 	{if $data.warnings}
 		{include file='common/config/warnings.tpl'}

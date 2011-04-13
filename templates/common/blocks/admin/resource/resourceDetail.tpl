@@ -1,5 +1,7 @@
 <dl>
 	{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
+	{$type 	= $field.type}
+	{$value = $resource[$fieldName]}
 	<dt class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst}">
 		<span class="key">
 			{$fieldName|replace:'_':' '}{*t}:{/t*}
@@ -11,18 +13,25 @@
 		{/if}
 	</dt>
 	<dd class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst}">
-		<span class="value">
-		{if $field.type === 'bool'}
-			{if $resource[$fieldName] === true || $resource[$fieldName] == 1 || $resource[$fieldName] === 't'}
+		<span class="value">{strip}
+		{if $type === 'bool'}
+			{if in_array($value, array(true,'true',1,'1','t'))}
 				{t}yes{/t}
 			{else}
 				{t}no{/t}
 			{/if}
-		{elseif $field.type === 'int' && $field.subtype === 'fixedValues'}
-			{assign var='posValIndex' value=$resource[$fieldName]}
-			{$field.possibleValues[$posValIndex]}
-		{elseif $field.type === 'onetomany'}
-			{if $resource[$fieldName]}
+		{elseif $type === 'onetoone' || $field.fk}
+			{$relResource=$field.relResource}
+			{$relField=$field.relField}
+			<a class="relResourceLink" href="{$smarty.const._URL_ADMIN}{$relResource}/{$value}" data-exactValue="{$value}">
+				{$value} - {$resource[{$field.relGetAs|default:$field.relGetFields}]}
+			</a>
+		{elseif $type === 'int' && $field.subtype === 'fixedValues'}
+			{$field.possibleValues[$value]}
+		{elseif $type === 'timestamp'}
+			{$resource[$fieldName]|date_format:"%d %B %Y, %Hh%M"}
+		{elseif $type === 'onetomany'}
+			{if $value}
 			<ul>
 				{foreach $resource[$fieldName] as $relData}
 				{$displayed=''}
@@ -37,13 +46,13 @@
 			{/if}
 		{else}
 			{if $data.options.viewType && $data.options.viewType === 'bubble' 
-				&& ($field.type === 'text' || $field.type === 'varchar')}
-				{$resource[$fieldName]|truncate:'30':'...':true|default:'&nbsp;'}					
+				&& ($type === 'text' || $type === 'varchar')}
+				{$value|truncate:'30':'...':true|default:'&nbsp;'}					
 			{else}
-				{$resource[$fieldName]|default:'&nbsp;'}
+				{$value|default:'&nbsp;'}
 			{/if}
 		{/if}
-		</span>
+		{/strip}</span>
 	</dd>
 	{/foreach}
 </dl>

@@ -1,4 +1,4 @@
-{* Accepted params values: $label, $value, $name, $resourceSingular, [$required] *}
+{* Accepted params values: $label, $value, $name, $resourceSingular, $options [$required] *}
 {$resourceSingular=$resourceSingular|default:''}
 {if $resourceSingular !== ''}{$secondPart=$name|default:$label|ucfirst}{else}{$secondPart=$name|default:$label}{/if}
 {if $mode=='api'}
@@ -11,7 +11,7 @@
 		<label class="span" for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
-		<select class="{$class|default:'normal'} {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" {if $required && $html5}required="required"{/if}>
+		<select class="{$class|default:'normal'} {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" {if $required}required="required"{/if}>
             {*<option></option>*}
             {foreach $options as $k => $v}
             {$optVal=$v}

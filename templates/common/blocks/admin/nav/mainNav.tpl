@@ -1,5 +1,5 @@
 {if count($data.resourceGroups)}
-<ul class="nav section main level1" id="adminMainNav">
+<ul class="nav section main level1" id="adminMainNav">{strip}
 	<li class="item item-lv1 {if empty($data.current.resourceGroup)}current{/if}">
 		<a href="{$smarty.const._URL_ADMIN}">{'Admin dashboard'|gettext|ucfirst|escape:'html'}</a>
 	</li>
@@ -8,5 +8,5 @@
 		<a href="{$smarty.const._URL_ADMIN}{$key}/">{$val.displayName|default:$key|default:'unknow groupname'|ucfirst|escape:'html'}</a>
 	</li>
 	{/foreach}
-</ul>
+{/strip}</ul>
 {/if}

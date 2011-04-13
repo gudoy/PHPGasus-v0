@@ -4,7 +4,7 @@
 		<label class="span" for="{$postValName}">{t}Subject{/t}<span class="required">*</span></label>
 	</div>
 	<div class="fieldBlock">
-		<select name="{$postValName}" id="{$postValName}" {if $html5}required="required"{/if}>
+		<select name="{$postValName}" id="{$postValName}" required="required">
 			<option value="webClicInfo" {if $postValName === 'webClicInfo'}selected="selected"{/if}>{t}Ask for information{/t}</option>
 			<option value="webClicInfo" {if $postValName === 'webClicInfo'}selected="selected"{/if}>{t}Initial contact{/t}</option>
 			<option value="webClicProjet" {if $postValName === 'webClicProjet'}selected="selected"{/if}>{t}Talk about a project{/t}</option>

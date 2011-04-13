@@ -4,7 +4,6 @@
 <meta name="keywords" content="{$view.keywords|default:$smarty.const._APP_META_KEYWORDS}" />
 <meta name="robots" content="{if $data.env.type === 'dev' || !$smarty.const._APP_META_ROBOTS_INDEXABLE}noindex,nofollow,{else}index,follow,{/if}{if !$smarty.const._APP_META_ROBOTS_ARCHIVABLE}noarchive,{/if}{if !$smarty.const._APP_META_ROBOTS_IMAGES_INDEXABLE}noimageindex,{/if}" />
 {if !$smarty.const._APP_META_GOOGLE_TRANSLATABLE}<meta name="google" content="notranslate" />{/if}
-
 <meta name="rating" content="General" />
 <meta name="distribution" content="Global" />
 <meta name="revisit-after" content="7" />

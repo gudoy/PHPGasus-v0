@@ -1,15 +1,16 @@
+<span>
 {$filterName="filterCondition[{$colName}]"}
 {$filterId="{$colName}FilterCondition"}
-<div class="colFilterBlock">
 {if ($column.fk || $type === 'fk') && $data[$column.relResource]}
     {$defNameCol=$resources.defaultNameField}
+    {$relNameField=$column.relGetFields|default:$resources[$column.relResource]['defaultNameField']}
     <select name="{$filterName}" id="{$filterId}">
         <option></option>
         {foreach $data[$column.relResource] as $item}
-        {$dispVal=$item[$defNameCol]|default:$item.name|default:$item.name|default:$item[0]}
+        {$dispVal=$item[$relNameField]|default:$item[$defNameCol]|default:$item.name|default:$item[0]}
         <option value="{$item.id|default:$dispVal}">{$dispVal}</option>
         {/foreach}
-    </select>                        
+    </select>                         
 {elseif $type === 'enum'}
     <select name="{$filterName}" id="{$filterId}">
         <option></option>
@@ -25,15 +26,15 @@
     </select>
 {*
 {elseif $subtype === 'email' || $type === 'email'}
-    <input class="sized" type="{if $html5}email{else}text{/if}" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" size="{strlen($colName)}" type="email" name="{$filterName}" id="{$filterId}" />
 *}
 {elseif $subtype === 'color' || $type === 'color'}
-    <input class="sized" type="{if $html5}color{else}text{/if}" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" type="color" name="{$filterName}" id="{$filterId}" />
 {elseif in_array($subtype, array('url','file','image')) || in_array($type, array('url','file','image'))}
-    <input class="sized" type="{if $html5}url{else}text{/if}" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" type="url" name="{$filterName}" id="{$filterId}" />
 {elseif $type === 'int' && !$column.fk}
-    <input class="sized number" type="{if $html5}number{else}text{/if}" name="{$filterName}" id="{$filterId}" step="1" {*value="0"*} />
+    <input class="sized number search" size="2" type="number" name="{$filterName}" id="{$filterId}" step="1" {*value="0"*} />
 {else}
-    <input class="sized" type="{if $html5}search{else}text{/if}" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" size="{strlen($colName)}" type="search" name="{$filterName}" id="{$filterId}" />
 {/if}
-</div>
+</span>

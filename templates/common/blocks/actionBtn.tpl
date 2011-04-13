@@ -1,12 +1,17 @@
-{$type=$btnType|default:'button'}
-{$label=$btnLabel|escape:'html'}
+{$type		= $btnType|default:$type|default:'button'}
+{$href		= $btnHref|default:$href}
+{$label		= $btnLabel|default:$label|escape:'html'}
+{$id		= $btnId|default:$id}
+{$value		= $btnValue|default:$value}
+{$classes	= $btnClasses|default:$classes}
+{$title		= $btnTitle|default:$title}
 {if $mode === 'input'}
 {elseif $mode === 'button'}
-<div class="actionBtn {$btnClasses}" {if $btnId}id="{$btnId}"{/if}>
-	<button {if $btnValue}name="{$btnName}"{/if} type="{$type}" {if $btnValue}value="{$btnValue}"{/if}>{$label}</button>
+<div class="action actionBtn {$classes}" {if $id}id="{$id}"{/if}>
+	<button type="{$type}" {if $btnValue}name="{$btnName}"{/if} {if $value}value="{$value}"{/if}>{$label}</button>
 </div>
 {else}
-<a {if $btnId}id="{$btnId}"{/if} class="actionBtn {$btnClasses}" href="{$btnHref}{if $smarty.get.redirect}?redirect={$smarty.get.redirect}{/if}" {if $btnTitle}title="{$btnTitle}"{/if}>
-	<span class="label">{$label}</span>
+<a {if $id}id="{$id}"{/if} class="actionBtn {$classes}" {if $href}href="{$href}{if $smarty.get.redirect}?redirect={$smarty.get.redirect}{/if}"{/if} {if $title}title="{$title}"{/if}>
+	<span class="value">{$label}</span>
 </a>
 {/if}

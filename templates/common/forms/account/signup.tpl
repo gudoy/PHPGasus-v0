@@ -1,9 +1,7 @@
-{*include file='common/block/forms/users/create.tpl'*}
-
-<form action="" id="frmSignup" class="commonForm signupForm" method="post" enctype="multipart/form-data">
+<form action="{$data.current.url}" id="frmSignup" class="commonForm signupForm" method="post" enctype="multipart/form-data">
 	
 	<fieldset>
-		<legend class="hidden"><span>{$legend|default:{'personal data'|gettext}}</span></legend>
+		<legend><span class="value">{$legend|default:{'personal data'|gettext}}</span></legend>
 		
 		{include file='common/formFields/user/email.tpl'}
 		

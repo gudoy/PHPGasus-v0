@@ -8,20 +8,20 @@
 	{if in_array($fileExt, array('png','jpg','gif','bmp'))}{$isImage=true}{else}{$isImage=false}{/if}
 	
 	{if $field.mediaType && $field.mediaType == 'image' && $field.storeAs !== 'filename' || $isImage}
-	<{if $html5}figure{else}div{/if} class="picsBlock figure">
+	<figure class="picsBlock figure">
 		<a class="file {if $isImage}image{/if} {$fileExt}" href="{$fileSrc}">
 			<img class="icon" src="{if strpos($resource[$fieldName], 'http://') === false}{$field.destBaseURL|default:$smarty.const._URL}{/if}{$resource[$fieldName]}" alt="{$resource[$fieldName]}: {$resource.id}" />
 		</a>
 		{*if file_exists($fileSrc)}<span class="filesize">[ {filesize($fileSrc)} o]</span>{/if*}
-	</{if $html5}figure{else}div{/if}>
+	</figure>
 	{/if}
-	<{if $html5}details{else}div{/if} class="dataBlock details">
+	<details class="dataBlock details">
 	<a class="name filename file {if $isImage}image{/if} {$fileExt}" href="{$fileSrc}">	
 		<span class="value">
 			{$resource[$fieldName]|regex_replace:"/.*\//":""}
 		</span>
 	</a>
-	</{if $html5}details{else}div{/if}>
+	</details>
 	{$updateFieldClass=hidden}
 </div>
 {/if}
@@ -29,7 +29,7 @@
 	<input type="file" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}"  class="sized file" {if !$editable || ($mode === 'create' && $field.computed)}disabled="disabled"{/if} />
 	<span class="or">{t}or{/t}</span>
 	<input type="text" class="normal" {if !$editable || ($mode === 'create' && $field.computed)}disabled="disabled"{/if} value="{$resource[$fieldName]}" />
-	<div class="actionsBlock buttonsBlock">
+	<div class="nav actions actionsBlock buttonsBlock">
 		{$repBntId='replace'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
 		{include file='common/blocks/actionBtn.tpl' mode='button' btnLabel={'replace'|gettext} btnClasses='replaceFileLink' btnId=$repBntId btnTitle={'Replace current file by a new one'|gettext|cat:{'[require javascript]'|gettext}}}
 		<span class="or">{t}or{/t}</span>

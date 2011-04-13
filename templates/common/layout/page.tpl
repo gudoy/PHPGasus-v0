@@ -8,23 +8,23 @@
     {include file='common/config/errors.tpl'}
     {/if}
     
-    {block name='beforeBodyContent'}{/block}
     {block name='bodyContent'}
     <div id="body">
-    	{block name='bodyContentStart'}{/block}
     
     	{block name='breadcrumbs'}{/block}
     	
-    	{block name='aside'}{/block}
+    	{block name='aside'}
+    	<aside class="aside col expanded" id="sideCol">
+    		{block name='asideContent'}{/block}
+    	</aside>
+    	{/block}
     	
     	{block name='mainCol'}
     		{block name='pageContent'}{/block}
     	{/block}
     	
-    	{block name='bodyContentEnd'}{/block}
     </div>
     {/block}
-    {block name='afterBodyContent'}{/block}
     
     {include file='common/layout/footer.tpl'}
 	

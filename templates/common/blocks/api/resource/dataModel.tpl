@@ -1,6 +1,6 @@
 {$resources=$data._resources}
 {if $resourceName}
-<div class="box block resourceDataModelBlock" id="resourceDataModelBlock">
+<div class="block resourceDataModelBlock" id="resourceDataModelBlock">
 	<h2>{t}dataModel{/t}{t}:{/t} {$resourceName}</h2>
 	{if $resources[$resourceName]}
 	<ul>

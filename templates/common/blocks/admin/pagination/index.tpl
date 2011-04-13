@@ -3,10 +3,10 @@
 {math assign='nbOfPages' equation="ceil(x/y)" x=$data.total[$resourceName] y=$nbOfItemsPerPage}
 {math assign='currentPage' equation="x/y+1" x=$data.current.offset y=$nbOfItemsPerPage}
 {if $nbOfPages > 1}
-<div class="paginationBlock" id="{$vPosition}PaginationBlock">
+<div class="actions paginationBlock" id="{$vPosition}PaginationBlock">
 	<a
 		id="{$vPosition}PaginationFirstLink"
-		class="paginationLink firstLink {if $currentPage <= 1}disabled{/if}"
+		class="action page first paginationLink firstLink {if $currentPage <= 1}disabled{/if}"
 		{if $currentPage > 1}
         {$data.current.urlParams.offset=0}
         {$newPageURL={$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
@@ -14,17 +14,17 @@
 		title="{t}Go to first page{/t}"
 		{/if}
 		>
-		<span class="label">{t}<< First{/t}</span>
+		<span class="value label">{t}<< First{/t}</span>
 	</a>
 	<a
 		id="{$vPosition}PaginationPrevLink"
-		class="paginationLink prevLink {if $currentPage <= 1}disabled{/if}"
+		class="action page prev paginationLink prevLink {if $currentPage <= 1}disabled{/if}"
 		{if $currentPage > 1}
 		href="{$curURLbase}?offset={math equation="(x-2)*y" x=$currentPage y=$nbOfItemsPerPage}&amp;limit={$nbOfItemsPerPage}{if $smarty.get.sortBy}&amp;sortBy={$smarty.get.sortBy}{/if}{if $smarty.get.orderBy}&amp;orderBy={$smarty.get.orderBy}{/if}{$filteringParams}"
 		title="{t}Go to first previous page (page {$currentPage-1}){/t}"
 		{/if}
 		>
-		<span class="label">{t}< Previous{/t}</span>
+		<span class="value label">{t}< Previous{/t}</span>
 	</a>
 	<ul class="nav linksList paginationList">
 		{$beforeHellipDisplayed=false}
@@ -47,8 +47,8 @@
         {$data.current.urlParams.offset=$newOffset}
         {$newPageURL={$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
 		<li class="item pageNbItem {if $smarty.section.pageNb.index == $currentPage}current{/if}">
-			<a href="{$newPageURL}">
-				{$smarty.section.pageNb.index}
+			<a class="action" href="{$newPageURL}">
+				<span class="value">{$smarty.section.pageNb.index}</span>
 			</a>
 		</li>
 		{else}
@@ -66,34 +66,34 @@
 	</ul>
 	<a
 		id="{$vPosition}PaginationNextLink"
-		class="paginationLink nextLink {if $currentPage >= $nbOfPages}disabled{/if}"
+		class="action page next paginationLink nextLink {if $currentPage >= $nbOfPages}disabled{/if}"
 		{if $currentPage < $nbOfPages}
 		href="{$curURLbase}offset={math equation="x*y" x=$currentPage y=$nbOfItemsPerPage}&amp;limit={$nbOfItemsPerPage}{if $smarty.get.sortBy}&amp;sortBy={$smarty.get.sortBy}{/if}{if $smarty.get.orderBy}&amp;orderBy={$smarty.get.orderBy}{/if}{$filteringParams}"
 		title="{t}Go to next page (page {$currentPage+1}){/t}"
 		{/if}>
-		<span class="label">{t}Next >{/t}</span>
+		<span class="value label">{t}Next >{/t}</span>
 	</a>
 	<a
 		id="{$vPosition}PaginationLastLink"
-		class="paginationLink lastLink {if $currentPage >= $nbOfPages}disabled{/if}"
+		class="action last paginationLink lastLink {if $currentPage >= $nbOfPages}disabled{/if}"
 		{if $currentPage < $nbOfPages}
 		href="{$curURLbase}offset={math equation="(x-1)*y" x=$nbOfPages y=$nbOfItemsPerPage}&amp;limit={$nbOfItemsPerPage}{if $smarty.get.sortBy}&amp;sortBy={$smarty.get.sortBy}{/if}{if $smarty.get.orderBy}&amp;orderBy={$smarty.get.orderBy}{/if}{$filteringParams}"
 		title="{t}Go to last page{/t}"
 		{/if}>
-		<span class="label">{t}Last >>{/t}</span>
+		<span class="value label">{t}Last >>{/t}</span>
 	</a>
 </div>
 {/if}
 {/if}
-{if $adminView == 'create' || $adminView == 'retrieve' || $adminView == 'update'}
-	<div class="paginationBlock" id="paginationBlock">
+{if in_array($adminView, array('create','retrieve','update'))}
+	<div class="actions page paginationBlock" id="paginationBlock">
 		{$prevId = $data.pagination.prev}
 		{$nextId = $data.pagination.next}
-		<a rel="{$prevId}" id="topPaginationPrevLink" class="paginationLink prevLink {if empty($prevId)}disabled{/if}" {if !empty($prevId)}href="{$data.meta.fullAdminPath}{$prevId}?method={$adminView}"{/if}>
-			<span class="label">{t}prev{/t}</span>
+		<a rel="{$prevId}" id="topPaginationPrevLink" class="action page prev paginationLink prevLink {if empty($prevId)}disabled{/if}" {if !empty($prevId)}href="{$data.meta.fullAdminPath}{$prevId}{if $adminView == 'retrieve'}{else}?method={$adminView}{/if}"{/if}>
+			<span class="value label">{t}prev{/t}</span>
 		</a>
-		<a rel="{$nextId}" id="topPaginationNextLink" class="paginationLink nextLink {if empty($nextId)}disabled{/if}" {if !empty($nextId)}href="{$data.meta.fullAdminPath}{$nextId}?method={$adminView}"{/if}>
-			<span class="label">{t}next{/t}</span>
+		<a rel="{$nextId}" id="topPaginationNextLink" class="action page next paginationLink nextLink {if empty($nextId)}disabled{/if}" {if !empty($nextId)}href="{$data.meta.fullAdminPath}{$nextId}{if $adminView == 'retrieve'}{else}?method={$adminView}{/if}"{/if}>
+			<span class="value label">{t}next{/t}</span>
 		</a>
 	</div>
 {/if}

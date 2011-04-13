@@ -2,7 +2,7 @@
 <form action="{$data.meta.fullAdminPath}{$resource.id}?method=update" id="frmAdminUpdate{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
 	
 	<fieldset>
-		<legend><span>{t}Update data of this resource{/t}</span></legend>
+		<legend><span class="value">{t}Edit resource data{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
 		{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
@@ -11,6 +11,10 @@
 		{/block}
 		
 		{include file='common/forms/common/fields/legendDetail.tpl'}
+
+	</fieldset>
+	
+	<fieldset class="buttonsFieldset">
 		<div class="line noLabelBlock buttonsLine">
 			<div class="fieldBlock">
 				<input type="hidden" name="update{$resourceName|capitalize}" id="update{$resourceName|capitalize}" value="1" />
@@ -24,7 +28,6 @@
 				{/if}
 			</div>
 		</div>
-
 	</fieldset>
 
 </form>

@@ -1,20 +1,10 @@
-{block name='beforeHeader'}{/block}
 {block name='header'}
 {if $view.header !== false}
-<{if $html5}header{else}div{/if} class="header" id="header">
-	{block name='headerContentStart'}{/block}
+<header class="header" id="header">
 
 	{block name='languageSelection'}
 	{include file='common/blocks/header/languages.tpl'}
 	{/block}
-	
-	{block name='loggedUserBlock'}
-	{*include file='common/blocks/header/loggedUserBlock.tpl'*}
-	{/block}
-	
-	{if $data.platform.name === 'tabbee' || $smarty.get.tabbee == 1}
-	<a id="closeBtn"><span class="value">{t}Close{/t}</span></a>
-	{/if}
 	
 	{block name='logoAndBaseline'}
 	{block name='logo'}
@@ -27,12 +17,18 @@
 	{block name='baseline'}{/block}
 	{/block}
 	
+    {block name='loggedUserBlock'}
+    {*if !defined(_APP_USE_MY_ACCOUNT_BLOCK_V2) || !$smarty.const._APP_USE_MY_ACCOUNT_BLOCK_V2}
+    {include file='common/blocks/header/loggedUserBlock.tpl'}
+    {else}
+    {include file='common/blocks/header/account/myProfile.tpl'}
+    {/if*}
+    {/block}
+	
 	{block name='headerNav'}
 	{include file='common/blocks/header/nav.tpl'}
 	{/block}
 	
-	{block name='headerContentEnd'}{/block}
-</{if $html5}header{else}div{/if}>
+</header>
 {/if}
 {/block}
-{block name='afterHeader'}{/block}

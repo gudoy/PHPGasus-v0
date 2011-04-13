@@ -9,12 +9,12 @@
 {* If the file link is asbolute, do not add base path *}
 {if strpos($item, 'http://') !== false || strpos($item, 'http://') !== false}{$basePath=''}{else}{$basePath=$jsBasePath}{/if}
 {if strpos($item, '?') !== false}{$querySep='&amp;'}{else}{$querySep='?'}{/if}
-<script type="text/javascript" src="{$basePath}{$item}{$querySep}{$version}" {if !$html5}charset="utf-8"{/if} {if $useDefer}defer="defer"{/if}></script>
+<script type="text/javascript" src="{$basePath}{$item}{$querySep}{$version}"{if !$html5} charset="utf-8"{/if}{if $useDefer} defer="defer"{/if}></script>
 {/strip}
 {/foreach}
 {/if}
 {if $view.name}
-<script type="text/javascript" {if !$html5}charset="utf-8"{/if}>
-$(document).ready(function(){ if ( typeof({$view.name}) !== 'undefined' && {$view.name}.init ) { {$view.name}.init(); } });
+<script type="text/javascript">
+$(document).ready(function(){ if ( typeof({$view.name}) !== 'undefined' {if $data.options.outputExtension === 'xhtml'}&amp;&amp;{else}&&{/if} {$view.name}.init ) { {$view.name}.init(); } });
 </script>
 {/if}

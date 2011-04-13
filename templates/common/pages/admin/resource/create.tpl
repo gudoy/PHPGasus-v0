@@ -11,3 +11,11 @@
 	{/block}
 
 {/block}
+
+{block name='resourceColumnsFieldset' append}
+	{if $resourceName === 'resources'}
+	{block name="adminCreateResourceFilesFieldset"}
+	{include file='common/forms/admin/resources/create/createResourceFilesFieldset.tpl'}
+	{/block}
+	{/if}
+{/block}

@@ -1,1 +1,1 @@
-{include file='common/pages/admin/resource/index.tpl'}
+{extends file='specific/pages/admin/resource/index.tpl'}

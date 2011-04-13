@@ -1,7 +1,11 @@
 {extends file='specific/layout/page.tpl'}
 
 {block name='loggedUserBlock'}
+{if !defined(_APP_USE_MY_ACCOUNT_BLOCK_V2) || !$smarty.const._APP_USE_MY_ACCOUNT_BLOCK_V2}
 {include file='common/blocks/header/loggedUserBlock.tpl'}
+{else}
+{include file='common/blocks/header/account/myProfile.tpl'}
+{/if}
 {/block}
 
 {block name='accountNavLogoutLink'}{/block}
@@ -10,33 +14,28 @@
 {include file='common/blocks/admin/nav/mainNav_new.tpl'}
 {/block}
 
-{*
-{block name='adminMainNav'}
-{include file='common/blocks/admin/nav/mainNav.tpl'}
-{/block}
-*}
-
 {block name='breadcrumbs'}
 {include file='common/blocks/header/breadcrumbs.tpl'}
 {/block}
 
-{block name='aside'}
-<{if $html5}aside{else}div{/if} class="col grid_3" id="sideCol">
+{block name='asideContent'}
 
 	{block name='adminSearch'}
-	{include file='common/blocks/admin/search.tpl'}
+	{include file='common/blocks/admin/search/search.tpl'}
 	{/block}
 
 	{block name='secondNav'}
 	{include file='common/blocks/admin/nav/secondNav.tpl'}
 	{/block}
 		
-</{if $html5}aside{else}div{/if}>
 {/block}
 
 {block name='mainCol'}
+{strip}
 <div class="col grid_13" id="mainCol">
 {$smarty.block.parent}
+</div>
+{/strip}
 {/block}
 
 {* TODO: create rule via js instead??? *}

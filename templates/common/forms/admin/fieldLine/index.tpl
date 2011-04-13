@@ -15,13 +15,12 @@
 	{$postedVal=$smarty.post[$resourceFieldName]|default:null}
 {/if}
 
-<div class="line type{$field.type} {if $field.subtype}subtype{$field.subtype|ucfirst}{/if}" {if $html5 && $field.from}data-from="{$field.from}"{/if}>
+<div class="line type{$field.type} {if $field.subtype}subtype{$field.subtype|ucfirst}{/if}" {if $field.from}data-from="{$field.from}"{/if}>
 	
 	<div class="labelBlock {if $field.comment}hasInfos{/if}">
 		{strip}
 		{if $field.relResource}
 		<label for="{$resourceFieldName}{$itemIndex}">{$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
-			{*if isset($field.required) && $field.required || $field.pk || $field.fk}<span class="required">*</span>{/if*}
 			{if isset($field.required) && $field.required || $field.pk}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}
@@ -68,7 +67,5 @@
 	{/if}
 	
 	</div>
-	
-	{if !$html5 && $field.from}<span class="hidden meta from">{$field.from}</span>{/if}
 	
 </div>

@@ -1,17 +1,26 @@
-{* Accepted params values: $label, $value, $name, $resourceSingular, $required *}
+{strip}
+{* Accepted params values: $label, $value, $name, [$resourceSingular], [$required], [$inputOnly] *}
+
 {$resourceSingular=$resourceSingular|default:''}
 {if $resourceSingular !== ''}{$secondPart=$name|default:$label|ucfirst}{else}{$secondPart=$name|default:$label}{/if}
+
 {if $mode=='api'}
 	{$postValName=$label}
 {else}
 	{$postValName=$resourceSingular|cat:$secondPart}
 {/if}
+
+{/strip}
+{if !isset($inputOnly) || !$inputOnly}
 <div class="line">
 	<div class="labelBlock">
 		<label class="span" for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
-		{if empty($type) || !in_array($type, array('email','phone','url','search')) || !$html5}{$type='text'}{/if}
-		<input type="{$type}" class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" value="{$value|default:$smarty.post[$postValName]}" {if $required && $html}required="required"{/if} {if $placeholder}placeholder="{$placeholder}"{/if} />
+{/if}
+		{if empty($type) || !in_array($type, array('email','phone','url','search','password','datetime','date','time'))}{$type='text'}{/if}
+		<input type="{$type}" class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}"{if $type !== 'password' && $value || $smarty.post[$postValName]} value="{$value|default:$smarty.post[$postValName]}"{/if}{if $required && $html} required="required"{/if}{if $placeholder} placeholder="{$placeholder}"{/if}{if $autofocus} autofocus="autofocus"{/if}{if $disabled} disabled="disabled"{/if} />
+{if !isset($inputOnly) || !$inputOnly}
 	</div>
 </div>
+{/if}

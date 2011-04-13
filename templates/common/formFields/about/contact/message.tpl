@@ -4,6 +4,6 @@
 		<label class="span" for="{$postValName}">{t}Message{/t}<span class="required">*</span></label>
 	</div>
 	<div class="fieldBlock">
-		<textarea class="normal" cols="40" rows="5" name="{$postValName}" id="{$postValName}" {if $html5}required="required"{/if}>{$smarty.post.$postValName}</textarea>
+		<textarea class="normal" cols="40" rows="5" name="{$postValName}" id="{$postValName}" required="required">{$smarty.post.$postValName}</textarea>
 	</div>
 </div>

@@ -1,7 +1,9 @@
 <!-- Start VCard -->
-<{if $html5}section{else}div{/if} class="section block contactBlock" id="contactBlock">
-
-	<h2 class="blockTitle">{t}Get in touch?{/t}</h2>
+<section class="section block contactBlock" id="contactBlock">
+	
+	<header class="titleBlock">
+		<h2 class="title">{t}Get in touch?{/t}</h2>
+	</header>
 	
 	<div class="vcard">
 		<a class="fn n org row include" href="#branding">Clicmobile</a>
@@ -24,5 +26,5 @@
 		{/if}
 	</div>
 	
-</{if $html5}section{else}div{/if}>
+</section>
 <!-- End VCard -->

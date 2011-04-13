@@ -1,10 +1,10 @@
+{strip}
 {* The following CC prevents IE8 from blocking css & scripts download until the main css is arrived
 {* cf: http://www.phpied.com/conditional-comments-block-downloads/ *}
 <!--[if IE]><![endif]-->
 {$version='v='|cat:{$smarty.const._CSS_VERSION|default:''}}
-{strip}{include file='common/config/css/ipad.tpl'}{/strip}
-{strip}{include file='common/config/css/iphone.tpl'}{/strip}
-{strip}{include file='common/config/css/android.tpl'}{/strip}
+{strip}
+{include file='common/config/css/iphone.tpl'}
 {if $smarty.get.minify !== 'none' && ($smarty.const._MINIFY_CSS || in_array($smarty.get.minify, array('css','all')))}
 {include file='common/config/css/minification.tpl'}
 {else}

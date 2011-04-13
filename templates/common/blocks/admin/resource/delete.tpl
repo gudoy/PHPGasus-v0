@@ -1,14 +1,13 @@
-<div class="box block adminBlock adminDeleteBlock" id="admin{$resourceName|capitalize}DeleteBlock" title="{$data.meta.displayName} - {$resourceId}">
-	<h2>
-		<span class="{$resourceName}" id="resourceName">
+<header class="header titleBlock">
+	<h2 class="title">
+        <span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$data.meta.displayName} - {$resourceId}
 		</span>
-		<span class="{$data.meta.singular}" id="resourceSingular">&nbsp;</span>
 	</h2>
-	
-	{*if $data.errors}
-		{include file='config/errors.tpl'}
-	{/if*}
+	{include file='common/blocks/admin/pagination/index.tpl' adminView='delete'}
+</header>
+
+<div class="box block adminBlock adminDeleteBlock" id="admin{$resourceName|capitalize}DeleteBlock" {*title="{$data.meta.displayName} - {$resourceId}"*}>
 	
 	{if $data.warnings}
 		{include file='common/config/warnings.tpl'}	

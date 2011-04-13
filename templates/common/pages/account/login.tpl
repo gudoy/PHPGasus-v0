@@ -1,15 +1,17 @@
 {extends file='specific/layout/page.tpl'}
+
+{block name='aside'}{/block}
+
 {block name='pageContent'}
-
-<div class="strate container_16">
 	
+<div class="loginBlock" id="loginBlock">
 {if $data.success}
-	<p>{t}You are now logged in!{/t}</p>
+	<p class="notification success">{t}You are now logged in!{/t}</p>
 {else}
-	<div class="loginBlock" id="loginBlock">
-		{include file='common/forms/account/login.tpl' legend='log in'|gettext}
-	</div>
+    {block name="loginForm"}
+	{include file='common/forms/account/login.tpl' legend='log in'|gettext}
+	{/block}
 {/if}
-
 </div>
+
 {/block}

@@ -1,6 +1,6 @@
 {if !isset($data.view.displayLangChooser) || ($data.view.displayLangChooser && $data.view.displayLangChooser !== false)}
 <div class="block languagesBlock" id="languagesBlock" title="{t}Choose your language{/t}">
-<h2 class="blockTitle">{t}Languages{/t}</h2>
+<h2 class="titleBlock">{t}Languages{/t}</h2>
 {assign var='curLang' value=$smarty.session.lang|truncate:2:''}
 {assign var='cleanedURI' value=$smarty.server.REQUEST_URI|regex_replace:'/^(.*)(&?lang=[a-z][a-z]_[A-Z][A-Z]&?)(.*)?$/U':'$1$3'|replace:'?&':'?'|regex_replace:"/^\//":""|replace:'&':'&amp;'}
 <ul class="menu nav chooser languagesMenu" id="languagesMenu">

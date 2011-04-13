@@ -1,7 +1,7 @@
-{block name='beforeFooter'}{/block}
 {block name='footer'}
+{strip}
 {if !isset($view.footer) || (isset($view.footer) && !empty($view.footer) )}
-<{if $html5}footer{else}div{/if} id="footer">
+<footer class="footer" id="footer">
 	
 	{block name='poweredBy'}
 	<div class="block poweredByBlock" id="poweredByBlock">
@@ -14,7 +14,7 @@
 	{block name='copyrights'}
 	{/block}
 	
-</{if $html5}footer{else}div{/if}>
+</footer>
 {/if}
+{/strip}
 {/block}
-{block name='afterFooter'}{/block}

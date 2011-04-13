@@ -1,22 +1,22 @@
-<div class="box adminBlock adminRetrieveBlock" id="admin{$resourceName|capitalize}RetrieveBlock" title="{$data.meta.displayName} - {$resourceId}"> 
-	
-	<div class="titleBlock">
-		<h2>
-			<span class="{$resourceName}" id="resourceName">
-				{$data.meta.displayName} - {$resourceId}
-			</span>
-			<span class="{$data.meta.singular}" id="resourceSingular">&nbsp;</span>
-		</h2>
-		<span class="actionsBlock">
-			{include file='common/blocks/admin/resource/actions/actions.tpl'}
+<header class="header titleBlock">
+	<h2 class="title">
+        <span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
+			{$data.meta.displayName} - {$resourceId}
 		</span>
-	</div>
-	
+	</h2>
+	<span class="nav actions actionsBlock">
+		{include file='common/blocks/admin/resource/actions/actions.tpl'}
+	</span>
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='retrieve'}
+</header>
+
+<div class="box block adminBlock adminRetrieveBlock" id="admin{$resourceName|capitalize}RetrieveBlock" {*title="{$data.meta.displayName} - {$resourceId}"*}> 
 	
-	<div class="adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">		
+	{block name='adminResourceDetail'}
+	<div class="resourceDetailBlock adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">		
 		{include file='common/blocks/admin/resource/resourceDetail.tpl'}
 	</div>
+	{/block}
 	
 </div>
 

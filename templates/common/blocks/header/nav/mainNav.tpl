@@ -1,20 +1,18 @@
 {$current=$view.current.menu|default:'home'}
-<ul class="nav main section" id="mainNav">
+<ul class="nav main" id="mainNav">
 	{if $mainNavItems}
 	{foreach $mainNavItems as $label => $url}{strip}
-	<li class="item {if $url@first}first{elseif $url@last}last{/if}{if $current === $label}current{/if}">
-		<a href="{$url}">{$label|gettext}</a>
+	<li id="{$label}NavItem" class="item item-lv1{if $url@first} first{/if}{if $url@last} last{/if}{if $current === $label} current{/if}">
+		<a href="{$url}"><span class="value">{$label|gettext}</span></a>
 	</li>
 	{/strip}{/foreach}
 	{else}
-	<li class="item first {if $current === 'home'}current{/if}">
-		<a href="{$smarty.const._URL}">{t}Home{/t}</a>
-	</li><li class="item {if $current === 'about'}current{/if}">
-		<a href="{$smarty.const._URL_ABOUT}">{t}About{/t}</a>
-	</li><li class="item {if $current === 'references'}current{/if}">
-		<a href="{$smarty.const._URL_REFERENCES}">{t}References{/t}</a>
-	</li><li class="item last {if $current === 'contact'}current{/if}">
-		<a href="{$smarty.const._URL_ABOUT_CONTACT}">{t}Contact{/t}</a>
+	<li class="item item-lv1 first{if $current === 'home'} current{/if}">
+		<a href="{$smarty.const._URL}"><span class="value">{t}Home{/t}</span></a>
+	</li><li class="item item-lv1{if $current === 'about'} current{/if}">
+		<a href="{$smarty.const._URL_ABOUT}"><span class="value">{t}About{/t}</span></a>
+	</li><li class="item last{if $current === 'contact'} current{/if}">
+		<a href="{$smarty.const._URL_ABOUT_CONTACT}"><span class="value">{t}Contact{/t}</span></a>
 	</li>
 	{/if}
 </ul>
