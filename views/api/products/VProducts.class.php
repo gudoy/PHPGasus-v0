@@ -2,86 +2,82 @@
 
 class VProducts extends ApiView
 {
-	public function __construct()
-	{		
-		$this->resourceName 	= strtolower(preg_replace('/^V(.*)/','$1', __CLASS__));
+    public function __construct(&$application)
+    {
+        $this->setResource(array('class' => __CLASS__));
 		$this->filePath 		= dirname(__FILE__);
 		
-		parent::__construct();
+		parent::__construct($application);
 		
 		return $this;
 	}
-		
 	
-	public function index($resourceId = null, $options = null)
-	{						
-		if ( !empty($_POST['ids']) )
-		{
-			$resourceId 				= join(',', $_POST['ids']);
-			$_SERVER['REQUEST_METHOD'] 	= 'GET';
-			$_GET['method'] 			= $_POST['method'];
-		}
+	public function index()
+	{
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		
-		$m = $_SERVER['REQUEST_METHOD'];
-		$a = isset($_GET['method']) ? $_GET['method'] : null;
+		$this->dispatchMethods($args, array('allowed' => 'index,retrieve'));
+		//$this->dispatchMethods($args, array('allowed' => 'index,create,retrieve,update,delete'));
 		
-		if ( $m === 'GET' && !empty($resourceId))			{ return $this->retrieve($resourceId, $options); }
+		# Comment/remove the following block if you want to allow listing resources
+		//$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : 'id' ) ); 
+		//$opts 		= array_merge($o, $opts);
+		//$resources 	= $this->C->index(array_merge($o, $opts)); 									// Try to get the resources
+		
+		// Set the default limit to -1 (no limit)
+		$o['limit'] = !empty($o['limit']) ? $o['limit'] : -1;
+		
+		$resources 	= $this->C->index($o); 												// Try to get the resources
 
-		if ( $this->options['by'] === 'users_id' )
-		{
-			$this->requireControllers('COrders');
+		// Set output data		
+		$this->data = array_merge($this->data, array(
+			$rName 			=> $resources,
+			'success' 		=> $this->C->success, 
+			'errors'		=> $this->C->errors,
+			'warnings' 		=> $this->C->warnings,
+		));
+		
+		// If no wishlist has been found
+		if ( empty($resources) ) { return $this->statusCode(204); }
+		# listing block end
 			
-			$COrders 					= new COrders();
-			$orders 					= $COrders->index(array('reindexby' => 'products_id'));
-			$pids 						= $COrders->values('products_id');
-			
-			$this->options['values'] 	= $pids;
-			$this->options['by'] 		= null;
-		}
+		return $this->render();
+	}
+	
+	public function retrieve()
+	{
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name
+		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
+		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
+		$rid 		= filter_var($rid, constant($filter));										// Filter the value
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array_merge($o, $opts, array('values' => $rid));
+		
+		// If no resource identifier has been found
+		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
+		
+		// Try to get the wishlist
+		$resource 	= $this->C->retrieve($opts);
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
-			$this->resourceName => $this->C->index($this->options),
-			'success' 			=> $this->C->success, 
-			'errors'			=> $this->C->errors,
-			'warnings' 			=> $this->C->warnings,
+			$rName 		=> $resource,
+			'success' 	=> $this->C->success, 
+			'errors'	=> $this->C->errors,
+			'warnings' 	=> $this->C->warnings,
 		));
 		
-		if ( !count($this->data[$this->resourceName]) ){ $this->respondError(204); }
+		// If no resource has been found
+		if ( empty($resource) ) { return $this->statusCode(204); }
 		
-		// Loop over the items to crypt URLs columns
-		$this->requireLibs(array('AES' => 'security/'));
-		foreach ( $this->data[$this->resourceName] as $key => $val )
-		{
-			$pvk 	= 'OyMARes3upqAiO57'; 	// Private key for 'clicmobileInternal' apiclient
-			$urls 	= array('iphone_pics_URL', 'iphone_video_URL', 'iphone_video_tn_URL', 'ipad_video_URL', 'ipad_video_tn_URL');
-			foreach ($urls as $name)
-			{
-				// Do not process the data if it's empty
-				if ( empty($this->data[$this->resourceName][$key][$name]) ){ continue; }
-
-				$curVal = $this->data[$this->resourceName][$key][$name];
-				$this->data[$this->resourceName][$key][$name] =  AES::getInstance()->encrypt($curVal,$pvk);
-			}
-		}
-			
-		return $this->render(__FUNCTION__);
-	}
-
+		return $this->render();
+	}	
 	
-	public function retrieve($resourceId = null, $options = null)
-	{		
-		$this->resourceId 	= $resourceId;
-		
-		// Set output data		
-		$this->data = array_merge($this->data, array(
-			$this->resourceName 	=> $this->C->retrieve(array('values' => $this->resourceId)),
-			'resourceId' 			=> $this->resourceId,
-		));
-		
-		return $this->render(__FUNCTION__);
-	}
-
-}
+	
+};
 
 ?>

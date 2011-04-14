@@ -1,6 +1,6 @@
 {block name='header'}
 {if $view.header !== false}
-<header class="header" id="header">
+<header class="header" id="header" role="banner">
 
 	{block name='languageSelection'}
 	{include file='common/blocks/header/languages.tpl'}

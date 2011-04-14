@@ -15,13 +15,13 @@
 		{*if file_exists($fileSrc)}<span class="filesize">[ {filesize($fileSrc)} o]</span>{/if*}
 	</figure>
 	{/if}
-	<details class="dataBlock details">
+	<div class="dataBlock details">
 	<a class="name filename file {if $isImage}image{/if} {$fileExt}" href="{$fileSrc}">	
 		<span class="value">
 			{$resource[$fieldName]|regex_replace:"/.*\//":""}
 		</span>
 	</a>
-	</details>
+	</div>
 	{$updateFieldClass=hidden}
 </div>
 {/if}

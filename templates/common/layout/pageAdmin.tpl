@@ -24,18 +24,10 @@
 	{include file='common/blocks/admin/search/search.tpl'}
 	{/block}
 
-	{block name='secondNav'}
+	{*block name='secondNav'}
 	{include file='common/blocks/admin/nav/secondNav.tpl'}
-	{/block}
+	{/block*}
 		
-{/block}
-
-{block name='mainCol'}
-{strip}
-<div class="col grid_13" id="mainCol">
-{$smarty.block.parent}
-</div>
-{/strip}
 {/block}
 
 {* TODO: create rule via js instead??? *}

@@ -8,6 +8,6 @@
 {assign var='checked' value=true}
 {/if}
 <label class="span multi" for="{$resourceFieldName}{$itemIndex}Y">{t}Yes{/t}</label>
-<input type="radio" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}Y" class="check multi" {if $checked}checked="checked"{/if} {if !$editable}disabled="disabled"{/if} value="1" />
+<input type="radio" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}Y" class="check multi" {if $checked}checked="checked"{/if} {if !$editable}disabled="disabled"{/if} value="1"{if $isRequired} required="required"{/if} />
 <label class="span multi" for="{$resourceFieldName}{$itemIndex}N">{t}No{/t}</label>
-<input type="radio" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}N" class="check multi" {if !$checked}checked="checked"{/if} {if !$editable}disabled="disabled"{/if}  value="0" />
+<input type="radio" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}N" class="check multi" {if !$checked}checked="checked"{/if} {if !$editable}disabled="disabled"{/if}  value="0"{if $isRequired} required="required"{/if} />

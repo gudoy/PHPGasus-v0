@@ -1,4 +1,4 @@
-<select name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}>
+<select name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if}>
 {if count($field.possibleValues) > 0}
 	{foreach name='relOptions' from=$field.possibleValues key='key' item='value'}
 	<option value="{$key}" {if (isset($smarty.post.$resourceFieldName) && $smarty.post.$resourceFieldName == $key) || $resource[$fieldName] == $key}selected="selected"{/if}>{$value}</option>

@@ -2,14 +2,11 @@
 
 class VApi extends ApiView
 {
-	public function __construct()
+	public function __construct(&$application = null)
 	{
-		//$this->resourceName 	= strtolower(preg_replace('/^V(.*)/','$1', __CLASS__));
-		$this->filePath 		= dirname(__FILE__);
-		
-		parent::__construct();
-		
-		return $this;
+	    $this->application = &$application;
+        
+		parent::__construct($application);
 	}
 	
 	

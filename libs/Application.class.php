@@ -101,12 +101,11 @@ class Application
 		}
 		 
 		$lang 		= substr($locale,0,2);
-		//putenv('LANG='.$lang);
 		putenv('LANG='.$lang.'utf8');
 		$lc = setlocale(LC_ALL, $locale.'.utf8', $locale, $lang);
-		bindtextdomain(strtolower(_APP_NAME), _PATH_I18N);
-		textdomain(strtolower(_APP_NAME));
-		bind_textdomain_codeset(strtolower(_APP_NAME), 'UTF-8');
+		bindtextdomain(_APP_NAME, _PATH_I18N);
+		textdomain(_APP_NAME);
+		bind_textdomain_codeset(_APP_NAME, 'UTF-8');
 		
 		$_SESSION['lang'] 	= $locale;
 		

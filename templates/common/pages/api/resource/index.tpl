@@ -1,22 +1,27 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='pageContent'}
+{block name='asideContent'}
+{include file='common/blocks/api/resource/dataModel.tpl'}
+{/block}
 
-	{$resourceName=$data.view.resourceName}
+{block name='mainColContent'}
 
-	<div class="box block grid_10">
-		<h2>{t}data{/t}</h2>
-		{foreach $data[$data.view.resourceName] as $item}
-			{include file='common/pages/api/resource/retrieve.tpl' items=$item}
+	{$resourceName = $data.current.resource}
+	{$isAdminView = in_array('admin', explode(' ',$view.smartclasses))}
+
+	<section class="apiDataSection" id="apiDataSection">
+		<header class="titleBlock">
+			<h2 class="title">{t}data{/t}</h2>
+		</header>
+		<div class="content">
+		{foreach $data[$resourceName] as $row}
+			{include file='common/blocks/api/resource/retrieve.tpl' item=$row}
 		{foreachelse}
 			<p>
 			{t}Sorry, there's currently no items for this resource{/t}
 			</p>
 		{/foreach}
-	</div>
-	
-	<div class="grid_6">		
-		{include file='common/blocks/api/resource/dataModel.tpl'}
-	</div>
+		</div>
+	</section>
 	
 {/block}

@@ -2,19 +2,20 @@
 
 {block name='pageContent'}
 
-	{$resourceName=$data.view.resourceName}
+	{$resourceName = $data.current.resource}
+	{$isAdminView = in_array('admin', explode(' ',$view.smartclasses))}
 
-	<div class="box block grid_10">
-		<h2>{t}data{/t}</h2>
-		{$items=$items|default:$data[$resourceName]}
-		<div class="apiItemBlock">
-			{include file='common/blocks/api/resource/retrieve.tpl'}
+	<section class="apiDataSection" id="apiDataSection">
+		<header class="titleBlock">
+			<h2 class="title">{t}data{/t}</h2>
+		</header>
+		<div class="content">
+			{$items=$items|default:$data[$resourceName]}
+			<div class="apiItemBlock">
+				{include file='common/blocks/api/resource/retrieve.tpl'}
+			</div>
 		</div>
-	</div>
-	
-	<div class="grid_6">		
-		{include file='common/blocks/api/resource/dataModel.tpl'}
-	</div>
+	</section>
 	
 {/block}
 

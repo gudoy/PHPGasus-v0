@@ -325,7 +325,7 @@ class VResources extends AdminView
 				$type = $realtype = $ai = $pk = 
 						$length = $null = $default = $values = 
 						$index = 
-						$list = $editable = $searchable
+						$list = $editable = $searchable =
 					null;
 				
 				// Shortcut for cols properties

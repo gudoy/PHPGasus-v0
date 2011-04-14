@@ -14,13 +14,16 @@
     	{block name='breadcrumbs'}{/block}
     	
     	{block name='aside'}
-    	<aside class="aside col expanded" id="sideCol">
+    	<aside class="aside col expanded" id="sideCol" role="complementary">
     		{block name='asideContent'}{/block}
     	</aside>
     	{/block}
     	
     	{block name='mainCol'}
-    		{block name='pageContent'}{/block}
+    	<div class="col" id="mainCol" role="main">
+    		{block name='mainColContent'}{/block}
+    		{block name='pageContent'}{/block} {* DEPRECATED: use mainColContent instead *}
+    	</div>
     	{/block}
     	
     </div>

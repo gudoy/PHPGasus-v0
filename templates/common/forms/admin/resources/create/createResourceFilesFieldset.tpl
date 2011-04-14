@@ -21,7 +21,7 @@
 			<label for="createView">view</label>
 		</div>
 		<div class="fieldBlock">
-			<input type="checkbox" name="createView" id="createView" {if !isset($smarty.post.createView) || $smarty.post.createView}checked="checked"{/if} value="1" />
+			<input type="checkbox" name="createView" id="createView" {if $smarty.post.createView}checked="checked"{/if} value="1" />
 		</div>
 	</div>
 	<div class="line">
@@ -37,7 +37,7 @@
 			<label for="createApiView">api view (TODO)</label>
 		</div>
 		<div class="fieldBlock">
-			<input type="checkbox" name="createApiView" id="createApiView" {if !isset($smarty.post.createApiView) || $smarty.post.createApiView}checked="checked"{/if} disabled="disabled" value="1" />
+			<input type="checkbox" name="createApiView" id="createApiView" {if $smarty.post.createApiView}checked="checked"{/if} disabled="disabled" value="1" />
 		</div>
 	</div>
 	<div class="line">
@@ -45,7 +45,7 @@
 			<label for="createTemplates">templates (TODO)</label>
 		</div>
 		<div class="fieldBlock">
-			<input type="checkbox" name="createTemplates" id="createTemplates" {if !isset($smarty.post.createTemplates) || $smarty.post.createTemplates}checked="checked"{/if} disabled="disabled" value="1" />
+			<input type="checkbox" name="createTemplates" id="createTemplates" {if $smarty.post.createTemplates}checked="checked"{/if} disabled="disabled" value="1" />
 		</div>
 	</div>
 </fieldset>

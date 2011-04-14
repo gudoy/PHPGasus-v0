@@ -7,7 +7,9 @@
 	{$resource=$data.$resourceName}
 
     {block name="admin{$resourceName|ucfirst}CreateBlock"}
+    <section class="adminSection adminCreateSection admin{$resourceName|ucfirst}CreateSection">
 	{include file='common/blocks/admin/resource/create.tpl'}
+	</section>
 	{/block}
 
 {/block}

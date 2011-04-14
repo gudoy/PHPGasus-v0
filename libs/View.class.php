@@ -1223,7 +1223,8 @@ $this->dump($allowed);
 		// Get uri parts
 //var_dump(pathinfo($_SERVER['REQUEST_URI']));
 //var_dump(parse_url($_SERVER['REQUEST_URI']));
-		$uriParts = parse_url($_SERVER['REQUEST_URI']);
+		//$uriParts = parse_url($_SERVER['REQUEST_URI']);
+		$uriParts = @parse_url(_URL . ltrim($_SERVER['REQUEST_URI'], '/'));
 //var_dump(explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/')));
 //die();
  		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/'));

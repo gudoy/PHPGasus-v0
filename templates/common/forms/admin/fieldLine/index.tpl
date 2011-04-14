@@ -14,14 +14,22 @@
 	{$itemIndex=''}
 	{$postedVal=$smarty.post[$resourceFieldName]|default:null}
 {/if}
+{$isRequired 	= ($field.required || $field.pk)}
+{$editable 		= $field.editable|default:true}
+{$type 			= $field.type}
+{$displayLine 	= true}
 
-<div class="line type{$field.type} {if $field.subtype}subtype{$field.subtype|ucfirst}{/if}" {if $field.from}data-from="{$field.from}"{/if}>
+{* For Api, we do not want onetomany fields to be displayed *}
+{if $viewMode === 'api' && $type === 'onetomany'}{$displayLine = false}{/if}
+
+{if $displayLine}
+<div class="line type{$field.type|ucfirst}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
 	
-	<div class="labelBlock {if $field.comment}hasInfos{/if}">
+	<div class="labelBlock{if $field.comment} hasInfos{/if}">
 		{strip}
 		{if $field.relResource}
 		<label for="{$resourceFieldName}{$itemIndex}">{$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
-			{if isset($field.required) && $field.required || $field.pk}<span class="required">*</span>{/if}
+			{if $isRequired}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}
 		<span class="label">{$fieldName|capitalize|replace:'_':' '}{if $field.required}<span class="required">*</span>{/if}</span>
@@ -42,8 +50,6 @@
 	</div>
 	
 	<div class="fieldBlock">
-	{$editable=$field.editable|default:true}
-	{$type=$field.type}
 	{if $field.relResource && $viewMode === 'admin'}
 		{include file='common/forms/admin/fieldLine/caseRelation.tpl'}
 	{elseif $type === 'int' || $type === 'float'}
@@ -54,6 +60,10 @@
 		{include file='common/forms/admin/fieldLine/caseText.tpl'}
 	{elseif $type === 'timestamp'}
 		{include file='common/forms/admin/fieldLine/caseTimestamp.tpl'}
+	{elseif $type === 'date'}
+		{include file='common/forms/admin/fieldLine/caseDate.tpl'}
+	{elseif $type === 'datetime'}
+		{include file='common/forms/admin/fieldLine/caseDatetime.tpl'}
 	{elseif $type == 'enum'}
 		{include file='common/forms/admin/fieldLine/caseEnum.tpl'}
 	{elseif $type === 'varchar' && $field.subtype === 'password'}
@@ -69,3 +79,4 @@
 	</div>
 	
 </div>
+{/if}

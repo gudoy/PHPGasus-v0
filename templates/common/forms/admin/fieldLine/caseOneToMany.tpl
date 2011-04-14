@@ -1,11 +1,11 @@
-{$resources=$data._resources}
-{$relResource=$field.relResource|default:$fieldName}
-{$relField=$field.relField|default:'id'}
-{$pivotResource=$field.pivotResource|default:{$resourceName|cat:$relResource}}
-{$pivotTable=$resources[$pivotResource]['table']|default:$pivotResource}
-{$pivotIdField=$pivotTable|cat:'_id'}
-{$pivotLeftField=$field.pivotLeftField|default:{$resources[$resourceName]['singular']|cat:'_id'}}
-{$pivotRightField=$field.pivotRightField|default:{$resources[$relResource]['singular']|cat:'_id'}}
+{$resources 		= $data._resources}
+{$relResource 		= $field.relResource|default:$fieldName}
+{$relField 			= $field.relField|default:'id'}
+{$pivotResource 	= $field.pivotResource|default:{$resourceName|cat:$relResource}}
+{$pivotTable 		= $resources[$pivotResource]['table']|default:$pivotResource}
+{$pivotIdField 		= $pivotTable|cat:'_id'}
+{$pivotLeftField 	= $field.pivotLeftField|default:{$resources[$resourceName]['singular']|cat:'_id'}}
+{$pivotRightField 	= $field.pivotRightField|default:{$resources[$relResource]['singular']|cat:'_id'}}
 {if !empty($resource[$fieldName])}
 <table class="commonTable adminTable relationTable">
 	<thead>

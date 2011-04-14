@@ -6,7 +6,7 @@
 		<legend><span class="value">{t}Set resource data{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
-		{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
+		{foreach $data.dataModel[$resourceName] as $fieldName => $field}
 		{include file='common/forms/admin/fieldLine/index.tpl'}
 		{/foreach}
 		{/block}

@@ -1,12 +1,9 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='pageContent'}
+{block name='mainColContent'}
 
-	{$resourceName=$data.view.resourceName}
-
-	<div class="box block grid_10">
-		
-		<h2>{t}data{/t}</h2>
+	{$resourceName = $data.current.resource}
+	{$isAdminView = in_array('admin', explode(' ',$view.smartclasses))}
 		
 	{if $data.success}
 		<div class="notificationsBlock">
@@ -14,16 +11,9 @@
 				{t}The resource has been successfully created!{/t}
 			</p>
 		</div>
-			
-		{include file='common/blocks/api/resource/retrieve.tpl' items=$data[$data.view.resourceName]}
+		{include file='common/blocks/api/resource/retrieve.tpl' item=$data[$resourceName]}
 	{else}
 		{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='api'}
 	{/if}
-	
-	</div>
-	
-	<div class="grid_6">		
-		{include file='common/blocks/api/resource/dataModel.tpl'}
-	</div>
 	
 {/block}

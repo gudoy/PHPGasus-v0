@@ -220,6 +220,9 @@ header .paginationBlock { float:right; }
 /* End TMP TODO */
 
 
+.api form .line.disabled { display:none; }
+
+
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 
 {
@@ -238,13 +241,27 @@ header .paginationBlock { float:right; }
     #sideCol,
     #sideCol.expanded { width:240px; }
     
-    /* IE < 9 does not support table-cell */
-    .ie #body,
-    .opera #body { width:100%; display:table; }
-    .ie #sideCol,
-    .opera #sideCol { display:table-cell; float:none; vertical-align:top; }
-    .ie #mainCol,
-    .opera #mainCol { margin-left:0; display:table-cell; vertical-align:top; }
+    /* Opera does not support flex box module (04/11, current version 11.10): fallback to displays table/table-cell */
+    /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
+    /* IE < 9 does not support table-cell: NO fallback */
+    .ie7 #body,
+    .ie8 #body,
+    .ie9 #body,
+    .opera9 #body,
+    .opera10 #body,
+    .opera11 #body { width:100%; display:table; }
+    .ie7 #sideCol,
+    .ie8 #sideCol,
+    .ie9 #sideCol,
+    .opera9 #sideCol,
+    .opera10 #sideCol,
+    .opera11 #sideCol { display:table-cell; float:none; vertical-align:top; }
+    .ie7 #mainCol,
+    .ie8 #mainCol,
+    .ie9 #mainCol,
+    .opera9 #mainCol,
+    .opera10 #mainCol,
+    .opera11 #mainCol { margin-left:0; display:table-cell; vertical-align:top; }
 
     .adminTable th,
     .adminTable td { display:table-cell; }  	

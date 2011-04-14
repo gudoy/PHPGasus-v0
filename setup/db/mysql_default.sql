@@ -97,18 +97,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(128) default NULL,
   `creation_date` timestamp NULL default NULL,
   `update_date` timestamp NULL default NULL,
-  `sector_code` varchar(4) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `email` (`email`),
-  KEY `sector_code` (`sector_code`),
   KEY `first_name` (`first_name`),
   KEY `last_name` (`last_name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
-INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `creation_date`, `update_date`, `sector_code`) VALUES
-('', 'nobody@anonymous.com', 'f845fb444033f19b8568373351b868dd5b4e54af', 'john', 'doe', '', '2010-12-02 11:15:23', '2010-12-03 14:23:51', NULL),
-('', 'guyllaume@clicmobile.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '2010-09-30 14:11:49', '2010-12-01 23:52:03', NULL);
+INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `creation_date`, `update_date`) VALUES
+('', 'nobody@anonymous.com', 'f845fb444033f19b8568373351b868dd5b4e54af', 'john', 'doe', '', '2010-12-02 11:15:23', '2010-12-03 14:23:51'),
+('', 'guyllaume@clicmobile.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '2010-09-30 14:11:49', '2010-12-01 23:52:03');
 
 
 
