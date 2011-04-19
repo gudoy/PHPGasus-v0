@@ -54,7 +54,7 @@ class Mailer extends View
 		// Mail headers
 		$eol = "\n";
 		$headers = "From:" . $this->from . "\n";
-		$headers .= "To:" . $this->to . "\n";
+		//$headers .= "To:" . $this->to . "\n";
 		$headers .= "Delivered-to:" . $this->to . "\n";
 		$headers .= (!empty($o['cc'])) ? "Cc:" . $o['cc'] . "\n" : '';
 		$headers .= (!empty($o['cci'])) ? "Cci:" . $o['cci'] . "\n" : '';

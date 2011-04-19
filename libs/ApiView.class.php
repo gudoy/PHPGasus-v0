@@ -53,11 +53,31 @@ class ApiView extends View
 			
 			$this->data['dataModel'] = $dataModel;
 			$this->data['_resources'] = $resources;
+			
+			// For create and update views
+			if ( in_array($m, array('create','update')) )
+			{
+		        // TODO: used? double bloom with $this->data['_resources'] & $this->data['resourcesFields']?
+				$this->dataModel = array(
+					'resources' 		=> &$resources,
+					'resourcesFields' 	=> &$dataModel,
+					//'resourceGroups' 	=> $resourceGroups,
+				);
+				
+				$this->data = array_merge($this->data, array(
+					'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
+					#'_dataModel'          	=> &$this->dataModel['resourcesFields'],
+					//'_resources'             => &$this->dataModel['resources'],
+					//'_resourcesGroups'       => &$_resourcesGroups,
+				));
+				
+				// We have to handle relations
+				$this->handleRelations();
+			}
 		}
 		
 		return parent::render();
 	}
-
 		
 }
 

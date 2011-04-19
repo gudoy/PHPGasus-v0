@@ -24,7 +24,7 @@ var apiHome =
 			//$dt.addClass('expanded').siblings().removeClass('expanded').end().next('dd').addClass('expanded');
 			$dt.toggleClass('expanded').next('dd').toggleClass('expanded');
 		})
-		.find('dt:first').click();
+		//.find('dt:first').click();
 		;
 	
 		return this;

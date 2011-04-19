@@ -367,6 +367,61 @@ $this->dump($allowed);
 		return $this;
 	}
 
+
+	public function handleRelations()
+	{
+        $this->log(__METHOD__);
+        
+		// Do not continue if the resource is not defined
+		// or if it has already been handled (i.e: if a resource relates to another one on several columns)
+		if ( empty($this->resourceName) ){ return $this; }
+		
+		
+		$d 				= &$this->data; 												// Shortcut for data		 
+		$relResources 	= array(); 														// Array of related resource for the current resource
+		//$hr 			= array(); 														// Handled resources
+		$rModel  		= &$this->dataModel['resourcesFields'][$this->resourceName]; 	// Set shortcut to resource columns
+		
+		// Loop over the resource colums
+		//foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
+		foreach ( array_keys($rModel) as $colName )
+		{
+			// Get col properties
+			$p = &$rModel[$colName];
+			
+			// Do not continue if the type is not found and the field is not a foreign key
+			if ( empty($p['type']) && empty($p['fk']) ){ continue; }
+			
+			// For onetoone & onetomany relations
+			//else if ( $f['type'] === 'onetomany' || $f['type'] === 'onetoone' )
+			else if ( $p['type'] === 'onetomany' || !empty($p['fk']) )
+			{
+				$relResName 	= !empty($p['relResource']) ? $p['relResource'] : $colName; // Get the related resource or default it to current column name
+				
+				// Do not continue if the related resource count has already been gotten 
+				//if ( in_array($this->resourceName, $hr) ){ continue; }
+				if ( in_array($relResources, $relResources) ){ continue; }
+				
+				$relResources[] = $relResName;												// Add it to the related resources array
+				$ctrlrName 		= 'C' . ucfirst($relResName);								// Build its controller name
+				$ctrlr 			= new $ctrlrName(); 										// Instanciate it
+				$count 			= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
+				$d[$relResName] = $count < 100 ? $ctrlr->index() : null;
+				
+				// Store the related resource count
+				$d['total'][$relResName] = $count;
+				 
+				// Store that we handled this related resource
+				//$hr[] = $this->resourceName;
+			}
+		}
+
+//$this->dump($relResources);
+		
+		return $this;
+	}
+
+
 	public function handleOptions($options = array())
 	{
         $this->log(__METHOD__);

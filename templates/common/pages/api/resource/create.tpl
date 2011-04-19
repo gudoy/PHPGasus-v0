@@ -13,7 +13,7 @@
 		</div>
 		{include file='common/blocks/api/resource/retrieve.tpl' item=$data[$resourceName]}
 	{else}
-		{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='api'}
+		{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='api' mode='create'}
 	{/if}
 	
 {/block}

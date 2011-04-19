@@ -58,16 +58,12 @@ class AdminView extends View
             }            
         }		
 		
-        // TODO: safe to be cleaned?
+        // TODO: clean this
 		$this->data = array_merge($this->data, array(
 			'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
-			//'resources' 			=> &$this->dataModel['resources'],    // deprecated. use _resources instead
-			
-			//'_dataModel'          => &$this->dataModel['resourcesFields'],
+			//'_dataModel'          	=> &$this->dataModel['resourcesFields'],
 			'_resources'             => &$this->dataModel['resources'],
 			'_resourcesGroups'       => &$_resourcesGroups,
-			
-            // '__config' => array('resources' => $resources, 'columns' => &$dataModel );
 		));
 		
 //$this->dump($this->data);
@@ -130,51 +126,7 @@ class AdminView extends View
 		
 		return $m;
 	}
-	
-	
-	public function handleRelations()
-	{
-        $this->log(__METHOD__);
 		
-		// Handled resources
-		$hr = array();
-        
-		// Do not continue if the resource is not defined
-		// or if it has already been handle (i.e: if a resource relates to another one on several columns)
-		if ( empty($this->resourceName) ){ return $this; }
-		
-		// Array of related resource for the current resource 
-		$relResources = array();
-		
-		// Loop over the resource colums
-		foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
-		{			
-			// Do not continue if the type is not found and the field is not a foreign key
-			if ( empty($f['type']) && empty($f['fk']) ){ continue; }
-			
-			// For onetoone & onetomany relations
-			//else if ( $f['type'] === 'onetomany' || $f['type'] === 'onetoone' )
-			else if ( $f['type'] === 'onetomany' || !empty($f['fk']) )
-			{
-				if ( in_array($this->resourceName, $hr) ){ continue; }
-				
-				 $relResName 				= !empty($f['relResource']) ? $f['relResource'] : $name; 	// Get the related resource or default it to current column name
-				 $relResources[] 			= $relResName;												// Add it to the related resources array
-				 $ctrlrName 				= 'C' . ucfirst($relResName);								// Build its controller name
-				 $ctrlr 					= new $ctrlrName(); 										// Instanciate it
-				 $count 					= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
-				 $this->data[$relResName] 	= $count < 100 ? $ctrlr->index() : null;
-				 
-				// Store that we handled this related resource
-				$hr[] = $this->resourceName;
-			}
-		}
-		
-		//$this->current['relatedResources'] = $relResources;
-		
-		return $this;
-	}	
-	
 	
 	public final function requireAuth($options = null)
 	{

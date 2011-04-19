@@ -50,7 +50,7 @@
 	</div>
 	
 	<div class="fieldBlock">
-	{if $field.relResource && $viewMode === 'admin'}
+	{if $field.relResource && ( $viewMode === 'admin' || $mode === 'create')}
 		{include file='common/forms/admin/fieldLine/caseRelation.tpl'}
 	{elseif $type === 'int' || $type === 'float'}
 		{include file='common/forms/admin/fieldLine/caseInt.tpl'}

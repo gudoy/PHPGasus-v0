@@ -24,7 +24,7 @@
 			<h3 class="title">{t}Accepted URI params{/t}</h3>
 		</header>
 		<dl class="paramsList">
-			<dt class="name">URI extension (output format)</dt>
+			<dt class="name">extension (output format)</dt>
 			<dd class="details">
 				<div>
 					<span class="summary">returned data format (overload Accept header)</span>
@@ -49,11 +49,13 @@
 					<li>/animals/goldfish.html?foo=bar</li>
 				</ul>
 			</dd>
+			{*
 			<dt class="name">output (DEPRECATED)</dt>
 			<dd class="details">
 				<span class="summary">deprecated: use URI extension instead.<br/>returned data format (overload URI extension)</span>
 				<span class="acceptedValues"><strong>any of the accepted formats above (without '.')</strong></span>
 			</dd>
+			*}
 			<dt class="name">offset</dt>
 			<dd class="details">
 				<span class="summary">Offset from which you want to get data</span>

@@ -1423,6 +1423,7 @@ class Model extends Application
 							: ( !empty($d[$field['from']]) ? Tools::slugify($d[$field['from']]) : '');
 				$value 	= "'" . $this->escapeString($tmpVal) . "'";
 			}
+			// TODO: deprecated. remove the following condition
 			else if ( isset($field['computed']) && $field['computed'] )
 			{
 				if ( $field['type'] === 'timestamp' ){ $value = $field['computedValue']; }
@@ -1509,6 +1510,16 @@ class Model extends Application
 							: "FROM_UNIXTIME('" . $this->escapeString($d[$fieldName]) . "')";
 			}
 			*/
+			else if ( $field['type'] === 'date' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";
+			}
+			else if ( $field['type'] === 'datetime' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";
+			}
 			else if ( $field['type'] === 'timestamp' )
 			{
 			    /*
@@ -1886,6 +1897,16 @@ class Model extends Application
 							: "FROM_UNIXTIME('" . $d[$fieldName] . "')";
 			}
 			*/
+			else if ( $field['type'] === 'date' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";
+			}
+			else if ( $field['type'] === 'datetime' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";
+			}
 			else if ( $field['type'] === 'timestamp' )
 			{
 				// Get the passed value if present, otherwise, try to use default value

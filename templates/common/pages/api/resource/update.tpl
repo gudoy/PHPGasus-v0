@@ -18,7 +18,7 @@
 		
 		{include file='common/blocks/api/resource/retrieve.tpl' items=$data[$data.view.resourceName]}
 	{else}
-		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='api'}
+		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='api' mode='edit'}
 	{/if}
 	
 	</div>
