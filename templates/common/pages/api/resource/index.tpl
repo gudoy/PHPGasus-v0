@@ -4,7 +4,7 @@
 {include file='common/blocks/api/resource/dataModel.tpl'}
 {/block}
 
-{block name='mainColContent'}
+{block name='mainContent'}
 
 	{$resourceName = $data.current.resource}
 	{$isAdminView = in_array('admin', explode(' ',$view.smartclasses))}

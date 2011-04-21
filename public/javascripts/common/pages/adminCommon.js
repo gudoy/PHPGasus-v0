@@ -26,7 +26,9 @@ var admin =
         
 	    adminSearch.init();
 	    
-	    this.menu();
+	    this
+	    	.menu()
+	    	.handleMultiLangFields();
 	    
 		return this;
 	},
@@ -553,6 +555,36 @@ var admin =
 		};
 		
 		suggestFields.init();
+		
+		return this;
+	},
+	
+	handleMultiLangFields: function()
+	{
+		$('nav.translationsNav')
+			.each(function()
+			{
+				var $nav = $(this);
+				
+				$nav.bind('click', function(e)
+				{ 
+					var t 		= e.target,
+						$t 		= $(t),
+						$lang 	= $t.closest('li.lang', $nav),
+						code 	= $lang.data('code') || 'all';
+					
+					if ( !$nav.hasClass('expanded') ) { return $nav.addClass('expanded'); }
+					
+					$lang.addClass('active').siblings().removeClass('active');
+					$nav.removeClass('expanded');
+					
+					// Set the input selector (if not 'all', append proper attribute selector)
+					var slctr = ':input' + ( code === 'all' ? '' : '[lang=' + code + ']') ;
+					
+					$nav.siblings('.fieldsGroup').find(slctr).addClass('active').siblings().removeClass( code === 'all' ? '' : 'active' )
+					;
+				});
+			});
 		
 		return this;
 	},

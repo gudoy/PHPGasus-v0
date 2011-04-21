@@ -62,16 +62,6 @@
 			</tr>
 		</thead>
 		<tbody>
-			{if !$smarty.const._APP_USE_ADMIN_LIST_TOOLBAR_V2}
-			<tr class="{cycle values='odd'} addRow">
-				<td colspan="{$displayedFieldsNb+4}">
-					{include file='common/blocks/admin/resource/actions/listAdd.tpl'}
-					<div class="resourcesCount">
-						<span class="value">{$rCount} {t}of{/t} {$data.total[$resourceName]}</span>
-					</div>
-				</td>
-			</tr>
-			{/if}
 			{foreach $data[$resourceName] as $resource}
 			<tr class="dataRow {cycle values='even,odd'}{if $resource@first} firstRow{/if}{if $resource@last} lastRow{/if}" id="row{$resource.id}" scope="row">
 				<td class="col firstCol colSelectResources">

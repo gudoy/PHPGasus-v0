@@ -1,4 +1,3 @@
-{$useAclV2          = $smarty.const._APP_USE_ACL_V2|default:false}
 {$useGroups         = $smarty.const._APP_USE_RESOURCESGROUPS|default:false}
 {$resources         = $data._resources}
 {$resourcesGroups   = $data._resourcesGroups}
@@ -27,7 +26,7 @@
             {$rDisplayName  = $rProps.displayName|default:$rName}
             {$rUsed         = "{if $rType === 'filter' && $rProps.extends}$rProps.extends{else}$rName{/if}"}
             
-            {if !$useAclV2 || in_array($rUsed, $data.current.user.auths.__can_display)}
+            {if in_array($rUsed, $data.current.user.auths.__can_display)}
             <li class="item item-lv2 resourceItem {if $rName === $data.current.resource}current{/if}"><a href="{$rAdminURL}"><span class="value">{$rDisplayName}</span></a></li>
             {/if}
         {/strip}
@@ -50,7 +49,7 @@
     {$type =$v.type|default:'native'}
     {*if $type === 'filter'}{$usedResource=$v.extends}{else}{$usedResource=$k}{/if*}
     {$usedResource=$k}
-    {if !$useAclV2 || in_array($usedResource, $data.current.user.auths.__can_display)}
+    {if in_array($usedResource, $data.current.user.auths.__can_display)}
     <li class="item item-lv1 {if $k === $data.current.resource}current{/if}"><a href="{$smarty.const._URL_ADMIN}{$k}/"><span class="value">{$v.displayName|default:$k}</span></a></li>
     {/if}
     {/foreach}

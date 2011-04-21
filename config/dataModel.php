@@ -2,6 +2,7 @@
 
 ### RESOURCES GROUPS ###
 $_resourcesGroups = array(
+	'push'         => array('resources' => array('pushsubscriptions')),
     'users'         => array('resources' => array('users','usersgroups','groups','groupsauths',)),
     'config'        => array('resources' => array('adminlogs', 'resources','sessions', 'tasks')),
 );
@@ -162,22 +163,6 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
-'keywords' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'issues_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'issues', 'relField' => 'id', 'relGetFields' => 'number', 'relGetAs' => 'issue_number','displayName' => 'number'),
-	'label' 				=> array('type' => 'varchar', 'length' => 128, 'list' => 1),
-	'label_strict' 			=> array('type' => 'varchar', 'length' => 128, 'list' => 1),
-	'definition' 			=> array('type' => 'text', 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => true),
-),
-'machines' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'reference' 			=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
-	'reference_type' 		=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
-),
 'medias' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'title'					=> array('type' => 'varchar', 'length' => 255, 'list' => 1),
@@ -223,13 +208,13 @@ $dataModel = array(
 		'price_dollars' 		=> array('type' => 'varchar', 'length' => 10, 'default' => '1000', 'list' => 1),
 		'available_nb' 			=> array('type' => 'int', 'default' => 200, 'list' => 1),
 ),
-'pushregistrations' => array(
+'pushsubscriptions' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'token' 				=> array('type' => 'varchar', 'list' => 1),
-	'device_id' 			=> array('type' => 'varchar', 'length' => 128, 'list' => 1,'displayName' => 'device id', 'unique' => 1),
+	'device_id' 			=> array('type' => 'varchar', 'length' => 128, 'list' => 3, 'unique' => 1, 'required' => 1),
+	'token' 				=> array('type' => 'varchar', 'list' => 1, 'required' => 1),
 	'language' 				=> array('type' => 'varchar', 'length' => 5, 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
 'resources' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),

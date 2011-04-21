@@ -161,101 +161,92 @@ class AdminView extends View
             // Get the user data
             $u              = CUsers::getInstance()->retrieve(array('values' => $uid));
             
-		    if ( !defined('_APP_USE_ACL_V2') || !_APP_USE_ACL_V2 )
-            {
+            # Get user credentials
+            $gids           = !empty($u['group_ids']) ? $u['group_ids'] : array();          // Get user group ids
+            $opts           = array('by' => 'group_id', 'values' => $gids);                 // Set options
+            $gpsAuths       = CGroupsauths::getInstance()->index($opts);                        // Try to get user groups auth
+            //$actionAuths    = array();                                                        // Init user auths actions indexed array
+            
+            // Can the user access the admin
+            $ugps           = !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
+            $isGod          = in_array('gods', $ugps);
+            $u['auths']     = array(
+                '__can_access_admin' => $isGod || in_array('superadmins', $ugps) || in_array('admins', $ugps) 
+            );
+            $uAuths         = &$u['auths'];                                                      
 
-                // TODO: Deprecated, to be removed
-                $match            = in_array($u['auth_level'], $o['authLevel']);                
+
+            // Gods are allmighty
+            if ( $isGod )
+            {
+                $resList = array_keys($this->dataModel['resources']);
+                
+                foreach ($knownActions as $action)
+                {
+                    $cN             = '__can_' . $action;
+                    
+                    // Do not handle search action auths here
+                    if ( $action === 'search' ){ $uAuths[$cN] = array(); continue; }
+                    
+                    $uAuths[$cN]    = $resList;
+                }
+                
+                foreach ( $resList as $rName )
+                {
+                    foreach ($knownActions as $action)
+                    {
+                        $aN                     = 'allow_' . $action;       // Shortcut for auth name 
+                        $uAuths[$rName][$aN]    = true;                     // Update the auth for the current resource
+                    } 
+                    
+                    // Special case for search action that should be allowed if retrieve action is allowed
+                    // AND if the resource is searchable
+                    if ( $action === 'search' && !empty($this->dataModel['resources'][$rName]['searchable']) )
+                    {
+                        $uAuths[$rName][$aN]        = true;
+                        $uAuths['__can_search'][]   = $rName;
+                    }
+                }
             }
             else
             {
-                # Get user credentials
-                $gids           = !empty($u['group_ids']) ? $u['group_ids'] : array();          // Get user group ids
-                $opts           = array('by' => 'group_id', 'values' => $gids);                 // Set options
-                $gpsAuths       = CGroupsauths::getInstance()->index($opts);                        // Try to get user groups auth
-                //$actionAuths    = array();                                                        // Init user auths actions indexed array
-                
-                // Can the user access the admin
-                $ugps           = !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
-                $isGod          = in_array('gods', $ugps);
-                $u['auths']     = array(
-                    '__can_access_admin' => $isGod || in_array('superadmins', $ugps) || in_array('admins', $ugps) 
-                );
-                $uAuths         = &$u['auths'];                                                      
-
-
-                // Gods are allmighty
-                if ( $isGod )
+                // Loop over the group auths
+                foreach ( (array) $gpsAuths as $gpAuths )
                 {
-                    $resList = array_keys($this->dataModel['resources']);
+                    // Shortcut for the group auth resource name
+                    $rName              = !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
                     
+                    // Do not continue if the resource name has not been found 
+                    if ( empty($rName) ) { continue; }
+                    
+                    // Loop over the known auths
                     foreach ($knownActions as $action)
                     {
-                        $cN             = '__can_' . $action;
+                        $aN                     = 'allow_' . $action;                              // Shortcut for auth name
+                        $cN                     = '__can_' . $action;                              // Shortcut for auth resources list for the current action 
+                        $uAuths[$rName][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;    // Update the auth for the current resource
+                        $uAuths[$cN]            = !isset($uAuths[$cN]) ? array() : $uAuths[$cN];
                         
-                        // Do not handle search action auths here
-                        if ( $action === 'search' ){ $uAuths[$cN] = array(); continue; }
-                        
-                        $uAuths[$cN]    = $resList;
-                    }
-                    
-                    foreach ( $resList as $rName )
-                    {
-                        foreach ($knownActions as $action)
-                        {
-                            $aN                     = 'allow_' . $action;       // Shortcut for auth name 
-                            $uAuths[$rName][$aN]    = true;                     // Update the auth for the current resource
-                        } 
+                        if ( !empty($gpAuths[$aN]) ) { $uAuths[$cN][] = $rName; }
                         
                         // Special case for search action that should be allowed if retrieve action is allowed
-                        // AND if the resource is searchable
-                        if ( $action === 'search' && !empty($this->dataModel['resources'][$rName]['searchable']) )
+                        // AND if the resource is searchable                        
+                        if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->dataModel['resources'][$rName]['searchable']) )
                         {
-                            $uAuths[$rName][$aN]        = true;
-                            $uAuths['__can_search'][]   = $rName;
+                            $uAuths[$rName][$aN]    = true;
+                            $uAuths[$cN][]          = $rName;
                         }
                     }
                 }
-                else
-                {
-                    // Loop over the group auths
-                    foreach ( (array) $gpsAuths as $gpAuths )
-                    {
-                        // Shortcut for the group auth resource name
-                        $rName              = !empty($gpAuths['resource_name']) ? $gpAuths['resource_name'] : null;
-                        
-                        // Do not continue if the resource name has not been found 
-                        if ( empty($rName) ) { continue; }
-                        
-                        // Loop over the known auths
-                        foreach ($knownActions as $action)
-                        {
-                            $aN                     = 'allow_' . $action;                              // Shortcut for auth name
-                            $cN                     = '__can_' . $action;                              // Shortcut for auth resources list for the current action 
-                            $uAuths[$rName][$aN]    = isset($gpAuths[$aN]) && $gpAuths[$aN] == true;    // Update the auth for the current resource
-                            $uAuths[$cN]            = !isset($uAuths[$cN]) ? array() : $uAuths[$cN];
-                            
-                            if ( !empty($gpAuths[$aN]) ) { $uAuths[$cN][] = $rName; }
-                            
-                            // Special case for search action that should be allowed if retrieve action is allowed
-                            // AND if the resource is searchable                        
-                            if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->dataModel['resources'][$rName]['searchable']) )
-                            {
-                                $uAuths[$rName][$aN]    = true;
-                                $uAuths[$cN][]          = $rName;
-                            }
-                        }
-                    }
-                }
-
-                $match  = !empty($uAuths['__can_access_admin']) && ( empty($this->resourceName) || in_array($this->resourceName, $uAuths['__can_display']) );            
             }
-			
-			// Store the current user, after having remove sensitive data (password, .... ?)
-			// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
-			unset($u['password']);
-			$this->data['current']['user'] = $u;
-		}
+
+            $match  = !empty($uAuths['__can_access_admin']) && ( empty($this->resourceName) || in_array($this->resourceName, $uAuths['__can_display']) );            
+        }
+		
+		// Store the current user, after having remove sensitive data (password, .... ?)
+		// TODO: find a way to clean this properly (calling something like a cleanSensitive function???)
+		unset($u['password']);
+		$this->data['current']['user'] = $u;
 
 //var_dump($this->data['current']['user']);
 

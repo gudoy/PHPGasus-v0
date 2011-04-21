@@ -10,7 +10,7 @@
 {include file='common/blocks/api/commonParams.tpl'}
 {/block}
 
-{block name='mainColContent'}
+{block name='mainContent'}
 <section class="apiSection" id="apiSection">
 		
 	<div class="block apisBlock" id="apisBlock">

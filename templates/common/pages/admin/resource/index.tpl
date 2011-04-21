@@ -1,9 +1,11 @@
 {extends file='specific/layout/pageAdmin.tpl'}
 
-{block name='pageContent'}
-{$resourceName=$view.resourceName}
-{$resourceId=$data.resourceId}
-{$resource=$data.$resourceName}
+{block name='mainContent'}
+
+{$resourceName 	= $view.resourceName}
+{$resourceId 	= $data.resourceId}
+{$resource 		= $data.$resourceName}
+
 <form id="frmAdmin{$resourceName|capitalize}" action="{$smarty.const._URL_ADMIN}{$resourceName}?method=index" class="commonForm" method="post" enctype="multipart/form-data">
 
     {block name="admin{$resourceName|ucfirst}IndexBlock"}

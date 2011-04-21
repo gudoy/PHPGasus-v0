@@ -140,7 +140,7 @@ form label,
 form span.label { margin-right:10px; display:block; font-weight:bold; }
 form label small,
 form span.label small { display:block; font-weight:normal; text-transform:none; }
-form span,
+/*form span,*/
 form label.span { display:inline; font-weight:normal; }
 form .line { margin-bottom:1em; }
 form .multi { display:-moz-inline-block!important; display:-moz-inline-box!important; display:inline-block!important; vertical-align:middle; }

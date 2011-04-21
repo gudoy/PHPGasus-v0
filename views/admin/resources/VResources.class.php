@@ -25,8 +25,17 @@ class VResources extends AdminView
 		if ( empty($this->data['resources']) ){ return $this; }
 		
 		$lb 		= "\n";
-		$code 		= '$resources = array(' . $lb;
+		$code 		= '<?php' . $lb . $lb . '$resources = array(' . $lb;
 		$resources 	= &$this->data['resources'];
+		$longer 	= null;
+		
+//var_dump($resources);
+		
+		// Try to get the longer resource name (to compute tab proper tab indentation)
+		foreach ( $resources as $props ){ $longer = ( empty($longer) || strlen($props['name']) > strlen($longer) ) ? $props['name'] : $longer; }
+
+		
+		$verTabPos = strlen($longer) + ( 4 - (strlen($longer) % 4) );
 		
 		// Loop over the resources
 		foreach ( $resources as $props )
@@ -44,29 +53,33 @@ class VResources extends AdminView
 			$table 				= !empty($props['table']) ? $props['table'] : $name;
 			$alias 				= !empty($props['alias']) ? $props['alias'] : $table;
 			$displayName 		= !empty($props['displayName']) ? $props['displayName'] : $name;
-			$defaultNameField 	= !empty($props['defaultNameField']) ? $props['defaultNameField'] : null;
-			$extends 			= !empty($props['extends']) ? $props['extends'] : null;
+			$defaultNameField 	= !empty($props['defaultNameField']) ? $props['defaultNameField'] : 'null';
+			$extends 			= !empty($props['extends']) ? $props['extends'] : 'null';
 			$searchable 		= !empty($props['searchable']) ? $props['searchable'] : 0;
 			$exposed 			= !empty($props['exposed']) ? $props['exposed'] : 0;
 			$crudability 		= !empty($props['crudability']) ? $props['crudability'] : 'CRUD';
 			
-			$code .= "'" . $name . "' => array(";
+			$tabsCnt = floor(($verTabPos - strlen($name)) / 4);
+			$tabs = '';
+			for($i=0; $i<$tabsCnt; $i++){ $tabs .= "\t"; }
+			
+			$code .= "'" . $name . "' " . $tabs . "=> array(";
 			$code .= "'type' => '" . $type . "'";
 			$code .= ", 'singular' => '" . $singular . "'";
 			$code .= ", 'plural' => '" . $plural . "'";
 			$code .= ", 'displayName' => '" . $displayName . "'";
-			$code .= ", 'defaultNameField' => '" . (string) $defaultNameField . "'";
-			$code .= ", 'extends' => '" . (string) $extends . "'";
+			$code .= ", 'defaultNameField' => '" . $defaultNameField . "'";
+			$code .= ", 'extends' => '" . $extends . "'";
 			$code .= ", 'database' => '" . $database . "'";
 			$code .= ", 'table' => '" . $table . "'";
 			$code .= ", 'alias' => '" . $alias . "'";
-			$code .= ", 'searchable' => " . (bool) $searchable . "";
-			$code .= ", 'exposed' => '" . (bool) $exposed . "'";
-			$code .= ", 'crudability' => '" . (string) $crudability . "'";
+			$code .= ", 'searchable' => " . ( $searchable ? 'true' : 'false' ) . "";
+			$code .= ", 'exposed' => '" . ( $exposed ? 'true' : 'false' ) . "'";
+			$code .= ", 'crudability' => '" . $crudability . "'";
 			$code .= ")," . $lb;
 		}
 		
-		$code .= ');';
+		$code .= ');' . $lb . '?>';
 
 		$this->data['_extras']['dataModel']['resources']['code'] = $code;
 		

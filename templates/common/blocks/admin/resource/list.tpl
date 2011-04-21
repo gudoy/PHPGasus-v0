@@ -23,7 +23,7 @@
 	{/if}
 </header>
 
-<div class="box block adminBlock adminListBlock" id="admin{$resourceName|capitalize}ListBlock" {*title="{$data.meta.displayName} - {$resourceId}"*}>
+<div class="block adminBlock adminListBlock" id="admin{$resourceName|capitalize}ListBlock">
 	{strip}
 	
     {$curURL = $data.current.url}

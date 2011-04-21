@@ -1,6 +1,5 @@
 {block name='resourcesTableBlock'}
 
-{$useAclV2=$smarty.const._APP_USE_ACL_V2|default:false}
 {$resources=$data._resources}
 
 <div class="box adminBlock adminListBlock" id="adminResourcesListBlock">
@@ -33,7 +32,7 @@
                 {foreach $resources as $k => $v}
                 {$type=$v.type|default:'native'}
                 {if $type === 'filter'}{$usedResource=$v.extends}{else}{$usedResource=$k}{/if}
-                {if !$useAclV2 || in_array($usedResource, $data.current.user.auths.__can_display)}
+                {if in_array($usedResource, $data.current.user.auths.__can_display)}
 				<tr class="dataRow {cycle values='even,odd'}" id="row{$resource@iteration}">
 					<td class="col firstcol colSelectResources">
 						<input type="checkbox" name="ids[]" value="{$resource@iteration}" {if $smarty.post.ids && in_array($resource@iteration, $smarty.post.ids)}checked="checked"{/if} />

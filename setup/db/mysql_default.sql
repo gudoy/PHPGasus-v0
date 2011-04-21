@@ -1,3 +1,20 @@
+
+CREATE TABLE IF NOT EXISTS `admin_logs` (
+  `id` int(11) NOT NULL auto_increment,
+  `admin_title` varchar(64) default NULL,
+  `action` enum('create','update','delete','import') NOT NULL,
+  `resource_name` varchar(32) NOT NULL,
+  `resource_id` varchar(32) NOT NULL,
+  `user_id` int(11) default NULL,
+  `revert_query` text,
+  `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+
+
 CREATE TABLE IF NOT EXISTS `groups` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(32) NOT NULL,
@@ -19,8 +36,6 @@ INSERT INTO `groups` (`id`, `name`, `admin_title`, `creation_date`, `update_date
 
 
 
-
-
 CREATE TABLE IF NOT EXISTS `resources` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(32) NOT NULL,
@@ -36,19 +51,16 @@ CREATE TABLE IF NOT EXISTS `resources` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
---
--- Contenu de la table `resources`
---
 
 INSERT INTO `resources` (`id`, `name`, `singular`, `type`, `table`, `alias`, `extends`, `displayName`, `defaultNameField`, `creation_date`, `update_date`) VALUES
+('', 'adminlogs', 'adminlog', 'native', 'admin_logs', 'admlog', '', 'admin logs', 'admin_title', '2011-03-22 11:49:43', '2011-03-22 13:15:52'),
 ('', 'groups', 'group', 'native', 'groups', 'gp', '', 'groups', 'admin_title', '2010-10-04 18:12:21', '2010-12-03 15:14:05'),
 ('', 'groupsauths', 'groupsauth', 'relation', 'groups_auths', 'gpauth', '', 'groups auths', '', '2010-10-04 18:12:50', '2010-12-03 16:31:59'),
 ('', 'sessions', 'session', 'native', 'sessions', 'sess', '', 'sessions', 'name', '2010-10-04 18:13:14', '2010-12-03 16:27:12'),
 ('', 'users', 'user', 'native', 'users', 'u', '', 'users', 'email', '2010-10-04 18:13:22', '2010-12-03 16:28:21'),
 ('', 'usersgroups', 'usersgroup', 'relation', 'users_groups', 'ugp', '', 'user-groups', '', '2010-10-04 18:13:36', '2010-12-03 16:32:36'),
-('', 'resources', 'resource', 'native', 'resources', 'res', '', 'resources', 'name', '2010-10-07 16:28:33', '2010-12-03 16:29:39');
-
-
+('', 'resources', 'resource', 'native', 'resources', 'res', '', 'resources', 'name', '2010-10-07 16:28:33', '2010-12-03 16:29:39'),
+('', 'tasks', 'task', 'native', 'tasks', 'tsk', '', 'tasks', 'admin_title', '2011-03-22 10:47:15', '2011-03-22 10:47:15');
 
 
 
@@ -70,9 +82,6 @@ CREATE TABLE IF NOT EXISTS `groups_auths` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='groups authorisations (ACL)';
 
 
-
-
-
 CREATE TABLE IF NOT EXISTS `sessions` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(32) NOT NULL,
@@ -85,6 +94,18 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   PRIMARY KEY  (`id`),
   KEY `name` (`name`),
   KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `tasks` (
+  `id` int(11) NOT NULL auto_increment,
+  `admin_title` varchar(64) default NULL,
+  `type` enum('import') default NULL,
+  `subtype` varchar(32) default NULL,
+  `processed_items_nb` int(8) default NULL,
+  `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
@@ -131,20 +152,16 @@ INSERT INTO `users_groups` (`id`, `user_id`, `group_id`, `creation_date`, `updat
 
 
 
+ALTER TABLE `admin_logs`
+  ADD CONSTRAINT `admin_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `groups_auths`
   ADD CONSTRAINT `groups_auths_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `groups_auths_ibfk_2` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- Contraintes pour la table `sessions`
---
 ALTER TABLE `sessions`
   ADD CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- Contraintes pour la table `users_groups`
---
 ALTER TABLE `users_groups`
   ADD CONSTRAINT `users_groups_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `users_groups_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

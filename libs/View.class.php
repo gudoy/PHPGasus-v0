@@ -1359,7 +1359,7 @@ $this->dump($allowed);
 		$v['template']    = $this->smartTemplate();
 		$this->template   = $v['template'];
 		
-$this->dump($this->data);
+//$this->dump($this->data);
 //var_dump($this);
 	
 		return $this;	

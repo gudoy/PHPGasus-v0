@@ -7,6 +7,7 @@
 		<span class="value">{t}actions{/t}</span>
 	</h4>
 	<div class="content">
+		{if $logs}
 		<ol class="logs items adminLogs" id="adminLogs">
 			{$curDay = ''}
 			{foreach $logs as $log}
@@ -39,5 +40,10 @@
 			{/if}
 			{/foreach}
 		</ol>
+		{else}
+		<p class="nodata">
+			{t}There's nothing here for the moment{/t}
+		</p>
+		{/if}
 	</div>
 </div>

@@ -3,7 +3,7 @@
 //$pagesCSSassoc = array(
 $cssAssoc = array(
 	//'app' 			=> array('phpgasus.css', 'greybox.css'),
-	'app' 			=> array('phpgasus.css', 'admin_new.css', 'macaddict.css'),
+	'app' 			=> array('phpgasus.css', 'admin_new.css', 'macaddict.css', _APP_NAME . '.css'),
 	'default' 		=> array('reset.css', 'text.css', 'layout.css', 'app'),
 	'default'      => array('reset.css', 'app'),
 

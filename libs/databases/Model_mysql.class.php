@@ -1656,9 +1656,6 @@ class Model extends Application
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
 				//$currentUser 	= !empty($this->data['current']['user']) ? $this->data['current']['user'] : null; 
 				$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
-
-                // Do we use ACL module version 2?
-                $useAclV2       = defined('_APP_USE_ACL_V2') && _APP_USE_ACL_V2;
                 
                 // Get logged & updated users groups
                 $curUGroups     = !empty($currentUser['group_admin_titles']) ? explode(',',$currentUser['group_admin_titles']) : array();
@@ -1666,11 +1663,9 @@ class Model extends Application
 
 				// Has the current user higher authorization than the updated one
 				$foundUsersData = !empty($updatedUser) && !empty($currentUser);
-				$hasHigherAuth 	= !$useAclV2 
-				                    // TODO: remove condition since ACL V1 is now deprecated
-				                    ? $foundUsersData && $currentUser['auth_level_nb'] > $updatedUser['auth_level_nb'] && $currentUser['auth_level_nb'] >= 500
-				                    // Only god users, or a superadmins (if the update user is not a god or a superadmin too) have higher auths
-                                    : ( in_array('gods', $curUGroups) || ( in_array('superadmins', $curUGroups) && count(array_intersect($upUGroups, array('gods','superadmins'))) ) );
+				
+				// Only god users, or a superadmins (if the update user is not a god or a superadmin too) have higher auths
+				$hasHigherAuth 	= in_array('gods', $curUGroups) || ( in_array('superadmins', $curUGroups) && count(array_intersect($upUGroups, array('gods','superadmins'))) ); 
 
 				$allowEdit	 	= $foundUsersData && ( $updatedUser['id'] === $currentUser['id'] || $hasHigherAuth);
 				$skip 			= $allowEdit ? false : true;
@@ -2029,96 +2024,6 @@ class Model extends Application
 		return $query;
 	}
 
-
-	public function handleConditions_old($options)
-	{
-		$o 			= &$options; 		// Shortcut for options
-		
-		//$rModel 	= $this->dataModel[$this->resourceName];
-		$rModel 	= &$this->application->dataModel[$this->resourceName];
-		
-//$this->dump($this->queryData['fields']);
-		
-		// TODO: clean using magic
-		$conditions = '';
-		if ( !empty($o['conditions']) )
-		{
-			$i = 0;
-			foreach ($o['conditions'] as $condFieldName => $condFieldValues)
-			{
-				# 2 possible patterns
-				# - simple: conditions => array('col1' => 'val1', 'col2' => 'val2', ...)
-				# - advanced: conditions => array(array('col1','operationType','val1'), array('col2','operationType','val2')) 
-				$pattern 	= is_numeric($condFieldName) && is_array($condFieldValues) ? 'advanced' : 'simple';
-				
-				if ( !isset($condFieldValues) ) { break; }
-				
-				if ( $pattern === 'advanced' )
-				{
-					$argsNb 	= count($condFieldValues);
-					$colName 	= $condFieldValues[0];
-					//$opType 	= $condFieldValues[1];
-					$opType 	= !empty($condFieldValues[1]) ? $condFieldValues[1] : '='; // Default operator to '='
-					//$condValue 	= $condFieldValues[2];
-					$condValue 	= $argsNb === 3 ? $condFieldValues[2] : $condFieldValues[1];
-					$condValue     = $condValue !== null ? Tools::toArray($condValue) : null;					
-					
-					// Get the field type
-					$type 		= !empty($rModel[$colName]['type']) ? $rModel[$colName]['type'] : '';
-					
-					// TODO: refactor handling fieldname, operator, value separately and concatenate them afterwards
-					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
-					//$conditions .= $this->alias . ".";
-					$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName]['tableAlias'] : $this->alias ) . ".";
-					//$conditions .= $colName . " " . $opType . " " . $condValue;
-					//$conditions .= $colName . " " . $opType . " ";
-					$conditions .= $colName . " " . ( is_array($condValue) ? '' : $opType ) . " ";
-					$conditions .= $opType  === '=' && is_array($condValue) 
-										? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $condValue)) . "' ) " 
-										//? " IN ('" . (join("', '", is_bool($condValue) ? (int) $condValue : $this->escapeString($condValue))) . "' ) "
-										//: $opType . ' ' . ( is_bool($condValue) 
-										//: ' ' . ( is_bool($condValue)
-										: ( is_null($condValue) ? '' : $opType ) . ' ' . ( is_bool($condValue)
-											? (int) $condValue 
-											: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
-												//? "FROM_UNIXTIME('" . $condValue . "')" 
-												? "FROM_UNIXTIME('" . implode(',',$condValue) . "')"
-												//: $condValue 
-												: ( is_null($condValue) ? 'NULL' : $condValue )
-											) 
-										);
-					$conditions .= ' ';
-					
-//var_dump($conditions);
-				}
-				else
-				{
-					// Get the field type
-					$type = !empty($rModel[$condFieldName]['type']) ? $rModel[$condFieldName]['type'] : '';
-					
-					$conditions .= empty($o['values']) && $i == 0 ? "WHERE " : " AND ";
-					$conditions .= ( !empty($this->queryData[$condFieldName]) ? $this->queryData[$condFieldName]['tableAlias'] : $this->alias ) . ".";
-					$conditions .= $condFieldName . " IN ('";
-					$conditions .= is_array($condFieldValues) 
-									? join("', '", is_bool($condFieldValues) ? (int) $condFieldValues : $condFieldValues) 
-									: ( is_bool($condFieldValues) 
-										? (int) $condFieldValues 
-										: ( $type === 'timestamp' && $o['force_unix_timestamps'] 
-											? "FROM_UNIXTIME('" . $condFieldValues . "')" 
-											//: $condFieldValues
-											: ( is_null($condFieldValues) ? 'NULL' : $condFieldValues )
-										) 
-									);
-					$conditions .= "') ";
-				}
-
-				$i++;
-			}
-		}
-		
-		return $conditions;
-	}
-
 	/*
 	 * ### Accepted formats for conditions param
 	 * $conditions = array(
@@ -2155,12 +2060,6 @@ class Model extends Application
 				
 		// Do not continue if there's no conditions to handle 
 		if ( empty($o['conditions']) ) { return $output; }
-		
-//$this->dump('handleConditions');
-//$this->dump($o['conditions']);
-		
-		// If the new conditions handler is not activated, use the old one 
-		if ( !defined('_APP_USE_CONDITIONS_HANDLER_V2') || !_APP_USE_CONDITIONS_HANDLER_V2 ) { return $this->handleConditions_old($options); }
 
 		// Known operators
 		$knownOps         = array(
