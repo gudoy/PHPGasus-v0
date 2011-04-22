@@ -144,9 +144,9 @@ class Tools
      * @param string $replaceIn a string or URL in valid query format (param1=value1&param2=value2...)
      * @return string cleaned string
      */
-    static function removeQueryParams($paramNames, $replaceIn)
+    static function removeQueryParams($paramNames, $string)
     {
-        $cleaned = $replaceIn;
+        $cleaned = $string;
         
         foreach ((array)$paramNames as $paramName)
         {

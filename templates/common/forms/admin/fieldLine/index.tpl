@@ -1,9 +1,17 @@
+{$capFieldName 			= $fieldName|ucfirst}
+{*$resourceFieldName 	= $data.meta.singular|cat:$capFieldName*}
+{$resourceFieldName 	= $data._resources[$resourceName].singular|cat:$capFieldName}
+{$isRequired 			= ($field.required || $field.pk)}
+{$editable 				= $field.editable|default:true}
+{$type 					= $field.type}
+{$displayLine 			= true}
+
+{* For API *}
+{* we do not want onetomany fields to be displayed *}
 {if $viewMode === 'api'}
-{$resourceFieldName=$fieldName}
-{else}
-{$capFieldName=$fieldName|ucfirst}
-{$resourceFieldName=$data.meta.singular|cat:$capFieldName}
-{/if}
+{$resourceFieldName = $fieldName}
+{if $type === 'onetomany'}{$displayLine = false}{/if}
+{/if} 
 
 {if $multipleItems}
 	{$useArray='[]'}
@@ -14,13 +22,7 @@
 	{$itemIndex=''}
 	{$postedVal=$smarty.post[$resourceFieldName]|default:null}
 {/if}
-{$isRequired 	= ($field.required || $field.pk)}
-{$editable 		= $field.editable|default:true}
-{$type 			= $field.type}
-{$displayLine 	= true}
 
-{* For Api, we do not want onetomany fields to be displayed *}
-{if $viewMode === 'api' && $type === 'onetomany'}{$displayLine = false}{/if}
 
 {if $displayLine}
 <div class="line type{$field.type|ucfirst}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>

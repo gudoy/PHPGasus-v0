@@ -65,6 +65,12 @@ div.actionBtn,
 .toolbar .actions .action:not(:first-child),
 .titleBlock .actions .action:not(:first-child) { border-left:1px solid #fff; border-left:1px solid rgba(255,255,255,0.5); }
 div.actionBtn button { padding:5px 10px; background:none; border:none; text-shadow:1px 1px 0 rgba(255,255,255,0.8); }
+/*
+a.action { padding:5px 10px; text-shadow:1px 1px 0 rgba(255,255,255,0.8); }
+a.action .value { text-indent:0; }
+.action.adminLink { padding:inherit; }
+.action.adminLink .value { text-indent:-9999em; }
+*/
 
 .toolbar .title { display:block; text-align:center; font-weight:bold; }
 .toolbar.bottom .title { display:none; }

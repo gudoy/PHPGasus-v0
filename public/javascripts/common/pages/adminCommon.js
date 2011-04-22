@@ -37,18 +37,31 @@ var admin =
 	{
 		//app.intercept('#adminMenuBlock, #topPaginationBlock, #bottomPaginationBlock', {action:'clickDelegate', dest:'#mainCol'});
 		
-		$('#adminMainNav').bind('click',function(e)
+		var $menu = $('#adminMainNav');
+		
+		$menu.bind('click',function(e)
 		{
+			e.stopPropagation();
+			
 		    var $this     = $(this),
 		        t         = e.target,
 		        $t        = $(t),
 		        $LIlv1    = $t.closest('li.item-lv1', $this);
+		      
+            if ( !$LIlv1.hasClass('expanded') )
+            {	
+				$('body').one('click', function(e)
+				{
+					e.preventDefault();
+					
+					if ( !$(e.target).closest('#adminMainNav').length ){ $LIlv1.removeClass('expanded'); }
+				});            	
+            }
 		        
             $LIlv1
                 .toggleClass('expanded')
                 .siblings().removeClass('expanded');
-		         
-		});
+		}); 
 		
 		return this;
 	},

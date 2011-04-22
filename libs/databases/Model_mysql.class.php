@@ -56,6 +56,9 @@ class Model extends Application
 			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singularize((string) $this->resourceName);
 		}
 		
+		// Set the timeout
+		if( _DB_CONNECTION_TIMEOUT !== '' ) { ini_set('mysql.connect_timeout', _DB_CONNECTION_TIMEOUT); }
+		
 		return $this->connect();
 	}
 
@@ -90,8 +93,14 @@ class Model extends Application
 		$this->db 			= @mysql_connect(_DB_HOST, _DB_USER, _DB_PASSWORD);
 		
 		// TODO: use error codes
-		//if ( !is_resource($this->db) ){ die('Database connection error ' . mysql_error()); }
-		if ( !is_resource($this->db) ){ $this->errors[] = 4000; die('Database connection error : ' . mysql_errno() . ": " . mysql_error()); }
+		if ( !is_resource($this->db) )
+		{
+			//$this->errors[] = 4000;
+			//die('Database connection error : ' . mysql_errno() . ": " . mysql_error());
+			
+			// TODO: make something more user friendly. redirect to /error/
+			die('Database connection error. ' . ( $this->env['type'] === 'prod' ? '' : mysql_errno() . ': ' . mysql_error() ));
+		}
 		
 		$this->selectedDb 	= @mysql_select_db(_DB_NAME, $this->db);
 		

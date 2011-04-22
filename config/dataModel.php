@@ -35,8 +35,7 @@ $resources = array(
 'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'defaultNameField' => 'user_id'),		
 'versions' 			=> array('singular' => 'version', 'alias' => 'v', 'crudability' => 'CRUD', 'defaultNameField' => 'value'),
 
-//'commercials'       => array('type' => 'filter', 'singular' => 'commercial', 'extends' => 'users'),
-//'technicians'       => array('type' => 'filter', 'singular' => 'technician', 'extends' => 'users'),		
+//'clients'       => array('type' => 'filter', 'singular' => 'client', 'extends' => 'users'),
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
@@ -51,51 +50,6 @@ $dataModel = array(
 	'revert_query' 			=> array('type' => 'text'),
     'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
-),
-'apiclients' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'private_key' 			=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => true),
-),
-'apps' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'title_FR' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
-	'title_EN' 				=> array('type' => 'varchar', 'length' => 64),
-	'admin_title'			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'title_FR', 'length' => 64, 'list' => 1, 'comment' => 'For admin/url purpose. No special chars'),
-	'clients_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'clients', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'client_name'),
-	'platforms_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'platforms', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'platforms_name'),
-	'description_FR' 		=> array('type' => 'text'),
-	'description_EN' 		=> array('type' => 'text'),
-	'baseline_short_FR'		=> array('type' => 'varchar', 'length' => 80, 'list' => 1),
-	'baseline_short_EN'		=> array('type' => 'varchar', 'length' => 80),
-	'desc_short_FR'			=> array('type' => 'text'),
-	'desc_short_EN'			=> array('type' => 'text'),
-	'download_url' 			=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
-	'main_orientation' 		=> array('type' => 'enum', 'possibleValues' => array('none', 'portrait', 'landscape', 'mixed'), 'list' => 1),
-	'main_color' 			=> array('type' => 'varchar', 'subtype' => 'color', 'length' => 20, 'list' => 1),
-	'is_available' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1),
-	'is_displayable' 		=> array('type' => 'bool', 'default' => 0, 'list' => 1),
-	'release_date'			=> array('type' => 'timestamp', 'default' => 'now', 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
-),
-'appsplatforms' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'apps_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'apps', 'relField' => 'id', 'relGetFields' => 'admin_title', 'relGetAs' => 'apps_name'),
-	'platforms_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'platforms', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'platforms_name'),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
-),
-'clients' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
-	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1, 'searchable' => 1),
-	'admin_title' 			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
-	'logo_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
-	'website_url' 			=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
 'contents' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
@@ -134,16 +88,6 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
-'issues' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'number' 				=> array('type' => 'int', 'length' => 6, 'list' => 1),
-	'date' 					=> array('type' => 'timestamp', 'list' => 1),
-	'is_free' 				=> array('type' => 'bool', 'default' => 0, 'list' => 1),
-	'price_euros' 			=> array('type' => 'varchar', 'length' => 16, 'list' => 1),
-	'pdf_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
-),
 'groups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
@@ -175,26 +119,6 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
-'platforms' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'admin_title'			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'length' => 64, 'list' => 1, 'comment' => 'For admin/url purpose. No special chars'),
-	'constructor' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
-	'position' 				=> array('type' => 'int', 'length' => 4, 'default' => 0, 'list' => 1, 'comment' => 'Used for display order. Higher is stronger.'),
-),
-'pointsofinterest' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'issues_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'issues', 'relField' => 'id', 'relGetFields' => 'number', 'relGetAs' => 'issue_number','displayName' => 'number'),
-	'contents_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'contents', 'relField' => 'id', 'relGetFields' => 'admin_title', 'relGetAs' => 'point_title','displayName' => 'content'),
-	'admin_title' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
-	'title' 				=> array('type' => 'varchar', 'lenght' => 128, 'list' => 1),
-	'text' 					=> array('type' => 'text', 'subtype' => 'html'),
-	'coordinates' 			=> array('type' => 'varchar', 'length' => 20, 'list' => 1, 'comment' => '(in pixels). Order: origine X, origine Y, width, height. Values are separated by spaces or comas.', 'placeholder' => 'ex: 17,258,27,112'),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => true),
-),
 'products' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 		'admin_title' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
@@ -212,7 +136,7 @@ $dataModel = array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'device_id' 			=> array('type' => 'varchar', 'length' => 128, 'list' => 3, 'unique' => 1, 'required' => 1),
 	'token' 				=> array('type' => 'varchar', 'list' => 1, 'required' => 1),
-	'language' 				=> array('type' => 'varchar', 'length' => 5, 'list' => 1),
+	'language' 				=> array('type' => 'varchar', 'length' => 5, 'list' => 1, 'eval' => 'strtolower(trim(---self---))',),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
@@ -297,7 +221,6 @@ $dataModel = array(
 
 // Filter resources
 // TODO:
-$dataModel['technicians'] = &$dataModel['users'];
-$dataModel['commercials'] = &$dataModel['users'];
+$dataModel['clients'] = &$dataModel['users'];
 
 ?>

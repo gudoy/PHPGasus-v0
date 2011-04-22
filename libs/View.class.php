@@ -544,12 +544,8 @@ $this->dump($allowed);
 		
 		if ( $this->isAjaxRequest )
 		{
-			//$url = $this->removeQueryParams('tplSelf', $url);
 			$url = Tools::removeQueryParams('tplSelf', $url);
-			//$url = str_replace('tplSelf','',$url);
-			//$this->data['redirect'] = $this->removeQueryParams('tplSelf', $url);
 			$this->data['redirect'] = Tools::removeQueryParams('tplSelf', $url);
-			//$this->statusCode('302');
 			return $this->render();
 		}
 		else
@@ -671,7 +667,7 @@ $this->dump($allowed);
 	}
 	
 	
-	public function display($viewData = array())
+	public function display()
 	{
         $this->log(__METHOD__);
 		
@@ -717,7 +713,9 @@ $this->dump($allowed);
             
 			$this
 				->writeHeaders()
-				->prepareTemplate($viewData)
+				->prepareTemplate();
+				
+			$this
 				->Smarty->display($this->template, $cacheId);
 				//->Smarty->display($this->data['view']['template']);
 			exit();
@@ -1311,15 +1309,13 @@ $this->dump($allowed);
 	}
 	
 	
-	public function prepareTemplate($viewData = array())
-	//public function prepareTemplate()
+	public function prepareTemplate()
 	{
         $this->log(__METHOD__);
 		
-		$this->data           = array_merge($viewData, (array) $this->data);
+		//$this->data           = array_merge($viewData, (array) $this->data);
 		
 		$v                    = &$this->data['view'];
-		
 		$v['smartname']       = $this->smartname();
 		$v['smartclasses']    = $this->smartclasses();
 		$v['isAjaxRequest']   = $this->isAjaxRequest;
@@ -1358,9 +1354,6 @@ $this->dump($allowed);
 		// Get the layout/template to use
 		$v['template']    = $this->smartTemplate();
 		$this->template   = $v['template'];
-		
-//$this->dump($this->data);
-//var_dump($this);
 	
 		return $this;	
 	}
@@ -1385,7 +1378,6 @@ $this->dump($allowed);
 			
 			// Otherwise
 			$tpl         = 'common/pages/' . ( !empty($folders) ? '/' : '' ) . $v['name'] . '/' . $v['method'] . '.tpl';
-			//$tpl       = 'common/layout/html.tpl';
 		}
 		
 		return $tpl;

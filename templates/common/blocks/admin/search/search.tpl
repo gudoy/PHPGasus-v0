@@ -10,7 +10,7 @@
     
     <div class="contentBlock">
     
-        <form action="{if $current.resource}{else}{$smarty.const._URL_ADMIN_SEARCH}{/if}" method="get" class="commonForm searchForm adminSearchForm" id="adminSearchForm">
+        <form action="{if $current.resource}{$data.current.url}{else}{$smarty.const._URL_ADMIN_SEARCH}{/if}" method="get" class="commonForm searchForm adminSearchForm" id="adminSearchForm">
            {*
             <fieldset id="advancedSearchFieldset">
                 <a class="modeLink" id="simpleSearchLink" href="#simpleSearchFieldset">{t}simple{/t}</a>
@@ -94,11 +94,11 @@
             </fieldset>
         </form>
         
-        {if $search.type === 'contextual'}
+        {*if $search.type === 'contextual'}
         {block name='contextualSearchResults'}
         {include file='specific/blocks/admin/search/results.tpl'}
         {/block}
-        {/if}
+        {/if*}
     
     </div>
     

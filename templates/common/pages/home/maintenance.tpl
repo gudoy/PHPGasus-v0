@@ -1,5 +1,7 @@
 {extends file='specific/layout/page.tpl'}
 
 {block name='mainContent'}
-Home content goes here...
+<h1>
+	{t}We are under maintenance, please come back later!{/t}
+</h1>
 {/block}

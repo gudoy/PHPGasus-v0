@@ -46,6 +46,9 @@ define("_URL_WIDGET_INSTALL", 				_URL . 'public/widget/builds/' . _APP_WIDGET_N
 
 
 # SOME COMMON URIs
+define("_URL_DOWN", 						_URL . 'down');
+define("_URL_MAINTENANCE", 					_URL . 'maintenance');
+define("_URL_404", 							_URL . 'error404');
 define("_URL_CATEGORIES", 					_URL . 'categories/');
 define("_URL_CATEGORY", 					_URL . 'category/');
 define("_URL_SEARCH", 						_URL . 'search/');
@@ -60,9 +63,6 @@ define("_URL_EDIT_PASSWORD", 				_URL . 'account/password');
 define("_URL_EDIT_EMAIL", 					_URL . 'account/email');
 define("_URL_NOT_CONFIRMED", 				_URL . 'account/notconfirmed');
 define("_URL_RESEND_CONFIRMATION_MAIL", 	_URL . 'account/confirmation');
-define("_URL_SITE_DOWN", 					_URL . 'site/down');
-define("_URL_SITE_MAINTENANCE", 			_URL . 'site/maintenance');
-define("_URL_404", 							_URL . 'site/error404');
 define("_URL_ABOUT", 						_URL . 'about');
 define("_URL_SITEMAP", 						_URL . 'about/sitemap');
 define("_URL_ABOUT_TU", 					_URL . 'about/termsofuse');

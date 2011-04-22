@@ -82,6 +82,10 @@ define("_URL_STATIC_1", 				'http://static1.' . _DOMAIN . '/');
 define("_URL_ADMIN", 					_URL . 'admin/');
 define("_URL_API", 						_URL . 'api/');
 
+
+define("_IN_MAINTENANCE", 				false); // Set this to true to redirect all requests to the maintenance page (/maintenance)
+
+
 # DATABASE PARAMETERS
 define("_DB_SYSTEM",   					'mysql'); // mysql, mysqli, postgresql, sqlite, mongodb
 define("_DB_HOST",    					'localhost');
@@ -90,6 +94,7 @@ define("_DB_PASSWORD",  				'F4K3paSSw0rD');
 define("_DB_NAME",  					_APP_NAME);
 define("_DB_PORT",  					'3306'); // mysql:3306 , postgresql: 5432, sqlite:
 define('_DB_TABLE_PREFIX', 				''/*_APP_NAMESPACE*/);
+define('_DB_CONNECTION_TIMEOUT', 		5); // In seconds. Better to set this in your php ini. let empty to use php.ini config (mysql=60)
 
 # FTP PARAMETERS
 define("_FTP_HOST",    					'localhost');

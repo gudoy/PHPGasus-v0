@@ -1,0 +1,1 @@
+{extends file='common/pages/home/_404.tpl'}

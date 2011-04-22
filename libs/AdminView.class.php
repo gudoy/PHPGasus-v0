@@ -1,10 +1,7 @@
 <?php
 
 class AdminView extends View
-{
-	//protected 	$debug 	= false;
-	var $resourceGroupName = null;
-	
+{	
     public function __construct(&$application)
 	{
 		//$this->log(__METHOD__);
@@ -39,11 +36,7 @@ class AdminView extends View
 			$tmp 							= explode('/', str_replace(_PATH_VIEWS, '', ($pos ? substr($this->filePath, 0, $pos-1) : $this->filePath)));
 			$tmpGroupName 					= $tmp[count((array) $tmp)-1];
 			$this->resourceAdminBasePath 	= join('/', $tmp) . (!empty($tmp) ? '/' : '');
-			//$this->resourceGroupName 		= !empty($tmpGroupName) && !empty($resourceGroups) && !empty($resourceGroups[$tmpGroupName]) ? $tmpGroupName : '';
 		}
-		
-		// Get the metadata for each of the resources of the current admin group (or all resources if no groups defined)
-		//$this->data['current']['groupResources'] = !empty($this->resourceGroupName) ? $resourceGroups[$tmpGroupName]['resources'] : $this->dataModel['resources'];
 		
 		
 		// TODO: remove when no longer needed for backward compat
@@ -863,32 +856,18 @@ class AdminView extends View
 		$id                       = (int) $this->resourceId;
         $this->data['pagination'] = array();
         
-        // If the new conditions handler is not activated
-        if ( !defined('_APP_USE_CONDITIONS_HANDLER_V2') || !_APP_USE_CONDITIONS_HANDLER_V2 )
-        {
-            $this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsLower', 'sortBy' => 'id', 'orderBy' => 'DESC'));
-            //$this->C->retrieve(array('getFields' => 'id', 'conditions' => array(array('id','>',$id)), 'sortBy' => 'id', 'orderBy' => 'DESC'));
-            $this->data['pagination']['prev'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
-            
-            $this->C->retrieve(array('getFields' => 'id', 'values' => $id, 'limit' => 1, 'operation' => 'valueIsGreater', 'sortBy' => 'id', 'orderBy' => 'ASC'));
-            //$this->C->retrieve(array('getFields' => 'id', 'conditions' => array(array('id','>',$id)), 'sortBy' => 'id', 'orderBy' => 'DESC'));
-            $this->data['pagination']['next'] = !empty($this->C->data['id']) ? $this->C->data['id'] : null;
-        }
-        else
-        {
-        	// Define common options
-        	$opts = array('getFields' => 'id', 'sortBy' => 'id', 'limit' => 1);
-			
-			// Get prev and next id
-        	$prev = $this->C->retrieve(array_merge($opts, array('conditions' => array(array('id', '<', $id)), 'orderBy' => 'DESC')));
-			$next = $this->C->retrieve(array_merge($opts, array('conditions' => array(array('id', '>', $id)), 'orderBy' => 'ASC')));
-			
-			// Assign the values to pagination data
-            $this->data['pagination']   = array(
-                'prev' => is_array($prev) && isset($prev['id']) ? $prev['id'] : ( is_numeric($prev) ? $prev : null),
-                'next' => is_array($next) && isset($next['id']) ? $next['id'] : ( is_numeric($next) ? $next : null),
-            );
-        }
+    	// Define common options
+    	$opts = array('getFields' => 'id', 'sortBy' => 'id', 'limit' => 1);
+		
+		// Get prev and next id
+    	$prev = $this->C->retrieve(array_merge($opts, array('conditions' => array(array('id', '<', $id)), 'orderBy' => 'DESC')));
+		$next = $this->C->retrieve(array_merge($opts, array('conditions' => array(array('id', '>', $id)), 'orderBy' => 'ASC')));
+		
+		// Assign the values to pagination data
+        $this->data['pagination']   = array(
+            'prev' => is_array($prev) && isset($prev['id']) ? $prev['id'] : ( is_numeric($prev) ? $prev : null),
+            'next' => is_array($next) && isset($next['id']) ? $next['id'] : ( is_numeric($next) ? $next : null),
+        );
 
 		return $this;
 	}
@@ -921,12 +900,7 @@ class AdminView extends View
         
 		if ( !empty($this->resourceName) )
 		{
-			//$tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['metas'][$this->resourceName]['breadcrumbs']));
             $tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['meta']['breadcrumbs']));
-		}
-		else if ( !empty($this->resourceGroupName) )
-		{
-			$tmp = $this->resourceGroupName;
 		}
 		else { $tmp = ''; }
 		
@@ -935,34 +909,6 @@ class AdminView extends View
 		
 		return 'admin' . ucfirst($tmp) . ucfirst($method);
 	}
-	
-	
-	/*
-	public function smartclasses()
-	{
-        $this->log(__METHOD__);
-        
-		$tmp = '';
-		
-		if ( !empty($this->resourceName) )
-		{
-			//foreach ($this->data['metas'][$this->resourceName]['breadcrumbs'] as $item){ $tmp .= 'admin' . ucfirst($item) . ' '; }
-			foreach ($this->data['meta']['breadcrumbs'] as $item){ $tmp .= 'admin' . ucfirst($item) . ' '; }
-		}
-		
-		//$method = !empty($this->data['current']['method']) ? $this->data['current']['method'] : 'index';
-		$method       = !empty($this->data['view']['method']) ? $this->data['view']['method'] : 'index';
-		
-        // Add user groups
-        $gpClasses  = '';
-        $uGps       = !empty($this->data['current']['user']['group_admin_titles']) 
-                        ? explode(',',$this->data['current']['user']['group_admin_titles']) 
-                        : array();
-        foreach ( $uGps as $gp ){ $gpClasses .= ' group' . ucfirst($gp); }
-        
-		return 'admin ' . ( 'admin' . ucfirst($method) ) . ' ' . $tmp . $this->data['view']['smartname'] . ' ' . $gpClasses;
-	}
-	*/
 	
 	
 	public function render()
@@ -987,54 +933,25 @@ class AdminView extends View
 				'resourceName' 			=> isset($this->resourceName) ? $this->resourceName : '',
 			), ( isset($this->data['view']) ? (array) $this->data['view'] : array()) );
 		}
-		
-		//$this->data['view']['smartname'] 	= $this->smartname();
-		//$this->data['view']['smartclasses'] = $this->smartclasses();
-
-		// Update current meta
-		// TODO: remove when resource group getting will have been move to meta()
-		//$this->data['meta'] 					= !empty($this->resourceName) ? $this->data['metas'][$this->resourceName] : null;
-		
-		// TODO: already assigned in the __construct()
-		// safe to remove? 
-		//$this->data['meta']                       = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
-		
-        //$curURL     = $this->currentURL();
 								
         $this->data = array_merge($this->data, array(
             'current'               => array_merge($this->data['current'], array(
-            	// url & urlParams have been moved to View class
-                //'url'                       => $curURL,
-                //'urlParams'                 => Tools::getURLParams($curURL),
                 'offset'                    => $this->options['offset'],
                 'limit'                     => $this->options['limit'],
                 'sortBy'                    => $this->options['sortBy'],
                 'orderBy'                   => $this->options['orderBy'],
                 'resource'                  => !empty($this->resourceName) ? $this->resourceName : null,
-                
                 // TODO, handle this properly via dispatcher/breadcrumbs
                 'menu'                      => !empty($this->resourceName) ? $this->resourceName : 'admin',
-                
-                // Deprecated. Safe to be removed?
-                // TODO: remove
-                'resourceGroup'             => $this->resourceGroupName,
             )),
         ));
-								
-		//$this->data['current']['resource'] 		= !empty($this->resourceName) ? $this->resourceName : null;
-        //$this->data['current']['menu']          = &$this->data['current']['resource'];
-		
-		// Deprecated. Safe to be removed?
-		// TODO: remove
-		//$this->data['current']['resourceGroup'] = $this->resourceGroupName;
         
-		//if ( $m === 'update' || $m === 'delete' )
 		if ( in_array($m, array('update','delete')) )
 		{
 			$this->data['resourceId'] = $this->resourceId;
 		}
 		
-$this->dump($this->data);
+//$this->dump($this->data);
 		
 		return parent::prepareTemplate();
 	}

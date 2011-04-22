@@ -234,23 +234,22 @@ class Application
 	
 	/* 
 	 * This function gets, in an URL string, the value of the param given in the function call
-	 * @author Guyllaume Doyer guyllaume@clicmobile.com
 	 * @return {String|Boolean} The value if found, otherwise false
 	 */
 	// TODO: refactor using parse_str() ???
-	public function getURLParamValue($requestedURL, $requestedParamName)
+	public function getURLParamValue($url, $param)
 	{
         $this->log(__METHOD__);
 		
 		// Get start position of the param from the ?
-		$markP 			= strpos($requestedURL, "?");
-		$requestedURL 	= substr($requestedURL, $markP, strlen($requestedURL));
-		$pos 			= strpos($requestedURL, $requestedParamName);
+		$markP 	= strpos($url, "?");
+		$url 	= substr($url, $markP, strlen($url));
+		$pos 	= strpos($url, $param);
 		
-		if ($pos != -1 && $requestedParamName != "")
+		if ($pos != -1 && $param != "")
 		{
 			// Truncate the string from this position to its end
-			$tmp = substr($requestedURL, $pos);
+			$tmp = substr($url, $pos);
 			
 			// Get end position of the param value
 			if 		( strpos($tmp, "&amp;") !== false ) { $end_pos = strpos($tmp, "&amp;"); } // case where there are others params after, separated by a "&amp;"
@@ -259,9 +258,7 @@ class Application
 			else 										{ $end_pos = strlen($tmp); } // case where there are no others params after
 			
 			// Truncate the string from 0 to the end of the param value
-			$requestedParamValue = substr($tmp, strlen($requestedParamName) + 1, $end_pos);
-			
-			return $requestedParamValue;
+			return substr($tmp, strlen($param) + 1, $end_pos);
 		}
 		else { return false; }
 	}
@@ -323,6 +320,11 @@ class Application
 								: ( in_array(ucfirst($view['name']), $s) ? array_search(ucfirst($view['name']), $s) : 0 ); // handle /Viewname/.../method/param URIs (capitalised)
 		$s 					= array_slice($s,  $lim+1);
 		
+		if ( _IN_MAINTENANCE === true )
+		{
+			require(_PATH_VIEWS . 'VHome.class.php');
+			return call_user_func_array(array(new VHome($this), 'maintenance'), array());
+		}
 		
 		// If the file is correctly loaded
 		if( require($view['path'] . '/' . $view['fullname'] . '.class.php') )
@@ -337,9 +339,8 @@ class Application
 		// If an error occured, we load the 404 page
 		else
 		{
-			class_exists('controller') || require _PATH_LIBS . 'Controller.class.php';
-			
-			Controller::redirect(_URL_404);
+			require(_PATH_VIEWS . 'VHome.class.php');
+			return call_user_func_array(array(new VHome($this), '_404'), array());
 		}
 	}
 	
@@ -412,7 +413,7 @@ class Application
 		{
 			// Report simple running errors
 			error_reporting(E_ERROR | E_PARSE);
-		}
+		} 
 
 		// Force timezone
 		//$old = date_default_timezone_get();
