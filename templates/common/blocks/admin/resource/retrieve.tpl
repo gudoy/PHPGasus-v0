@@ -10,18 +10,18 @@
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='retrieve'}
 </header>
 
-<div class="box block adminBlock adminRetrieveBlock" id="admin{$resourceName|capitalize}RetrieveBlock" {*title="{$data.meta.displayName} - {$resourceId}"*}> 
-	
-	{block name='adminResourceDetail'}
-	<div class="resourceDetailBlock adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">		
-		{include file='common/blocks/admin/resource/resourceDetail.tpl'}
+<div class="contentBlock">
+
+	{block name="adminRetrieveContent"}
+	<div class="block adminBlock adminRetrieveBlock" id="admin{$resourceName|capitalize}RetrieveBlock"> 
+		
+		{block name='adminResourceDetail'}
+		<div class="resourceDetailBlock adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">		
+			{include file='common/blocks/admin/resource/resourceDetail.tpl'}
+		</div>
+		{/block}
+		
 	</div>
 	{/block}
-	
-</div>
 
-{*
-{if !$data.options.viewType || $data.options.viewType !== 'bubble'} 
-{include file='common/blocks/admin/resource/retrieve/related.tpl'}
-{/if}
-*}
+</div>

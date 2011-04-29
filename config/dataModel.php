@@ -33,7 +33,6 @@ $resources = array(
 'tasks' 				=> array('singular' => 'task', 'alias' => 'tsk', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title'),
 'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'searchable' => 1),
 'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'defaultNameField' => 'user_id'),		
-'versions' 			=> array('singular' => 'version', 'alias' => 'v', 'crudability' => 'CRUD', 'defaultNameField' => 'value'),
 
 //'clients'       => array('type' => 'filter', 'singular' => 'client', 'extends' => 'users'),
 );
@@ -42,11 +41,11 @@ $resources = array(
 $dataModel = array(
 'adminlogs' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-    'admin_title'           => array('type' => 'varchar', 'length' => 64, 'list' => 0),
+    'admin_title'           => array('type' => 'varchar', 'length' => 64, 'list' => 3),
     'action' 				=> array('type' => 'enum', 'possibleValues' => array('create','update','delete','import'), 'list' => 1),
-    'resource_name'			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+    'resource_name'			=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'resource_id'			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'editable' => 0, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email','displayName' => 'user'),
+	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'editable' => 0, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email','displayName' => 'user'),
 	'revert_query' 			=> array('type' => 'text'),
     'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
@@ -154,15 +153,6 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
-'tasks' => array(
-    'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-    'admin_title'           => array('type' => 'varchar', 'length' => 32, 'list' => 0),
-    'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 1),
-    'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-    'processed_items_nb'    => array('type' => 'int', 'length' => 6, 'list' => 1),
-    'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
-    'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
-),
 'usersgroups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email'),
@@ -208,14 +198,14 @@ $dataModel = array(
 	'ip' 					=> array('type' => 'varchar', 'length' => 48, 'list' => 1, 'editable' => 0),
 	'last_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1, 'editable' => 0, 'forceUpdate' => 1),
 ),
-'versions' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'major' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
-	'minor' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
-	'build' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
-	'revision' 				=> array('type' => 'int', 'length' => 4, 'list' => 1),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+'tasks' => array(
+    'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+    'admin_title'           => array('type' => 'varchar', 'length' => 32, 'list' => 1),
+    'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 1),
+    'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+    'processed_items_nb'    => array('type' => 'int', 'length' => 8, 'default' => null, 'list' => 1),
+    'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+    'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
 );
 

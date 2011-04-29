@@ -16,9 +16,6 @@ if ( _APP_CONTEXT === 'local' )
 	// Is minification used for css & js
 	define("_MINIFY_JS", 				false);
 	define("_MINIFY_CSS", 				false);
-	
-	//define("_URL", 						'http://' . $_SERVER['SERVER_NAME'] . '/');
-	//define("_PATH",						'C:/Program Files/xampp/htdocs/mynewproject/');
 }
 
 
@@ -53,11 +50,9 @@ if ( _APP_CONTEXT === 'dev' )
 // in the the other environnement's configuration ABOVE
 
 # Get the projet full path on the server
-//define("_PATH",							'/var/www/mynewproject/');
 define("_PATH",							getcwd() . '/');
 
 # Get app name using base projet folder name
-//define("_APP_NAME", 					str_replace($_SERVER['DOCUMENT_ROOT'], '', _PATH));
 define("_APP_NAME", 					basename(_PATH));
 
 # Get Path relatively to server root
@@ -65,17 +60,10 @@ define("_PATH_REL", 					str_replace($_SERVER['DOCUMENT_ROOT'], '', _PATH));
 
 // If a server name has been defined, use it
 // Otherwise, use the server ip and the project base folder path as the base URL 
-//define("_URL", 							'http://' . $_SERVER['SERVER_NAME'] . '/');
 define("_URL", 							'http://' . ( $_SERVER['SERVER_NAME'] !== $_SERVER['SERVER_ADDR'] ? $_SERVER['SERVER_NAME'] . '/' : $_SERVER['SERVER_ADDR'] . _PATH_REL ));
 											
 define("_URL_REL", 						$_SERVER['SERVER_NAME'] !== $_SERVER['SERVER_ADDR'] ? '/' : _PATH_REL );
 
-/*
-var_dump(_APP_NAME);
-var_dump(_PATH_REL);
-var_dump(_URL);
-var_dump(_URL_REL);
-*/
 
 define("_URL_STATIC", 					'http://static.' . _DOMAIN . '/');
 define("_URL_STATIC_1", 				'http://static1.' . _DOMAIN . '/');

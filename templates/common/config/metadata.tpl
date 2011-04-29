@@ -15,13 +15,8 @@ http://www.google.com/support/news_pub/bin/answer.py?answer=191283
 <meta name="original-source" content="{$smarty.const._URL}{* current url *}{*">
 <meta name="syndication-source" content="http://www.example.com/wire_story_1.html">
 *}
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-{if $smarty.const._APP_IPHONE_WEBAPP_CAPABLE}<meta name="apple-mobile-web-app-capable" content="yes" />{/if}
-
-{if $smarty.const._APP_USE_CHROME_FRAME}<meta http-equiv="X-UA-Compatible" content="chrome=1" />{/if}
-
+<meta http-equiv="X-UA-Compatible" content="IE=edge{if $smarty.const._APP_USE_CHROME_FRAME},chrome=1{/if}" />
 {if $smarty.const._APP_IOS_WEBAPP_CAPABLE}<meta name="apple-mobile-web-app-capable" content="yes" />{/if}
-<link href="{$smarty.const._URL_PUBLIC}apple-touch-icon.png" rel="apple-touch-icon" />
 {if $data.platform.name === 'bada'}
 {else}
 <meta name="viewport" content="width=device-width, initial-scale={$smarty.const._APP_IOS_INISCALE|default:'1.0'}, maximum-scale={$smarty.const._APP_IOS_MAXSCALE|default:'10.0'}, user-scalable=yes" />

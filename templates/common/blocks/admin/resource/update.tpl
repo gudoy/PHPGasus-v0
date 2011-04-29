@@ -10,19 +10,25 @@
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='update'}
 </header>
 
-<div class="box block adminBlock adminUpdateBlock" id="admin{$resourceName|capitalize}UpdateBlock" {*title="{$data.meta.displayName} - {$resourceId}"*}>
-	
-	{if $data.warnings}
-		{include file='common/config/warnings.tpl'}
-	{/if}
+<div class="contentBlock">
+
+	{block name="adminUpdateContent"}
+	<div class="block adminBlock adminUpdateBlock" id="admin{$resourceName|capitalize}UpdateBlock">
 		
-	{if $data.success}
-	<div class="notifierBlock">
-		<p class="notification success">
-			{t}The resource has been successfully updated!{/t}
-		</p>
+		{if $data.warnings}
+			{include file='common/config/warnings.tpl'}
+		{/if}
+			
+		{if $data.success}
+		<div class="notifierBlock">
+			<p class="notification success">
+				{t}The resource has been successfully updated!{/t}
+			</p>
+		</div>
+		{/if}
+		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin' resource=$data.$resourceName}
+		
 	</div>
-	{/if}
-	{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin' resource=$data.$resourceName}
-	
+	{/block}
+
 </div>

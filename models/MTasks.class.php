@@ -8,5 +8,14 @@ class MTasks extends Model
 		
 		return parent::__construct($application);
 	}
+	
+    public function index($options = array())
+    {
+        $o              = &$options;
+        $o['sortBy']    = !empty($o['sortBy']) ? $o['sortBy'] : 'update_date';
+        $o['orderBy']   = !empty($o['orderBy']) ? $o['orderBy'] : 'DESC';
+        
+        return parent::index($o);
+    }
 }
 ?>

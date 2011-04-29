@@ -9,7 +9,7 @@
 {/strip}
 {if $user}
 <div id="myAccountNavBlock" class="navBlock accountBlock myAccountNavBlock hcard">
-    <header class="header titleBlock"><a id="goToMyAccountDetailsLink" href="#myAccountDetailsBlock"><h2><span class="value">{t}account{/t}</span></h2></a></header>
+    <div class="header titleBlock"><a id="goToMyAccountDetailsLink" href="#myAccountDetailsBlock"><h2><span class="value">{t}account{/t}</span></h2></a></div>
     <div id="myAccountDetails" class="details">
         <figure class="figure picsBlock">
             <a rel="me" href="{$user.profile_url}">

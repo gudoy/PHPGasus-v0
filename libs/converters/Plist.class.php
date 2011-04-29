@@ -156,9 +156,15 @@ class Plist
 			if (gettype($value) != "integer" || $key != $count) {
 				$type = "dict";
 				break;
-			}
+			}			
 			$count ++;
 		}
+
+		// 27-04-11: fix by gudoy: for associative arrays whose keys can be integers
+		// We check that the first key of the array is 0 and that the last key is {array length - 1}
+		// Remains 1 case of false positive for arrays like this (0 => 'foo', 'bar' => 'foobar', 2 => 'baz')
+		reset($array);
+		$type = ( $type !== 'dict' && key($array) == 0 && isset($array[count($array) - 1]) ) ? $type : 'dict';
 		
 		$exp = '';
 		$exp .= ($type == 'dict') ? $baseIndent."<".$type.">".$nl : $nl.$baseIndent."<".$type.">".$nl;

@@ -59,6 +59,10 @@ class AdminView extends View
 			'_resourcesGroups'       => &$_resourcesGroups,
 		));
 		
+		$this->data['search'] 			= array();
+        $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
+											? 'contextual' : 'global';
+		
 //$this->dump($this->data);
 		
 		return $this;
@@ -258,9 +262,9 @@ class AdminView extends View
         $criteria       = array();                                                  // Initialise search criteria array
         $searchable     = array();                                                  // Initialise searchable resources array
         $s              = &$this->data['search'];                                   // Shortcut for search data
-        $s['type']      = isset($this->resourceName) 
-                            && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
-                          ? 'contextual' : 'global';
+        //$s['type']      = isset($this->resourceName) 
+        //                    && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
+        //                  ? 'contextual' : 'global';
         //$s['type']      = $sType;
 
         // $criteria = array(
@@ -428,33 +432,12 @@ class AdminView extends View
                 // If the current resource is the current one (in case of global search on a resource page)
                 if ( !empty($this->resourceName) && $rName === $this->resourceName && empty($this->data[$rName]) )
                 {
-                    //$this->data[$rName] = &$results;
                     // Set output data                         
                     $this->data[$rName] = $results;
                 }
             }
 
             $curURL     = $this->currentURL();
-            
-            /*
-            $this->data = array_merge($this->data, array(
-                'current'               => array_merge($this->data['current'], array(
-                    'url'                       => $curURL,
-                    'urlParams'                 => Tools::getURLParams($curURL), 
-                    'offset'                    => $this->options['offset'],
-                    'limit'                     => $this->options['limit'],
-                    'sortBy'                    => $this->options['sortBy'],
-                )),
-                //'total'                 => array(
-                //    $this->resourceName     => $this->C->index(array_merge($this->options, array('mode' => 'count'))),
-                //),
-                //'search' => array_merge($s, array(
-                    //'query'         => $sQuery,
-                    //'criteria'  => array(), // TODO
-                    //'totalResults' => count($results),
-                //)),
-            ));
-            */
 
             /*
             // TODO: handle search query properly
@@ -485,7 +468,8 @@ class AdminView extends View
         
         $this->handleSearch();
         
-        if ( $this->data['search']['type']['contextual'] ){ $this->data['view']['template'] = 'specific/pages/admin/resource/search.tpl'; }
+        //if ( $this->data['search']['type'] === 'contextual' ){ $this->data['view']['template'] = 'specific/pages/admin/resource/search.tpl'; }
+		$this->data['view']['template'] = 'specific/pages/admin/resource/search.tpl';
         
         $this->handleRelations();
         $this->beforeRender(array('function' => __FUNCTION__));
@@ -786,7 +770,7 @@ class AdminView extends View
 			->paginate()
 			->beforeRender(array('function' => __FUNCTION__));
 			
-//$this->dump($this->data);
+$this->dump($this->data);
 		
 		return $this->render();
 	}

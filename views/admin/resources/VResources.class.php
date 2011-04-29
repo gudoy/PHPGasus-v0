@@ -248,7 +248,8 @@ class VResources extends AdminView
 		$known = array(
 			'types' 	=> array(
 				# Texts
-				'string', 'varchar', 'slug', 'email', 'password', 'url', 'color', 'meta', 
+				'string', 'varchar', 'slug', 'email', 'password', 'url', 'color', 'meta',
+				'slug', 'tag', 
 				'text', 'html', 'code',
 				
 				# Numbers
@@ -275,6 +276,7 @@ class VResources extends AdminView
 					'string' 		=> 'string',
 					'varchar' 		=> 'string',
 					'slug' 			=> 'string', // + length = 64
+					'tag' 			=> 'string', // alias of slug
 					'email' 		=> 'string', // + validator pattern
 					'password'		=> 'string', // + modifiers = sha1
 					'url' 			=> 'string', // + validator pattern 

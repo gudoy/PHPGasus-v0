@@ -79,25 +79,19 @@ class View extends Application
 			$this->C 				= &$this->controller;
 		}
 		
-		//if ( empty($this->inited) )
-		//{
-			$this
-				//->configSmarty()
-				->getPlatformData()
-                ->getDeviceData()
-                ->getBrowserData()
-				->handleOptions()
-				->handleRequest()
-				->outputFormat();
-			
-			// Has the request been made via xhr	
-			$this->isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-			
-			$this->inited = true;
-		//}
-			
-		// Get the ancestor resources
-		//$this->breadcrumbs = array();
+		$this
+			//->configSmarty()
+			->getPlatformData()
+            ->getDeviceData()
+            ->getBrowserData()
+			->handleOptions()
+			->handleRequest()
+			->outputFormat();
+		
+		// Has the request been made via xhr	
+		$this->isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+		
+		$this->inited = true;
 		
 		return $this;
 	}
@@ -244,19 +238,22 @@ $this->dump($allowed);
         
         $this->device   = array();
         $d              = &$this->device;
-        
-        
+		
         // Get resolution
         $resol          = !empty($_SESSION['resolution']) ? explode('x', strtolower($_SESSION['resolution'])) : array();
         $w              = !empty($resol[0]) ? (int) $resol[0] : null;
         $h              = !empty($resol[1]) ? (int) $resol[1] : null;
+		
+//var_dump($_SESSION);
+//var_dump($resol);
         
         // Default values
         $d  = array(
             'resolution'    => array('width' => $w, 'height' => $h),
             'isMobile'      => isset($_GET['isMobile']) 
                                 ? in_array($_GET['isMobile'], array('1', 'true',1,true))
-                                : ( !empty($w) ? ($w < 800) : null ),
+                                //: ( !empty($w) ? ($w < 800) : null ),
+                                : ( !empty($w) ? ($w < 767) : null ),
             'orientation' => !empty($_SESSION['orientation']) 
                                 ? $_SESSION['orientation'] 
                                 : ( $w && $h ? ( $w > $h ? 'landscape' : 'portrait') : null),
@@ -431,8 +428,8 @@ $this->dump($allowed);
 
 		// Known options
 		$known    = array(
-			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page','reindexby','indexby',
-			//'operation','isIphone','iphone','isAndroid','android','debug',
+			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
+			'reindexby','indexby','indexBy',
 			'operation','debug','confirm',
 			'errors','successes','warnings','notifications',
 			'css', 'js', 'minify',
@@ -488,9 +485,9 @@ $this->dump($allowed);
         }
 
 		// Handle indexBy & reindexby
-		// TODO: replace by following commented line when indexby will be done on requests fetch
-		//if ( !empty($this->options['reindexby']) ){ $this->options['indexby'] = $this->options['reindexby']; }
-		if ( !empty($this->options['indexby']) ){ $this->options['reindexby'] = $this->options['indexby']; }
+		// Dreprecated
+		if 		( !empty($this->options['indexby']) ){ $this->options['reindexby'] = $this->options['indexby']; }
+		else if ( !empty($this->options['indexBy']) ){ $this->options['reindexby'] = $this->options['indexBy']; }
 		
 		return $this;
 	}
@@ -1312,8 +1309,6 @@ $this->dump($allowed);
 	public function prepareTemplate()
 	{
         $this->log(__METHOD__);
-		
-		//$this->data           = array_merge($viewData, (array) $this->data);
 		
 		$v                    = &$this->data['view'];
 		$v['smartname']       = $this->smartname();

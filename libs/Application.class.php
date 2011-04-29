@@ -577,7 +577,7 @@ class Application
             } 
             # End of the fix
 			
-			$data[$propName] 	= $type === 'multi' ? self::XML2Array((array) $propVal, true, $o + array('parent' => $propVal)) : $propVal;
+			$data[$propName] 	= $type === 'multi' ? Tools::XML2Array((array) $propVal, true, $o + array('parent' => $propVal)) : $propVal;
 		}
 		
 		return $data;
@@ -612,10 +612,11 @@ class Application
 		// Create the request object
 		$request 	= new HttpRequest($uri, $httpMethod);
 		
-		// What is the format of the 
+		// What is the format of the WS
 		switch($o['output'])
 		{
 			case 'json': 	$accept = 'application/json;'; break;
+			case 'xml': 	$accept = 'text/xml; application/xml;'; break;
 			case 'xhtml':
 			case 'html':
 			default: 		$accept = 'text/html;';  break;
@@ -642,7 +643,17 @@ class Application
 			$body 				= $request->getResponseBody();
 			
 			// Decode the ws response json body transforming it into an associative array
-			$data['body'] 		= !empty($body) ? json_decode($body, true) : null;
+			//$data['body'] 		= !empty($body) ? json_decode($body, true) : null;
+			
+			$data['body'] = null;
+
+			if ( !empty($body) )
+			{
+				if 		( $o['output'] === 'json' )	{ $data['body'] = json_decode($body, true); }
+				else if ( $o['output'] === 'xml' )	{ $data['body'] = Tools::XML2array(simplexml_load_string($body), true); }
+				else 								{ $data['body'] = $body; }
+			}
+			
 			$data['errors'] 	= !empty($data['body']['ws']['error']) ? $data['body']['ws']['error'] : null;
 			
 			// If the request is successfull, just return data

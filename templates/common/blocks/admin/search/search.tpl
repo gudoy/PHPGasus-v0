@@ -10,13 +10,13 @@
     
     <div class="contentBlock">
     
-        <form action="{if $current.resource}{$data.current.url}{else}{$smarty.const._URL_ADMIN_SEARCH}{/if}" method="get" class="commonForm searchForm adminSearchForm" id="adminSearchForm">
+        <form action="{if $current.resource}{$smarty.const._URL_ADMIN}{$data.current.resource}{else}{$smarty.const._URL_ADMIN_SEARCH}{/if}" method="get" class="commonForm searchForm adminSearchForm" id="adminSearchForm">
            {*
             <fieldset id="advancedSearchFieldset">
-                <a class="modeLink" id="simpleSearchLink" href="#simpleSearchFieldset">{t}simple{/t}</a>
                 <legend>
                     <span>{t}advanced search{/t}</span>
                 </legend>
+				<a class="modeLink" id="simpleSearchLink" href="#simpleSearchFieldset">{t}simple{/t}</a>
                 <div class="line">
                     <div class="labelBlock">
                         <label for="criteriaResource" class="span">{t}resource{/t}</label>
@@ -70,11 +70,11 @@
             </fieldset>
             *}
             <fieldset id="simpleSearchFieldset">
-                {*include file='common/blocks/actionBtn.tpl' btnClasses='modeLink' btnHref='#advancedSearchFieldset' btnLabel={'advanced'|gettext} btnId='advancedSearchLink'*}
-                <a class="modeLink" id="advancedSearchLink" href="#advancedSearchFieldset">{t}avanced{/t}</a>    
+                {*include file='common/blocks/actionBtn.tpl' btnClasses='modeLink' btnHref='#advancedSearchFieldset' btnLabel={'advanced'|gettext} btnId='advancedSearchLink'*}    
                 <legend>
                     <span>{t}simple search{/t}</span>
                 </legend>
+                <a class="modeLink" id="advancedSearchLink" href="#advancedSearchFieldset">{t}avanced{/t}</a>
                 <div class="line">
                     <div class="labelBlock">
                         <label class="span">{'search'|gettext}</label>

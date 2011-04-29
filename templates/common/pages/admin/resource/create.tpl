@@ -2,9 +2,9 @@
 
 {block name='pageContent'}
 
-	{$resourceName=$view.resourceName}
-	{$resourceId=$data.resourceId}
-	{$resource=$data.$resourceName}
+	{$resourceName 	= $view.resourceName}
+	{$resourceId	= $data.resourceId}
+	{$resource 		= $data.$resourceName}
 
     {block name="admin{$resourceName|ucfirst}CreateBlock"}
     <section class="adminSection adminCreateSection admin{$resourceName|ucfirst}CreateSection">

@@ -26,15 +26,15 @@
     </select>
 {*
 {elseif $subtype === 'email' || $type === 'email'}
-    <input class="sized search" size="{strlen($colName)}" type="email" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" size="{strlen($colName)}" type="email" name="{$filterName}" id="{$filterId}" autocapitalize="off" />
 *}
 {elseif $subtype === 'color' || $type === 'color'}
     <input class="sized search" type="color" name="{$filterName}" id="{$filterId}" />
 {elseif in_array($subtype, array('url','file','image')) || in_array($type, array('url','file','image'))}
-    <input class="sized search" type="url" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" type="url" name="{$filterName}" id="{$filterId}" autocapitalize="off" />
 {elseif $type === 'int' && !$column.fk}
-    <input class="sized number search" size="2" type="number" name="{$filterName}" id="{$filterId}" step="1" {*value="0"*} />
+    <input class="sized number search" size="2" type="number" name="{$filterName}" id="{$filterId}" step="1" />
 {else}
-    <input class="sized search" size="{strlen($colName)}" type="search" name="{$filterName}" id="{$filterId}" />
+    <input class="sized search" size="{strlen($colName)}" type="search" name="{$filterName}" id="{$filterId}" autocapitalize="off" />
 {/if}
 </span>

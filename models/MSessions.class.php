@@ -9,34 +9,34 @@ class MSessions extends Model
 		return parent::__construct($application);
 	}
 	
-	public function index($options)
+	public function index($options = array())
 	{
-		$o = $options;
-		$options['by'] 		= !empty($o['by']) ? $o['by'] : 'name';
+		$o 			= &$options;
+		$o['by'] 	= !empty($o['by']) ? $o['by'] : 'name';
 		
 		return parent::index($options);
 	}
 
 	public function update($resourceData = null, $options = array())
 	{
-		$o = $options;
-		$options['by'] 		= !empty($o['by']) ? $o['by'] : 'name';
+		$o 			= &$options;
+		$o['by'] 	= !empty($o['by']) ? $o['by'] : 'name';
 		
 		return parent::update($resourceData, $options);
 	}
 	
 	public function delete($options)
 	{
-		$o = $options;
-		$options['by'] 		= !empty($o['by']) ? $o['by'] : 'name';
+		$o 			= &$options;
+		$o['by'] 	= !empty($o['by']) ? $o['by'] : 'name';
 		
 		return parent::delete($options);
 	}
 	
 	public function retrieve($options)
 	{
-		$o = $options;
-		$options['by'] 		= !empty($o['by']) ? $o['by'] : 'name';
+		$o 			= &$options;
+		$o['by'] 	= !empty($o['by']) ? $o['by'] : 'name';
 		
 		return parent::retrieve($options);
 	}

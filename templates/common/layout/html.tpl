@@ -4,13 +4,15 @@
 {include file='common/config/doctype.tpl'}
 {/strip}
 <head>
-    {include file='common/config/metadata.tpl'}
-    {include file='common/config/favicon.tpl'}
-    {include file='common/config/prefetching.tpl'}
-    {include file='common/config/css/css.tpl'}
-    {include file='common/config/operaWidget.tpl'}
-    {include file='common/config/js/html5.tpl'}
-    {include file='common/config/js/googleAnalytics.tpl'}
+{include file='common/config/metadata.tpl'}
+
+{include file='common/config/favicon.tpl'}
+
+{include file='common/config/css/css.tpl'}
+{include file='common/config/operaWidget.tpl'}
+
+{include file='common/config/js/html5.tpl'}
+{include file='common/config/js/googleAnalytics.tpl'}
 </head>
 {/nocache}
 
@@ -33,4 +35,5 @@
 {else}
 {include file='common/config/shortcuts.tpl' scope='root'}
 {block name='pageContent'}{/block}
+{block name='mainContent'}{/block}
 {/if}

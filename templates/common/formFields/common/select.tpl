@@ -1,10 +1,10 @@
 {* Accepted params values: $label, $value, $name, $resourceSingular, $options [$required] *}
-{$resourceSingular=$resourceSingular|default:''}
+{$resourceSingular = $resourceSingular|default:''}
 {if $resourceSingular !== ''}{$secondPart=$name|default:$label|ucfirst}{else}{$secondPart=$name|default:$label}{/if}
-{if $mode=='api'}
-	{$postValName=$label}
+{if $mode === 'api'}
+	{$postValName = $label}
 {else}
-	{$postValName=$resourceSingular|cat:$secondPart}
+	{$postValName = $resourceSingular|cat:$secondPart}
 {/if}
 <div class="line">
 	<div class="labelBlock">

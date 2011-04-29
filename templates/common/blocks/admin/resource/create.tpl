@@ -10,20 +10,26 @@
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='create'}
 </header>
 
-<div class="box block adminBlock adminCreateBlock" id="admin{$resourceName|capitalize}CreateBlock" {*title="{$data.meta.displayName} - {t}Create New{/t}"*}>
-	
-	{if $data.warnings}
-		{include file='common/config/warnings.tpl'}		
-	{/if}
-		
-	{if $data.success}
-	<div class="notificationsBlock">
-		<p class="notification success">
-			{t}The resource has been successfully created!{/t}
-		</p>
-	</div>
-	{/if}
+<div class="contentBlock">
 
-	{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='admin'}
+	{block name="adminCreateContent"}
+	<div class="block adminBlock adminCreateBlock" id="admin{$resourceName|capitalize}CreateBlock">
+		
+		{if $data.warnings}
+			{include file='common/config/warnings.tpl'}		
+		{/if}
+			
+		{if $data.success}
+		<div class="notificationsBlock">
+			<p class="notification success">
+				{t}The resource has been successfully created!{/t}
+			</p>
+		</div>
+		{/if}
 	
+		{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='admin'}
+		
+	</div>
+	{/block}
+
 </div>

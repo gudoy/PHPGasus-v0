@@ -229,6 +229,9 @@ class Model extends Application
             
             // Get number of selected rows (for select request)
             $this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
+			$this->numFields 	= is_resource($queryResult) ? mysql_num_fields($queryResult) : 0;
+			
+//$this->dump('fields: ' . $this->numFields);
             
             if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
             
@@ -701,6 +704,7 @@ class Model extends Application
 		), $o);
 		
 //$this->dump($o);
+//$this->dump('fetchResults_new');
         
         if ( $o['mode'] === 'count' )
         {
@@ -728,9 +732,25 @@ class Model extends Application
             $this->data = $this->fixData(mysql_fetch_array($queryResult, MYSQL_ASSOC));
         }
         // 1 column, several rows
-        else if ( count($o['getFields']) === 1 && $o['mode'] !== 'onlyOne' )
+        else if ( $o['mode'] === 'distinct' && count($o['field']) === 1 )
         {
-//var_dump('1 column, several rows');
+            if ( $this->numRows > 0 ) 
+            {
+                $usedCol    = $o['field'];
+                
+                while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
+                {
+                    //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
+					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)));
+                }
+            }
+            else { $this->data = array(); }
+        }
+        // 1 column, several rows
+        //else if ( count($o['getFields']) === 1 && $o['mode'] !== 'onlyOne' )
+        else if ( $o['mode'] !== 'onlyOne' && count($o['getFields']) === 1 && $this->numFields === 1 )
+        {
+//$this->dump('1 column, several rows');
             if ( $this->numRows > 0 ) 
             {
                 $usedCol    = $o['getFields'][0];
@@ -746,7 +766,7 @@ class Model extends Application
         // several columns, several rows
         else
         {
-//var_dump('several columns, several rows');
+//$this->dump('several columns, several rows');
             if ( $this->numRows > 0 ) 
             {
                 while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
@@ -1055,17 +1075,22 @@ class Model extends Application
 					
 					// Destroy tmp vars to prevent var name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
-				} 
+				}
 				elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
 				{
+//$this->dump($field['relResource']);
+					
 					// Get proper table name
-					$field['relResource'] = //(!empty($this->resources[$field['relResource']]['tableName']) 
-											(!empty($this->resources[$field['relResource']]['table'])
-												//? $this->resources[$field['relResource']]['tableName']
+					//$field['relResource'] = ( !empty($this->resources[$field['relResource']]['table'] )
+												//? $this->resources[$field['relResource']]['table']
+											//: $field['relResource'] );
+					$field['relTable'] = ( !empty($this->resources[$field['relResource']]['table'] )
 												? $this->resources[$field['relResource']]['table']
 											: $field['relResource'] );
+//$this->dump($field['relResource']);
 					
-					$queryTables[] = _DB_TABLE_PREFIX . $field['relResource'];
+					//$queryTables[] = _DB_TABLE_PREFIX . $field['relResource'];
+					$queryTables[] = _DB_TABLE_PREFIX . $field['relTable'];
 					
 
 					if ( !empty($field['relGetFields']) )
@@ -1076,6 +1101,9 @@ class Model extends Application
 						// 2 possible models for the fields list:
 						// case 1: array({$field1} => {$getField1As}, {$field2} => {$getField2As}, ...
 						// case 2: or array({$field1}, {$field2}, ...)
+						
+//$this->dump($tmpFields);
+//$this->dump($field);
 						
 						foreach ($tmpFields as $key => $val)
 						{
@@ -1090,27 +1118,32 @@ class Model extends Application
 													? $this->resources[$field['relResource']]['alias'] . $ljcount
 													//: $this->resources[$field['relResource']]['alias'] . $ljcount;
 													: $this->resources[$field['relResource']]['alias'];
+													
+//$this->dump($tmpFieldName);
+//$this->dump($field['relResource']);
+//$this->dump($this->resources[$field['relResource']]['alias']);
 							
 							$storingName 	= $which === 2 ? ( !empty($field['relGetAs']) ? $field['relGetAs'] : null) : $val;
-							
-//$this->dump('rel:' . $field['relResource'] . ', get:' . $storingName . ' , alias:' . $tmpTableAlias);
-							
 							$this->queryData['fields'][$storingName] = array(
 											'name' 			=> $tmpFieldName,
 											'as' 			=> $storingName,
 											//'resource' 		=> $field['relResource'],
-											'table' 		=> $field['relResource'],
+											//'table' 		=> $field['relResource'],
+											'table' 		=> $field['relTable'],
 											'tableAlias' 	=> $tmpTableAlias,
 											'count' 		=> isset($this->queryData['fields'][$storingName]['count']) ? $this->queryData['fields'][$storingName]['count'] : false,
 							);
 						}
 
-						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relResource']) . "." . $field['relField'];
-						$ljoin 					= "LEFT JOIN " . $field['relResource'];
+						//$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relResource']) . "." . $field['relField'];
+						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relTable ']) . "." . $field['relField'];
+						//$ljoin 					= "LEFT JOIN " . $field['relResource'];
+						$ljoin 					= "LEFT JOIN " . $field['relTable'];
 						$ljoin 					.= (!empty($tmpTableAlias) ? " AS " . $tmpTableAlias : '');
 						$ljoin 					.= " ON " . $joinCondition . " ";
 						$leftJoins[] 			= $ljoin; 
-						$alreadyJoinedTables[] 	= $field['relResource'];
+						//$alreadyJoinedTables[] 	= $field['relResource'];
+						$alreadyJoinedTables[] 	= $field['relTable'];
 						
 						$ljcount++;
 						
@@ -2336,9 +2369,6 @@ class Model extends Application
 		$defType      = !empty($colModel['type']) ? $colModel['type'] : null;
 		$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby')) ? '%' : '';
 		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby')) ? '%' : '';
-		
-//$this->dump($o);
-//$this->dump($defType);
 		
 		//if ( $defType === 'timestamp' )                           { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
 		if 		( $defType === 'timestamp' && !is_null($val) ) 		{ $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }

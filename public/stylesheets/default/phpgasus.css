@@ -155,10 +155,10 @@ form input.sized { width:auto; height:24px; padding:3px 3px 0; display:inline-bl
 form input.multi { border:none; }
 form input.sized.file { float:none; vertical-align:middle; }
 form input.sized.file + .currentItem { margin-left:0; }
-form select { height:27px; padding:0; border:1px solid #ABADB3; }
+form select { max-width:100%; height:27px; padding:0; border:1px solid #ABADB3; }
 form select.normal { width:84%; }
 form select.sized { width:auto; display:inline-block; vertical-align:middle; }
-form textarea { width:80%; border:1px solid #ABADB3; font-size:118%; }
+form textarea { width:80%; max-width:100%; border:1px solid #ABADB3; font-size:118%; }
 .suggestBlock { position:relative; }
 .suggestBlock::after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; }
 form .suggest { width:100%; max-height:200px; overflow:auto; display:none; position:absolute; top:100%; left:0; clear:both; background:#fff; border:1px solid black; }

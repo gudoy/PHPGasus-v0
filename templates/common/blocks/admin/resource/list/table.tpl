@@ -1,4 +1,5 @@
 {strip}
+
 {* Accepted params
     rows: array of data rows
     rName: resource name 
@@ -6,16 +7,16 @@
     showAllCols: force display of all columns
     idCol: column used as the id for the current row (used to create actions URL)
     showActions: array of displayed actions buttons (default = all = create,retrieve,update,delete,duplicate
+	goToResource: name of the resource toward which redirect on "go to" action (default = current) 
 *}
 
-{$options=$options|default:[]}
-{$o=array_merge(['showAllCols' => false, 'addHiddenCols' => true, 'idCol' => 'id', 'showActions' => ['create','retrieve','update','delete','duplicate']],$options)}
+{$options 		= $options|default:[]}
+{$o 			= array_merge(['showAllCols' => false, 'addHiddenCols' => true, 'idCol' => 'id', 'showActions' => ['create','retrieve','update','delete','duplicate']],$options)}
 
-{$curURL=$data.current.url}
+{$curURL 		= $data.current.url}
 {if strpos($curURL,'?') !== false}{$linker='&amp;'}{else}{$linker='?'}{/if}
 
-{$rModel = $rModel|default:$data.dataModel[$rName]}
-
+{$rModel 		= $rModel|default:$data.dataModel[$rName]}
 {$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 
@@ -37,7 +38,7 @@
             <th id="{$colName}Col" class="col {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}" scope="col">
                 {$data.current.urlParams.sortBy     = null}
                 {$data.current.urlParams.orderBy    = null}
-                {$newPageURL="{$curURLbase}?{http_build_query($data.current.urlParams)}"}
+                {$newPageURL 						= "{$curURLbase}?{http_build_query($data.current.urlParams)}"}
                 <a class="title" title="{$colProps.displayName|default:$colName}" href="{$newPageURL}sortBy={$colName}&amp;orderBy={if $smarty.get.orderBy === 'asc'}desc{else}asc{/if}">{$colProps.displayName|default:$colName|replace:'_':' '|truncate:'20':'...':true}</a>
             </th>
             {/if}
@@ -66,8 +67,8 @@
     </thead>
     <tbody>
         {foreach $rows as $row}
-        {$rowNum=$row.id|default:$row@iteration}
-        <tr id="row{$rowNum} {cycle values='even,odd'}" class="dataRow" scope="row">
+        {$rowNum = $row.id|default:$row@iteration}
+        <tr id="row{$rowNum}" class="dataRow {cycle values='even,odd'}" scope="row">
             {if ($userResPerms.allow_create && in_array('create',$o.showActions)) || ($userResPerms.allow_update && in_array('update',$o.showActions)) || ($userResPerms.allow_delete && in_array('delete',$o.showActions))}
             <td class="col selecRowCol firstCol colSelectResources">
                 <input type="checkbox" name="ids[]" value="{$rowNum}" {if $smarty.post.ids && in_array($rowNum, $smarty.post.ids)}checked="checked"{/if} />
@@ -95,9 +96,9 @@
             {$isDefaultNameField    = ($colName === $data._resources[$rName].defaultNameField)?true:false}
             {if $type === 'int' && $colProps.fk}{$type = 'onetoone'}{/if}
             {if $colProps.list || $o.showAllCols || $o.addHiddenCols}
-            <td class="col dataCol {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}" headers="row{$rowNum} {$colName}Col">
+            <td class="col dataCol {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}" headers="row{$rowNum} {$colName}Col">{strip}
                 <div class="value dataValue" data-exactValue="{$value}">
-                {strip}
+				{strip}
                 {if $type === 'timestamp' || $type === 'datetime'}
                     <time class="date">{$value|date_format:"%d %b %Y"}</time><span class="sep"> </span><time class="time">{$value|date_format:"%Hh%M</time>"}
                 {elseif $type === 'onetoone' || $colProps.fk}
@@ -109,18 +110,18 @@
                     {$relNameField      = $colProps.relGetFields|default:{$data._resources[$relResource].defaultNameField}}
                     <a href="{$relResourceURL}/{$value}">{$row[$relGetAs[0]]|default:$value}</a>
                 {elseif $type === 'bool' || $type === 'boolean'}
-                    {$valid=in_array($value, array(true,1,'t'))}
+                    {$valid = in_array($value, array(true,1,'t'))}
                     <span class="label validity {if !$valid}in{/if}valid">{if $valid}{t}yes{/t}{else}{t}no{/t}{/if}</span>
                 {else}
                     {$value|default:''}
                 {/if}
                 {/strip}
                 </div>
-            </td>
+            {strip}</td>
             {/if}
             {/foreach}
             <td class="col goToCol">
-                {if in_array('retrieve',$o.showActions)}<a class="action view actionBtn adminLink viewLink" href="{$smarty.const._URL_ADMIN}{$rName}/{$row[$o.idCol]}"><span class="value">{t}view{/t}</span></a>{/if}
+                {if in_array('retrieve',$o.showActions)}<a class="action view actionBtn adminLink viewLink" href="{$smarty.const._URL_ADMIN}{$o.goToResource|default:$rName}/{$row[$o.idCol]}"><span class="value">{t}view{/t}</span></a>{/if}
             </td>
             {if $o.addHiddenCols}
             <td class="col colsHandlerCol lastCol">&nbsp;</td>

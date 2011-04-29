@@ -38,6 +38,7 @@ class VAdmin extends AdminView
         $this->handleSearch();
     }
     
+    
 	public function activity()
 	{
 		$d = &$this->data;

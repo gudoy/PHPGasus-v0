@@ -34,10 +34,21 @@ var ui =
 	{		
         $('#goToMyAccountDetailsLink').bind('click', function(e)
         {
-            e.preventDefault();
-            //e.stopPropagation();
+            e.stopPropagation();
+            
+            var $detail = $('#myAccountNavBlock');
+            
+            if ( !$detail.hasClass('expanded') )
+            {	
+				$('body').one('click', function(e)
+				{
+					e.preventDefault();
+					
+					if ( !$(e.target).closest('#myAccountNavBlock').length ){ $detail.removeClass('expanded'); }
+				});            	
+            }
            
-           $('#myAccountNavBlock').toggleClass('expanded'); 
+			$detail.toggleClass('expanded');
         });
 		
 		return this.langChooser().handleIphone().handleOrientation();

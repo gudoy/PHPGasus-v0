@@ -275,7 +275,6 @@ var_dump($args);
 			else 											{ $k = $item[$o['reindexby']]; }  
 			
 			// Do not assign data whose index is empty
-			//if ( $k == '' ){ continue; }
 			if ( $k === '' || $k === null ){ continue; }
 			
 			$k 				= (string) $k; 	// Cast key into a string to prevent index conflicts
@@ -307,29 +306,6 @@ var_dump($args);
 		return $this;
 	}
 	
-	/*
-	 * @Deprecated???
-     * Safe to be remove
-	 */
-	/*
-	public function checkRequiredFields($options = array())
-	{
-		$o 		= &$options; 		// Shortcut for options
-		$return = true; 			// Default return value to true
-		
-		// Do not continue if no fields list has been passed 
-		if ( empty($o['fields']) ){ return false; }
-		
-		// Loop over the fields
-		foreach ($o['fields'] as $fieldName)
-		{
-			// If one of them is missing, break returning false
-			if ( empty($_POST[$fieldName]) ) { $return = false; break; }
-		}
-		
-		return $return;
-	} 
-    */
 	
 	public function filterPostData($options = null)
 	{
