@@ -6,8 +6,8 @@
 {$sortBy 		= $data.current.sortBy}
 {$orderBy 		= $data.current.orderBy|default:'asc'}
 {$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
-{$data.current.urlParams.sortBy=null}
-{$data.current.urlParams.orderBy=null}
+{$data.current.urlParams.sortBy 	= null}
+{$data.current.urlParams.orderBy 	= null}
 {$newPageURL 	= "{$curURLbase}?{http_build_query($data.current.urlParams)}"}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 

@@ -6,7 +6,7 @@
 *}
 {/strip}
 {if $colProps.type === 'bool'}
-	{if in_array($value, array(true,'true',1,'1','t'))}{t}yes{/t}{else}{t}no{/t}{/if}
+	{if in_array($value, array(1,true,'1','true','t'), true)}{t}yes{/t}{else}{t}no{/t}{/if}
 {elseif $colProps.type === 'onetoone' || $colProps.fk}
 	{$relResource = $colProps.relResource}
 	{$relField = $colProps.relField}

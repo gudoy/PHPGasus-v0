@@ -1,0 +1,1 @@
+{extends file='common/pages/api/resource/index.tpl'}

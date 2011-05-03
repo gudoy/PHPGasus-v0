@@ -232,6 +232,102 @@ var admin =
         return this;  
 	},
 	
+	handleOneToOneFields: function()
+	{
+		var self = this;
+		
+		$('.relItemSearchBtn').live('click', function(e)
+		{
+			e.preventDefault();
+			e.stopPropagation();
+			
+			var $btn 	= $(this),
+				$ctnr 	= $btn.closest('.fieldBlock'),
+				$input 	= $btn.prev(':input');
+				
+			$.ajax(
+			{
+				url: '/admin/' + $btn.siblings('input[type=search]').data('relresource'),
+				dataType: 'html',
+				success: function(response)
+				{
+					$(response)
+						.hide()
+						.appendTo('body')
+						.dialog(
+						{
+							width:'50%',
+							//maxWidth: 300,
+							height:300,
+							modal: true,
+							resizable:true,
+							title: $btn.attr('title'),
+							close: function(){ },
+							buttons:
+							{
+								'cancel': function(){ $(this).dialog("destroy"); }, 
+								'choose': function()
+								{
+									var $slctd 	= $(this).find('tr.ui-selected'),
+										id 		= $.trim($slctd.find('td.idCol .dataValue').text()) || null,
+										txtVal 	= $.trim($slctd.find('td.defaultNameField .dataValue').text()) || null;
+										
+Tools.log(id + ' - ' + txtVal);
+									$input.val(id);
+									
+									$(this).dialog("close");
+								}
+							}
+						})
+						.bind('click', function(e)
+						{
+							e.preventDefault();
+							e.stopPropagation();
+							
+							var $dialog = $(this),
+								$t 		= $(e.target),
+								$a 		= $t.closest('a');
+
+							/*
+							if ( !$a.length )
+							*/
+							if ( $t.is('a') )
+							{
+Tools.log('reload dialog content');
+								$dialog.load($t.attr('href'))
+							}
+							else
+							{
+								$t.closest('tr', $dialog).addClass('ui-selected').siblings().removeClass('ui-selected');
+							}
+						})
+						;					
+				}
+			});
+			
+			/*
+			$ctnr
+				.clone(false)
+				.find('.or, .action.add')
+					.remove()
+				.end()
+				.dialog(
+			{
+				width:300,
+				//maxWidth: 300,
+				height:300,
+				modal: true,
+				resizable:true,
+				title: $btn.attr('title'),
+				close: function(){ $(this).dialog('close'); },
+				buttons: { 'cancel': function(){ $(this).dialog("destroy"); }, 'Ok': function() { $(this).dialog("close"); } }
+			});*/
+		})
+		
+		return this;
+	},
+	
+	
 	handleForeigKeyFields: function()
 	{
 		var self = this;
@@ -1379,6 +1475,7 @@ var adminCreate =
 			.handleForeigKeyFields()
 			.handleSlugFields()
 			.handleDateFields()
+			.handleOneToOneFields()
 			.handleOneToManyFields()
 			.handleFileFields();
 		
@@ -1398,6 +1495,7 @@ var adminUpdate =
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()
+			.handleOneToOneFields()
 			.handleOneToManyFields()
 			.handleFileFields();
 		

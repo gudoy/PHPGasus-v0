@@ -41,7 +41,7 @@ class ApiView extends View
 		$v = !empty($this->data['view']) ? $this->data['view'] : null; 	// Shortcut for view data
 		$m = !empty($v['method']) ? $v['method'] : 'index'; 			// Shortcut for view method
 		
-		$this->data['view']['template'] 	= !empty($v['template']) ? $v['template'] : 'common/pages/api/resource/' . $m . '.tpl';
+		$this->data['view']['template'] 	= !empty($v['template']) ? $v['template'] : 'specific/pages/api/resource/' . $m . '.tpl';
 		// DEPRECATED: use $data.current.resource instead
 		//$this->data['view']['resourceName'] = !empty($this->resourceName) ? $this->resourceName : null;
 		$this->data['view']['css'] 			= array('api');

@@ -119,6 +119,12 @@ form .buttonsLine .action { width:auto; }
 .user.inactive.short 	{ background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABzElEQVQ4y52RXUiTURjHz1VIxOZrUdmlI/AmERPtYqFEedGgFLyYXQSCuEBw4pxm5gcJOkUlRByiFyLkGPkRzcRMhN15obh3TaaMRgrOrwshJJM+fr2vbBeCe3nxwO9wzvN/nt+5OAIQCRLLUSiZ6h5Ku93WW7wpSaemIG3X+UAyJfIzM+cJqu9LIW/DbeZdZryvzDgfZ2DLk0K6Bc6iNKabs1noe8JEawkNljuU50joFtgLDLwtz+Cjq5Q132sWh208zzLoF1TkpsDxB35tuIktdfDd30ZZZop+gTXr8jhbo+wsdRKefcnKlIOybINbtyDXdCUz4K0g8qWF5Qk7Mz0WNUzXJZBrhSfSkUrUZ+PT8AsGmixMtpuJdl1DdgiPpmC1VuxvTz3lJFTF3roP/1glo22PeD/SyN91O7HpYlYdamsSQdh1k8PlRvbGBCf7fn4qxQNl2wxPcvBOcLjShPJIcsFau5HtOSvfBgXRIcHRH9j58e/0HHULYp+faQuCzZeIjOcT7BHIXQqdcboFX3sFEc89AnUaAtkpCPZdJdh/I871OPG7ksn1GoLeYmEP1IvfapMqO4NSUzO1R+sbjQo5CneToGbGpIKL8B+c20lkWxWXpAAAAABJRU5ErkJggg==); }
 
 
+/* Start Forms */
+
+/* End Form */
+
+
+
 /* TODO: remove when phpgasus will be no longer used */
 .validity { width:16px; height:16px; overflow:hidden; display:inline-block; } 
 .validity::before { display:none; }
@@ -166,7 +172,7 @@ form .buttonsLine .action { width:auto; }
 .adminTable tr.filtersRow { height:0; font-size:0; border-width:0; visibility:hidden; }
 .adminTable tr.filtersRow td { padding:0; overflow:hidden; text-align:left; vertical-align:middle; border-width:0; }
 .adminTable tr.filtersRow td input,
-.adminTable tr.filtersRow td select { border-width:0; padding-top:0; padding-bottom:0; }
+.adminTable tr.filtersRow td select { min-height:0; border-width:0; padding-top:0; padding-bottom:0; }
 .adminTable tr.filtersRow td span { width:100%; height:0; max-width:100%; overflow:hidden; display:block; display:-moz-box; display:-webkit-box; display:box; }
 .adminTable tr.filtersRow.active { height:auto; font-size:inherit; display:table-row; visibility:visible; }
 .adminTable tr.filtersRow.active td { border-width:1px; }

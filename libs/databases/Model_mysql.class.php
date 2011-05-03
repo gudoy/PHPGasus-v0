@@ -2372,7 +2372,7 @@ class Model extends Application
 		
 		//if ( $defType === 'timestamp' )                           { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
 		if 		( $defType === 'timestamp' && !is_null($val) ) 		{ $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
-		else if ( $defType === 'bool'  ) 							{ $val = in_array($val, array(1,true,'1','true','t')) ? 1 : 0; }
+		else if ( $defType === 'bool'  ) 							{ $val = in_array($val, array(1,true,'1','true','t'), true) ? 1 : 0; }
 		else if ( is_int($val) ) 									{ $val = (int) $val; }
 		else if ( is_float($val) ) 									{ $val = (float) $val; }
 		else if ( is_bool($val) ) 									{ $val = (int) $val; }

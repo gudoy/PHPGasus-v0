@@ -155,8 +155,8 @@ $dataModel = array(
 ),
 'usersgroups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email'),
-	'group_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'relResource' => 'groups', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'group_name'),
+	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email'),
+	'group_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'relResource' => 'groups', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'group_name'),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),

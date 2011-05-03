@@ -15,7 +15,7 @@
 	<dd class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst}">
 		<span class="value">{strip}
 		{if $type === 'bool'}
-			{if in_array($value, array(true,'true',1,'1','t'))}
+			{if in_array($value, array(1,true,'1','true','t'), true)}
 				{t}yes{/t}
 			{else}
 				{t}no{/t}

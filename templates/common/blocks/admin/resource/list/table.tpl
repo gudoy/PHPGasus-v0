@@ -16,6 +16,7 @@
 {$curURL 		= $data.current.url}
 {if strpos($curURL,'?') !== false}{$linker='&amp;'}{else}{$linker='?'}{/if}
 
+{$rName 		= $rName|default:$data.current.resource}
 {$rModel 		= $rModel|default:$data.dataModel[$rName]}
 {$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
@@ -33,7 +34,7 @@
             {foreach $rModel as $colName => $colProps}
             {$type                  = $colProps.type}
             {if $colProps.list || $o.showAllCols || $o.addHiddenCols}
-            {$isDefaultNameField=($colName === $data._resources[$rName].defaultNameField)?true:false}
+            {$isDefaultNameField = ($colName === $data._resources[$rName].defaultNameField)?true:false}
 			{if $colProps.type === 'int' && $colProps.fk}{$type = 'onetoone'}{/if}
             <th id="{$colName}Col" class="col {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}" scope="col">
                 {$data.current.urlParams.sortBy     = null}
@@ -110,7 +111,7 @@
                     {$relNameField      = $colProps.relGetFields|default:{$data._resources[$relResource].defaultNameField}}
                     <a href="{$relResourceURL}/{$value}">{$row[$relGetAs[0]]|default:$value}</a>
                 {elseif $type === 'bool' || $type === 'boolean'}
-                    {$valid = in_array($value, array(true,1,'t'))}
+                    {$valid = in_array($value, array(1,true,'1','true','t'), true)}
                     <span class="label validity {if !$valid}in{/if}valid">{if $valid}{t}yes{/t}{else}{t}no{/t}{/if}</span>
                 {else}
                     {$value|default:''}

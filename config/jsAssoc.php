@@ -7,7 +7,7 @@ $spages     = 'specific/pages/';
 
 $jsAssoc    = array(
     # Libs
-	'jquery'               => array($libs . 'jquery-1.5.2.min.js'),
+	'jquery'               => array($libs . 'jquery-1.6.min.js'),
 	'jqueryUI'             => array($libs . 'jquery-ui-1.8.11.custom.min.js'),
 	'jqueryPlusUI'         => array('jquery', 'jqueryUI'),
 	'jqueryEasing'         => array($libs . 'jquery.easing.1.3.js'),

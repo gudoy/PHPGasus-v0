@@ -38,7 +38,7 @@ define('_APP_USE_CSS_OPERA', 					false);
 ### MISC SNIFFING & FEATURES DETECTION
 define('_APP_SNIFF_PLATFORM', 					true); 			// Disable this if you don't want to try getting the platform data (prevent unnecessary processing)
 define('_APP_SNIFF_BROWSER', 					true); 			// Disable this if you don't want to try getting the browser data (prevent unnecessary processing)
-define('_APP_USE_MODERNIZR', 					false); 		// If allowed, Modernizr (js lib) will be added to detect user browser capabilities adding subsenquent classes to the <HTML> tag
+define('_APP_USE_MODERNIZR', 					true); 			// If allowed, the js lib Modernizr will be added to detect user browser capabilities adding subsenquent classes to the <HTML> tag
 
 
 // IOS (iPhone/iPad/i???) OPTIONS

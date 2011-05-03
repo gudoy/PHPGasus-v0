@@ -574,8 +574,6 @@ class AdminView extends View
 			//if ( !empty($_POST['successRedirect']) ) { $this->redirect($_POST['successRedirect']); }
 			if ( $successRedir ) { $this->redirect($successRedir); }
 			
-			
-			
 			$this->statusCode(201);
 			
 			unset($_POST);

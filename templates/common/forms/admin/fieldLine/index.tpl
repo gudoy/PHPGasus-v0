@@ -9,8 +9,8 @@
 {* For API *}
 {* we do not want onetomany fields to be displayed *}
 {if $viewMode === 'api'}
-{$resourceFieldName = $fieldName}
-{if $type === 'onetomany'}{$displayLine = false}{/if}
+	{$resourceFieldName = $fieldName}
+	{if $type === 'onetomany'}{$displayLine = false}{/if}
 {/if} 
 
 {if $multipleItems}
@@ -25,12 +25,12 @@
 
 
 {if $displayLine}
-<div class="line type{$field.type|ucfirst}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
+<div class="line type{$field.type|ucfirst}{if $field.fk} typeOneToOne{/if}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
 	
 	<div class="labelBlock{if $field.comment} hasInfos{/if}">
 		{strip}
 		{if $field.relResource}
-		<label for="{$resourceFieldName}{$itemIndex}">{$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
+		<label for="{$resourceFieldName}{$itemIndex}">{$data._resources[$field.relResource].singular|default:$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
 			{if $isRequired}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}
@@ -53,7 +53,8 @@
 	
 	<div class="fieldBlock">
 	{if $field.relResource && ( $viewMode === 'admin' || $mode === 'create')}
-		{include file='common/forms/admin/fieldLine/caseRelation.tpl'}
+		{* include file='common/forms/admin/fieldLine/caseRelation.tpl' *}
+		{include file='common/forms/admin/fieldLine/caseOneToOne_new.tpl'}
 	{elseif $type === 'int' || $type === 'float'}
 		{include file='common/forms/admin/fieldLine/caseInt.tpl'}
 	{elseif $type == 'bool'}
