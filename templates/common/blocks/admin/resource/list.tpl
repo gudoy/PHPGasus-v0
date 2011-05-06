@@ -1,7 +1,8 @@
+{block name="adminIndexBlockHeader"}
 <header class="titleBlock">
 	<h2 class="title">
 		<span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
-			{$data.meta.displayName}
+			{$resourceName}
 		</span>
 	</h2>
 	{if count($data[$resourceName]) || $data.total[$resourceName]}
@@ -22,21 +23,23 @@
     </span>
 	{/if}
 </header>
+{/block}
 
 <div class="block adminBlock adminListBlock" id="admin{$resourceName|capitalize}ListBlock">
 	{strip}
 	
-    {$curURL = $data.current.url}
-    {if strpos($curURL,'?') !== false}{$linker='&amp;'}{else}{$linker='?'}{/if}
-    {$curURLbase="{$curURL|regex_replace:'/(.*)\\?(.*)$/U':'$1'}"}
+    {$curURL 		= $data.current.url}
+    {if strpos($curURL,'?') !== false}{$linker = '&amp;'}{else}{$linker = '?'}{/if}
+    {$curURLbase 	= "{$curURL|regex_replace:'/(.*)\\?(.*)$/U':'$1'}"}
 	
     {* Pagination params *}
-    {if $smarty.get.offset}{$paginationParams=$paginationParams|cat:'&offset='|cat:$smarty.get.offset}{/if}
-    {if $smarty.get.limit}{$paginationParams=$paginationParams|cat:'&limit='|cat:$smarty.get.limit}{/if}
+    {if $smarty.get.offset}{$paginationParams = $paginationParams|cat:'&offset='|cat:$smarty.get.offset}{/if}
+    {if $smarty.get.limit}{$paginationParams = $paginationParams|cat:'&limit='|cat:$smarty.get.limit}{/if}
     
     {/strip}
+    {block name="adminIndexContent"}
 	<div class="block adminListingBlock" id="admin{$resourceName|capitalize}Block">
 		{include file='common/blocks/admin/resource/listTable.tpl'}
 	</div>
-	
+	{/block}
 </div>

@@ -14,13 +14,13 @@
 {/if} 
 
 {if $multipleItems}
-	{$useArray='[]'}
-	{$itemIndex=$itemIndex}
-	{$postedVal=$smarty.post[$resourceFieldName][$itemIndex]|default:null}
+	{$useArray 	= '[]'}
+	{$itemIndex = $itemIndex}
+	{$postedVal = $smarty.post[$resourceFieldName][$itemIndex]|default:null}
 {else}
-	{$useArray=''}
-	{$itemIndex=''}
-	{$postedVal=$smarty.post[$resourceFieldName]|default:null}
+	{$useArray 	= ''}
+	{$itemIndex = ''}
+	{$postedVal = $smarty.post[$resourceFieldName]|default:null}
 {/if}
 
 

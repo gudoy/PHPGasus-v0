@@ -275,6 +275,9 @@ class AdminView extends View
         //      'values'        => array(),
         //);
         
+        // Allow to force local context (search on current resource) even if app search behavior is set to 'global' 
+        $s['type'] = isset($_GET['searchContext']) && $_GET['searchContext'] === 'local' ? 'contextual' : 'global';
+        
         // Handle URIs like
         // search/{resourceName}/{queryString} 
         // search/{resourceName}?method=search&queryString={$queryString}

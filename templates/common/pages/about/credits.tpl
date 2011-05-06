@@ -1,6 +1,6 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='pageContent'}
+{block name='mainContent'}
 <div id="staffCreditsBlock" class="block creditsBlock staffBlock">
     <h3>{t}staff{/t}</h3>
     <dl class="staff">

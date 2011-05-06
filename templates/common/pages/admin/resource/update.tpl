@@ -1,10 +1,10 @@
 {extends file='specific/layout/pageAdmin.tpl'}
 
-{block name='pageContent'}
+{block name='mainContent'}
 
-	{$resourceName=$view.resourceName}
-	{$resourceId=$data.resourceId}
-	{$resource=$data.$resourceName}
+	{$resourceName 	= $view.resourceName}
+	{$resourceId 	= $data.resourceId}
+	{$resource 		= $data[$resourceName]}
 	
 	{block name="admin{$resourceName|ucfirst}UpdateBlock"}
     <section class="adminSection adminUpdateSection admin{$resourceName|ucfirst}UpdateSection">

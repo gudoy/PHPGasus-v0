@@ -2,7 +2,7 @@
 
 {block name='aside'}{/block}
 
-{block name='pageContent'}
+{block name='mainContent'}
 	
 <div class="loginBlock" id="loginBlock">
 {if $data.success}

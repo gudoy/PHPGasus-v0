@@ -22,7 +22,6 @@
     	{block name='mainCol'}
     	<div class="col" id="mainCol" role="main">
     		{block name='mainContent'}{/block}
-    		{block name='pageContent'}{/block} {* DEPRECATED: use mainContent instead *}
     	</div>
     	{/block}
     	

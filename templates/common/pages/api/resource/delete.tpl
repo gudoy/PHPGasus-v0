@@ -1,6 +1,6 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='pageContent'}
+{block name='mainContent'}
 
 	{$resourceName=$data.view.resourceName}
 

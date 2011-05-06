@@ -122,30 +122,31 @@ var admin =
 				var r 			= response || {}, 					// Shortcut for the response
 					success 	= r.success || false,				// Did the request did what it was expected to?
 					createdId 	= r[self.resourceName].id || '', 	// Get the id of the created item
-					//cloneId 	= null,
 					jTR 		= $(jqObj).closest('tr'),
 					cloneId 	= adminIndex.getResourceId(jTR) || '';
+					
+Tools.log(cloneId);
+Tools.log(createdId);
 				
 				// If the request did not succeed, we do not continue
 				if ( !success ){ return; }
 				
 				// Get the parent TR of the clicked element
 				jTR
+					.removeClass('lastRow')
 					.clone(true)
-					//.appendTo('table.adminTable tbody').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
-					//.insertBefore('table.adminTable tbody tr:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
-					.insertAfter('table.adminTable tbody tr.dataRow:last').toggleClass('odd').toggleClass('even').attr('id','row' + createdId)
+					.insertAfter('table.adminTable tbody tr.dataRow:last')
+					.addClass('lastRow')
+					.toggleClass('odd')
+					.toggleClass('even')
+					.attr('id','row' + createdId)
 					.find('td.colSelectResources :checkbox').val(createdId).attr('checked','false').end()
 					.find('td.actionsCol a')
-						//.attr('href', function(){ return $(this).attr('href').replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 						.attr('href', function(i,value){ return value.replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
 					.find('td.idCol .value')
-						//.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
 						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); })
-						//.text(createdId).siblings('.exactValue').text(createdId).end()
 						.text(createdId).attr('data-exactvalue','createdId')
 					.find('td.dataCol .value')
-						//.attr('id', function(){ return $(this).attr('id').replace(new RegExp(cloneId), createdId); }).end()
 						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
 					.find('> td').effect('highlight', {}, 5000)
 						.find('.fullAdminPath')
@@ -161,7 +162,7 @@ var admin =
 	{
 		var self 		= this
 			multiple 	= jqObj.length >= 1,							// Is there several objects to delete
-			url 		= !multiple ? $(jqObj).attr('href') : null; // If not use the object href as url otherwise we will set it later
+			url 		= !multiple ? $(jqObj).attr('href') : null; 	// If not use the object href as url otherwise we will set it later
 			
 		// When handling multiple resources, we need to get all theirs id to be able to build the proper request URL 
 		if ( multiple )
@@ -241,43 +242,57 @@ var admin =
 			e.preventDefault();
 			e.stopPropagation();
 			
-			var $btn 	= $(this),
-				$ctnr 	= $btn.closest('.fieldBlock'),
-				$input 	= $btn.prev(':input');
+			var $btn 		= $(this),
+				$ctnr 		= $btn.closest('.fieldBlock'),
+				$input 		= $ctnr.find('input'),
+				relResURL 	= '/admin/' + $input.data('relresource');
 				
 			$.ajax(
 			{
-				url: '/admin/' + $btn.siblings('input[type=search]').data('relresource'),
+				url: relResURL,
 				dataType: 'html',
 				success: function(response)
 				{
 					$(response)
 						.hide()
 						.appendTo('body')
+						.find('input.pageNb')
+							.bind('change', function(e)
+							{
+								$.load(relResURL, $dialog);
+							})
+						.end()
 						.dialog(
 						{
 							width:'50%',
 							//maxWidth: 300,
-							height:300,
+							height:500,
+							maxHeight: '90%',
 							modal: true,
 							resizable:true,
 							title: $btn.attr('title'),
 							close: function(){ },
-							buttons:
-							{
-								'cancel': function(){ $(this).dialog("destroy"); }, 
-								'choose': function()
+							buttons: [
 								{
-									var $slctd 	= $(this).find('tr.ui-selected'),
-										id 		= $.trim($slctd.find('td.idCol .dataValue').text()) || null,
-										txtVal 	= $.trim($slctd.find('td.defaultNameField .dataValue').text()) || null;
-										
+									'class': 'cancelBtn',
+									'text':'cancel', click:function(){ $(this).dialog('destroy'); }
+								},
+								{
+									'class': 'validateBtn chooseBtn',
+									'text':'choose', click:function()
+									{
+										var $slctd 	= $(this).find('tr.ui-selected'),
+											id 		= $.trim($slctd.find('td.idCol .dataValue').text()) || null,
+											txtVal 	= $.trim($slctd.find('td.defaultNameField .dataValue').text()) || null;
+											
 Tools.log(id + ' - ' + txtVal);
-									$input.val(id);
-									
-									$(this).dialog("close");
-								}
-							}
+										$input.val(id);
+										$ctnr.find('.idValue').text(id).siblings('.textValue').text(txtVal);
+										
+										$(this).dialog('close');
+									}
+								},
+							]
 						})
 						.bind('click', function(e)
 						{
@@ -1332,7 +1347,7 @@ var adminIndex =
 						});
 					
 						//self.context.addClass('warning', 2000, function(){ self.context.removeClass('warning', 2000); self.destroy(); });
-						self.context.addClass('warning').removeClass('warning', 3000, function(){ self.destroy(); window.location.href = '#body'; });
+						self.context.addClass('warning').removeClass('warning', 1000, function(){ self.destroy(); window.location.href = '#body'; });
 					}
 					
 					if ( errors.length )
@@ -1351,7 +1366,7 @@ var adminIndex =
 							$('#body').prepend($('<p />', {
 								'class':'notification error',
 								'text':item.message,
-								'click': function(e){ $(this).fadeOut(3000, function(){ $(this).remove(); }); }
+								'click': function(e){ $(this).fadeOut(1000, function(){ $(this).remove(); }); }
 							}));				
 						});
 					
@@ -1404,12 +1419,12 @@ var adminIndex =
 						else { self.valCtnr.text(input.val()).attr('data-exactvalue',input.val()); }
 						
 						//self.context.addClass('success', 2000, function(){ self.context.removeClass('success', 2000); self.destroy(); });
-						self.context.addClass('success').removeClass('success', 5000, function(){ self.destroy(); });
+						self.context.addClass('success').removeClass('success', 1000, function(){ self.destroy(); });
 					}
 					else
 					{
 						//self.context.addClass('error', 2000, function(){ self.context.removeClass('error', 2000); self.destroy(); });
-						self.context.addClass('error').removeClass('error', 5000, function(){ self.destroy(); });
+						self.context.addClass('error').removeClass('error', 1000, function(){ self.destroy(); });
 					}
 				}
 			 });

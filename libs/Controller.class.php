@@ -13,14 +13,11 @@ class Controller extends Application
 	{		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-		//$this->dataModel = $dataModel;
 		$this->application->dataModel = &$dataModel;
 		
 		if ( isset($this->resourceName) )
 		{
 			class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
-			
-//$this->dump($this->resourceName);
             
 			// Instanciate the resource model
 			$mName  	= 'M' . ucfirst($this->resourceName);
@@ -156,6 +153,7 @@ var_dump($args);
         $this->warnings   = array();
 		
 		$this->data       = $this->model->retrieve($o);
+
 		$this->success    = $this->model->success;		
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 

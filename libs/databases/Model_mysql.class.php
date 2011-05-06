@@ -17,9 +17,6 @@ class Model extends Application
 	
 	// Default options
 	var $options = array(
-		// Should we force mysql to return real unix_timestamps for timestamp fields instead of mysql formatted dates/
-		// Setting to true prevents costly calls to strtotime() to do the conversion
-		'force_unix_timestamps'   => true,
 		'conditions'              => array(), // TODO
 		//'sortBy'                  => null, // TODO
 		//'orderBy'                  => null, // TODO
@@ -52,7 +49,6 @@ class Model extends Application
 		//  
 		if ( !empty($this->resourceName) )
 		{
-			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
 			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singularize((string) $this->resourceName);
 		}
 		
@@ -113,6 +109,8 @@ class Model extends Application
 		return $this;
 	}
 	
+	// Deprecated
+	// TODO: remove and rename query_new to query
 	public function query($query, $options = null)
 	{
 	    if ( defined('_APP_USE_SQL_FETCH_V2') && _APP_USE_SQL_FETCH_V2 ){ return $this->query_new($query, $options); }
@@ -130,8 +128,6 @@ class Model extends Application
 		
 		// Do the query
 		$queryResult 			= mysql_query($query, $this->db);
-		
-//$this->dump($queryResult);
 		
 		// 
 		//$this->success 			= is_bool($queryResult) && $queryResult === false ? false : true;
@@ -513,19 +509,22 @@ class Model extends Application
 
 
     public function getDataType($colName = '', $params = array())
-    {
-//var_dump(__FUNCTION__);
-//var_dump($colName);
-        $p = array_merge(array(
+    {		
+		$type 	= 'string'; 											// Default type to string
+        $p 		= array_merge(array(
             'resource' => $this->resourceName,
         ), $params);
         $rModel = &$this->application->dataModel[$p['resource']];      // Shortcut for current resource dataModel
+        
+        // Do not continue if the passed colname does not exist if the datamodel
+        if ( !isset($rModel[$colName]) ) { return $type; }
+        
         $rProps = &$rModel[$colName];
         
         if      ( !empty($rProps['pk']) )   { $type = 'primarykey'; } 
         elseif  ( !empty($rProps['fk']) )   { $type = 'onetoone'; }
         else if ( !empty($rProps['type']) ) { $type = $rProps['type']; }
-        else                                { $type = 'string'; }       // Default type to string
+        //else                                { $type = 'string'; }       
         
         return $type;
     }
@@ -536,9 +535,6 @@ class Model extends Application
         // Extends default param values with passed ones 
         $p      = array_merge(array(
         ), $params);
-
-//var_dump(__FUNCTION__);        
-//var_dump($data);
         
         // If data is an array, 
         if ( is_array($data) )
@@ -702,9 +698,6 @@ class Model extends Application
 		$o 			= array_merge(array(
 			'mode' => null,
 		), $o);
-		
-//$this->dump($o);
-//$this->dump('fetchResults_new');
         
         if ( $o['mode'] === 'count' )
         {
@@ -776,9 +769,7 @@ class Model extends Application
                 }
             }
             else { $this->data = array(); }
-        } 
-
-//var_dump($this->data);
+        }
         
         if ( is_resource($queryResult) ) { mysql_free_result($queryResult); }
         
@@ -894,7 +885,6 @@ class Model extends Application
         
 		// Set default params
 		$o 					= array_merge($this->options, $options);
-		//$o['mode'] 		= isset($o['mode']) ? $o['mode'] : null;
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		
 		$this->queryData 	= array(
@@ -909,7 +899,6 @@ class Model extends Application
 		if ( !empty($o['count']) )
 		{			
 			$o['count'] 		= Tools::toArray($o['count']);
-			//$this->magicFields($o['count']);
 
 			// Get fields to use in the query
 			foreach ($o['count'] as $field)
@@ -953,13 +942,8 @@ class Model extends Application
 				$i++;
             }
         }
-
-		
-		//$where 		= $this->handleOperations($o);
-		//$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
 		
 		// Case where we just want to count the number of records in the table
-		//if ( isset($o['mode']) && $o['mode'] === 'count')
         if ( $o['mode'] === 'count')
 		{
 			// Set the field used to do the count. Try the 'id' field if it exists, otherwise use the first one defined in the datamodel
@@ -1164,7 +1148,7 @@ class Model extends Application
 				//$type 		= isset($field['name']) && !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
 				
 				$finalFields .= ( $i > 0 ? ", " : '' ) 
-								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? "UNIX_TIMESTAMP(" : '')
+								. ( $type === 'timestamp' ? "UNIX_TIMESTAMP(" : '')
 								//. ( $type === 'int' ? "CAST('" : '')
 								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' 
 								. ( !empty($field['groupConcat'])
@@ -1181,7 +1165,7 @@ class Model extends Application
 								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
 								. ( !empty($field['groupConcat']) ? " AS CHAR) SEPARATOR ',' )" : '' )
 								. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
-								. ( $type === 'timestamp' && $o['force_unix_timestamps'] ? ") as " . $field['name'] : '' )
+								. ( $type === 'timestamp' ? ") as " . $field['name'] : '' )
 								//. ( $type === 'int' ? "' AS UNSIGNED INTEGER)" : '' )
 								;
 				
@@ -1244,11 +1228,11 @@ class Model extends Application
 		$after 		= array();
 		
 		// Start writing request
-		//$query 		= "INSERT INTO " . _DB_TABLE_PREFIX . $this->dbTableName . " (";
 		$query 		= "INSERT INTO " . _DB_TABLE_PREFIX . $this->table . " (";
 		
 		// Loop over the data model of the resource
 		$i 			= 0;
+		
 		foreach ($rModel as $fieldName => $field)
 		{
 			$i++;
@@ -1257,7 +1241,6 @@ class Model extends Application
 			
 			$query .= $this->safeWrapper . $fieldName . $this->safeWrapper . ($i < $fieldsNb ? ',' : ''); // Add each fields to the request, with coma if not last field
 		}
-		
 		// Now we want to add the values
 		$query 		.= ") VALUES (";
 		
@@ -1298,8 +1281,6 @@ class Model extends Application
 			}
 			
 			// Handle specific cases
-			//if 		( $field['type'] === 'int' && isset($field['AI']) && $field['AI'] ){ continue; } // Do not process auto-incremented fields
-			//else if ( !empty($field['subtype']) && $field['subtype'] === 'file' && !empty($d[$fieldName]) )
 			if ( !empty($field['subtype']) && $field['subtype'] === 'file' && !empty($d[$fieldName]) )
 			{
 				// If the passed value is not an array, we do not handle file upload and just update db value 
@@ -1321,7 +1302,6 @@ class Model extends Application
 									
 				if ( !$uploadFile )
 				{
-					//$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
 					$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
 				}
 				// Otherwise (common case)
@@ -1344,7 +1324,6 @@ class Model extends Application
 					foreach ($rModel as $key => $value)
 					{
 						// Special case for id where the data to use is not in the resource data but in the options in 'values' var
-						//$time 			= $key === 'id' ? time() : null;
 						$time 			= $key === 'id' ? ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) : null;
 						$tmpReplaceVal 	= $this->escapeString($time !== null ? $time : ( !empty($d[$key]) ? $d[$key] : ''));
 										
@@ -1459,9 +1438,7 @@ class Model extends Application
 			else if ( !empty($field['subtype']) && $field['subtype'] === 'slug' && !empty($field['from']) )
 			{
 				$tmpVal = !empty($d[$fieldName]) 
-							//? $this->slugify($d[$fieldName])
 							? Tools::slugify($d[$fieldName])
-							//: ( !empty($d[$field['from']]) ? $this->slugify($d[$field['from']]) : '');
 							: ( !empty($d[$field['from']]) ? Tools::slugify($d[$field['from']]) : '');
 				$value 	= "'" . $this->escapeString($tmpVal) . "'";
 			}
@@ -1472,13 +1449,9 @@ class Model extends Application
 				// TODO: use proper str_replace ????
 				else if ( !empty($field['subtype']) && $field['subtype'] === 'URIname' && !empty($field['useField']) )
 				{
-					//$tmpVal = $this->deaccentize($d[$field['useField']]);
 					$tmpVal = Tools::deaccentize($d[$field['useField']]);
 					$value 	= "'" . str_replace(' ', '+', $tmpVal) . "'";
 				}
-				//elseif ( $field['type'] === 'timestamp' ){ $value = 'NOW()'; }
-				//else if ( $field['computedValue'] === 'uniqId' ){ $value = uniqid(); }
-				//else if ( $field['computedValue'] === 'uniqId' ){ $value = substr(str_rot13(md5(time())), 0, 10); }
 				else if ( $field['computedValue'] === 'uniqId' )
 				{
 					if ( !empty($d[$fieldName]) ) { $value = "'" . $this->escapeString(trim($d[$fieldName])) . "'";  }
@@ -1496,11 +1469,8 @@ class Model extends Application
 			}
 			else if ( $field['type'] === 'text' )
 			{
-				//$value = "'" . $this->escapeString(trim($d[$fieldName])) . "'";
-				//$value = "'" . $this->escapeString( isset($d[$fieldName]) ? trim($d[$fieldName]) : '') . "'";
 				$value = "'" . $this->escapeString( isset($d[$fieldName]) ? trim(stripslashes($d[$fieldName])) : '') . "'";
 			}
-			//else if ( $field['type'] === 'varchar' )
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? sha1($this->escapeString($d[$fieldName])) : '';
@@ -1508,8 +1478,7 @@ class Model extends Application
 			}
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
 			{
-				$len 	= !empty($field['length']) ? $field['length'] : 8;
-				//$uniqID = $this->generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName)); 
+				$len 	= !empty($field['length']) ? $field['length'] : 8; 
                 $uniqID = Tools::generateUniqueID(array('length' => $len, 'resource' => $rName, 'field' => $fieldName));
 				$value 	= "'" . $uniqID . "'";
 			}
@@ -1528,9 +1497,7 @@ class Model extends Application
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";   
-				//$value = "'" . $this->escapeString(trim($tmpVal)) . "'";
 			}
-			//else if ( $field['type'] === 'bool' ) { $value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 'true' : 'false'; }
 			else if ( $field['type'] === 'bool' ) { $value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : 0; }
 			// Otherwise, just take the posted data value
 			//else { $value = $d[$fieldName]; }
@@ -1539,19 +1506,6 @@ class Model extends Application
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : 0 );
 				$value = "'" . $this->escapeString(  str_replace(',','.',(string)($tmpVal))) . "'";
 			}
-			/*
-			else if ( $field['type'] === 'timestamp' )
-			{
-				//if ( empty($d[$fieldName]) ){ continue; }
-				//$value = 'to_timestamp(' . $d[$fieldName] . ')';
-				//$value = "FROM_UNIXTIME('" . $d[$fieldName] . "')";
-//var_dump($d[$fieldName]);
-				$value = is_int($d[$fieldName]) && $d[$fieldName] < 0 
-							//? "DATE_SUB(FROM_UNIXTIME('". ($d[$fieldName] + 10000000) . "'), INTERVAL 10000000 SECOND)"
-							? "DATE_ADD(FROM_UNIXTIME(0), INTERVAL " . $this->escapeString($d[$fieldName]) ." SECOND)"
-							: "FROM_UNIXTIME('" . $this->escapeString($d[$fieldName]) . "')";
-			}
-			*/
 			else if ( $field['type'] === 'date' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
@@ -1564,31 +1518,14 @@ class Model extends Application
 			}
 			else if ( $field['type'] === 'timestamp' )
 			{
-			    /*
 				// Get the passed value if present, otherwise, try to use default value
-                $tmpVal = !empty($d[$fieldName]) 
-                            ? $d[$fieldName] 
-                            : ( isset($field['default']) 
-                                //? ( strpos($field['default'], 'now') !== false ? time() : '0' )
-                                ? ( strpos($field['default'], 'now') !== false 
-                                    ? time() 
-                                    : ( is_null($field['default']) ? "NULL" : strtotime($field['default']) ) 
-                                )
-                                //: time() );
-                                : ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) );
-                $value  = is_int($tmpVal) && $tmpVal < 0 
-                            ? "DATE_ADD(FROM_UNIXTIME(0), INTERVAL " . $this->escapeString($tmpVal) ." SECOND)"
-                            : "FROM_UNIXTIME('" . $this->escapeString($tmpVal) . "')";
-                 */
                 $tmpVal = isset($d[$fieldName])
                             ? $d[$fieldName] 
                             : ( isset($field['default']) || is_null($field['default'])
-                                //? ( strpos($field['default'], 'now') !== false ? time() : '0' )
                                 ? ( strpos($field['default'], 'now') !== false 
                                     ? time() 
                                     : ( is_null($field['default']) ? "NULL" : strtotime($field['default']) ) 
                                 )
-                                //: time() );
                                 : ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) 
                             );
                 $value  = is_int($tmpVal) && $tmpVal < 0 
@@ -1612,16 +1549,14 @@ class Model extends Application
 			// Otherwise, just take the posted data value
 			else
 			{
-				// TODO: isset(null) => false how to test if default prop setted, event if set to null?
+				// TODO: isset(null) => false how to test if default prop setted, even if set to null?
 				$value = !empty($d[$fieldName]) 
 							? $d[$fieldName] 
 							: (isset($field['default']) ? ( is_null($field['default']) ? "NULL" : $field['default']) : "''");
 			}
-			//else { $value = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? $field['default'] : (string) null); }
 			
 			// Finally, add the value to the request
 			$query .= $value . ($i < $fieldsNb ? ',' : ''); // Add each fields to the request, with coma if not last field
-			//$query .= "'" . $value . ($i < $fieldsNb ? ',' : '') . "'"; // Add each fields to the request, with coma if not last field
 			
 			// And store it in an array, for possible later use
 			$storeValues[$fieldName] = $value; 
@@ -1647,7 +1582,6 @@ class Model extends Application
 		$o 			= array_merge($this->options, $options); 				// Shortcut for options 											// Shortcut for options
 		$fieldsNb 	= count($d);											// Get the number of fields for this resource
 		
-		//$rModel 	= $this->dataModel[$this->resourceName];
 		$rName 		= &$this->resourceName;
 		$rModel 	= &$this->application->dataModel[$this->resourceName];
 		
@@ -2139,6 +2073,9 @@ class Model extends Application
 		$oneAtATime   = array('LIKE','NOT LIKE','=','!='); 	  // operators allowing multiple conditions but with only 1 at a time
 		$i            = 0;
 		
+//$this->dump('foreach conditions');
+//$this->dump($o['conditions']);
+		
 		// Loop over the passed conditions
 		foreach ($o['conditions'] as $key => $condition)
 		{			
@@ -2146,6 +2083,10 @@ class Model extends Application
 			// matching the following pattern array($field1 => $values1, [...])
 			// and then reformat it into array(array($field1,$values1), [...])
 			$condition       = !is_numeric($key) ? array($key,$condition) : $condition;
+			
+//$this->dump('key: ' . $key);
+//$this->dump('condition:');
+//$this->dump($condition);
 			
 			// Do not continue if the current item is not an array, throwing a warning by the way
 			if ( !is_array($condition) ){ $this->warnings[4210] = $condition; continue; } // 'Wrong condition format
@@ -2164,12 +2105,19 @@ class Model extends Application
             // Special case when operator is IN/NOT IN and value is single, use =/!= instead
             $usedOperator   = in_array($usedOperator, array('IN','NOT IN')) && !$multiValues ? ( $usedOperator === 'NOT IN' ? '!=' : '=' ) : $usedOperator;
 
+//$this->dump($values);
+//$this->dump(count($values));
+//$this->dump('$usedOperator: ' . $usedOperator);
+//$this->dump('$multiValues: ' . ($multiValues?'true':'false'));
+//$this->dump($values);
+
             // Special case if the operator is = and the passed value is null, we have to use IS/IS NOT operator instead
             $usedOperator   = in_array($usedOperator, array('=','!=')) && 
                        ( 
                             is_null($values) 
                             || ( is_string($values) && strtolower($values) === 'null' ) 
                             || ( is_array($values) && count($values) === 1 && ( is_null($values[0]) || ( strtolower($values[0]) === 'null' ) ) )
+                            //|| ( is_array($values) && count($values) === 1 && isset($values[0]) && ( is_null($values[0]) || ( strtolower($values[0]) === 'null' ) ) )
                        ) ? ( $usedOperator === '!=' ? 'IS NOT' : 'IS' ) : $usedOperator;
 			
 			// Special case if the operator is = or != and passed values are multiple
@@ -2237,6 +2185,7 @@ class Model extends Application
 			// Case for single field & single value operators
 			else
 			{
+//$this->dump($fields);
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -2247,6 +2196,8 @@ class Model extends Application
                 // If the column name contains a "., assume that it is like 'table'.'column', matching db real structure
                 $useAlias   = strpos($col, '.') === false;
                 $colParts   = !$useAlias ? explode('.',$col) : null;
+
+//$this->dump('qf:' . $qf);
 				
 				// Try to get the related resource for the current field/column, otherwise assume its the current one
 				$res        = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : ( !$useAlias ? $colParts[0] : $this->resourceName );
@@ -2395,7 +2346,6 @@ class Model extends Application
 		
 		if ( isset($o['values']) && !empty($o['by']) )
 		{
-			//$whereValues 	= $this->magic($o['values']);
 			$whereValues     = Tools::toArray($o['values']);
 			$op 			= !empty($o['operation']) ? $o['operation'] : '';
 			
@@ -2433,9 +2383,7 @@ class Model extends Application
 					$where 	= "WHERE " . $this->alias . "." . $o['by'] . " <= '" . $this->escapeString($whereValues[0]) . "' ";
 					break;
 				default:
-					//$where 	= "WHERE " . $this->dbTableShortName . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
 					$by    = Tools::toArray($o['by']);
-					//$where 	= "WHERE " . $this->alias . "." . $o['by'] . " IN ('" . join("', '", $whereValues) . "') ";
 					$i = 0;
 					$where = "WHERE ";
 					foreach ($by as $item)
@@ -2590,7 +2538,6 @@ class Model extends Application
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildInsert($resourceData, $o);
 		
-        //$this->log($query);
         $this->dump($query);
 
 		// Execute the query and store the returned data
@@ -2646,7 +2593,6 @@ class Model extends Application
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
-        //$this->log($query);
         $this->dump($query);
         
 		$this->data = $this->query($query, $o)->data;
@@ -2670,7 +2616,6 @@ class Model extends Application
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildUpdate($resourceData, $o);
 		
-        //$this->log($query);
         $this->dump($query);
 
 		// Execute the query and store the returned data
@@ -2693,7 +2638,6 @@ class Model extends Application
 		// Build the proper query
 		$query = $this->buildDelete($o);
 		
-		//$this->log($query);
 		$this->dump($query);
 
 		// Execute the query and store the returned data

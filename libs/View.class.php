@@ -64,8 +64,6 @@ class View extends Application
 		// Remove the expedted final 's' from the resource name to get it's singular (overload in proper class if needed) 
 		if ( !empty($this->resourceName) )
 		{
-			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : preg_replace('/(.*)s$/','$1', $this->resourceName);
-			//$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
 			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singularize((string) $this->resourceName);
 			
 			$cName = 'C' . ucfirst($this->resourceName);
@@ -140,6 +138,7 @@ class View extends Application
 			'retrieve' 	=> 'retrieve',
 			'delete' 	=> 'delete',
 			'search'	=> 'search',
+			'duplicate' => 'duplicate',
 		);
 
 		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
@@ -155,6 +154,7 @@ class View extends Application
 		$foundM 	= !empty($pM) ? $pM : ( !empty($gM) ? $gM : ( !empty($srM) ? $srM : null )); 				// 
 		$m 			= !empty($foundM) && isset($known[$foundM]) ? $known[$foundM] : 'index';
 
+
 /*
 $this->dump('gM: ' . $gM);
 $this->dump('pM: ' . $pM);
@@ -164,6 +164,7 @@ $this->dump('m: ' . $m);
 $this->dump('id: ' . $id);
 $this->dump($allowed);
 */
+
 		
 		// Special case if method is 'retrieve' but resource id is not set
 		// In this case, method is forced back to index 

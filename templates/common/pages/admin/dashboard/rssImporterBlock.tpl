@@ -1,4 +1,4 @@
-{block name='pageContent'}
+{block name='mainContent'}
 <div class="block box grid_4 rssImporterBlock" id="rssImporterBlock">
 	<div class="titleBlock">
 		<h2>RSS Importer</h2>

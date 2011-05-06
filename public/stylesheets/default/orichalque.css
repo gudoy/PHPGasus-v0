@@ -53,7 +53,7 @@
 
 /* Buttons */
 .action .key { display:none; }
-.action { width:32px; min-height:24px; padding-left:0; overflow:hidden; display:inline-block; background-repeat:no-repeat; background-position:8px 50%; vertical-align:middle; }
+.action { width:auto; min-width:32px; min-height:24px; padding-left:0; overflow:hidden; display:inline-block; background-repeat:no-repeat; background-position:8px 50%; vertical-align:middle; }
 .toolbar .actions,
 .titleBlock .actions { display:inline-block; letter-spacing:-3px; }
 .actions .action { letter-spacing:normal; }
@@ -62,10 +62,9 @@
 .action .value { display:block; text-indent:-9999em; }
 form .buttonsLine .action { width:auto; }
 
-.toolbar .group { display:inline-block; margin-right:20px; vertical-align:middle; }
+.toolbar .group { display:inline-block; margin-right:10px; vertical-align:middle; }
 .toolbar .group:last-of-type { margin-right:0; }
 .toolbar .itemsCounts fieldset { display:inline-block; vertical-align:middle; }
-.toolbar .paginationButtons .actions .action { width:16px; padding:0 0 0 16px; }
 .toolbar .paginationButtons fieldset { padding:0 5px; }
 .toolbar .paginationButtons fieldset,
 .toolbar .paginationButtons .value { display:inline-block; letter-spacing:normal; vertical-align:middle; }
@@ -308,6 +307,12 @@ header .paginationBlock { float:right; }
     .opera9 #mainCol,
     .opera10 #mainCol,
     .opera11 #mainCol { margin-left:0; display:table-cell; vertical-align:top; }
+    
+    /* Buttons */
+	.toolbar .action,
+	.titleBlock .action,
+	.actionsCol .action { min-width:16px; }
+	.toolbar .paginationButtons .actions .action { width:16px; padding:0 0 0 16px; }
 
     .adminTable th,
     .adminTable td { display:table-cell; }  	

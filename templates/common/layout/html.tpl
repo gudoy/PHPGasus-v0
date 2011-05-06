@@ -34,6 +34,5 @@
 </html>
 {else}
 {include file='common/config/shortcuts.tpl' scope='root'}
-{block name='pageContent'}{/block}
 {block name='mainContent'}{/block}
 {/if}

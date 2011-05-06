@@ -408,6 +408,7 @@ class Application
 			ini_set('xdebug.var_display_max_depth', 6);
 			//ini_set('xdebug.var_display_max_data', 4096);
 			ini_set('xdebug.var_display_max_data', 40000);
+			ini_set('xdebug.max_nesting_level', 500); // default is 100, which can be cumbersome with smarty
 		}
 		else
 		{
@@ -429,7 +430,6 @@ class Application
 		
 		if ( isset($this->currentURL) ){ return $this->currentURL; }
 		
-		//$this->currentURL = 'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' :'' ) . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 		$this->currentURL = Tools::getCurrentURL();
 		
 		return $this->currentURL;

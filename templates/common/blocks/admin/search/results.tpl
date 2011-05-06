@@ -1,3 +1,8 @@
+{if $data.search.query}
+<style class="dynamicCSS" id="searchDynamicCSS">
+.commonTable.adminTable td .dataValue[data-exactValue*='{$data.search.query}'] { background:lightyellow; }
+</style>
+{/if}
 <section id="adminSearchResultsBlock" class="section searchResultsBlock adminSearchResultsBlock">
 {if $search.totalResults && $search.type === 'global'}
     <header class="titleBlock">
@@ -7,7 +12,7 @@
     {foreach $search.groups as $groupName => $group}
     {$groupResource     = $group.resource}
     {$displayField      = $data._resources[$groupResource].defaultNameField}
-    {$resultsURL        = "{$smarty.const._URL_ADMIN}{$groupResource}?method=search&amp;searchQuery={$search.query}"}
+    {$resultsURL        = "{$smarty.const._URL_ADMIN}{$groupResource}?method=search&amp;searchContext=local&amp;searchQuery={$search.query}"}
     {$displayedCount    = count($group.results)}
     <div class="resultsGroup{if $group@first} first{/if}{if ($group@first && $group.results) || ($group.results && !$currentDefined)} current{$currentDefined=true}{/if}{if $group@last} last{/if}">
         <header class="groupTitle">

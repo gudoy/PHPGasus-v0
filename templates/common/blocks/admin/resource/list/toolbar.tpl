@@ -2,9 +2,10 @@
 {$nbOfItemsPerPage	= $data.current.limit|default:$smarty.const._ADMIN_RESOURCES_NB_PER_PAGE}
 {$userResPerms 		= $data.current.user.auths[$resourceName]}
 <div class="menu toolbar adminToolbar adminListToolbar {$position}" id="adminListToolbar{$position|ucfirst}">
+	{block name="adminListToolbarContent"}
     <div class="group createButtons">
     	{if $userResPerms.allow_create}
-        <span class="actions buttons">
+        <span class="actions">
             {$disabled=(strpos($crudability, 'C')>-1)?0:1}
             <a class="action actionBtn add addLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}?method=create{else}#{/if}">
                 <span class="value">{'new'|gettext}</span>
@@ -15,7 +16,7 @@
     <div class="group actionsButtons">
         <span class="title">{t}selection{/t}</span>
         {if $userResPerms.allow_update || $userResPerms.allow_delete}
-        <span class="actions buttons">
+        <span class="actions">
         {strip}
         	{if $userResPerms.allow_update}
             {$crudability=$data._resources[$resourceName].crudability|default:'CRUD'}
@@ -41,7 +42,7 @@
         {/if}
     </div>
     <div class="group filterButtons">
-        <span class="actions buttons">
+        <span class="actions">
             <a class="action actionBtn filter filterLink" href="#{$resourceName}FiltersRow">
                 <span class="value">{'filter'|gettext}</span>
             </a>
@@ -63,9 +64,10 @@
     {if $data.total[$resourceName] > $data.current.limit}
     <div class="group paginationButtons">
         <span class="title">{t}pages{/t}</span>
-        <span class="actions buttons">
+        <span class="actions">
         {include file='common/blocks/admin/pagination/index_new.tpl' vPosition=$position}
         </span>
     </div>
     {/if}
+    {/block}
 </div>

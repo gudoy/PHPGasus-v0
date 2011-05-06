@@ -1,7 +1,7 @@
 <header class="titleBlock">
 	<h2 class="title">
         <span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
-			{$data.meta.displayName} - {$resourceId}
+			{$resourceName} - {$data[$resourceName].id}
 		</span>
 	</h2>
 	<span class="actions actionsBlock">
