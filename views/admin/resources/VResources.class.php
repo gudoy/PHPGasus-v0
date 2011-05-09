@@ -305,6 +305,8 @@ class VResources extends AdminView
 				# Dates & times
 					// timestamps
 					'timestamp' 	=> 'timestamp',
+					'date' 			=> 'date',
+					'datetime' 		=> 'datetime',
 					
 				# Relations
 					'onetoone' 		=> 'onetone',

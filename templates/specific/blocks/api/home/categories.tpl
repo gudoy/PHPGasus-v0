@@ -12,26 +12,26 @@
 				<span class="uri">/ {$rUsedName}</span>
 			</h4>
 			<div class="props">
-				<div class="prop returnedOutput">
+				<div class="prop returnedOutput infos">
 					<span class="key">{t}return{/t}{t}:{/t}</span>
 					<span class="values">
 						list of {$rUsedName} items
 					</span>
 				</div>
-				<div class="prop successOutput">
+				<div class="prop successOutput success">
 					<span class="key">success{t}:{/t}</span>
 					<dl class="values">
 						<dt>200 OK</dt>
 					</dl>
 				</div>
-				<div class="prop possibleErrors">
+				<div class="prop possibleErrors errors">
 					<span class="key">{t}errors{/t}{t}:{/t}</span>
 					<dl class="values">
 						<dt>204 No Content</dt>
 						<dd>{$rUsedName} not found</dd>
 					</dl>
 				</div>
-				<div class="prop samplesURI">
+				<div class="prop samplesURI samples">
 					<span class="key">{t}samples{/t}{t}:{/t}</span>
 					<ul class="values">
 						<li>
@@ -49,26 +49,26 @@
 				<span class="uri">/ {$rUsedName} / { $id or $name }</span>
 			</h4>
 			<div class="props">
-				<div class="prop returnedOutput">
+				<div class="prop returnedOutput infos">
 					<span class="key">{t}return{/t}{t}:{/t}</span>
 					<span class="value">
 						return data of the specified resource
 					</span>
 				</div>
-				<div class="prop successOutput">
+				<div class="prop successOutput success">
 					<span class="key">success{t}:{/t}</span>
 					<dl class="values">
 						<dt>200 OK</dt>
 					</dl>
 				</div>
-				<div class="prop possibleErrors">
+				<div class="prop possibleErrors errors">
 					<span class="key">{t}errors{/t}{t}:{/t}</span>
 					<dl class="values">
 						<dt>204 No Content</dt>
 						<dd>{$rUsedName} not found</dd>
 					</dl>
 				</div>
-				<div class="prop samplesURI">
+				<div class="prop samplesURI samples">
 					<span class="key">{t}samples{/t}{t}:{/t}</span>
 					<ul class="values">
 						<li>

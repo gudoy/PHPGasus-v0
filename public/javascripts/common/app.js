@@ -31,24 +31,30 @@ var app =
 var ui =
 {
 	init: function()
-	{		
+	{
+		var detailSel = '#myAccountNavBlock';
+		
         $('#goToMyAccountDetailsLink').bind('click', function(e)
         {
             e.stopPropagation();
+            e.preventDefault();
             
-            var $detail = $('#myAccountNavBlock');
+            var $dtl = $(detailSel); 			// Shortcut for my account nav block detail 
             
-            if ( !$detail.hasClass('expanded') )
-            {	
+            // If the detail is collapsed
+            if ( !$dtl.hasClass('expanded') )
+            {
+            	// Make any click outside of the block to collapse it
 				$('body').one('click', function(e)
 				{
-					e.preventDefault();
+					var $t = $(e.target); 		// Shortcut for target 
 					
-					if ( !$(e.target).closest('#myAccountNavBlock').length ){ $detail.removeClass('expanded'); }
-				});            	
+					if ( !$t.closest(detailSel).length ){ $dtl.removeClass('expanded'); }
+				});
             }
            
-			$detail.toggleClass('expanded');
+           // Otherwise, just expand it 
+			$dtl.addClass('expanded');
         });
 		
 		return this.langChooser().handleIphone().handleOrientation();

@@ -125,8 +125,8 @@ var admin =
 					jTR 		= $(jqObj).closest('tr'),
 					cloneId 	= adminIndex.getResourceId(jTR) || '';
 					
-Tools.log(cloneId);
-Tools.log(createdId);
+//Tools.log(cloneId);
+//Tools.log(createdId);
 				
 				// If the request did not succeed, we do not continue
 				if ( !success ){ return; }
@@ -245,8 +245,13 @@ Tools.log(createdId);
 			var $btn 		= $(this),
 				$ctnr 		= $btn.closest('.fieldBlock'),
 				$input 		= $ctnr.find('input'),
-				relResURL 	= '/admin/' + $input.data('relresource');
+				relResURL 	= '/admin/' + $input.data('relresource'),
+				dialogId 	= $input.attr('id') + 'Dialog';
 				
+			// If the related search dialog already exists, just open it
+			if ( $('#' + dialogId).length ) { return $('#' + dialogId).dialog('open'); }
+				
+			// Otherwise, get its content
 			$.ajax(
 			{
 				url: relResURL,
@@ -255,6 +260,7 @@ Tools.log(createdId);
 				{
 					$(response)
 						.hide()
+						.attr('id', dialogId)
 						.appendTo('body')
 						.find('input.pageNb')
 							.bind('change', function(e)
@@ -264,10 +270,11 @@ Tools.log(createdId);
 						.end()
 						.dialog(
 						{
-							width:'50%',
+							width:'90%',
 							//maxWidth: 300,
 							height:500,
 							maxHeight: '90%',
+							autoOpen: false,
 							modal: true,
 							resizable:true,
 							title: $btn.attr('title'),
@@ -287,7 +294,10 @@ Tools.log(createdId);
 											
 Tools.log(id + ' - ' + txtVal);
 										$input.val(id);
-										$ctnr.find('.idValue').text(id).siblings('.textValue').text(txtVal);
+										
+										$ctnr
+											.find('.idValue').text(id).removeClass('empty')
+											.siblings('.textValue').text(txtVal).removeClass('empty');
 										
 										$(this).dialog('close');
 									}
@@ -301,14 +311,10 @@ Tools.log(id + ' - ' + txtVal);
 							
 							var $dialog = $(this),
 								$t 		= $(e.target),
-								$a 		= $t.closest('a');
+								$a 		= $t.closest('a', $dialog);
 
-							/*
-							if ( !$a.length )
-							*/
 							if ( $t.is('a') )
 							{
-Tools.log('reload dialog content');
 								$dialog.load($t.attr('href'))
 							}
 							else
@@ -316,27 +322,10 @@ Tools.log('reload dialog content');
 								$t.closest('tr', $dialog).addClass('ui-selected').siblings().removeClass('ui-selected');
 							}
 						})
+						.dialog('open')
 						;					
 				}
 			});
-			
-			/*
-			$ctnr
-				.clone(false)
-				.find('.or, .action.add')
-					.remove()
-				.end()
-				.dialog(
-			{
-				width:300,
-				//maxWidth: 300,
-				height:300,
-				modal: true,
-				resizable:true,
-				title: $btn.attr('title'),
-				close: function(){ $(this).dialog('close'); },
-				buttons: { 'cancel': function(){ $(this).dialog("destroy"); }, 'Ok': function() { $(this).dialog("close"); } }
-			});*/
 		})
 		
 		return this;

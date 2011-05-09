@@ -84,6 +84,7 @@ background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt
 
 /* Start Buttons */
 .action { text-decoration:none; color:#000; }
+.action .value { text-shadow:1px 1px 0 rgba(255, 255, 255, 0.6); }
 input[type='submit'],
 div.actionBtn,
 .toolbar .actions,
@@ -122,6 +123,7 @@ a.action .value { text-indent:0; }
 
 
 /* Start Dialog */
+.ui-dialog { width:90%; }
 .ui-dialog.ui-widget-content { padding:0; border:1px solid #999999; }
 .ui-dialog .ui-widget-header { margin:0; padding:0; background:#cfcfcf; background:-webkit-gradient(linear, left top, left bottom, from(#e8e8e8), to(#cfcfcf)); background:-webkit-linear-gradient(#e8e8e8, #cfcfcf); background:-moz-linear-gradient(#e8e8e8, #cfcfcf); background:-o-linear-gradient(#e8e8e8, #cfcfcf); background:linear-gradient(#fefefe, #b8b8b8); border:1px solid #999999; border-width:0 0 1px 0; -moz-border-radius:0; -webkit-border-radius:0; border-radius:0; }
 .ui-dialog .ui-dialog-buttonpane { padding:0; margin:0; position:absolute; left:0; right:0; bottom:-5px; background:#DEE4EA; border:1px solid #999999; border-width:1px 0 0 0; }
@@ -137,7 +139,7 @@ a.action .value { text-indent:0; }
 .ui-dialog .adminToolbar .itemsCounts,
 .ui-dialog .adminToolbar .actionsButtons { display:none; }
 .ui-dialog .adminToolbar .paginationButtons { float:right; }
-.ui-dialog .adminToolbar .paginationButtons .action { display:none; }
+.ui-dialog .adminToolbar .paginationButtons .action { /*display:none;*/ }
 .ui-dialog .adminToolbar .paginationButtons fieldset { border:none; }
 .ui-dialog .colSelectResources,
 .ui-dialog .actionsCol,
@@ -302,6 +304,7 @@ section h4 a,
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 
 {
+	.ui-dialog { max-width:640px; }
 	
 	#header { text-align:left; }
     #sideCol,
@@ -309,6 +312,7 @@ section h4 a,
 	.api #body { -moz-box-direction:reverse; -webkit-box-direction:reverse; box-direction:reverse; }
 	.api #sideCol { border-right:0; border-width:0 0 0 1px; box-shadow:1px 0 0 rgba(255,255,255,0.8) inset; }
 	
+	#mainCol section header { padding-top:8px; padding-bottom:7px; }
 	section header { margin-bottom:20px; }
 	section .adminBlock { margin:0 20px 20px; }
 	
@@ -361,6 +365,8 @@ section h4 a,
 /* 1980 x 1200 */
 @media screen and (min-width:1820px) 
 {
+	.ui-dialog { max-width:920px; }
+	
 	#adminLogsBlock { max-width:940px; }
 	#adminActiveUsersBlock { max-width:320px; }
 }
