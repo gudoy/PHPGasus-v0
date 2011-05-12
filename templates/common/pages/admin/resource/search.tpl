@@ -8,10 +8,10 @@
 {$resourceId 	= $data.resourceId}
 {$resource 		= $data[$resourceName]}
 
-<form id="frmAdmin{$resourceName|capitalize}" action="{$smarty.const._URL_ADMIN}{$resourceName}?method=index" class="commonForm" method="post" enctype="multipart/form-data">
+<form class="adminForm adminIndexForm" id="frmAdmin{$resourceName|capitalize}" action="{$smarty.const._URL_ADMIN}{$resourceName}?method=index" class="commonForm" method="post" enctype="multipart/form-data">
 
     {block name='admin{$resourceName|ucfirst}IndexBlock'}
-	<section class="adminSection adminRetrieveSection admin{$resourceName|ucfirst}RetrieveSection">
+	<section class="adminSection adminIndexSection admin{$resourceName|ucfirst}IndexSection">
 	{include file='common/blocks/admin/resource/list.tpl'}
 	</section>
 	{/block}

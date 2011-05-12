@@ -31,15 +31,15 @@
 	<input type="text" class="normal" {if !$editable || ($mode === 'create' && $field.computed)}disabled="disabled"{/if} value="{$resource[$fieldName]}" />
 	<div class="nav actions actionsBlock buttonsBlock">
 		{$repBntId='replace'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
-		{include file='common/blocks/actionBtn.tpl' mode='button' btnLabel={'replace'|gettext} btnClasses='replaceFileLink' btnId=$repBntId btnTitle={'Replace current file by a new one'|gettext|cat:{'[require javascript]'|gettext}}}
+		{include file='common/blocks/actionBtn.tpl' mode='button' label={'replace'|gettext} classes='replace replaceFileLink' id=$repBntId btnTitle={'Replace current file by a new one'|gettext|cat:{'[require javascript]'|gettext}}}
 		<span class="or">{t}or{/t}</span>
 		{$editBntId='edit'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
-		{include file='common/blocks/actionBtn.tpl' mode='button' btnLabel={'edit URL'|gettext} btnClasses='editFileLink' btnId=$editBntId btnTitle={'Manually edit file URL'|gettext|cat:{'[require javascript]'|gettext}}}
+		{include file='common/blocks/actionBtn.tpl' mode='button' label={'edit URL'|gettext} classes='edit editFileLink' id=$editBntId btnTitle={'Manually edit file URL'|gettext|cat:{'[require javascript]'|gettext}}}
 		<span class="or">{t}or{/t}</span>
-		<a class="actionBtn deleteFileLink" id="delete{$resourceFieldName|ucfirst}FileLink" href="{$smarty.const._URL_ADMIN}{$resourceName}{$resource.id}/{$fieldName}?method=update&amp;forceFileDeletion=1" title="{t}Delete this file{/t}">
+		<a class="action actionBtn remove deleteFileLink" id="delete{$resourceFieldName|ucfirst}FileLink" href="{$smarty.const._URL_ADMIN}{$resourceName}{$resource.id}/{$fieldName}?method=update&amp;forceFileDeletion=1" title="{t}Delete this file{/t}">
 			<span class="label">{t}remove{/t}</span>
 		</a>
 		<span class="or">{t}or{/t}</span>
-		{include file='common/blocks/actionBtn.tpl' mode='button' btnLabel={'cancel'|gettext} btnClasses='cancelFileActionLink' btnTitle={'Cancel current operation'|gettext|cat:{'[require javascript]'|gettext}}}
+		{include file='common/blocks/actionBtn.tpl' mode='button' label={'cancel'|gettext} classes='cancel cancelFileActionLink' title={'cancel current operation'|gettext|cat:{'[require javascript]'|gettext}}}
 	</div>
 </div>

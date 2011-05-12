@@ -24,7 +24,9 @@ var admin =
 		
 		//Tools.loadCSS('/public/stylesheets/default/jquery-ui-1.8.9.custom.css');
         
-	    adminSearch.init();
+	    //adminSearch.init();
+	    
+	    this.search.init();
 	    
 	    this
 	    	.menu()
@@ -35,8 +37,6 @@ var admin =
 	
 	menu: function()
 	{
-		//app.intercept('#adminMenuBlock, #topPaginationBlock, #bottomPaginationBlock', {action:'clickDelegate', dest:'#mainCol'});
-		
 		var $menu = $('#adminMainNav');
 		
 		$menu.bind('click',function(e)
@@ -64,6 +64,122 @@ var admin =
 		}); 
 		
 		return this;
+	},
+	
+	search: 
+	{
+	    formContext: '#adminSearchForm',
+	    resultsContext: '#adminSearchResultsBlock',
+	    
+	    init: function()
+	    {
+	    	var self = this;
+	    	
+	    	// If 
+	    	if ( $(self.resultsContext).length ) { self.results(); }
+	    	
+	        return this.listen();
+	    },
+	    
+	    update: function()
+	    {
+	    	var self = this;
+	    	
+	    	this.results();
+	    	
+	    	return this;
+	    },
+	    
+	    results: function()
+	    {
+	    	var self = this;
+	    	
+	        $(self.resultsContext)
+	        	.live('click', function(e)
+		        {
+					var $this 	= $(this),
+					    t   	= e.target,
+					    $t  	= $(t);
+	
+					if 		( $t.is('a') ){ return true; } 
+					else if ( $t.closest('header', $this).length )
+					{
+					    $t.closest('header').parent().removeClass('current').toggleClass('expanded');
+					}
+		        });
+	    	
+	    	return this;
+	    },
+	    
+	    listen: function()
+	    {
+	    	var self = this;
+	    	
+	    	// On search form submit
+	        $(self.formContext)
+	            .bind('submit', function(e)
+	            {
+	                e.preventDefault();
+	                e.stopPropagation();
+	                
+	                var $this   = $(this),
+	                    url     = $this.attr('action') || window.location.href, 		// Search url
+	                    reqData = $this.serialize(); 									// Search request & params
+	                    $tbody  = $('tbody', self.context); 							// Updated content jquery reference
+	                    
+	                // TODO: handle this server-side instead
+	                // If the the search query is empty, force the request to attack the 'index' method instead of the 'search' one
+	                //if ( $('#searchQuery').val() === '') { url = url.replace(/\?(.*)/,''); reqData = null; alert(url); }
+	                
+	                // For touch devices, forces keyboard to disappear
+	                if ( app.support.touch ) { $this.find('input[type=search]').blur(); }
+	                    
+					// Launch search request
+	                $.ajax(
+	                {
+	                    url: url,
+	                    type: 'GET',
+	                    data: reqData,
+	                    dataType: 'html',
+	                    beforeSend: function()
+	                    {
+	                    	// Add loading indicators
+	                        $('body').append($(app.loadingBlock).attr('id','loadingBlock'));
+	                        
+	                        // Reset search results counts & specific css rules if necessary
+	                        if ( $('#adminSearchResultsBlock').length ) 	{ $('#adminSearchResultsBlock, #searchDynamicCSS').empty(); }
+	                        // Otherwise, just clear updated content container
+	                        else 											{ $('#mainCol').empty(); }
+	                    },
+	                    error: function()
+	                    {
+	                    	// Remove Loading Indicators
+	                        $('#loadingBlock').remove();
+	                    },
+	                    success: function(response)
+	                    {
+	                        var r               = response,
+	                            query           = $('#searchQuery').val() || '',
+	                            rule            = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }",
+	                            $resultsCtnr    = $('#adminSearchResultsBlock'), 
+	                            $dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
+	                        
+	                        // Insert updated content
+	                        $dest.html($(r));
+	                        
+	                        // Remove Loading Indicators
+	                        $('#loadingBlock').remove();
+	                        
+	                        // Update search specific CSS rules
+	                        $('#searchDynamicCSS').html(rule);
+	                        
+	                        self.results();
+	                    }
+	                });
+	            });
+	    	
+	    	return this;
+	    }
 	},
 	
 	subResources: function()
@@ -103,6 +219,7 @@ var admin =
 		return this;
 	},
 	
+	// TODO: handle multiple duplicate
 	duplicate: function(jqObj)
 	{	
 		var self = this;
@@ -124,9 +241,6 @@ var admin =
 					createdId 	= r[self.resourceName].id || '', 	// Get the id of the created item
 					jTR 		= $(jqObj).closest('tr'),
 					cloneId 	= adminIndex.getResourceId(jTR) || '';
-					
-//Tools.log(cloneId);
-//Tools.log(createdId);
 				
 				// If the request did not succeed, we do not continue
 				if ( !success ){ return; }
@@ -1508,100 +1622,13 @@ var adminUpdate =
 };
 
 var adminSearch = 
-{
-    formContext: '#adminSearchForm',
-    
+{    
     init: function()
     {
-        //adminIndex.init();
-        
-        return this.updateResults();
-    },
-    
-    updateResults: function()
-    {
-        var self = this;
-        
-        $('#adminSearchResultsBlock').live('click', function(e)
-        {
-            var $this 	= $(this),
-                t   	= e.target,
-                $t  	= $(t);
-                
-            if ( $t.closest('header', $this).length )
-            {
-                $t.closest('header').parent().removeClass('current').toggleClass('expanded');
-            }
-        });
-        
-        $(self.formContext)
-            .bind('submit', function(e)
-            {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                var $this   = $(this),
-                    url     = $this.attr('action') || window.location.href,
-                    reqData = $this.serialize();
-                    $tbody  = $('tbody', self.context);
-                    
-                // TODO: handle this server-side instead
-                // If the the search query is empty, force the request to attack the 'index' method instead of the 'search' one
-                //if ( $('#searchQuery').val() === '') { url = url.replace(/\?(.*)/,''); reqData = null; alert(url); }
-                
-                // For touch devices, forces keyboard to disappear
-                if ( app.support.touch ) { $this.find('input[type=search]').blur(); }
-                    
-                $.ajax(
-                {
-                    url: url,
-                    type: 'GET',
-                    data: reqData,
-                    dataType: 'html',
-                    beforeSend: function()
-                    {
-                        $('body').append($(app.loadingBlock).attr('id','loadingBlock'));
-                        
-                        if ( $('#adminSearchResultsBlock').length )
-                        {
-                            
-                            $('#adminSearchResultsBlock').empty();
-                            $('#searchDynamicCSS').empty();
-                        }
-                        else
-                        {
-                            $('#mainCol').empty();
-                        }
-                        
-                        /*
-                        var $tr         = $tbody.find('tr'),
-                            colsNb      = $tbody.find(':first-child').find('td').length,
-                            $loading    = $('<tr class="loading"><td colspan="' + colsNb + '"><span class="message loading">loading...</span></td></tr>');
-    
-                        $tbody.empty().append($loading);
-                        */
-                    },
-                    error: function()
-                    {
-                        $('#loadingBlock').remove();
-                    },
-                    success: function(response)
-                    {
-                        var r               = response,
-                            query           = $('#searchQuery').val() || '',
-                            rule            = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }",
-                            $resultsCtnr    = $('#adminSearchResultsBlock'), 
-                            $dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
-                        
-                        $dest.html($(r));
-                        
-                        $('#loadingBlock').remove();
-                        
-                        $('#searchDynamicCSS').html(rule);
-                    }
-                });
-            });
-        
+    	var self = this;
+    	
+    	adminIndex.init();
+    	
         return this;
-    }
+    },
 };

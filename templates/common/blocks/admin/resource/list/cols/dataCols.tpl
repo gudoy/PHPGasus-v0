@@ -8,11 +8,8 @@
 	{if $field.type === 'timestamp' || $field.type === 'datetime'}
 	{$value|date_format:"%d %B %Y, %Hh%M"}
 	{elseif $field.type === 'bool'}
-		{if $value === true || $value === 't' || $value == 1}
-			<span class="validity valid"><span class="label">{t}yes{/t}</span></span>
-		{else}
-			<span class="validity invalid"><span class="label">{t}no{/t}</span></span>
-		{/if}
+	 	{$valid = in_array($value, array(1,true,'1','true','t'), true)}
+		<span class="validity {if !$valid}in{/if}valid"><span class="label">{if $valid}{t}yes{/t}{else}{t}no{/t}{/if}</span></span>
 	{elseif $field.type === 'int' && $field.subtype === 'fixedValues'}
 		{$field.possibleValues[$value]}
 	{elseif $field.subtype === 'file' || $field.subtype == 'fileDuplicate'}

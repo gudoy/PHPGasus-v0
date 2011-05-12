@@ -329,8 +329,13 @@ var_dump($args);
 		return $this;
 	}
 	
-	
+	// Deprecated
 	public function filterPostData($options = null)
+	{
+		return $this->filterInputData($options);
+	}
+	
+	public function filterInputData($options = null)
 	{
 		// Shortcut for options
 		$o = &$options;
@@ -341,12 +346,9 @@ var_dump($args);
 		$resourceData     = array();
 		$rName            = &$this->application->dataModel[$this->resourceName];
 		
-		//$isApi            = !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
 		$isApi            = ( !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ) || ( isset($o['isApi']) && $o['isApi'] );
 		
 		// Loop over the data model of the resource
-		//foreach ($this->dataModel[$this->resourceName] as $fieldName => $field)
-		//foreach ($this->application->dataModel[$this->resourceName] as $fieldName => $field)
 		foreach ($rName as $fieldName => $field)
 		{
 			// Shortcut for the field name
@@ -356,15 +358,11 @@ var_dump($args);
             
 			// If the field is required
 			// TODO: continue looping over the fields to list all missing ones
-			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) ){ $this->errors[] = 1002; return; }
-			//if ( isset($field['required']) && $field['required'] && (empty($_FILES[$f]) && empty($_POST[$f])) )
-			//if ( isset($field['required']) && $field['required'] && empty($_FILES[$f]) && empty($_POST[$f])
 			if ( isset($field['required']) && $field['required'] 
 				&& empty($_FILES[$f]) && empty($_POST[$f])
 				&& ( empty($o['method']) || $o['method'] !== 'update' ) )
 			{				
 				// If a default value is defined, set it
-				//if ( isset($field['default']) || is_null($field['default']) )
 				if ( array_key_exists('default', (array) $field) )
 				{
 					$_POST[$f] = $field['default'];

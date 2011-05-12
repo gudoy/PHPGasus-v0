@@ -157,6 +157,10 @@ a.action .value { text-indent:0; }
 #adminSearchBlock,
 #adminSearchResultsBlock  header.groupTitle,
 #apisBlock .groupTitle { background:#8396b8; background:-webkit-gradient(linear, left top, left bottom, from(#b1bed7), to(#8396b8)); background:-webkit-linear-gradient(#b1bed7, #8396b8); background:-moz-linear-gradient(#b1bed7, #8396b8); background:-o-linear-gradient(#b1bed7, #8396b8); border:none; -webkit-box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; -moz-box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; color:#fff; }
+#adminSearchBlock a,
+#adminSearchResultsBlock  header.groupTitle a,
+#apisBlock .groupTitle a { color:#fff; text-shadow:none; text-decoration:none; }
+/*#adminSearchResultsBlock .action.go { float:right; }*/
 #adminSearchResultsBlock  header.groupTitle,
 #apisBlock .groupTitle { margin:0; padding:10px; }
 #adminSearchResultsBlock  header.groupTitle .title { color:#fff; text-shadow:none; }
@@ -253,7 +257,8 @@ section h4 a,
 
 
 #adminSearchResultsBlock > header { margin-bottom:0; }
-.resultsGroup .adminBlock { margin-top:20px; }
+.resultsGroup .adminBlock { margin-top:20px; display:none; }
+.resultsGroup.expanded .adminBlock { display:block; }
 
 
 /* Start TMP */

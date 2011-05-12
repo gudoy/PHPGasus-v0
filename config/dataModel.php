@@ -103,7 +103,7 @@ $dataModel = array(
 'medias' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'title'					=> array('type' => 'varchar', 'length' => 255, 'list' => 1),
-	'admin_title'			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'title', 'length' => 64, 'list' => 1, 'comment' => 'For admin/url purpose. No special chars'),
+	'admin_title'			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'title', 'length' => 64, 'list' => 1, 'comment' => 'For admin/url purpose. No special chars', 'searchable' => 1),
 	'type' 					=> array('type' => 'enum', 'default' => 'image', 'possibleValues' => array('image','video','audio')),
 	'url' 					=> array('type' => 'varchar', 'subtype' => 'file', 'list' => 1, 'allowedTypes' => 'jpg,png,gif', 'destFolder' => '/public/media/images/',  /*'destName' => 'media_%resource[\'id\']%.%file_extension%'*/),
 	'width' 				=> array('type' => 'int', 'length' => 6, 'list' => 1),

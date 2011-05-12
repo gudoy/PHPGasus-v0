@@ -40,7 +40,7 @@
                 {$data.current.urlParams.sortBy     = null}
                 {$data.current.urlParams.orderBy    = null}
                 {$newPageURL 						= "{$curURLbase}?{http_build_query($data.current.urlParams)}"}
-                <a class="title" title="{$colProps.displayName|default:$colName}" href="{$newPageURL}sortBy={$colName}&amp;orderBy={if $smarty.get.orderBy === 'asc'}desc{else}asc{/if}">{$colProps.displayName|default:$colName|replace:'_':' '|truncate:'20':'...':true}</a>
+                <a class="title" title="{$colProps.displayName|default:$colName}" href="{$newPageURL|replace:'&amp':'&'|replace:'&':'&amp;'}&amp;sortBy={$colName}&amp;orderBy={if $smarty.get.orderBy === 'asc'}desc{else}asc{/if}">{$colProps.displayName|default:$colName|replace:'_':' '|truncate:'20':'...':true}</a>
             </th>
             {/if}
             {/foreach}
@@ -69,7 +69,7 @@
     <tbody>
         {foreach $rows as $row}
         {$rowNum = $row.id|default:$row@iteration}
-        <tr id="row{$rowNum}" class="dataRow {cycle values='even,odd'}" scope="row">
+        <tr id="row{$rowNum}" class="dataRow {cycle values='even,odd'}">
             {if ($userResPerms.allow_create && in_array('create',$o.showActions)) || ($userResPerms.allow_update && in_array('update',$o.showActions)) || ($userResPerms.allow_delete && in_array('delete',$o.showActions))}
             <td class="col selecRowCol firstCol colSelectResources">
                 <input type="checkbox" name="ids[]" value="{$rowNum}" {if $smarty.post.ids && in_array($rowNum, $smarty.post.ids)}checked="checked"{/if} />

@@ -14,14 +14,10 @@
     {$displayField      = $data._resources[$groupResource].defaultNameField}
     {$resultsURL        = "{$smarty.const._URL_ADMIN}{$groupResource}?method=search&amp;searchContext=local&amp;searchQuery={$search.query}"}
     {$displayedCount    = count($group.results)}
-    <div class="resultsGroup{if $group@first} first{/if}{if ($group@first && $group.results) || ($group.results && !$currentDefined)} current{$currentDefined=true}{/if}{if $group@last} last{/if}">
+    <div class="resultsGroup{if $group@first} first{/if}{if ($group@first && $group.results) || ($group.results && !$currentDefined)} expanded{$currentDefined=true}{/if}{if $group@last} last{/if}">
         <header class="groupTitle">
             <h4 class="title">
-                {*<a href="{$resultsURL}">{$groupName}</a>*}
-                <span class="value">{$groupName}</span>
-                {if $group.results && ($displayedCount != $group.count)}
-                {include file='common/blocks/actionBtn.tpl' btnHref=$resultsURL btnLabel={'all'}}
-                {/if}
+                <a href="{$resultsURL}" class="value">{$groupName}</a>
             </h4>
             {if $displayedCount || $group.count}
             <span class="counts countsBlock">                
@@ -40,6 +36,11 @@
                 {/if}
             </span>
             {/if}
+            <nav class="actions">
+                {* if $group.results && ($displayedCount != $group.count) *}
+                {include file='common/blocks/actionBtn.tpl' classes="action go" href=$resultsURL label={'all'}}
+                {* /if *}
+            </nav>
         </header>
         {if $group.results}
         {*

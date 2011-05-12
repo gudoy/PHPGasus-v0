@@ -129,7 +129,7 @@ form .buttonsLine .action { width:auto; }
 
 
 /* TODO: remove when phpgasus will be no longer used */
-.validity { width:16px; height:16px; overflow:hidden; display:inline-block; } 
+.validity { width:16px; height:16px; overflow:hidden; display:inline-block; text-indent:-9999em; } 
 .validity::before { display:none; }
 
 .adminTable { width:100%; clear:both; border:1px solid #aaa; }

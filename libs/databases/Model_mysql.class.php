@@ -748,7 +748,8 @@ class Model extends Application
         }
         // 1 column, several rows
         //else if ( count($o['getFields']) === 1 && $o['mode'] !== 'onlyOne' )
-        else if ( $o['mode'] !== 'onlyOne' && count($o['getFields']) === 1 && $this->numFields === 1 )
+        //else if ( $o['mode'] !== 'onlyOne' && count($o['getFields']) === 1 && $this->numFields === 1 )
+        else if ( $o['mode'] !== 'onlyOne' && isset($o['getFields']) && count($o['getFields']) === 1 && $this->numFields === 1 )
         {
 //$this->dump('1 column, several rows');
             if ( $this->numRows > 0 ) 
