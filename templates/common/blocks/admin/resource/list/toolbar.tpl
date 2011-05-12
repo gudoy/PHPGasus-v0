@@ -2,7 +2,7 @@
 {$nbOfItemsPerPage	= $data.current.limit|default:$smarty.const._ADMIN_RESOURCES_NB_PER_PAGE}
 {$userResPerms 		= $data.current.user.auths[$resourceName]}
 <div class="menu toolbar adminToolbar adminListToolbar {$position}" id="adminListToolbar{$position|ucfirst}">
-	{block name="adminListToolbarContent"}
+	{block name='adminListToolbarContent'}
     <div class="group createButtons">
     	{if $userResPerms.allow_create}
         <span class="actions">

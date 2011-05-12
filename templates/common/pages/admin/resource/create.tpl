@@ -6,7 +6,7 @@
 	{$resourceId 	= $data.resourceId}
 	{$resource 		= $data[$resourceName]}
 
-    {block name="admin{$resourceName|ucfirst}CreateBlock"}
+    {block name='admin{$resourceName|ucfirst}CreateBlock'}
     <section class="adminSection adminCreateSection admin{$resourceName|ucfirst}CreateSection">
 	{include file='common/blocks/admin/resource/create.tpl'}
 	</section>
@@ -16,7 +16,7 @@
 
 {block name='resourceColumnsFieldset' append}
 	{if $resourceName === 'resources'}
-	{block name="adminCreateResourceFilesFieldset"}
+	{block name='adminCreateResourceFilesFieldset'}
 	{include file='common/forms/admin/resources/create/createResourceFilesFieldset.tpl'}
 	{/block}
 	{/if}

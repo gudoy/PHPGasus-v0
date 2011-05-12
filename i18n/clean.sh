@@ -1,8 +1,8 @@
 #!/bin/sh
 
-APP_PATH="/var/www/mynewproject/"
-LOCALES="${APP_PATH}i18n"
 DOMAIN="mynewproject"
+APP_PATH="/var/www/${DOMAIN}/"
+LOCALES="${APP_PATH}i18n"
 
 echo "> Cleaning"
 for i in $LOCALES/*; do

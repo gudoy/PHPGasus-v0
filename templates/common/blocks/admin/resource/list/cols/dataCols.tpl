@@ -3,7 +3,7 @@
 {$isDefaultNamefield 	= ($data.meta.defaultNameField === $fieldName)}
 {$value                 = $resource[$fieldName]}
 {if ($lightVersion && $field.list == 3) || (!$lightVersion && $field.list >= 1)}
-<td id="{$fieldName}Col{$resource.id}" class="col dataCol {$fieldName}Col type{$field.type|ucfirst}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} ui-state-active{/if}{if $field.relResource} typeRel{/if}{if !$field.list} hidden{/if}" headers="row{$resource.id} {$fieldName}Col">
+<td id="{$fieldName}Col{$resource.id}" class="col dataCol {$fieldName}Col type{$field.type|ucfirst}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{if $field.relResource} typeRel{/if}{if !$field.list} hidden{/if}{if $isSorted} activeSort{/if}" headers="row{$resource.id} {$fieldName}Col">
 	<div class="value dataValue" id="{$fieldName}{$resource.id}" {if $field.type === 'timestamp'}title="{$value|date_format:"%Y-%m-%d %H:%M:%S"}"{/if} data-exactValue="{$value}">
 	{if $field.type === 'timestamp' || $field.type === 'datetime'}
 	{$value|date_format:"%d %B %Y, %Hh%M"}

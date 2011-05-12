@@ -1,5 +1,5 @@
 {$resources=$data._extras.dataModel.resources}
-{block name="adminDataModelCodeBlock"}
+{block name='adminDataModelCodeBlock'}
 <div class="block adminBlock adminDataModelBlock adminDataModelResourcesBlock" id="adminDataModelResourcesBlock">
 	<header class="titleBlock">
 		<h3 class="title">

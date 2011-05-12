@@ -1,4 +1,4 @@
-{block name="adminDataModelCodeBlock"}
+{block name='adminDataModelCodeBlock'}
 <div class="block adminBlock adminDataModelCodeBlock" id="adminDataModelCodeBlock">
 	<header class="titleBlock">
 		<h3 class="title">

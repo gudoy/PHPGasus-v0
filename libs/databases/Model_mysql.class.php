@@ -210,9 +210,14 @@ class Model extends Application
         $o['type']              = !empty($o['type']) ? $o['type'] : 'select';   // Set query type to select by default if not already setted
         
         $this->launchedQuery    = $query;
+		
+//$this->dump('query_new');
         
         // Do the query
         $queryResult            = mysql_query($query, $this->db);
+//$this->dump(mysql_query($query, $this->db));
+
+//$this->dump($queryResult);
         
         // 
         $this->success          = is_bool($queryResult) && !$queryResult ? false : true;
@@ -222,6 +227,8 @@ class Model extends Application
         {
             // Get number of rows affetected by a insert, update, delete request
             $this->affectedRows = mysql_affected_rows($this->db);
+			
+//$this->dump(mysql_affected_rows($this->db));
             
             // Get number of selected rows (for select request)
             $this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
@@ -1219,7 +1226,14 @@ class Model extends Application
         $this->init($options);
         
 		$d 			= &$resourceData;										// Shortcut for resource data
-		$o 			= array_merge($this->options, $options); 				// Shortcut for options
+		//$o 			= array_merge($this->options, $options); 				// Shortcut for options
+		$o 			= array_merge(array(
+			'onDuplicateUpdate' => false,	
+		), $this->options, $options); 				// Shortcut for options
+		
+		
+//$this->dump($o);
+//$this->dump($options);
 		
 		$rName 		= &$this->resourceName;
 		$rModel 	= &$this->application->dataModel[$this->resourceName];
@@ -1564,6 +1578,9 @@ class Model extends Application
 		
 		// Finish writing the request
 		$query 		.= ")";
+		
+		// Handle "upsert" request
+		$query 		.= $o['onDuplicateUpdate'] ? " ON DUPLICATE KEY UPDATE" : '';
 		
 		//if ( !empty($o['returning']) ) { $query .= " RETURNING " . $o['returning']; }
 		
@@ -2622,6 +2639,14 @@ class Model extends Application
 		$this->query($query, $o);
 		
 		return $this;
+	}
+	
+	
+	public function upsert($resourceData = null, $options = array())
+	{
+		$options['onDuplicateUpdate'] = true;
+		
+		return $this->create($resourceData, $options);
 	}
 	
 	

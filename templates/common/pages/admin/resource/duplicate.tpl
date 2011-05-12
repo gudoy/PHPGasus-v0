@@ -6,7 +6,7 @@
 	{$resourceId 	= $data.resourceId}
 	{$resource 		= $data[$resourceName]}
 
-    {block name="admin{$resourceName|ucfirst}DuplicateBlock"}
+    {block name='admin{$resourceName|ucfirst}DuplicateBlock'}
     <section class="adminSection adminDuplicateSection admin{$resourceName|ucfirst}DuplicateSection">
 	{include file='common/blocks/admin/resource/create.tpl'}
 	</section>

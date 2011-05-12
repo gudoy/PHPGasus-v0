@@ -36,7 +36,7 @@
             {if $colProps.list || $o.showAllCols || $o.addHiddenCols}
             {$isDefaultNameField = ($colName === $data._resources[$rName].defaultNameField)?true:false}
 			{if $colProps.type === 'int' && $colProps.fk}{$type = 'onetoone'}{/if}
-            <th id="{$colName}Col" class="col {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}" scope="col">
+            <th id="{$colName}Col" class="col {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}{if $isSorted} activeSort{/if}" scope="col">
                 {$data.current.urlParams.sortBy     = null}
                 {$data.current.urlParams.orderBy    = null}
                 {$newPageURL 						= "{$curURLbase}?{http_build_query($data.current.urlParams)}"}

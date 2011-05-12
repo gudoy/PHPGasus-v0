@@ -8,7 +8,7 @@
 {if $data.success}
 	<p class="notification success">{t}You are now logged in!{/t}</p>
 {else}
-    {block name="loginForm"}
+    {block name='loginForm'}
 	{include file='common/forms/account/login.tpl' legend='log in'|gettext}
 	{/block}
 {/if}

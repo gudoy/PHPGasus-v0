@@ -90,7 +90,7 @@ define('_APP_USE_ONFETCH_TYPEFIXING', 			true);          //
 define('_APP_TYPEFIX_ONETOONE_GETFIELDS',       true);          //
 define('_APP_TYPEFIX_MANYTOMANY_GETFIELDS',     true);          //
 define('_APP_USE_ADMIN_METAS',                  false);         //
-define('_APP_SEARCH_ALWAYS_GLOBAL',             false);         //
+define('_APP_SEARCH_ALWAYS_GLOBAL',             true);         //
 define('_APP_USE_DEFERED_JS',                   false);         // experimental.
 define('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES',  true);          // experimental.
 define('_APP_USE_RESOURCESGROUPS',              true);          //

@@ -8,7 +8,7 @@
     {$subtype            	= $column.subtype}
 	{$isSorted 				= ($sortBy === $fieldName)}
 	{$isDefaultNamefield 	= ($data.meta.defaultNameField === $colName)}
-    <td class="col {$colName}Col type{$type|ucfirst}{if $subtype} subtype{$subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} ui-state-active{/if} {if $column.relResource} typeRel{/if}{if !$column.list} hidden{/if}" id="{$colName}FilterCol" scope="col" headers="{$colName}Col">{strip}
+    <td class="col {$colName}Col type{$type|ucfirst}{if $subtype} subtype{$subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if} {if $column.relResource} typeRel{/if}{if !$column.list} hidden{/if}{if $isSorted} activeSort{/if}" id="{$colName}FilterCol" scope="col" headers="{$colName}Col">{strip}
         {include file='common/blocks/admin/resource/list/colFilter.tpl'}
     {/strip}</td>
     {/if}

@@ -3,10 +3,7 @@
 class VAdmin extends AdminView
 {
     public function __construct(&$application)
-    {
-		// Deprecated
-		//$this->authLevel = array('god','superadmin','admin','contributor');
-		
+    {		
 		$this->filePath 		= dirname(__FILE__);
 		
 		parent::__construct($application);

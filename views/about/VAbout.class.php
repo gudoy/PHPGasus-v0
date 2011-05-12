@@ -3,8 +3,11 @@
 class VAbout extends View
 {
     public function __construct(&$application)
-	{
-        parent::__construct($application);
+    {
+        //$this->setResource(array('class' => __CLASS__));
+		$this->filePath 		= dirname(__FILE__);
+		
+		parent::__construct($application);
 		
 		return $this;
 	}
@@ -19,6 +22,7 @@ class VAbout extends View
 			'template'		=> 'specific/pages/about/index.tpl',
 			'current' 		=> array('menu' => 'about'),
 			'cacheId' 		=> 'about',
+			'title' 		=> _APP_TITLE . ' - ' . ucfirst(gettext('about us')),
 		));
 		
 		// Get all apps
@@ -49,11 +53,12 @@ class VAbout extends View
 			'current' 			=> array('menu' => 'contact'),
 			'errorsBlock' 		=> false,
 			'cache' 			=> false,
+			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('contact us')),
 		));
 		
 
 		// Get all apps
-		$this->requireControllers('CApps');
+		//$this->requireControllers('CApps');
 		$this->data['apps'] 				= CApps::getInstance()->index(array(
 			'groupBy' 		=> 'platforms_id', 
 			'conditions' 	=> array('is_displayable' => 1), 
@@ -73,17 +78,8 @@ class VAbout extends View
 			
 			if ( $this->data['success'] ){ $_POST = null; }
 		}
-		else
-		{
-			
-
-		}
-		//$data['view']['captchaOperation'] = MathCaptcha::create();
 		
 		if ( !$this->data['success'] ){ $data['view']['captchaOperation'] = MathCaptcha::create(); }
-		
-//$this->dump('new captcha op');
-//$this->dump($data['view']['captchaOperation']);
 		
 		// Then, render page
 		return $this->render();

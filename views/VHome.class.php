@@ -23,13 +23,6 @@ class VHome extends View
 	}
 	
 
-	/**
-	 * This function builds the 404 page/block
-	 * (depending of how the function is called, using tplSelf or not)
-	 * 
-	 * @author Guyllaume Doyer <guyllaume@clicmobile.com>
-	 * @return null
-	 */
 	 public function _404()
 	 {
 		//$this->statusCode(404);

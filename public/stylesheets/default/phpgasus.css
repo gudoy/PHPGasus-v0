@@ -268,13 +268,9 @@ table thead .sort.asc { margin-bottom:4px; }
 .commonTable thead th > a.sort { width:auto; height:auto; margin-bottom:0!important; font-size:inherit;  }
 .commonTable thead td { border-left:1px solid white; border-right:1px solid black; border-bottom:1px solid #BBBBBB; }
 .commonTable tbody th,
-.commonTable tbody td { padding:3px 5px; background:#eee; border:1px solid #bbb; border-width:0 1px 1px; vertical-align:middle; }
+.commonTable tbody td { padding:3px 5px; /*background:#eee;*/ border:1px solid #bbb; border-width:0 1px 1px; vertical-align:middle; }
 .commonTable tbody tr:nth-child(odd) th,
-.commonTable tbody tr:nth-child(odd) td { background-color:#fff; }
-/*
-.commonTable tbody tr:nth-child(even) td.ui-state-active { background-color:#ebf8ff; }
-.commonTable tbody tr:nth-child(odd) td.ui-state-active { background-color:#ebf8ff; }
-*/
+.commonTable tbody tr:nth-child(odd) td { /*background-color:#fff;*/ }
 .commonTable tbody th.hover,
 .commonTable tbody th:hover,
 .commonTable tbody td.hover,

@@ -18,6 +18,7 @@ input,
 button { font-family:Arial, Helvetica, sans-serif; font-size:12px; }
 
 a { color:#3c65d7; /*text-decoration:none;*/ }
+#mainCol section .titleBlock .title a { color:#000; } 
 
 /* Sart Forms */
 form .buttonsLine::after,
@@ -165,9 +166,9 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 
 
 /* Start Tables */
-.commonTable tbody td { background-color:#fff; border-left:none; border-right:none; }
-.commonTable tbody tr:nth-child(2n) th,
-.commonTable tbody tr:nth-child(2n) td { background-color:#edf3fe; }
+.commonTable tbody td { /*background-color:#fff;*/ border-left:none; border-right:none; }
+.commonTable tbody tr:nth-child(2n),
+.commonTable tbody tr:nth-child(2n) { background-color:#edf3fe; }
 .commonTable tbody tr.ui-selected th,
 .commonTable tbody tr.ui-selected td { background:#3875d7; color:#fff; }
 .commonTable tbody tr.ui-selected th a,

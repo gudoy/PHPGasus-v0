@@ -6,7 +6,7 @@ class CTasks extends Controller
 	
 	public function __construct()
 	{
-        $this->setResource(array('class' => __CLASS__, 'task' => null));
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

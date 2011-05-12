@@ -6,7 +6,7 @@ class CSamples extends Controller
 	
 	public function __construct()
 	{
-        $this->setResource(array('class' => __CLASS__, 'singular' => null));
+        $this->setResource(array('class' => __CLASS__, 'singular' => 'sample'));
 		
 		return parent::__construct();
 	}

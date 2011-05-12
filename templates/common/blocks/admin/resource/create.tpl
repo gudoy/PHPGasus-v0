@@ -1,8 +1,8 @@
 <header class="header titleBlock">
 	<h2 class="title">
-        <span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
+		<a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$resourceName} - {t}new{/t}
-		</span>
+		</a>
 	</h2>
 	<span class="nav actions actionsBlock">
 		{include file='common/blocks/admin/resource/actions/actions.tpl'}
@@ -12,7 +12,7 @@
 
 <div class="contentBlock">
 
-	{block name="adminCreateContent"}
+	{block name='adminCreateContent'}
 	<div class="block adminBlock adminCreateBlock" id="admin{$resourceName|capitalize}CreateBlock">
 		
 		{if $data.warnings}

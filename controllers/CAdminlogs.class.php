@@ -6,7 +6,7 @@ class CAdminlogs extends Controller
 	
 	public function __construct()
 	{
-        $this->setResource(array('class' => __CLASS__, 'adminlog' => null));
+        $this->setResource(array('class' => __CLASS__));
 		
 		return parent::__construct();
 	}

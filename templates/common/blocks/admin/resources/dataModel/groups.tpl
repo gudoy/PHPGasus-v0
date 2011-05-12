@@ -1,5 +1,4 @@
-{$groups=$data._extras.dataModel.groups}
-{block name="adminDataModelCodeBlock"}
+{block name='adminDataModelCodeBlock'}
 <div class="block adminBlock adminDataModelBlock adminDataModelGroupsBlock" id="adminDataModelGroupsBlock">
 	<header class="titleBlock">
 		<h3 class="title">
@@ -8,9 +7,9 @@
 	</header>
 	<div class="content">
 		<fieldset>
-			{if $groups}
+			{if $data._extras.dataModel.groups}
 			<ul class="groups">
-			{foreach $groups as $name => $props}
+			{foreach $data._extras.dataModel.groups as $name => $props}
 				<li><span class="value">{$props.displayName|default:$name}</span></li>
 			{/foreach}
 			</ul>

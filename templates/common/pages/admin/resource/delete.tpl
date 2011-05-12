@@ -6,7 +6,7 @@
 	{$resourceId 	= $data.resourceId}
 	{$resource 		= $data[$resourceName]}
 
-    {block name="admin{$resourceName|ucfirst}DeleteBlock"}
+    {block name='admin{$resourceName|ucfirst}DeleteBlock'}
     <section class="adminSection adminDeleteSection admin{$resourceName|ucfirst}DeleteSection">
 	{include file='common/blocks/admin/resource/delete.tpl'}
 	</section>

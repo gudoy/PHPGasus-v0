@@ -130,17 +130,42 @@ var_dump($args);
 			// If the request failed, get the errors
 			if ( !$this->success )
 			{
-				//$this->model->errors;
-				
 				$this->extendsData();
 				$this->handleModelErrors();
 			}
 		}
 		
-//var_dump($this->data);
+		return !empty($o['returning']) && isset($this->data) ? $this->data : null;
+	}
+	
+	
+	public function upsert($options = array())
+	{
+        $o                = &$options;
+        $this->success    = false;
+        $this->errors     = array();
+        $this->warnings   = array();
 		
-		//return $this;
-		//return !empty($o['returning']) && isset($this->data) ? $this->data : $this;
+		$resourceData     = $this->filterPostData(array_merge($o,array('method' => 'create')));
+
+		if ( !empty($resourceData) )
+		{
+			// Launch the creation
+			$this->data = $this->model->upsert($resourceData, $o);
+			
+			// Get the success of the request
+			$this->success 	= $this->model->success;
+			
+			$this->warnings = array_merge($this->warnings, (array) $this->model->warnings);
+			
+			// If the request failed, get the errors
+			if ( !$this->success )
+			{
+				$this->extendsData();
+				$this->handleModelErrors();
+			}
+		}
+		
 		return !empty($o['returning']) && isset($this->data) ? $this->data : null;
 	}
 	
@@ -520,16 +545,6 @@ var_dump($args);
 		
 		return $returnVal;
 	}
-	
-	
-    /*
-    // Safe for remove???
-	public function redirect($url)
-	{
-		header("Location:" . $url);
-		die();
-	}
-    */
 
 }
 

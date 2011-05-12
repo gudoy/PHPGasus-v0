@@ -10,7 +10,7 @@
 
 <form id="frmAdmin{$resourceName|capitalize}" action="{$smarty.const._URL_ADMIN}{$resourceName}?method=index" class="commonForm" method="post" enctype="multipart/form-data">
 
-    {block name="admin{$resourceName|ucfirst}IndexBlock"}
+    {block name='admin{$resourceName|ucfirst}IndexBlock'}
 	<section class="adminSection adminRetrieveSection admin{$resourceName|ucfirst}RetrieveSection">
 	{include file='common/blocks/admin/resource/list.tpl'}
 	</section>

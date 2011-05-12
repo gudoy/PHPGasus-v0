@@ -1,15 +1,15 @@
 <header class="header titleBlock">
 	<h2 class="title">
-        <span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
+		<a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$resourceName} - {$data[$resourceName].id}
-		</span>
+		</a>
 	</h2>
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='delete'}
 </header>
 
 <div class="contentBlock">
 
-	{block name="adminDeleteContent"}
+	{block name='adminDeleteContent'}
 	<div class="block adminBlock adminDeleteBlock" id="admin{$resourceName|capitalize}DeleteBlock">
 		
 		{if $data.warnings}

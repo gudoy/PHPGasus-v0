@@ -408,7 +408,7 @@ class Application
 			ini_set('xdebug.var_display_max_depth', 6);
 			//ini_set('xdebug.var_display_max_data', 4096);
 			ini_set('xdebug.var_display_max_data', 40000);
-			ini_set('xdebug.max_nesting_level', 500); // default is 100, which can be cumbersome with smarty
+			//ini_set('xdebug.max_nesting_level', 500); // default is 100, which can be cumbersome with smarty
 		}
 		else
 		{

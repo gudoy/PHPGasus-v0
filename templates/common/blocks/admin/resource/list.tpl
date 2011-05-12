@@ -1,9 +1,9 @@
-{block name="adminIndexBlockHeader"}
+{block name='adminIndexBlockHeader'}
 <header class="titleBlock">
 	<h2 class="title">
-		<span class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
+		<a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$resourceName}
-		</span>
+		</a>
 	</h2>
 	{if count($data[$resourceName]) || $data.total[$resourceName]}
     <span class="counts countsBlock" id="resourceCountsBlock">
@@ -37,7 +37,7 @@
     {if $smarty.get.limit}{$paginationParams = $paginationParams|cat:'&limit='|cat:$smarty.get.limit}{/if}
     
     {/strip}
-    {block name="adminIndexContent"}
+    {block name='adminIndexContent'}
 	<div class="block adminListingBlock" id="admin{$resourceName|capitalize}Block">
 		{include file='common/blocks/admin/resource/listTable.tpl'}
 	</div>

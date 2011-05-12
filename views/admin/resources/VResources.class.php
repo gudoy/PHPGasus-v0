@@ -139,7 +139,9 @@ class VResources extends AdminView
 			{
 				$adminViewCtnt = file_get_contents(_PATH_VIEWS . 'admin/_VSamples' . $fExt);
 				$adminViewCtnt = preg_replace(
-								array('/VSamples/', '/singular/'),
+								//array('/VSamples/', '/singular/'),
+								array('/VSamples/', '/sample/'),
+								//array($fName, $r['singular']), $adminViewCtnt);
 								array($fName, $r['singular']), $adminViewCtnt);
 								
 				$zip->addEmptyDir('views/admin/');
@@ -153,7 +155,8 @@ class VResources extends AdminView
 			
 			$fCtnt      	= file_get_contents($fFolderPath . '_' . $firstChar . 'Samples' . $fExt); 				// 
 			$fCtnt      	= preg_replace(
-								array('/' . $firstChar . 'Samples/', '/singular/'),
+								//array('/' . $firstChar . 'Samples/', '/singular/'),
+								array('/' . $firstChar . 'Samples/', '/sample/'),
 								array($fName, $r['singular']), $fCtnt); 												// file content
 			
 			// If the current file folder is writable, create the file 

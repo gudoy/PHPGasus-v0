@@ -548,7 +548,7 @@ class AdminView extends View
 		
 		// If the resource creation form has been posted
 		if ( !empty($_POST) )
-		{			
+		{
 			// Launch the creation
 			//$this->C->create();
 			$this->resourceId = $this->C->create(array('returning' => 'id'));
@@ -839,6 +839,7 @@ $this->dump($this->data);
         if ( empty($this->resourceId) ) { return $this; }
 		
 		$id                       = (int) $this->resourceId;
+		//$id                       = is_array($this->resourceId) ? $this->resourceId[0] : (int) $this->resourceId;
         $this->data['pagination'] = array();
         
     	// Define common options
