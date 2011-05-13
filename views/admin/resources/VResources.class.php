@@ -292,10 +292,16 @@ class VResources extends AdminView
 
 				# Numbers
 					// ints
-					'int' 			=> 'integer',
-					'integer'		=> 'integer',
-					'num'			=> 'integer',
-					'number'		=> 'integer',
+					'int' 			=> 'integer', // + min = -2147483648, + max = 2147483648
+					'integer'		=> 'integer', // + min = -2147483648, + max = 2147483648
+					'num'			=> 'integer', // + min = -2147483648, + max = 2147483648
+					'number'		=> 'integer', // + min = -2147483648, + max = 2147483648
+					
+					'tinyint' 		=> 'integer', // + min = -128, + max = 128 
+					'smallint' 		=> 'integer', // + min = -32768, + max = 32768
+					'mediumint' 	=> 'integer', // + min = -8388608, + max = 8388608
+					'bigint' 		=> 'integer', // + min = -9223372036854775808, + max = 9223372036854775808
+					
 					// floats
 					'float' 		=> 'float',
 					'real' 			=> 'float',

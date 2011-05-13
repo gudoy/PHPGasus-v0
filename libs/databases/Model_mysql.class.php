@@ -1582,6 +1582,8 @@ class Model extends Application
 		
 		// Handle "upsert" request
 		$query 		.= $o['onDuplicateUpdate'] ? " ON DUPLICATE KEY UPDATE" : '';
+		// TODO add {column} = {value} couples to be upserted
+		
 		
 		//if ( !empty($o['returning']) ) { $query .= " RETURNING " . $o['returning']; }
 		
