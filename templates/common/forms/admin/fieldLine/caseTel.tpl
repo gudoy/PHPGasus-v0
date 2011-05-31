@@ -1,0 +1,1 @@
+<input type="tel" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" class="normal tel" placeholder="{$field.placeholder|default:'ex: 33 6 42 24 23 36'}" value="{$postedVal|default:$resource[$fieldName]|default:$field.default}"{if !$editable} disabled="disabled"{/if}{if $isRequired} required="required"{/if} />

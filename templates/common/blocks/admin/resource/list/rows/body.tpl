@@ -5,10 +5,10 @@
 		<span class="actions">{include file='common/blocks/admin/resource/actions/listActions.tpl'}</span>
 	</td>
 	{include file='common/blocks/admin/resource/list/cols/dataCols.tpl'}
-	<td class="col colsHandlerCol">&nbsp;</td>
 	<td class="col goToCol lastCol">
 	{include file='common/blocks/admin/resource/actions/retrieve.tpl' disabled=(strpos($crudability, 'R')>-1)?0:1}	
 	</td>
+	{*<td class="col colsHandlerCol"></td>*}
 </tr>
 {foreachelse}
 <tr class="noData">

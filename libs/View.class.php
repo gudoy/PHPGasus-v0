@@ -213,7 +213,7 @@ $this->dump($allowed);
 		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		
 		// List of known platforms
-		$knownPlatforms = array('Windows','Mac OS','linux','freebsd','iPhone','iPod','iPad','Android','BlackBerry','Bada','AdobeAIR','tabbee','mobile','j2me');
+		$knownPlatforms = array('Windows','Mac OS','linux','freebsd','iPhone','iPod','iPad','Android','BlackBerry','Symbian','Bada','AdobeAIR','tabbee','mobile','j2me');
 		
 		foreach ( $knownPlatforms as $p )
 		{
@@ -626,11 +626,18 @@ $this->dump($allowed);
 			{				
 				if ( isset($prefs['application/xml']) && isset($prefs['application/xhtml+xml']) && isset($prefs['text/html']) )
 				{		
-					$prefs['application/xml'] = $prefs['application/xml']-(2);
+					$prefs['application/xml'] 	= $prefs['application/xml']-(2);
+					$prefs['text/html'] 		= 150;
 					
 					if ( isset($prefs['image/png']) ){ $prefs['image/png'] = $prefs['application/xml']-(5); }
 				}
 			}
+			
+			/*
+			if ( $this->browser['engine'] === 'webkit' && $this->platform['name'] === 'symbian' )
+			{
+				$prefs['text/html'] = 150;
+			}*/
 			
 			// Fix this damn big fucking shit of ie that even does not insert text/html as a prefered type 
 			// and prefers being served in their own proprietary formats (word,silverlight,...). MS screw you!!!!  
@@ -842,7 +849,9 @@ $this->dump($allowed);
 			class_exists('QRcode') || require(_PATH_LIBS . 'converters/phpqrcode.php');
 			$this->writeHeaders();
 			//exit(QRcode::png($this->data));
-			$url = $this->removeQueryParams('output', $this->currentURL());
+			//$url = $this->removeQueryParams('output', $this->currentURL());
+			$url = Tools::removeQueryParams('output', $this->currentURL());
+			$url = str_replace('.qr','', $url);
 			exit(QRcode::png($url));
 		}
 		else if ( $of == 'rss' ) { /* TODO */ }

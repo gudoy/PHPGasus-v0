@@ -19,9 +19,12 @@
 		<option {if $smarty.post[$resourceFieldName] == $val || $curVal === $val}selected="selected"{/if} value="{$val}">{$label}</option>
 		{/foreach}
 	</select>
-	<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}">
-		<span class="value">{t}add{/t}</span>
-	</a>
+	<nav class="actions">
+		<span class="or">{t}or{/t}</span>
+		<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}" title="{t 1=$relResourceSingular}add a new %1{/t}">
+			<span class="value">{t}add{/t}</span>
+		</a>
+	</nav>
 {elseif $data.total[$relResource] <= 100}
 	<input type="search" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} list="{$resourceFieldName}Options" placeholder="id{if $relDisplayField} or {$relDisplayField}{/if}"{if $curVal}value="{$curVal}"{/if} />
 	<datalist id="{$resourceFieldName}Options">
@@ -31,6 +34,12 @@
 		<option value="{$val}">{$val} - {$label}</option>
 		{/foreach}
 	</datalist>
+	<nav class="actions">
+		<span class="or">{t}or{/t}</span>
+		<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}" title="{t 1=$relResourceSingular}add a new %1{/t}">
+			<span class="value">{t}add{/t}</span>
+		</a>
+	</nav>
 {else}
 	<div class="current">
 		<span class="idValue{if !$curVal} empty{/if}">{$data[$resourceName][$fieldName]}</span>
@@ -42,11 +51,11 @@
 			{include file='common/blocks/actionBtn.tpl' id="search{$fieldName|ucfirst}Btn" classes="action search relItemSearchBtn" label={'search'|gettext} title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
 			{/if}
 			{*
-			<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}">
+			<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}" title="{t 1=$relResourceSingular}add a new %1{/t}">
 				<span class="value">{t}add{/t}</span>
 			</a>
 			*}
-		</nav>		
+		</nav>
 	</div>
 	<input type="hidden" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} data-relresource="{$relResource}" />
 {/if}

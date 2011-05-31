@@ -251,12 +251,13 @@ class VResources extends AdminView
 		$known = array(
 			'types' 	=> array(
 				# Texts
-				'string', 'varchar', 'slug', 'email', 'password', 'url', 'color', 'meta',
+				'string', 'varchar', 'slug', 'email', 'password', 'url', 'tel', 'color', 'meta',
 				'slug', 'tag', 
 				'text', 'html', 'code',
 				
 				# Numbers
 				'int', 'integer', 'numeric',
+				'tinyint', 'smallint', 'mediumint', 'bigint',
 				'float', 'real', 'double',
 				
 				# Booleans
@@ -282,7 +283,8 @@ class VResources extends AdminView
 					'tag' 			=> 'string', // alias of slug
 					'email' 		=> 'string', // + validator pattern
 					'password'		=> 'string', // + modifiers = sha1
-					'url' 			=> 'string', // + validator pattern 
+					'url' 			=> 'string', // + validator pattern
+					'tel' 			=> 'string', // + length = 20???, + pattern ? 
 					'color'			=> 'string', // + length = 32, + validator pattern (#hex, rgb(), rgba(), hsl(), ... ?)
 					'meta' 			=> 'string',
 					// texts (length=null)				
@@ -297,10 +299,10 @@ class VResources extends AdminView
 					'num'			=> 'integer', // + min = -2147483648, + max = 2147483648
 					'number'		=> 'integer', // + min = -2147483648, + max = 2147483648
 					
-					'tinyint' 		=> 'integer', // + min = -128, + max = 128 
-					'smallint' 		=> 'integer', // + min = -32768, + max = 32768
-					'mediumint' 	=> 'integer', // + min = -8388608, + max = 8388608
-					'bigint' 		=> 'integer', // + min = -9223372036854775808, + max = 9223372036854775808
+					'tinyint' 		=> 'tinyint', // + min = -128, + max = 128 
+					'smallint' 		=> 'smallint', // + min = -32768, + max = 32768
+					'mediumint' 	=> 'mediumint', // + min = -8388608, + max = 8388608
+					'bigint' 		=> 'bigint', // + min = -9223372036854775808, + max = 9223372036854775808
 					
 					// floats
 					'float' 		=> 'float',
@@ -462,6 +464,9 @@ echo $code;
 			
 			// '_url' 				=> 'url'
 			// 'url_' 				=> 'url'
+			
+			// 'phone' 				=> 'tel'
+			// 'mobile' 			=> 'tel'
 			
 			// is_ 					=> 'boolean'
 			// has_ 				=> 'boolean'

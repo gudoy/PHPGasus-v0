@@ -7,7 +7,8 @@
 			
 			<IfModule mod_headers.c>
 			
-				# Remote cookies from headers
+				# Remove cookies from headers
+				RequestHeader unset Cookie
 				Header unset Set-Cookie
 			
 			</IfModule>
@@ -16,5 +17,6 @@
 		
 		Include sites-available/performances.conf
 		Include sites-available/security.conf
+		Include sites-available/tweaks.conf
 		
 </VirtualHost>

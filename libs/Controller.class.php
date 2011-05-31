@@ -419,17 +419,23 @@ var_dump($args);
 		// Filter data
 		if ( $field['type'] === 'int' )
 		{
-			$filteredData = filter_var($f, FILTER_SANITIZE_NUMBER_INT);
+			//$filteredData = filter_var($f, FILTER_SANITIZE_NUMBER_INT);
+			$filteredData = Tools::sanitize($f, array('type' => 'int'));
 		}
 		else if ( $field['type'] === 'float' )
 		{
-			$filteredData = filter_var($f, FILTER_VALIDATE_FLOAT);
+			//$filteredData = filter_var($f, FILTER_VALIDATE_FLOAT);
+			$filteredData = Tools::sanitize($f, array('type' => 'float'));
 		}
-		else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'email' )
+		else if ( $field['type'] === 'tel')
+		{
+			$filteredData = Tools::sanitize($f, array('type' => 'tel'));
+		}
+		else if ( $field['type'] === 'email' || (!empty($field['subtype']) && $field['subtype'] === 'email') )
 		{
 			$filteredData = filter_var($f, FILTER_VALIDATE_EMAIL);
 		}
-		else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
+		else if ( $field['type'] === 'password' || (!empty($field['subtype']) && $field['subtype'] === 'password') )
 		{
 			$filteredData = $f;
 		}

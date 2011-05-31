@@ -3,7 +3,7 @@
 	
 	{block name='resourceColumnsFieldset'}
 	<fieldset>
-		<legend><span class="value">{t}Set resource data{/t}</span></legend>
+		<legend><span class="value">{t 1=$data._resources[$resourceName].singular|default:$resourceName}create new %1{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
 		{foreach $data.dataModel[$resourceName] as $fieldName => $field}

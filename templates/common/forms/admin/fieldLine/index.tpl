@@ -25,7 +25,7 @@
 
 
 {if $displayLine}
-<div class="line type{$field.type|ucfirst}{if $field.fk} typeOneToOne{/if}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
+<div id="{$fieldName}Field" class="line type{$field.type|ucfirst}{if $field.fk} typeOneToOne{/if}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
 	
 	<div class="labelBlock{if $field.comment} hasInfos{/if}">
 		{strip}
@@ -61,6 +61,8 @@
 		{include file='common/forms/admin/fieldLine/caseBool.tpl'}
 	{elseif $type === 'text'}
 		{include file='common/forms/admin/fieldLine/caseText.tpl'}
+	{elseif $type == 'tel'}
+		{include file='common/forms/admin/fieldLine/caseTel.tpl'}
 	{elseif $type === 'timestamp'}
 		{include file='common/forms/admin/fieldLine/caseTimestamp.tpl'}
 	{elseif $type === 'date'}

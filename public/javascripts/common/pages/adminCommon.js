@@ -440,12 +440,100 @@ Tools.log(id + ' - ' + txtVal);
 						;					
 				}
 			});
-		})
+		});
+		
+		$('a.addRelatedItemsLink', 'form')
+			.live('click', function(e)
+		{
+			e.preventDefault();
+			
+			var $btn 			= $(this),										// jQuery reference to the clicked button
+				//$select 		= $this.siblings('select'), 					// jQuery reference of the matching select input
+				dialog 			= $('body > .ui-dialog.adminCreateDialog'), 	// Try to find the matching dialog
+				urlDialog 		= $btn.attr('href') || '', 					// Get the url of the dialog content (clicked button href)
+				relResource 	= $btn.attr('data-relResource') || '', 		// Get the related resource name
+				relGetFields 	= $btn.attr('data-relGetFields') || ''; 		// Get the related resource getFields (~default name field)
+			
+			// If the dialog already exists, just open it
+			if ( dialog.length ) { return dialog.dialog('open'); }
+			
+			// Do not continue if the url of the dialog content if not found
+			if ( !urlDialog ) { return self; }
+			
+			// Get the creation form block for the related resource
+			$.ajax(
+			{
+				url: urlDialog,
+				type: 'GET',
+				dataType: 'html',
+				success: function(r)
+				{
+					// Append it to the body and make a modal dialog of it
+					$(r).appendTo('body').dialog({
+						width:'50%',
+						minWidth:200,
+						autoOpen: false,
+						dialogClass: 'adminDialog adminCreateDialog',
+						modal: true,
+						close: function(){ $(this).dialog('destroy').remove(); },
+						open: function()
+						{
+							var that = this;
+							
+							// TO DO: use event delegation?
+							$(that)
+								// Get the cancel button and make it close the dialog
+								.find('a.cancelBtn').click(function(e){ e.preventDefault(); $(that).dialog('close'); })
+								.end()
+								// Get the form and intercept the submit event
+								.find('form').bind('submit', function(e)
+							{
+								e.preventDefault();
+								
+								var $form 		= $(this),						// jQuery reference to the form
+									urlForm 	= $form.attr('action') || ''; 	// action url of the form 
+								
+								$.ajax(
+								{
+									url: urlForm,
+									type: 'POST',
+									data: $form.serialize(),
+									dataType: 'json',
+									success: function(r)
+									{
+										// Close the dialog
+										$(that).dialog('close');
+										
+										// Get the current column field, created resource id and build the proper new <option>
+										var $field 		= $btn.closest('.line').find(':input:first'),
+											newId 		= r[relResource].id,
+											newOpt 		= $('<option />', {value:newId, 'selected':'selected'}).text(r[relResource][relGetFields] || newId)
+										;
+										
+										// Do not continue if the field has not been found
+										if ( !$field.length ) { return; }
+										
+										// If field is input + has 'list' attribut, update related datalist options
+										if ($field.is('input') && $field.attr('list') != '' ){ $field.val(newId).siblings('datalist').append(newOpt); }
+										
+										// or if the input is a select, add a new option 
+										else if ( $field.is('select') ){ $field.append(newOpt).val(newId).css('border','1px solid green'); }
+										
+										// TODO: case not select nor datalist???
+										else { $field.val(newId); }
+									}
+								});
+							})
+						}
+					}).dialog('open');
+				}
+			});
+		});
 		
 		return this;
 	},
 	
-	
+	/*
 	handleForeigKeyFields: function()
 	{
 		var self = this;
@@ -512,7 +600,8 @@ Tools.log(id + ' - ' + txtVal);
 			e.preventDefault();
 			
 			var $this 			= $(this),										// jQuery reference to the clicked button
-				$select 		= $this.siblings('select'), 					// jQuery reference of the matching select input
+				//$select 		= $this.siblings('select'), 					// jQuery reference of the matching select input
+				
 				dialog 			= $('body > .ui-dialog.adminCreateDialog'), 	// Try to find the matching dialog
 				urlDialog 		= $this.attr('href') || '', 					// Get the url of the dialog content (clicked button href)
 				relResource 	= $this.attr('data-relResource') || '', 		// Get the related resource name
@@ -564,7 +653,7 @@ Tools.log(id + ' - ' + txtVal);
 									data: $form.serialize(),
 									dataType: 'html',
 									success: function(r)
-									{		
+									{	
 										// Update the dialog content
 										$(that).html( $(r).html() );
 										
@@ -610,7 +699,7 @@ Tools.log(id + ' - ' + txtVal);
 		});
 		
 		return this;
-	},
+	},*/
 	
 	handleOneToManyFields: function()
 	{
@@ -859,24 +948,30 @@ Tools.log(id + ' - ' + txtVal);
 	
 	handleDateFields: function()
 	{
+//Tools.log('handleDateFields');
+//Tools.log($.datetimepicker);
+		
+		/*
 		// If the datepicker module is loaded
-		if ( $.datetimepicker )
-		{
+		//if ( $.datetimepicker )
+		//{
 			$('input.datetime', 'form')
 				//.datepicker({
 	            .datetimepicker({ 
 					duration: '',  
-					//dateFormat: 'yy-mm-dd',
-					dateFormat: $.datepicker.W3C,
+					dateFormat: 'yy-mm-dd',
+					//dateFormat: $.datepicker.W3C,
+					timeFormat: 'hh:mm',
 					showTime: true,  
 					constrainInput: false,  
 					stepMinutes: 1,  
 					stepHours: 1,  
 					altTimeField: '',  
-					time24h: true  
+					time24h: true,
+					ampm:false
 			});	
-		}
-		
+		//}
+		*/
 		return this;
 	},
 	
@@ -955,7 +1050,7 @@ Tools.log(id + ' - ' + txtVal);
 		
 		return this;
 	}
-}
+};
 
 var adminIndex =
 {
@@ -1074,23 +1169,30 @@ var adminIndex =
 		var self      = this,
 		    list      = $('#colsHandlerManagerBlock');
 		    
-		$('a.colsHandlerLink', self.context).each(function()
+		$('#colsManagerLink', self.context).each(function()
 		{
-		    var $this     = $(this),
-                cBlock    = $this.next('.colsHandlerManagerBlock'),   // jQuery reference to the columns handler block
-		        tbodyH    = $('tbody', self.context).outerHeight(),
-		        newH      = ( tbodyH 
-		                      - parseInt(cBlock.css('padding-top')) - parseInt(cBlock.css('padding-bottom')) 
-		                      - parseInt(cBlock.css('border-top-width')) - parseInt(cBlock.css('border-bottom-width'))
-		                    ) || cBlock.css('height');
+		    var $this 		= $(this),
+                $cBlock 	= $this.next('.colsBlock'),   			// jQuery reference to the columns handler block
+		        tbodyH 		= $('tbody', self.context).outerHeight(),
+		        vPadding 	= (parseInt($cBlock.css('padding-top')) + parseInt($cBlock.css('padding-bottom'))) || 0,
+		        vBorders 	= (parseInt($cBlock.css('border-top-width')) - parseInt($cBlock.css('border-bottom-width'))) || 0,
+		        newH 		= (tbodyH - vPadding - vBorders) || $cBlock.css('height'),
+		        //maxH  	= (($cBlock.find('li:first').outerHeight() * ($cBlock.find('li').length + 2)) + vPadding + vBorders;
+		        // Fix jQuery 1.6.1 bug where outerHeight for children of hidden elements is inaccurate
+		        // TODO: replace by previous line when bug will have been fixed in the next release 
+		        maxH  		= ($cBlock.parent().addClass('active').end().find('li:first').outerHeight() 
+		        				* ($cBlock.parent().removeClass('active').end().find('li').length + 2)) 
+		        				+ vPadding + vBorders; 
+		    ;
 		    
 		    // Display the block
-		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); cBlock.toggleClass('hidden') });
+		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); $this.parent().toggleClass('active') });
 		    
-		    cBlock
+		    $cBlock
 		      // TODO: open a dialog instead of handling height dynamically 
 		      // (will prevents overflow issues when the table only contains few results)
-		      .height(newH)
+		      //.height(newH)
+		      .css({height: (newH > maxH ? maxH : newH) + 'px'})
 		      .bind('click', function(e)
 		    {
 		        //e.preventDefault();
@@ -1139,6 +1241,9 @@ var adminIndex =
                 
             // Do not continue if no input has been found
             if ( !$input.length ) { return; }
+            
+//Tools.log('val: ' + val);
+//Tools.log('colName: ' + colName);
             
             // Loop over the rows, re-displaying them by the way
             $tr.each(function()
@@ -1264,28 +1369,30 @@ var adminIndex =
 			if ( this.context.hasClass('ui-inlineedit-active') || this.context.hasClass('typeRel') ) { return this; }
 			
 			this.classes 		= this.context.attr('class') || '';
-			this.typeClass 		= this.classes.match(/type[A-Z]{1}\w*/g) ? this.classes.match(/type[A-Z]{1}\w*/g)[0] : '',
+			//this.typeClass 		= this.classes.match(/type[A-Z]{1}\w*/g) ? this.classes.match(/type[A-Z]{1}\w*/g)[0] : '',
+			this.typeClass 		= this.classes.split(' ')[3] || '',
 			this.subtypeClass 	= this.classes.match(/subtype[A-Z]{1}\w*/g) ? this.classes.match(/subtype[A-Z]{1}\w*/g)[0] : '',
 			this.type 			= this.typeClass.replace(/type/g,'').toLowerCase(); 					// Get the column data type
 			this.subtype 		= this.subtypeClass.replace(/subtype/g,'').toLowerCase(); 					// Get the column data type
-			//this.valCtnr 		= this.context.find('> .dataValue:first'); 								// Store a reference to the value container
 			this.valCtnr 		= this.context.find('> .dataValue'); 								// Store a reference to the value container
 			this.curVal 		= this.valCtnr.text() || ''; 											// Get the current value
-			//this.exactVal 		= this.valCtnr.siblings('.exactValue').text() || '';
 			this.exactVal 		= this.valCtnr.attr('data-exactvalue') || '';
-			this.boolVal		= this.valCtnr.find('.validity').hasClass('valid') || false
-			//this.colName 		= $('> .columName:first', this.context).text() || ''; 							// Get the column name
+			this.boolVal		= this.valCtnr.find('.validity').hasClass('valid') || false;					// Get the column name
 			this.colName 		= admin.resourceSingular + Tools.ucfirst(this.context.attr('headers').split(' ')[1] || '').replace(/(.*)Col/,'$1'); 							// Get the column name
 			this.resId 			= this.context.closest('tr').attr('id').replace(/row/,'') || '';
-			//this.url 			= $('> .fullAdminPath:first', this.context).text() || false; 						// Get the resource url
 			this.url 			= window.location.href.replace(/(.*)[\?|$](.*)/,'$1').replace(/(.*)\/$/,'$1') + '/' + this.resId;
 			this.saving 		= false;
-			//this.inputType 	= this.type === 'timestamp' ? 'datetime' : 'text';
 			this.inputType 		= 'text';
+
+//Tools.log(this.classes);
+//Tools.log(this.typeClass);
+//Tools.log(this.type);
 
 			if ( !this.url ){ return this; }
 			
-			if ( this.subtype === 'password' ){ this.inputType = 'password'; }
+			if 		( this.type === 'email' )									{ this.inputType = 'email'; }
+			else if ( this.type === 'tel' )										{ this.inputType = 'tel'; }
+			else if ( this.type === 'password' || this.subtype === 'password' )	{ this.inputType = 'password'; }
 			
 			switch (this.type)
 			{
@@ -1295,6 +1402,23 @@ var adminIndex =
 									+ '<label class="multi span">N</label>'
 									+ '<input type="radio" class="multi" name="' + this.colName + '" id="' + this.colName + 'N' + this.resId + '" value="0" ' + (!this.boolVal ? 'checked="checked"' : '') + '/>';
 					break;
+				case 'enum':
+//Tools.log(this.context.attr('id').replace(/Col$/, 'FilterCol') || '');
+					this.fieldHTML = $('#' + (this.context.attr('id').replace(/Col[\d]+$/, 'FilterCol') || ''))
+										.find('select')
+										.parent()
+										.clone()
+										.find('select')
+										.attr({id: this.colName, name: this.colName, value:this.exactVal})
+										.find('option[value=' + this.exactVal + ']').attr('selected','selected')
+										.end()
+										.end()
+										.html()
+
+//Tools.log(this.exactVal);
+					break;
+				case 'email':
+				case 'tel':
 				case 'varchar' :
 					this.curVal = this.exactVal;
 				case 'timestamp':
@@ -1312,6 +1436,8 @@ var adminIndex =
 									+ '<button class="action cancel adminLink cancelLink" type="cancel" id="cancelLink' + this.resId +'">cencel</button>'
 								+ '</div>';
 			this.HTML 			= '<div class="ui-inlineedit-form"><form>' + this.fieldHTML + this.buttonsHTML + '</form></div>';
+
+//Tools.log(this.HTML)
 
 			// Do not continue if the data type is not a varchar
 			if ( !this.fieldHTML ) { return this; }
@@ -1343,7 +1469,7 @@ var adminIndex =
 						e.stopPropagation();
 						
 						// Select the text
-						$(this)[0].select();
+						if ( $(this).is('input') ){ $(this)[0].select(); }
 					})
 					.bind('keypress', function(e)
 					{
@@ -1407,6 +1533,14 @@ var adminIndex =
 				input.val(newVal);
 					
 				//self.valCtnr.text(newVal);
+			}
+			else if ( self.type === 'tel' )
+			{
+				var newVal = input.val().replace(/\D/,'') || '';
+				
+				input.val(newVal);
+					
+				self.valCtnr.text(newVal);
 			}
 			
 			 $.ajax(
@@ -1590,12 +1724,13 @@ var adminCreate =
 		admin.init();
 		
 		admin
-			.handleForeigKeyFields()
+			//.handleForeigKeyFields()
 			.handleSlugFields()
 			.handleDateFields()
 			.handleOneToOneFields()
 			.handleOneToManyFields()
-			.handleFileFields();
+			.handleFileFields()
+		;
 		
 		return this;
 	}
@@ -1609,13 +1744,14 @@ var adminUpdate =
 		admin.init();
 		
 		admin
-			.handleForeigKeyFields()
+			//.handleForeigKeyFields()
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()
 			.handleOneToOneFields()
 			.handleOneToManyFields()
-			.handleFileFields();
+			.handleFileFields()
+		;
 		
 		return this;
 	}

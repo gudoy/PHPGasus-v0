@@ -14,7 +14,7 @@
 {else}
 	{$allowEdit=false}
 {/if}
-<input type="password" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" class="sized" value="" {if $mode !== 'create'}disabled="disabled"{/if}{if $isRequired} required="required"{/if} />
+<input type="password" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" class="sized" value="" {if $mode !== 'create'}disabled="disabled"{/if}{if $isRequired} required="required"{/if} autocomplete="off" />
 {if $allowEdit && $mode !== 'create'}
-{include file='common/blocks/actionBtn.tpl' mode='button' btnClasses="changeValBtn changePassBtn" btnId={'change'|cat:{$resourceFieldName|ucfirst}} btnLabel={'change'|gettext}}
+{include file='common/blocks/actionBtn.tpl' mode='button' classes="changeValBtn changePassBtn" id={'change'|cat:{$resourceFieldName|ucfirst}} label='change'|gettext}
 {/if}

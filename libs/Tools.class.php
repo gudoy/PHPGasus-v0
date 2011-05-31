@@ -14,6 +14,8 @@ class Tools
             'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o',
             'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b',
             'ÿ'=>'y', 'Ŕ'=>'R', 'ŕ'=>'r',
+            // add gudoy
+            'Œ' => 'oe',
         );
         return strtr($str,$charsTable);
     }
@@ -58,8 +60,24 @@ class Tools
 
     static function getCurrentURL()
     {
+    	$protocol 		= 'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' :'' ) . '://';
+		$host 			= $_SERVER['SERVER_NAME'];
+		
+		$tmp 			= parse_url($protocol . $host . $_SERVER['REQUEST_URI']);
+		$tmp['query'] 	= isset($tmp['query']) ? urlencode(urldecode($tmp['query'])) : '';
+		$path 			= join('', $tmp);
+		
+//var_dump($_SERVER['REQUEST_URI']);
+//var_dump($tmp);
+//var_dump(urldecode($_SERVER['REQUEST_URI']));
+//var_dump($protocol . $host . $_SERVER['SERVER_NAME']);
+//var_dump(join('', $tmp));
+//var_dump(http_build_url($tmp));
+//die();
+		
         //return 'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' :'' ) . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        return 'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' :'' ) . '://' . $_SERVER['SERVER_NAME'] . urldecode($_SERVER['REQUEST_URI']);
+        return $protocol . $host . $_SERVER['REQUEST_URI'];
+        //return http_build_url($tmp);
     }
 
 
@@ -290,7 +308,45 @@ class Tools
         }
         
         return $data;
-    }
+    } 
+
+	// TODO
+	static function validate($value, $params = array())
+	{
+		
+	}
+
+	static function sanitize($value, $params = array())
+	{
+		$p = array_merge(array(
+			'type' => 'string'
+		), $params);
+
+		// ints
+		if ( in_array($p['type'], array('int', 'integer', 'numeric', 'tinyint', 'smallint', 'mediumint', 'bigint')) )
+		{
+			$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+			//$value = intval($value);
+		}
+		// floats
+		if ( in_array($p['type'], array('float', 'real', 'double')) )
+		{
+			$value = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT);
+			//$value = floatval($value);
+		}
+		// phone number
+		else if ( $p['type'] === 'tel' )
+		{
+			$value = preg_replace('/\D/', '', $value);
+		}
+		// TODO: all other types
+		else
+		{
+			$value = filter_var($value, FILTER_SANITIZE_STRING);
+		}
+		
+		return $value;
+	}
 }
 
 ?>

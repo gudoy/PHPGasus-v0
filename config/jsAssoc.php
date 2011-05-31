@@ -19,7 +19,7 @@ $jsAssoc    = array(
 	
     # PHPGasus defaults
 	'default'              => array('jqueryPlusUI', 'modernizr', 'tools', 'common/app.js'),
-	'admin'                => array('default', $pages . 'adminCommon.js', 'timepicker'),
+	'admin'                => array('default', 'timepicker', $pages . 'adminCommon.js'),
 	'adminHome'            => array('admin', $pages . 'adminSpecifics.js'),
 	'accountLogin'         => array('default', $libs . 'jquery.cookie.js', $pages . 'account/login.js'),
 	'apiHome'              => array('default', $pages . 'api/home.js'),

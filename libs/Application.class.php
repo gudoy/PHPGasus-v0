@@ -26,7 +26,7 @@ class Application
         //$this->configEnv();
 		$this->handleSession();
 		$this->setlanguage();
-        
+		
 		
 		$this->inited = true;
 	}
@@ -68,9 +68,81 @@ class Application
         return $this;
     }
 	
+	public function setLanguage($lang = null)
+	{
+		// Get known languages and force them into lowercase
+		$known 		= defined('_APP_LANGUAGES') && is_array(_APP_LANGUAGES) 
+						? explode(',', strtolower(join(',', _APP_LANGUAGES))) 
+						: explode(',', strtolower(_APP_LANGUAGES));
+		
+		// Get  Accept-Language http header 
+		// fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
+		$accptHeader = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']) : '';
+		
+//var_dump($accptHeader);
+
+//$this->dump('_APP_LANGUAGES: ' . _APP_LANGUAGES);
+//$this->dump($known);
+//$this->dump('accept header: ' . $accptHeader);
+		
+		// Try to find lang in GET param
+		if ( empty($lang) && in_array(strtolower($_GET['lang']), $known) )		{ $lang = strtolower($_GET['lang']); }
+		
+		// Try to find lang in POST param
+		if ( empty($lang) && in_array(strtolower($_POST['lang']), $known) )		{ $lang = strtolower($_POST['lang']); }
+		
+		// Try to find lang in SESSION param
+		if ( empty($lang) && in_array(strtolower($_SESSION['lang']), $known) )	{ $lang = strtolower($_SESSION['lang']); }
+		
+		// If the lang has not been found and if there's an Accept-Llanguage http header
+		if ( empty($lang) && !empty($accptHeader) )
+		{
+			$acptLangs 	= array(); 						//  
+			$lgs 		= explode(',', $accptHeader); 	// Split it
+			
+			// Loop over them and build an array of the form (lang => priority)
+			foreach ( (array) $lgs as $lg )
+			{
+				$pos 				= strpos($lg, ';q=');
+				$key 				= $pos !== false ? substr($lg, 0, $pos) : $lg;
+				$acptLangs[$key] 	= $pos ? substr($lg, $pos + 3) : 1;
+			}
+			
+			// Sort array by value
+			arsort($acptLangs);
+			
+//$this->dump($acptLangs);
+			
+			// Check for match between accepted languages and known ones
+			foreach ($acptLangs as $lg) { if ( in_array($lg, $known) ){ $lang = $lg; break; } }
+		}
+		
+		// If the lang has still not been found, use the default language
+		if ( empty($lang) && defined('_APP_DEFAULT_LANGUAGE') ) { $lang = strtolower(_APP_DEFAULT_LANGUAGE); }
+
+//$this->dump('lang: ' . $lang);
+//die();
+
+		$parts 		= strpos($lang, '_') !== false ? explode('_', $lang) : array($lang);  
+		$language 	= $parts[0];
+		$territory 	= strtoupper( !empty($parts[1]) ? $parts[1] : $parts[0] );
+		$codeset 	= 'UTF-8';
+		$locale 	= $language . '_' . $territory . '.' . $codeset;
+		
+		// Set locale & gettext conf
+		putenv('LANG=' . $locale);
+		putenv('LC_ALL=' . $language . '_' . $territory);
+		$lc = setlocale(LC_ALL, $locale, $language . '_' . $territory, $language);
+		bindtextdomain(_APP_NAME, _PATH_I18N);
+		textdomain(_APP_NAME);
+		bind_textdomain_codeset(_APP_NAME, $codeset);
+		
+		// Store the current lang
+		$_SESSION['lang'] 	= $language . '_' . $territory;
+	}
 	
-	// TODO: clean & refactor
-	public function setlanguage($lang = '')
+	
+	public function setlanguage_old($lang = '')
 	{
 		$this->log(__METHOD__);
 		
@@ -408,13 +480,16 @@ class Application
 			ini_set('xdebug.var_display_max_depth', 6);
 			//ini_set('xdebug.var_display_max_data', 4096);
 			ini_set('xdebug.var_display_max_data', 40000);
-			//ini_set('xdebug.max_nesting_level', 500); // default is 100, which can be cumbersome with smarty
 		}
 		else
 		{
 			// Report simple running errors
 			error_reporting(E_ERROR | E_PARSE);
-		} 
+		}
+		
+		// 
+		ini_set('xdebug.max_nesting_level', 500); // default is 100, which can be cumbersome with smarty
+
 
 		// Force timezone
 		//$old = date_default_timezone_get();
@@ -456,6 +531,7 @@ class Application
 	}
 	
 	
+	/*
 	public function requireClass($name, $type, $shortPath = '')
 	{
         $this->log(__METHOD__);
@@ -470,6 +546,25 @@ class Application
 			case 'models': 		class_exists($name) || require(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
 			//case 'views': 		class_exists($name) || require(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
 			case 'views': 		class_exists($name) || require(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
+		}
+		
+		return $this;
+	}*/
+	
+	public function requireClass($name, $type, $shortPath = '')
+	{
+        $this->log(__METHOD__);
+		
+		switch ($type)
+		{
+			//case 'libs': 		class_exists($name) || require(_PATH_LIBS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
+			case 'libs': 		class_exists($name) || include_once(_PATH_LIBS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
+			//case 'controllers': class_exists($name) || require(_PATH_CONTROLLERS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
+			case 'controllers': class_exists($name) || include_once(_PATH_CONTROLLERS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
+			//case 'models': 		class_exists($name) || require(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
+			case 'models': 		class_exists($name) || include_once(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
+			//case 'views': 		class_exists($name) || require(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
+			case 'views': 		class_exists($name) || include_once(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
 		}
 		
 		return $this;
@@ -582,6 +677,87 @@ class Application
 		
 		return $data;
 	}
+
+	public function request($url, $params = array())
+	{
+		$p = &$params;
+		
+		// TODO: validate URL?
+		//$url = !filter_var($url, FILTER_VALIDATE_URL) ? die('Error: Invalid wsCall Url') : $url;
+		
+		// Set default params
+		$default = array(
+			'method' 		=> 'GET',								// default method
+			'content-type' 	=> 'application/x-www-form-urlencoded', // default output format
+			'accept' 		=> 'text/html;', 						//
+			'body' 			=> '',
+		);
+		$known = array(
+			'methods' 	=> array('get','post','put','delete'),
+			'accept' 	=> array(),
+			'output' 	=> array(
+				'json' 		=> 'application/json;',
+				'xml' 		=> 'text/xml; application/xml;',
+				'html' 		=> 'text/html;',
+				'xhtml' 	=> 'application/xhtml+xml; text/html;',
+			),
+		);
+		
+		// Init final request params
+		$rqP = array();
+		
+		// Output data
+		$data = array();
+		
+		
+		# Handle method
+		// Get passed one of set it to default value
+		$rqP['method'] = !empty($p['method']) && in_array(strtolower($p['method']), $kown['methods']) 
+							? strtolower($p['method']) 
+							: $default['method'];
+		
+		# Handle accept header (accepted output(s))
+		// if 'output' param passed an if it's a known output, use id
+		// otherwise get passed 'accept' params or set it to default value 
+		$rqP['accept'] = !empty($p['output']) && isset($known['output'][strtolower($p['output'])])
+							? $known['output'][strtolower($p['output'])]
+							: (!empty($p['accept']) ? $p['accept'] : $default['method']);
+		
+		// Try to use HttpRequest extension (PECL extension)
+		if 		( extension_loaded('http') )
+		{
+			// Init the request
+			$req = new HttpRequest($url, constant('HttpRequest::METH_' . strtoupper($rqP['method'])));
+			
+			$req->addHeaders(array('Content-Type'=> $p['content-type']));
+			$req->addHeaders(array('Accept'=> $p['accept']));
+			
+			// Send the request
+		    $req->send();
+			
+			// Get the status code
+			$data = array(
+				'statusCode' 	=> $req->getResponseCode(),
+				'body' 			=> $req->getResponseBody()
+			);
+		}
+		// Otherwise try to use CURL extension
+		else if ( extension_loaded('curl') )
+		{
+			// TODO
+		}
+		// Otherwise
+		else
+		{
+			// TODO
+			// http://wezfurlong.org/blog/2006/nov/http-post-from-php-without-curl/
+			// http://query7.com/http-request-without-curl
+		}
+		
+		# Handle response
+		
+		return; // data? object?
+	}
 	
 	
 	public function wsCall($uri, $options = array())
@@ -622,7 +798,7 @@ class Application
 			default: 		$accept = 'text/html;';  break;
 		}
 		
-		$request->addHeaders(array('Content-Type'=>'application/x-www-form-urlencoded'));
+		$request->addHeaders(array('Content-Type'=> !empty($o['Content-Type']) ? $o['Content-Type'] : 'application/x-www-form-urlencoded'));
 		$request->addHeaders(array('Accept'=> $accept));
 		
 		// For POST, PUT, requests, add the query data
@@ -658,24 +834,9 @@ class Application
 			
 			// If the request is successfull, just return data
 		    if 	( $data['statusCode'] === 200 ) { return $data; }
-			
-			// Otherwise, try to handle errors
-			
-			/*
-			// Session expired
-			if ( $data['errors']['code'] == 140102 )
-			{
-				class_exists('CUsers') || require(_PATH_CONTROLLERS . 'CUsers.class.php');
-				
-				// Force logout (session has to be properly emptied)
-				CUsers::logout();
-				
-				// Then return redirect to the login, with
-				return $this->redirect(_URL_LOGIN . '?errors=10100');
-			}
-			*/
 		}
-		catch (HttpException $ex) { $data['errors']['code'] = 12000; /*echo 'TODO: exception on logout when lost session ?';*/ }
+		//catch (HttpException $ex) { $data['errors']['code'] = 12000; /*echo 'TODO: exception on logout when lost session ?';*/ }
+		catch (HttpException $ex) { }
 		
 		return $data;
 	}

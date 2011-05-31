@@ -56,7 +56,7 @@ define("_PATH",							realpath((dirname(realpath(__FILE__))) . '/../') . '/'); /
 # Get app name using base projet folder name
 define("_APP_NAME", 					basename(_PATH));
 
-# Get Path relatively to server root
+# Get path relatively to server root
 define("_PATH_REL", 					str_replace($_SERVER['DOCUMENT_ROOT'], '', _PATH));
 
 // If a server name has been defined, use it

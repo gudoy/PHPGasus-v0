@@ -568,6 +568,9 @@ class AdminView extends View
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
 		{
+			// Get the created resource
+			$this->data[$this->resourceName] = $this->C->retrieve(array('by' => 'id', 'values' => $this->resourceId));
+			
 			$this->logAdminAction(array('action' => __FUNCTION__));
 						
 			$successRedir = !empty($_POST['successRedirect']) ? $_POST['successRedirect'] : false;

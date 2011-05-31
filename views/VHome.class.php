@@ -11,7 +11,7 @@ class VHome extends View
 	
 	
 	public function index($options = null)
-	{		
+	{
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name' 			=> 'home',
 			'method' 		=> __FUNCTION__,

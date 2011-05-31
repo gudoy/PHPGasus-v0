@@ -1,8 +1,8 @@
 {nocache}{strip}
 {include file='common/config/shortcuts.tpl' scope='root'}
+{/strip}
 {if !$view.isAjaxRequest && (!$smarty.get.tplSelf || $smarty.get.tplSelf != true)}
 {include file='common/config/doctype.tpl'}
-{/strip}
 <head>
 {include file='common/config/metadata.tpl'}
 
@@ -16,7 +16,9 @@
 </head>
 {/nocache}
 
-<body class="{include file='common/config/css/bodyClasses.tpl'}" id="{$view.cssid|default:$view.smartname|default:'noSpecificId'}">    
+{block name='body'}
+<body>    
+{block name='bodyContent'}
 
     {include file='common/config/flush/onBodyStart.tpl'}	
 	{include file='common/config/js/detectjs.tpl'}
@@ -29,8 +31,10 @@
 	</div>
 	
 	{include file='common/config/js/js.tpl'}
-	
+
+{/block}	
 </body>
+{/block}
 </html>
 {else}
 {include file='common/config/shortcuts.tpl' scope='root'}

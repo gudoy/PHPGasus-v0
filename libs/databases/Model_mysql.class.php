@@ -1073,16 +1073,10 @@ class Model extends Application
 //$this->dump($field['relResource']);
 					
 					// Get proper table name
-					//$field['relResource'] = ( !empty($this->resources[$field['relResource']]['table'] )
-												//? $this->resources[$field['relResource']]['table']
-											//: $field['relResource'] );
-					$field['relTable'] = ( !empty($this->resources[$field['relResource']]['table'] )
+					$field['relTable'] 	= ( !empty($this->resources[$field['relResource']]['table'] )
 												? $this->resources[$field['relResource']]['table']
 											: $field['relResource'] );
-//$this->dump($field['relResource']);
-					
-					//$queryTables[] = _DB_TABLE_PREFIX . $field['relResource'];
-					$queryTables[] = _DB_TABLE_PREFIX . $field['relTable'];
+					$queryTables[] 		= _DB_TABLE_PREFIX . $field['relTable'];
 					
 
 					if ( !empty($field['relGetFields']) )
@@ -1093,10 +1087,6 @@ class Model extends Application
 						// 2 possible models for the fields list:
 						// case 1: array({$field1} => {$getField1As}, {$field2} => {$getField2As}, ...
 						// case 2: or array({$field1}, {$field2}, ...)
-						
-//$this->dump($tmpFields);
-//$this->dump($field);
-						
 						foreach ($tmpFields as $key => $val)
 						{
 							// Check the row index type to know in which case we are
@@ -1110,10 +1100,6 @@ class Model extends Application
 													? $this->resources[$field['relResource']]['alias'] . $ljcount
 													//: $this->resources[$field['relResource']]['alias'] . $ljcount;
 													: $this->resources[$field['relResource']]['alias'];
-													
-//$this->dump($tmpFieldName);
-//$this->dump($field['relResource']);
-//$this->dump($this->resources[$field['relResource']]['alias']);
 							
 							$storingName 	= $which === 2 ? ( !empty($field['relGetAs']) ? $field['relGetAs'] : null) : $val;
 							$this->queryData['fields'][$storingName] = array(
@@ -2140,7 +2126,7 @@ class Model extends Application
                             //|| ( is_array($values) && count($values) === 1 && isset($values[0]) && ( is_null($values[0]) || ( strtolower($values[0]) === 'null' ) ) )
                        ) ? ( $usedOperator === '!=' ? 'IS NOT' : 'IS' ) : $usedOperator;
 			
-			// Special case if the operator is = or != and passed values are multiple
+			// Special case if the operator is "=" or "!=" and passed values are multiple
 			$usedOperator  = in_array($usedOperator, array('=','!=')) && $multiValues ? ( $usedOperator === '!=' ? 'NOT IN' : 'IN' ) : $usedOperator;
 			
 			// Do not continue if the current values are multiple whereas the operator throwing a warning by the way
@@ -2155,9 +2141,6 @@ class Model extends Application
             $oParenthesis   = isset($condition[4]) && strtolower($condition[4]) === 'first' ? '( ' : '';
 			$cParenthesis   = (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
             //$cParenthesis   = !empty($oParenthesis) || (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
-			
-//$this->dump($oParenthesis);
-//$this->dump($cParenthesis);
 
 			// Special case when multiple fields are passed
 			// Since we cannot handle more than 1 field at a time,

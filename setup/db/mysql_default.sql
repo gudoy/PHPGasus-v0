@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `defaultNameField` varchar(32) default NULL,
   `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
   `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 

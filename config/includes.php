@@ -7,12 +7,12 @@ $confFile = dirname(__FILE__) . '/config.php';
 include($confFile);
 
 // Load Application Data
-require("appData.php");
+require('appData.php');
 
 // Load Paths & URLs File
-require("routes.php");
+require('routes.php');
 
 // Load specific config files
-require(_PATH_LIBS . "specific/functions.php");
+require(_PATH_LIBS . 'specific/functions.php');
 
 ?>

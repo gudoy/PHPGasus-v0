@@ -1,5 +1,5 @@
 <VirtualHost *:80>
-		ServerName android.mynewproject.com
+		ServerName mynewproject.com
 		DocumentRoot "/var/www/mynewproject/"
 
 		<Directory "/var/www/mynewproject/">
@@ -9,14 +9,15 @@
 			AllowOverride All
 		
 			RewriteEngine on
-			RedirectMatch ^/admin/?(.*)? http://admin.mynewproject.com/$1
-			RewriteRule ^((?!index|public).*) index.php/android/$1/%{QUERY_STRING}	[L]	
+			#RedirectMatch ^admin/?(.*)? http://devadmin.mynewproject.com/$1
+			RewriteRule ^((?!index|public).*) index.php/$1/%{QUERY_STRING}	[L]
 
 			SetEnv APP_CONTEXT prod
 		
 		</Directory>
-		
+
 		Include sites-available/performances.conf
 		Include sites-available/security.conf
+		Include sites-available/tweaks.conf
 
 </VirtualHost>

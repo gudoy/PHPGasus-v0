@@ -1,5 +1,5 @@
 <?php
-class_exists('View') 	|| require(_PATH_LIBS . 'View.class.php');
+//class_exists('View') 	|| require(_PATH_LIBS . 'View.class.php');
 
 class Mailer extends View
 {
@@ -7,9 +7,11 @@ class Mailer extends View
 	public $success 	= null;
 	public $errors 		= null;
 	
-	public function __construct()
+	public function __construct(&$application)
 	{
 		parent::__construct();
+		
+		$this->configSmarty();
 		
 		return $this;
 	}

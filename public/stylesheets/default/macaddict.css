@@ -18,7 +18,7 @@ input,
 button { font-family:Arial, Helvetica, sans-serif; font-size:12px; }
 
 a { color:#3c65d7; /*text-decoration:none;*/ }
-#mainCol section .titleBlock .title a { color:#000; } 
+#mainCol section .titleBlock .title a { color:#000; }
 
 /* Sart Forms */
 form .buttonsLine::after,
@@ -81,6 +81,7 @@ background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt
 .fieldBlock .current .textValue { padding:0 10px; /*display:inline-block;*/ border-left:1px solid #fff; border-right:1px solid #B4B4B4; vertical-align:middle; }
 .fieldBlock .current .actions { padding:0 5px; display:inline-block; vertical-align:middle; border-left:1px solid #fff; }
 .fieldBlock .current .action { min-height:24px; margin-right:0; cursor:pointer; }
+.fieldBlock .actions .or { font-style:italic; font-size:10px; color:#999; }
 
 
 /* Start Buttons */
@@ -296,7 +297,9 @@ section h4 a,
 #apisBlock .prop .values { width:100%; display:inline-block; vertical-align:top; word-wrap:break-word; }
 #apisBlock .prop .samples { display:block; }
 #apisBlock .samplesURI a { display:block; }
+#apisBlock .expectedInputData dt,
 #apisBlock .possibleErrors dt { width:40%; display:inline-block; }
+#apisBlock .expectedInputData dd,
 #apisBlock .possibleErrors dd { width:59%; display:inline-block; }
 
 /* End API */
