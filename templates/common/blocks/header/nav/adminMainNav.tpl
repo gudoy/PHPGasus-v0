@@ -1,7 +1,6 @@
 {$useGroups         = $smarty.const._APP_USE_RESOURCESGROUPS|default:false}
 {$resources         = $data._resources}
 {$resourcesGroups   = $data._resourcesGroups}
-
 {if $useGroups && $resourcesGroups}
 <ul class="nav section main nav-lv1" id="adminMainNav">
     {block name='adminMainNavItems'}

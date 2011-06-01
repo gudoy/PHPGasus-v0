@@ -32,7 +32,10 @@ var ui =
 {
 	init: function()
 	{
-		var detailSel = '#myAccountNavBlock';
+		var detailSel 	= '#myAccountNavBlock',
+			mainNavSel 	= '#mainNavBlock';
+		
+		$('#mainNavTitle').click(function(e){ e.preventDefault(); e.stopPropagation(); $(mainNavSel).toggleClass('expanded'); });
 		
         $('#goToMyAccountDetailsLink').bind('click', function(e)
         {

@@ -6,24 +6,41 @@
 
 {block name='accountNavLogoutLink'}{/block}
 
-{block name='headerNav'}
-{include file='common/blocks/admin/nav/main.tpl'}
+{block name='mainNav'}
+{include file='common/blocks/header/nav/adminMainNav.tpl'}
 {/block}
+
+{block name='accountNav'}{/block}
 
 {block name='breadcrumbs'}
 {include file='common/blocks/header/breadcrumbs.tpl'}
 {/block}
 
 {block name='asideContent'}
-
-	{block name='adminSearch'}
-	{include file='common/blocks/admin/search/search.tpl'}
-	{/block}
-
-	{*block name='secondNav'}
-	{include file='common/blocks/admin/nav/secondNav.tpl'}
-	{/block*}
+	
+	<div id="asideContent">
+		{block name='adminSearch'}
+		{include file='common/blocks/admin/search/search.tpl'}
+		{/block}
+	</div>
 		
+{/block}
+
+{block name='asideFooter'}
+	<footer class="menu" id="asideFooter">
+		<ul>
+			<li id="asideColToggler">
+				<a class="toggle plus" id="showAsideCol"><span class="value">{t}show{/t}</span></a>
+				<a class="toggle minus" id="hideAsideCol"><span class="value">{t}hide{/t}</span></a>
+			</li>
+			<li id="asideMoreOptions">
+				<a class="more" id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
+			</li>
+			<li id="asideResizer">
+				<a class="resize" id="asideResizeLink"><span class="value">{t}resize{/t}</span></a>
+			</li>
+		</ul>
+	</footer>
 {/block}
 
 {* TODO: create rule via js instead??? *}

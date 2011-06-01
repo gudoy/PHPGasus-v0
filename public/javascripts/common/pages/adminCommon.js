@@ -29,9 +29,55 @@ var admin =
 	    this.search.init();
 	    
 	    this
+	    	.aside()
 	    	.menu()
 	    	.handleMultiLangFields();
 	    
+		return this;
+	},
+	
+	aside: function()
+	{
+		var self 	= this
+			context = '#sideCol';
+		
+		$('#asideColToggler').click(function(e)
+		{
+			e.preventDefault;
+			e.stopPropagation(); 
+			$(this).toggleClass('active');
+			$(context).toggleClass('collapsed expanded'); 
+		});
+		
+		//$(context).resizable();
+		//$('footer', context).resizable({alsoResize:context});
+		//$('#asideResizer').bind('drag', function(e,ui){ $(context).resize(e,ui); })
+		
+		/*
+		var curW = null;
+		
+		$('#asideResizer').draggable(
+		{
+			axis: 'x',
+			opacity:0,
+			cursor: 'col-resize',
+			helper: 'clone',
+			drag:function(e,ui)
+			{
+//Tools.log(ui.offset);
+//Tools.log(ui.position);
+
+//Tools.log(Math.abs(ui.offset.left));
+				var newW = Math.abs(ui.offset.left);
+
+				if ( !curW || newW != curW )
+				{
+					$(context).css({width:newW});
+					curW = newW;	
+				}
+			}
+		});*/
+		
 		return this;
 	},
 	

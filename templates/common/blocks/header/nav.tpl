@@ -1,14 +1,14 @@
 {nocache}
-<div class="navBlock mainNavBlock" id="mainNavBlock">
-
-	{block name='adminMainNav'}{/block}
+<nav class="navBlock mainNavBlock" id="mainNavBlock">
+	
+	<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
 	
 	{block name='mainNav'}
 	{include file='common/blocks/header/nav/mainNav.tpl'}
 	{/block}
 	
 	{block name='accountNav'}
-	{if $smarty.const._APP_USE_ACCOUNTS}
+	{if $smarty.const._APP_USE_ACCOUNTS && _APP_ALLOW_SIGNUP}
 	<ul class="nav accountNavList" id="accountNav">
 	{if $data.logged}
 		{block name='accountNavLogoutLink'}
@@ -30,5 +30,5 @@
 	{/if}
 	{/block}
 	
-</div>
+</nav>
 {/nocache}

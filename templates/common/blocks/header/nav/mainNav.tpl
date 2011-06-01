@@ -1,4 +1,4 @@
-{$current=$view.current.menu|default:'home'}
+{$current = $view.current.menu|default:'home'}
 <ul class="nav main" id="mainNav">
 	{if $mainNavItems}
 	{foreach $mainNavItems as $label => $url}{strip}

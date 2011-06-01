@@ -1,7 +1,6 @@
 {$search		= $data.search}
 {$current		= $data.current}
 {$type 			= $search.type|default:'contextual'}
-<a id="searchToggler" href="#adminSearchBlock"><span class="label">{t}toggle search{/t}</span></a>
 <section class="searchBlock adminSearchBlock" id="adminSearchBlock">
 
     <header class="titleBlock">

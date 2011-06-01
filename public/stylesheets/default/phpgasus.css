@@ -11,7 +11,9 @@ input:focus { outline:1px dotted black; }
 
 a img { border:none; }
 
+/*
 a.more { float:right; text-align:right; }
+*/
 
 a.file { margin-left:19px; vertical-align:middle; }
 a.file:before { width:16px; height:16px; margin-left:-19px; overflow:hidden; display:inline-block; position:relative; content:' '; background:url(images/commonIconsSprites.png) no-repeat -32px -96px; vertical-align:middle; text-decoration:none; font-size:1%; }
@@ -363,7 +365,6 @@ table thead .sort.asc { margin-bottom:4px; }
 #languagesBlock li { display:none; }
 #languagesBlock li .value { display:none; }
 #languagesBlock li.current { display:inline-block; }
-
 
 #layout:after,
 #header:after,

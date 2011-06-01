@@ -16,6 +16,7 @@
     	{block name='aside'}
     	<aside class="aside col expanded" id="sideCol" role="complementary">
     		{block name='asideContent'}{/block}
+    		{block name='asideFooter'}{/block}
     	</aside>
     	{/block}
     	
