@@ -19,6 +19,7 @@ input,
 button { font-family:Arial, Helvetica, sans-serif; font-size:12px; }
 
 a { color:#3c65d7; }
+.adminTable thead th a,
 #mainCol section .titleBlock .title a { color:#000; }
 
 /* Sart Forms */
@@ -80,7 +81,7 @@ background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt
 .fieldBlock .actions .or { font-style:italic; font-size:10px; color:#999; }
 
 
-/* Start Buttons */
+/* Start Buttons & Icons */
 .action { text-decoration:none; color:#000; }
 .action .value { text-shadow:1px 1px 0 rgba(255, 255, 255, 0.6); }
 input[type='submit'],
@@ -111,7 +112,13 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .adminListToolbar { padding:5px 5px; background:#e7e7e7; border:1px solid #B4B4B4; }
 .adminListToolbar.top { border-bottom-width:0; border-bottom-left-radius:0; border-bottom-right-radius:0; }
 .adminListToolbar.bottom { border-top:0; -webkit-border-radius:0; -moz-border-radius:0; border-radius:0; }
-/* End Buttons */
+
+
+.apisBlock .success { color:#090; background-image:none; }
+.apisBlock .errors { color:#C00; background-image:none; }
+.apisBlock .warning { color:#F90; background-image:none; }
+.apisBlock .infos { color:#06C; background-image:none; }
+/* End Buttons & Icons */
 
 .ui-inlineedit-form button.action { border:none; text-indent:-999em; }
 
@@ -162,6 +169,8 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 
 
 /* Start Tables */
+.commonTable thead .title { text-shadow:1px 1px 0 rgba(255,255,255,0.8); }
+.commonTable thead .title .infos .detail { background:#ffc; border:1px solid black; /*color:#000;*/ }
 .commonTable tbody td { border-left:none; border-right:none; }
 .commonTable tbody tr:nth-child(2n),
 .commonTable tbody tr:nth-child(2n) { background-color:#edf3fe; }
@@ -179,6 +188,9 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .commonTable tbody tr.ui-selected:hover td a { color:inherit; }
 
 .adminTable thead th { height:30px; padding:0; background:#ddd; background:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); background:-moz-linear-gradient(#fff, #ddd); background:-webkit-linear-gradient(#fff, #ddd); border-color:#aaa; border-right-color:#aaa; border-left-color:white; border-bottom-width:1px; }
+.adminTable thead th.activeSort { background:#fff; background:-webkit-gradient(linear, left top, left bottom, from(#ddd), to(#fff)); background:-moz-linear-gradient(#ddd, #fff); background:-webkit-linear-gradient(#ddd, #fff); }
+.adminTable tbody td.activeSort,
+.adminTable tbody th.activeSort { background:rgba(0,0,0,0.05); }
 /* End Tables */
 
 
@@ -230,6 +242,8 @@ section h4,
 section h4 a,
 .api .paramsList .name { color:#728293; text-transform:uppercase; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); }
 
+
+/* Start Dashboard */
 .activityBlock .titleBlock { margin-bottom:10px; }
 .activityBlock .items { margin-left:20px; }
 .activityBlock .item { min-height:16px; padding:10px 10px 10px 25px; background-position:5px 50%; border-width:1px 0; }
@@ -240,8 +254,9 @@ section h4 a,
 .activityBlock .item:first-of-type { border-top:1px solid #B4B4B4; }
 .activityBlock .item:last-child { margin-bottom:20px; border-bottom:1px solid #B4B4B4; }
 
-
 .usersBlock .status { color:#A7A7A7; float:right; text-shadow:1px 1px 0 rgba(255,255,255,0.8); }
+/* End Dashboard */
+
 
 #adminSearchBlock { padding:10px;  border-top:1px solid #a3b0ca; border-bottom:1px solid #B4B4B4; -webkit-box-shadow:1px; }
 #simpleSearchFieldset .line { margin:0; }
@@ -253,6 +268,19 @@ section h4 a,
 #adminSearchResultsBlock > header { margin-bottom:0; }
 .resultsGroup .adminBlock { margin-top:20px; display:none; }
 .resultsGroup.expanded .adminBlock { display:block; }
+
+
+/*
+.resourceDetailBlock dt { color:white; background:#AFAFAF; }
+.resourceDetailBlock dd { color:#000; }
+*/
+.resourceDetailBlock { border:1px solid #AAAAAA; }
+/*.resourceDetailBlock dt { background:rgba(0,0,0,0.2); }*/
+.resourceDetailBlock dt { text-align:right; }
+.resourceDetailBlock dt.odd,
+.resourceDetailBlock dd.odd { background-color:#EDF3FE; }
+.resourceDetailBlock dt .key { margin:5px; }
+.resourceDetailBlock dd .value { margin:5px; }
 
 
 /* Start TMP */
@@ -328,13 +356,11 @@ section h4 a,
 	.api #sideCol { border-right:0; border-width:0 0 0 1px; box-shadow:1px 0 0 rgba(255,255,255,0.8) inset; }
 
 	/* Start Side Col */
-	#sideCol { overflow:hidden; display:-moz-box; display:-webkit-box; -moz-box-orient:vertical; -webkit-box-orient:vertical; }	
 	#sideCol.collapsed { width:22px; -moz-transition:all .3s ease-in-out; -webkit-transition:all .3s ease-in-out; -o-transition:all .3s ease-in-out; -ms-transition:all .3s ease-in-out; }
 	#sideCol.collapsed #asideContent { width:0; overflow:hidden; visibility:hidden; }
 	#sideCol.collapsed footer li { display:none; }
-	#sideCol.collapsed footer li#asideColToggler { display:block; border-right:none; }
-	#sideCol #asideContent { -moz-box-flex:1; -webkit-box-flex:1; }	
-	footer.menu { max-height:24px; display:block; }
+	#sideCol.collapsed footer li#asideColToggler { display:block; border-right:none; }	
+	footer.menu { max-height:24px; display:block; clear:both; }
 	footer.menu ul { height:24px; display:block; }
 	footer.menu li { width:auto; height:24px; display:block; float:left; border:1px solid; border-color:#B4B4B4; border-width:0 1px 0 0; -moz-box-shadow:1px 0 0 rgba(255,255,255, 0.5); -webkit-box-shadow:1px 0 0 rgba(255,255,255, 0.5); box-shadow:1px 0 0 rgba(255,255,255, 0.5); }
 	footer.menu li.active { background-color:rgba(0, 0, 0, 0.1); }

@@ -13,7 +13,7 @@
 	{/if}
 	{if !$smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS || ($smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && $field.type !== 'onetoone' && !$field.fk)}
 	<th class="col {$fieldName}Col type{$field.type|ucfirst}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{if !$field.list} hidden{/if}" id="{$fieldName}Col" scope="col">
-		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{if $field.fk}{$field.displayName|default:$data._resources[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail">{$field.comment}</span></span>{/if}</a>
+		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{if $field.fk}{$field.displayName|default:$data._resources[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail value">{$field.comment}</span></span>{/if}</a>
 	</th>
 	{/if}
 	{$displayedFieldsNb = $displayedFieldsNb+2}

@@ -68,9 +68,7 @@ a.row { display:block; }
 
 .validity .label { overflow:hidden; display:block; text-indent:-9999em; font-size:1%; }
 .validity:before { width:16px; height:16px; overflow:hidden; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -128px -64px; vertical-align:middle; text-decoration:none; }
-.valid { /*color:#789E35;*/ }
 .valid:before { background-position:-128px -64px; }
-.invalid { /*color:#C00;*/ }
 .invalid:before { background-position:-112px -64px; }
 
 
@@ -119,10 +117,12 @@ form table.inlineFormTable tbody tr .fieldBlock { width:auto; float:none; paddin
 form table.inlineFormTable label,
 form table.inlineFormTable span.label { margin-right:3px; display:inline; vertical-align:middle; }
 form .labelBlock:hover { position:relative; overflow:visible; }
-form .comment { width:16px; height:16px; display:inline-block; content:' '; background:url(images/commonIconsSprites.png) no-repeat -64px -64px; vertical-align:middle; }
+/*
+form .comment { }
 form .comment .detail { width:200px; height:auto; overflow:hidden; padding:5px; display:none; position:absolute; right:-210px; bottom:15px; background:white; border:1px solid black; font-size:84.6%; color:#000; text-align:right; }
 form .comment:hover .detail,
 form .comment.hover .detail { display:block; z-index:1000; }
+*/
 
 form { }
 form .labelBlock { width:35%; float:left; text-align:right; }

@@ -22,7 +22,10 @@
     	
     	{block name='mainCol'}
     	<div class="col" id="mainCol" role="main">
-    		{block name='mainContent'}{/block}
+    		<div class="colContent mainColContent" id="mainColContent">
+				{block name='mainContent'}{/block}
+			</div>	
+    		{block name='mainColFooter'}{/block}
     	</div>
     	{/block}
     	

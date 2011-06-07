@@ -18,7 +18,7 @@
 
 {block name='asideContent'}
 	
-	<div id="asideContent">
+	<div class="colContent asideContent" id="asideContent">
 		{block name='adminSearch'}
 		{include file='common/blocks/admin/search/search.tpl'}
 		{/block}
@@ -42,6 +42,24 @@
 		</ul>
 	</footer>
 {/block}
+
+{block name='mainColFooter'}
+	<footer class="menu" id="mainColFooter">
+		<ul>
+			<li id="asideColToggler">
+				<a class="toggle plus" id="showAsideCol"><span class="value">{t}show{/t}</span></a>
+				<a class="toggle minus" id="hideAsideCol"><span class="value">{t}hide{/t}</span></a>
+			</li>
+			<li id="asideMoreOptions">
+				<a class="more" id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
+			</li>
+			<li id="asideResizer">
+				<a class="resize" id="asideResizeLink"><span class="value">{t}resize{/t}</span></a>
+			</li>
+		</ul>
+	</footer>
+{/block}
+
 
 {* TODO: create rule via js instead??? *}
 {block name='dynamicCss' nocache}
