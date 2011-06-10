@@ -53,8 +53,8 @@ class VResources extends AdminView
 			$table 				= !empty($props['table']) ? $props['table'] : $name;
 			$alias 				= !empty($props['alias']) ? $props['alias'] : $table;
 			$displayName 		= !empty($props['displayName']) ? $props['displayName'] : $name;
-			$defaultNameField 	= !empty($props['defaultNameField']) ? $props['defaultNameField'] : 'null';
-			$extends 			= !empty($props['extends']) ? $props['extends'] : 'null';
+			$defaultNameField 	= !empty($props['defaultNameField']) ? $props['defaultNameField'] : null;
+			$extends 			= !empty($props['extends']) ? $props['extends'] : null;
 			$searchable 		= !empty($props['searchable']) ? $props['searchable'] : 0;
 			$exposed 			= !empty($props['exposed']) ? $props['exposed'] : 0;
 			$crudability 		= !empty($props['crudability']) ? $props['crudability'] : 'CRUD';
@@ -68,8 +68,8 @@ class VResources extends AdminView
 			$code .= ", 'singular' => '" . $singular . "'";
 			$code .= ", 'plural' => '" . $plural . "'";
 			$code .= ", 'displayName' => '" . $displayName . "'";
-			$code .= ", 'defaultNameField' => '" . $defaultNameField . "'";
-			$code .= ", 'extends' => '" . $extends . "'";
+			$code .= ", 'defaultNameField' => " . ( is_sting($defaultNameField) ? "'" . $defaultNameField .  "'" : $defaultNameField );
+			$code .= ", 'extends' => " . ( is_sting($extends) ? "'" . $extends .  "'" : $extends );
 			$code .= ", 'database' => '" . $database . "'";
 			$code .= ", 'table' => '" . $table . "'";
 			$code .= ", 'alias' => '" . $alias . "'";
