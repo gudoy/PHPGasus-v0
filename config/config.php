@@ -36,9 +36,6 @@ if ( _APP_CONTEXT === 'dev' )
 	
     define("_DB_USER",                  'admin-dev');
 	define("_DB_PASSWORD",  			'F4K3paSSw0rD');
-	
-	// FTP PARAMETERS
-	define("_FTP_USER_PASSWORD",    		'F4K3paSSw0rD');
 }
 
 

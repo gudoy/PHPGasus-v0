@@ -1,5 +1,7 @@
 <?php
 
+define('_PHPGASUS_VERSION', 					'0.7.2.0');
+
 ### APP META
 //define("_APP_NAME", 							'mynewproject');
 define("_APP_VERSION", 							'0.1.0.0');
@@ -43,6 +45,9 @@ define('_APP_USE_MODERNIZR', 					true); 			// If allowed, the js lib Modernizr 
 
 
 // IOS (iPhone/iPad/i???) OPTIONS
+define('_APP_STORE_URL', 						'http://itunes.apple.com');
+define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:2195');
+define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 define('_APP_IOS_WEBAPP_CAPABLE', 				false); 		// 
 define('_APP_IOS_INISCALE', 					'1.0'); 		// Default page scale for iphones (default = 1.0)
 define('_APP_IOS_MAXSCALE', 					'3.0'); 		// Allow iphones to scale up/down pages (default = 1.0) 
@@ -51,11 +56,12 @@ define('_APP_IPHONE_MAXSCALE', 					'3.0'); 		// Allow iphones to scale up/down 
 define('_APP_IPAD_INISCALE', 					'1.0'); 		// Default page scale for ipads (default = 1.0)
 define('_APP_IPAD_MAXSCALE', 					'3.0'); 		// Allow ipads to scale up/down pages (default = 1.0)
 
-define('_APP_BREADCRUMB_SEPARATOR', 			'/');
-
 ### GOOGLE ANALYTICS  
 define('_APP_USE_GOOGLE_ANALYTICS', 			false);
 define('_APP_GOOGLE_ANALYTICS_UA', 				'UA-XXXXX-X');
+
+### GOOGLE API KEYS (http://www.google.com/apis/maps/signup.html)
+define('_APP_GOOGLE_MAPS_API_KEY',               '');
 
 ### ACCOUNT SESSIONS HANDLING
 define('_APP_USE_ACCOUNTS', 					true); 			// Disable this prevent app from trying to update sessions table on each page load
@@ -63,26 +69,17 @@ define('_APP_ALLOW_SIGNUP', 					false); 		// Allow users to sign up by themselv
 define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
 define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, when a user login, its sessions older than 1 day are deleted
+define('_APP_USE_ACCOUNTS_CONFIRMATION', 		true);          // Will require accounts to be confirmed (email sent with activation link)
 
 ### WIDGETS
 define('_APP_HAS_RELATED_WIDGET', 				false);
 define('_APP_WIDGET_VERSION', 					'0.1.1');
 define('_APP_WIDGET_NAME', 						_APP_NAMESPACE . '_' .  _APP_CONTEXT . '_' . _APP_WIDGET_VERSION . '.wgt');
 
-define('_PHPGASUS_VERSION', 					'0.7.0.0');
-
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');
 define('_AWS_SECRET_KEY', 						'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 						'yourBucketName');
-
-### IPHONE
-define('_APP_STORE_URL', 						'http://itunes.apple.com');
-define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:2195');
-define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
-
-### GOOGLE API KEYS (http://www.google.com/apis/maps/signup.html)
-define('_APP_GOOGLE_MAPS_API_KEY',               '');
 
 ### FEATURES & REFACTORING
 define('_APP_USE_EVENTS',                       true);          // Disable this if you do not need to use events 

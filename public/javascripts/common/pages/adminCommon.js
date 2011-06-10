@@ -1630,7 +1630,7 @@ var adminIndex =
 						});
 					
 						//self.context.addClass('warning', 2000, function(){ self.context.removeClass('warning', 2000); self.destroy(); });
-						self.context.addClass('warning').removeClass('warning', 1000, function(){ self.destroy(); window.location.href = '#body'; });
+						self.context.addClass('warning').removeClass('warning', 500, function(){ self.destroy(); window.location.href = '#body'; });
 					}
 					
 					if ( errors.length )
@@ -1654,7 +1654,7 @@ var adminIndex =
 						});
 					
 						//self.context.addClass('warning', 2000, function(){ self.context.removeClass('warning', 2000); self.destroy(); });
-						self.context.addClass('error').removeClass('error', 1000, function(){ self.destroy(); window.location.href = '#body'; });
+						self.context.addClass('error').removeClass('error', 500, function(){ self.destroy(); window.location.href = '#body'; });
 					}
 					
 					if ( r.success )
@@ -1668,7 +1668,9 @@ var adminIndex =
 								.removeClass('valid invalid')
 								.addClass(newVal == 1 ? 'valid' : 'invalid')
 								.find('.label')
-								.text(newVal == 1 ? 'yes' : 'no'); }
+								.text(newVal == 1 ? 'yes' : 'no')
+							;
+						}
 						//else if ( self.type === 'varchar' && self.context.hasClass('passwordCol') )
 						// buggy <=== why? TODO : debug
 						/*
@@ -1701,13 +1703,11 @@ var adminIndex =
 						//else { self.valCtnr.text(input.val()).siblings('.exactValue').text(input.val()); }
 						else { self.valCtnr.text(input.val()).attr('data-exactvalue',input.val()); }
 						
-						//self.context.addClass('success', 2000, function(){ self.context.removeClass('success', 2000); self.destroy(); });
-						self.context.addClass('success').removeClass('success', 1000, function(){ self.destroy(); });
+						self.context.addClass('success').removeClass('success', 500, function(){ self.destroy(); });
 					}
 					else
 					{
-						//self.context.addClass('error', 2000, function(){ self.context.removeClass('error', 2000); self.destroy(); });
-						self.context.addClass('error').removeClass('error', 1000, function(){ self.destroy(); });
+						self.context.addClass('error').removeClass('error', 500, function(){ self.destroy(); });
 					}
 				}
 			 });

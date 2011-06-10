@@ -219,9 +219,11 @@ form .captchaHint { margin-left:10px; font-style:italic; }
 .ui-inlineedit-form.loading .actionsBlock > * { visibility:hidden; }
 .ui-inlineedit-form.status .actionsBlock { width:16px; height:16px; overflow:hidden; }
 .ui-inlineedit-form.status .actionsBlock > * { visibility:hidden; }
+/*
 .ui-inlineedit-form.valid .actionsBlock { background:url(images/commonIconsSprites.png) no-repeat -32px -64px; background-repeat:no-repeat; }
 .ui-inlineedit-form.error .actionsBlock { background:url(images/commonIconsSprites.png) no-repeat -96px -64px; background-repeat:no-repeat; }
 .ui-inlineedit-form.warning .actionsBlock { background:url(images/commonIconsSprites.png) no-repeat -80px -64px; background-repeat:no-repeat; }
+*/
 .commonTable tbody td.ui-inlineedit-active.success { background-color:#696; }
 .commonTable tbody td.ui-inlineedit-active.error { background-color:#C30; }
 .commonTable tbody td.ui-inlineedit-active.warning { background-color:#FC3; }
