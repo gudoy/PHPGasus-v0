@@ -32,6 +32,7 @@ define('_APP_META_ROBOTS_INDEXABLE', 			false);			// Allows/prevents pages to be
 define('_APP_META_ROBOTS_ARCHIVABLE', 			false);			// Allows/prevents search engines to display "in cache" links in their search results
 define('_APP_META_ROBOTS_IMAGES_INDEXABLE', 	false);			// Allows/prevents search engines to index your images
 define('_APP_META_GOOGLE_TRANSLATABLE', 		true);			// Allows/prevents Google to offer translation link/feature for your pages
+define('_APP_ALLOW_PAGE_PRERENDERING', 			true);			// Allows/prevents Google Chrome to prepender pages in background 
 define('_APP_USE_CHROME_FRAME', 				true);			// Html pages require Google Chrome Frame plugin? (if yes, displays plugin installation popup)
 define('_APP_USE_CSS_IE', 						false);
 define('_APP_USE_CSS_IE6', 						false);
@@ -64,17 +65,17 @@ define('_APP_GOOGLE_ANALYTICS_UA', 				'UA-XXXXX-X');
 define('_APP_GOOGLE_MAPS_API_KEY',               '');
 
 ### ACCOUNT SESSIONS HANDLING
+define('_SESSION_NAME', 						'token'); 		// Name of the sessions
+define('_APP_ALLOW_GET_SID_FROM_URL', 			true); 			// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
 define('_APP_USE_ACCOUNTS', 					true); 			// Disable this prevent app from trying to update sessions table on each page load
 define('_APP_ALLOW_SIGNUP', 					false); 		// Allow users to sign up by themselves
 define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
 define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, when a user login, its sessions older than 1 day are deleted
 define('_APP_USE_ACCOUNTS_CONFIRMATION', 		true);          // Will require accounts to be confirmed (email sent with activation link)
-
-### WIDGETS
-define('_APP_HAS_RELATED_WIDGET', 				false);
-define('_APP_WIDGET_VERSION', 					'0.1.1');
-define('_APP_WIDGET_NAME', 						_APP_NAMESPACE . '_' .  _APP_CONTEXT . '_' . _APP_WIDGET_VERSION . '.wgt');
+define('_APP_MAX_LOGIN_ATTEMPTS', 				10);          	// If the user tries to login more than X times, it's account will be blocked for some time (0 = no limit)
+define('_APP_MAX_LOGIN_ATTEMPTS_BAN_TIME', 		3600);          // Duration (in seconds) of the ban of the account due to too many login attemps
+define('_APP_ALLOW_LOST_PASSWORD_RESET', 		true); 			// Allow users to reset their's password (send a mail with a link to reset it)
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');
@@ -82,6 +83,7 @@ define('_AWS_SECRET_KEY', 						'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 						'yourBucketName');
 
 ### FEATURES & REFACTORING
+define('_ADMIN_RESOURCES_NB_PER_PAGE', 			100);
 define('_APP_USE_EVENTS',                       true);          // Disable this if you do not need to use events 
 define('_APP_USE_SQL_TYPEFIXING',               false);         //
 define('_APP_USE_ONFETCH_TYPEFIXING', 			true);          //

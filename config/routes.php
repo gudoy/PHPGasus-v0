@@ -22,9 +22,9 @@ define("_PATH_I18N", 						_PATH . 'i18n/');
 
 # BASE URIS
 define("_URL_HOME", 						_URL);
-define("_URL_PUBLIC", 	 					_URL . 'public/');
-//define("_URL_PUBLIC_REL", 	 				'/public/');
 define("_URL_PUBLIC_REL", 	 				_URL_REL . 'public/');
+define("_URL_PUBLIC", 	 					_URL_PUBLIC_REL);
+//define("_URL_PUBLIC_REL", 	 				'/public/');
 //define("_URL_STYLESHEETS_REL",				'/public/stylesheets/default/');
 define("_URL_STYLESHEETS_REL",				_URL_REL . 'public/stylesheets/default/');
 define("_URL_CSS",							_URL_STYLESHEETS_REL);
@@ -58,10 +58,12 @@ define("_URL_LOGIN", 						_URL . 'account/login');
 define("_URL_LOGOUT", 						_URL . 'account/logout');
 define("_URL_SIGNUP", 						_URL . 'account/signup');
 define("_URL_SIGN_SUCCESS", 				_URL . 'account/signup/success');
-define("_URL_FORGOTTEN_PASSWORD", 			_URL . 'account/password/forgotten');
-define("_URL_EDIT_PASSWORD", 				_URL . 'account/password');
-define("_URL_EDIT_EMAIL", 					_URL . 'account/email');
-define("_URL_NOT_CONFIRMED", 				_URL . 'account/notconfirmed');
+define("_URL_ACCOUNT_CONFIRMATION", 		_URL . 'account/confirmation');
+//define("_URL_FORGOTTEN_PASSWORD", 			_URL . 'account/password/forgotten');
+//define("_URL_EDIT_PASSWORD", 				_URL . 'account/password');
+define("_URL_ACCOUNT_PASSWORD_LOST", 		_URL . 'account/password/lost');
+define("_URL_ACCOUNT_PASSWORD_EDIT", 		_URL . 'account/password/new');
+define("_URL_ACCOUNT_PASSWORD_RESET", 		_URL . 'account/password/reset');
 define("_URL_RESEND_CONFIRMATION_MAIL", 	_URL . 'account/confirmation');
 define("_URL_ABOUT", 						_URL . 'about');
 define("_URL_SITEMAP", 						_URL . 'about/sitemap');

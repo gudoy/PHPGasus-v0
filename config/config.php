@@ -56,15 +56,17 @@ define("_APP_NAME", 					basename(_PATH));
 # Get path relatively to server root
 define("_PATH_REL", 					str_replace($_SERVER['DOCUMENT_ROOT'], '', _PATH));
 
+define("_APP_PROTOCOL", 				'http' . ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '' ) . '://');
+
 // If a server name has been defined, use it
 // Otherwise, use the server ip and the project base folder path as the base URL 
-define("_URL", 							'http://' . ( $_SERVER['SERVER_NAME'] !== $_SERVER['SERVER_ADDR'] ? $_SERVER['SERVER_NAME'] . '/' : $_SERVER['SERVER_ADDR'] . _PATH_REL ));
+define("_URL", 							_APP_PROTOCOL . ( $_SERVER['SERVER_NAME'] !== $_SERVER['SERVER_ADDR'] ? $_SERVER['SERVER_NAME'] . '/' : $_SERVER['SERVER_ADDR'] . _PATH_REL ));
 											
 define("_URL_REL", 						$_SERVER['SERVER_NAME'] !== $_SERVER['SERVER_ADDR'] ? '/' : _PATH_REL );
 
 
-define("_URL_STATIC", 					'http://static.' . _DOMAIN . '/');
-define("_URL_STATIC_1", 				'http://static1.' . _DOMAIN . '/');
+define("_URL_STATIC", 					_APP_PROTOCOL . 'static.' . _DOMAIN . '/');
+define("_URL_STATIC_1", 				_APP_PROTOCOL . 'static1.' . _DOMAIN . '/');
 define("_URL_ADMIN", 					_URL . 'admin/');
 define("_URL_API", 						_URL . 'api/');
 
@@ -118,9 +120,5 @@ define("_JS_VERSION", 					_UNIQUE_VERSION);
 define("_CSS_VERSION", 					_UNIQUE_VERSION);
 define("_FLASH_VERSION", 				_UNIQUE_VERSION);
 
-# SESSION DATA
-define('_SESSION_NAME', 				'SID');
-
-define('_ADMIN_RESOURCES_NB_PER_PAGE', 	50);
 
 ?>

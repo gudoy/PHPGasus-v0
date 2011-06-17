@@ -11,9 +11,10 @@ class AES
 		return self::$_instance;
 	}
 	
-	public function encrypt($msgStr, $key)
+	public function encrypt($msgStr, $key, $iv = null)
 	{
-		$iv 	= $key;
+		$iv 			= !$iv ? $key : $iv;
+		
 		if ( strlen($msgStr) % 16 !== 0)
 		{
 			
@@ -46,10 +47,10 @@ class AES
 		return $retstr;
 	}
 	
-	public function decrypt($encMsgStr, $key)
+	public function decrypt($encMsgStr, $key, $iv = null)
 	{
 		$key 			= $key;
-		$iv 			= $key;
+		$iv 			= !$iv ? $key : $iv;
 		$encMsgStr 		= self::hex2asc($encMsgStr);
 		
 		$decrypttext 	= mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $encMsgStr, MCRYPT_MODE_CBC, $iv);

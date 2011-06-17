@@ -1252,13 +1252,6 @@ class Model extends Application
 		foreach ($rModel as $fieldName => $field)
 		{
 			$skip = false;
-				
-			// Shortcuts
-			/*
-			$props = array('pk','ai','fk','type','subtype','default','length','relResource','relField','relGetFields','relGetAs',
-							'computed','computedValues','eval','storeAs','destFolder','relatedFile');
-			foreach ( $props as $prop ){ $$prop = !empty($field[$prop]) ? $field[$prop] : null; }
-			*/
 			
 			$i++;
 			
@@ -1630,13 +1623,12 @@ class Model extends Application
 			
 			//else if ( !empty($field['subtype']) && $field['subtype'] === 'uniqueID' ) { $skip = false; }
 			
-			// For password fields, only users to modifie oneself password 
+			// For password fields, users can only edit their password 
 			//if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' )
 			if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' && !empty($d[$fieldName]) )
 			{
 				// Get the user whose data are being updated and get the logged user
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
-				//$currentUser 	= !empty($this->data['current']['user']) ? $this->data['current']['user'] : null; 
 				$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
                 
                 // Get logged & updated users groups

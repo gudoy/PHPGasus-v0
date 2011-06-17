@@ -33,14 +33,22 @@ class Application
 	
 	static function __autoload($className)
 	{
-        
-		$firstLetter 	= $className[0];
+        // Get first & secnd letter and check if second is uppercased
+		$first 			= $className[0];
 		$secondIsUpper 	= $className[1] === strtoupper($className[1]);
 		
+		// Known classes types
+		$known = array('M' => 'model', 'V' => 'view', 'C' =>'controller');
+		
+		/*
 		if 		( $firstLetter === 'M' && $secondIsUpper)	{ $type = 'model'; 		$path = _PATH_MODELS; }
 		elseif 	( $firstLetter === 'C' && $secondIsUpper)	{ $type = 'controller'; $path = _PATH_CONTROLLERS; }
 		elseif 	( $firstLetter === 'V' && $secondIsUpper)	{ $type = 'view'; 		$path = _PATH_VIEWS; }
 		else 												{ $type = 'lib'; 		$path = _PATH_LIBS; }
+		*/
+
+		$type = isset($known[$first]) && $secondIsUpper ? $known[$first] : 'lib';
+		$path = constant('_PATH_' . strtoupper($type  . 's'));
 		
 		class_exists($className) || (file_exists($path . $className . '.class.php') && require($path . $className . '.class.php'));
 	}
@@ -196,16 +204,21 @@ class Application
 		// If setted to true, allow sessions to be available for other subdomains
 		if ( _APP_IS_SESSION_CROSS_SUBDOMAIN ) { ini_set('session.cookie_domain', '.' . _DOMAIN); /*session_set_cookie_params(0, '/', '.' . _DOMAIN);*/  }
 		
+		ini_set('session.cookie_httponly', 1);
+		
 		// Set the session name accordingly to the conf
 		session_name(_SESSION_NAME);
 		
 		// Specific case for session forwarding from iphone/ipod/ipad app to safari where the session id is 
 		// passed in the URL.
 		$ua = $_SERVER['HTTP_USER_AGENT'];
-		if ( (strpos($ua, 'iPhone') !== false || strpos($ua, 'iPod') !== false || strpos($ua, 'iPad') !== false ) && !empty($_GET[_SESSION_NAME]) )
+		//if ( (strpos($ua, 'iPhone') !== false || strpos($ua, 'iPod') !== false || strpos($ua, 'iPad') !== false ) && !empty($_GET[_SESSION_NAME]) )
+		if ( _APP_ALLOW_GET_SID_FROM_URL && !empty($_GET[_SESSION_NAME]) )
 		{			
 			// Get the data of the passed session id
-			$s = CSessions::getInstance()->retrieve(array('values' => $_GET[_SESSION_NAME], 'sortBy' => 'expiration_time', 'orderBy' => 'DESC', 'limit' => 1));
+			//$s = CSessions::getInstance()->retrieve(array('values' => $_GET[_SESSION_NAME], 'sortBy' => 'expiration_time', 'orderBy' => 'DESC', 'limit' => 1));
+			$sid = filter_var($_GET[_SESSION_NAME], FILTER_SANITIZE_STRING);
+			$s 	= CSessions::getInstance()->retrieve(array('conditions' => array('id' => $sid)));
 			
 			// If the client ip match the passed session's one, set it as the current session id
 			if ( !empty($s) && $_SERVER['REMOTE_ADDR'] === $s['ip'] )

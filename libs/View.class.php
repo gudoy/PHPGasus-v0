@@ -1178,7 +1178,8 @@ $this->dump($allowed);
 		
 		switch($statusCode)
 		{
-			case 201: 	$h = '201 Created'; 				break;		
+			case 201: 	$h = '201 Created'; 				break;
+			case 202: 	$h = '202 Accepted'; 				break;
 			case 204: 	$h = '204 No Content'; 				break;
 			case 302: 	$h = '302 Found'; 					break;
 			case 400: 	$h = '400 Bad Request'; 			break;

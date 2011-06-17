@@ -1,3 +1,32 @@
+<VirtualHost *:443>
+		ServerName devcoffrettravelr.clicmobile.com
+		DocumentRoot "/var/www/Coffret_Digital/"
+		
+		SSLEngine on
+	
+		# For PROD, use properly signed certificate
+		SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
+		SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+		<Directory "/var/www/Coffret_Digital/">
+		
+			Order allow,deny
+			Allow from all
+			AllowOverride All
+		
+			RewriteEngine on
+			RewriteRule ^((?!index|public).*) index.php/$1/%{QUERY_STRING}	[L]
+
+			SetEnv APP_CONTEXT dev
+		
+		</Directory>
+
+		Include sites-available/performances.conf
+		Include sites-available/security.conf
+		Include sites-available/tweaks.conf
+
+</VirtualHost>
+
 <VirtualHost *:80>
 		ServerName dev.mynewproject.com
 		DocumentRoot "/var/www/mynewproject/"
