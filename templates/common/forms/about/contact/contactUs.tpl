@@ -21,6 +21,6 @@
 	
 	{include file='common/formFields/about/contact/message.tpl'}
 	
-	{include file='common/formFields/buttons/validate.tpl' btnLabel='Send'|gettext}
+	{include file='common/formFields/buttons/validate.tpl' label='send'|gettext}
 	
 </form>

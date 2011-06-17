@@ -5,7 +5,7 @@
 
 {foreach $data.css as $item}
 	{if !$item@last}{$sep=','}{else}{$sep=''}{/if}
-	{if strpos($item, 'http://') !== false || strpos($item, 'http://') !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
+	{if strpos($item, $smarty.const._APP_PROTOCOL) !== false || strpos($item, $smarty.const._APP_PROTOCOL) !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
 	{$chain = $chain|cat:$basePath|cat:$item|cat:$sep}
 {/foreach}
 

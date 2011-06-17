@@ -29,15 +29,15 @@
 {block name='asideFooter'}
 	<footer class="menu" id="asideFooter">
 		<ul>
-			<li id="asideColToggler">
+			<li class="toggler" id="asideColToggler">
 				<a class="toggle plus" id="showAsideCol"><span class="value">{t}show{/t}</span></a>
 				<a class="toggle minus" id="hideAsideCol"><span class="value">{t}hide{/t}</span></a>
 			</li>
-			<li id="asideMoreOptions">
-				<a class="more" id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
+			<li class="more" id="asideMoreOptions">
+				<a id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
 			</li>
-			<li id="asideResizer">
-				<a class="resize" id="asideResizeLink"><span class="value">{t}resize{/t}</span></a>
+			<li class="resize"  id="asideResizer">
+				<a id="asideResizeLink"><span class="value">{t}resize{/t}</span></a>
 			</li>
 		</ul>
 	</footer>
@@ -46,15 +46,15 @@
 {block name='mainColFooter'}
 	<footer class="menu" id="mainColFooter">
 		<ul>
-			<li id="asideColToggler">
-				<a class="toggle plus" id="showAsideCol"><span class="value">{t}show{/t}</span></a>
-				<a class="toggle minus" id="hideAsideCol"><span class="value">{t}hide{/t}</span></a>
+			<li class="toggler" id="mainColColToggler">
+				<a class="toggle plus" id="showMainCol"><span class="value">{t}show{/t}</span></a>
+				<a class="toggle minus" id="hideMainCol"><span class="value">{t}hide{/t}</span></a>
 			</li>
-			<li id="asideMoreOptions">
-				<a class="more" id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
+			<li class="more" id="mainColMoreOptions">
+				<a id="mainColMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
 			</li>
-			<li id="asideResizer">
-				<a class="resize" id="asideResizeLink"><span class="value">{t}resize{/t}</span></a>
+			<li class="resize" id="mainColResizer">
+				<a id="mainColResizeLink"><span class="value">{t}resize{/t}</span></a>
 			</li>
 		</ul>
 	</footer>
