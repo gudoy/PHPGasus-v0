@@ -9,7 +9,7 @@
 {elseif $field.subtype === 'file' || $field.subtype == 'fileDuplicate'}
 	{if $value}
 		{$baseURL = $field.destBaseURL|default:$smarty.const._URL}
-	<a class="currentItem file" href="{if strpos($value, 'http://') === false}{rtrim($baseURL,'/')}{if $field.storeAs === 'filename'}{$field.destFolder}{/if}{/if}{$value}">
+	<a class="currentItem file" href="{if strpos($value, $smarty.const._APP_PROTOCOL) === false}{rtrim($baseURL,'/')}{if $field.storeAs === 'filename'}{$field.destFolder}{/if}{/if}{$value}">
 		{if $field.mediaType && $field.mediaType == 'image' && $field.storeAs !== 'filename'}
 		<img class="value" src="{$smarty.const._URL}{$value}" alt="{$value}: {$resource.id}" />
 		{else}
@@ -19,7 +19,7 @@
 	{/if}
 {elseif $field.subtype === 'url'}
 	{if $value}
-	<a class="url" href="{if strpos($value, 'http://') === false}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">
+	<a class="url" href="{if strpos($value, $smarty.const._APP_PROTOCOL) === false}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">
 		<span class="value">../{$value|regex_replace:"/.*\//":""}</span>
 	</a>
 	{else}

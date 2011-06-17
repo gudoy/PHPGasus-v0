@@ -22,7 +22,7 @@
 				{t}The resource has been successfully deleted!{/t}
 			</p>
 			<div class="buttonsLine">
-				{include file='common/blocks/actionBtn.tpl' btnId='continueBtn' btnHref=$smarty.const._URL_ADMIN|cat:$resourceName btnLabel='Continue'|gettext}	
+				{include file='common/blocks/actionBtn.tpl' id='continueBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label='continue'|gettext}	
 			</div>
 		</div>
 		{else}
@@ -31,9 +31,9 @@
 				{t}Are you sure you want to delete the following resource(s){/t}{t}:{/t} {$data.resourceId}
 			</p>
 			<div class="buttonsLine">
-				{include file='common/blocks/actionBtn.tpl' btnId='cancelBtn' btnClasses='cancelBtn' btnHref=$smarty.const._URL_ADMIN|cat:$resourceName btnLabel='Cancel'|gettext}
+				{include file='common/blocks/actionBtn.tpl' id='cancelBtn' classes='cancelBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label='Cancel'|gettext}
 				<span class="sep or">{t}or{/t}</span>
-				{include file='common/blocks/actionBtn.tpl' btnId='confirmBtn' btnHref=$smarty.const._URL_ADMIN|cat:$resourceName|cat:'/'|cat:$resourceId|cat:'?method=delete&amp;confirm=1' btnLabel='Delete'|gettext}
+				{include file='common/blocks/actionBtn.tpl' id='confirmBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName|cat:'/'|cat:$resourceId|cat:'?method=delete&amp;confirm=1' label='delete'|gettext}
 			</div>
 		</div>
 		{/if}

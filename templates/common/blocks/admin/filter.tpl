@@ -43,7 +43,7 @@
 				</div>
 			</div>
 			<div class="line buttonsLine">
-				{include file='common/blocks/actionBtn.tpl' mode='button' btnId='filterBtn' btnType='submit' btnLabel='Filter'|gettext}
+				{include file='common/blocks/actionBtn.tpl' mode='button' id='filterBtn' type='submit' label='Filter'|gettext}
 			</div>
 			{if $smarty.get.offset}
 			<input type="hidden" name="offset" value="{$smarty.get.offset}" />

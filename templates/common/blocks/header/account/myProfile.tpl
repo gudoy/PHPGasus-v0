@@ -9,7 +9,7 @@
 {/strip}
 {if $user}
 <div id="myAccountNavBlock" class="navBlock accountBlock myAccountNavBlock hcard">
-    <div class="header titleBlock"><a id="goToMyAccountDetailsLink" href="#myAccountDetailsBlock"><h2><span class="value">{t}account{/t}</span></h2></a></div>
+    <div class="header titleBlock item-lv1"><a id="goToMyAccountDetailsLink" href="#myAccountDetailsBlock"><h2 class="title"><span class="value">{t}account{/t}</span></h2></a></div>
     <div id="myAccountDetails" class="details">
         <figure class="figure picsBlock">
             <a rel="me" href="{$user.profile_url}">
@@ -25,7 +25,9 @@
             </figcaption>
         </figure>
         <nav class="nav actions actionsBlock">
-            <a rel="me" href="{$user.edit_profile_url}" id="editMyProfileLink" class="adminLink editLink editMyProfileLink">{t}edit my profile{/t}</a>
+        	{block name='loggedUserProfileLink'}
+            <a rel="me" href="{$user.edit_profile_url}" id="editMyProfileLink" class="adminLink editLink editMyProfileLink">{t}my profile{/t}</a>
+            {/block}
             <a rel="noindex" href="{$smarty.const._URL_LOGOUT}">{t}logout{/t}</a>
         </nav>
     </div>  

@@ -87,42 +87,42 @@
 					<strong>values are:</strong> comma separated items
 					<br/><br/>
 					<strong>operators can be:</strong>
-					<ul>
-						<li>is or equal or = <em>[default]</em></li>
-						<li>not or isnot or notequal or !=</li>
-						<li>in (+ several values)</li>
-						<li>notin (+ several values)</li>
-						<li>contains</li>
-						<li>like</li>
-						<li>doesnotcontains</li>
-						<li>notlike</li>
-						<li>startsby</li>
-						<li>endsby</li>
-						<li>doesnotstartsby</li>
-						<li>doesnotendsby</li>
-						<li>greater or &gt;</li>
-						<li>like</li>
-						<li>doesnotcontains</li>
-						<li>notlike</li>
-						<li>startsby</li>
-						<li>endsby</li>
-						<li>doesnotstartsby</li>
-						<li>doesnotendsby</li>
-						<li>lower or &lt;</li>
-						<li>greaterorequal or '&gt;='</li>
-						<li>lowerorequal or '&lt;='</li>
-						<li>between</li>
-						<li>notbetween</li>
-					</ul>
-					<br/><br/>
-					<div class="samples">Samples:</div>
-					<ul>
-						<li>?conditions=name|foo</li>
-						<li>?conditions=email|contains|gmail.com</li>
-						<li>?conditions=id|notin|3,5</li>
-						<li>?conditions=type|bar;email|endsby|yahoo.com;active|true</li>
-					</ul>
 				</p>
+				<ul>
+					<li>is or equal or = <em>[default]</em></li>
+					<li>not or isnot or notequal or !=</li>
+					<li>in (+ several values)</li>
+					<li>notin (+ several values)</li>
+					<li>contains</li>
+					<li>like</li>
+					<li>doesnotcontains</li>
+					<li>notlike</li>
+					<li>startsby</li>
+					<li>endsby</li>
+					<li>doesnotstartsby</li>
+					<li>doesnotendsby</li>
+					<li>greater or &gt;</li>
+					<li>like</li>
+					<li>doesnotcontains</li>
+					<li>notlike</li>
+					<li>startsby</li>
+					<li>endsby</li>
+					<li>doesnotstartsby</li>
+					<li>doesnotendsby</li>
+					<li>lower or &lt;</li>
+					<li>greaterorequal or '&gt;='</li>
+					<li>lowerorequal or '&lt;='</li>
+					<li>between</li>
+					<li>notbetween</li>
+				</ul>
+				<br/><br/>
+				<div class="samples">Samples:</div>
+				<ul>
+					<li>?conditions=name|foo</li>
+					<li>?conditions=email|contains|gmail.com</li>
+					<li>?conditions=id|notin|3,5</li>
+					<li>?conditions=type|bar;email|endsby|yahoo.com;active|true</li>
+				</ul>
 			</dd>
 		</dl>
 	</div>

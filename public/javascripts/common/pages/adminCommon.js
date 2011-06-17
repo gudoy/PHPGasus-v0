@@ -29,6 +29,7 @@ var admin =
 	    this.search.init();
 	    
 	    this
+	    	.footer()
 	    	.aside()
 	    	.menu()
 	    	.handleMultiLangFields();
@@ -36,18 +37,27 @@ var admin =
 		return this;
 	},
 	
+	footer: function()
+	{
+		$('footer.menu .toggler').click(function(e)
+		{
+			e.preventDefault;
+			e.stopPropagation();
+			
+			var $this 	= $(this),
+				$col 	= $this.closest('.col');
+			
+			$this.toggleClass('active');
+			$col.toggleClass('collapsed expanded'); 
+		});
+		
+		return this;
+	},
+	
 	aside: function()
 	{
 		var self 	= this
 			context = '#sideCol';
-		
-		$('#asideColToggler').click(function(e)
-		{
-			e.preventDefault;
-			e.stopPropagation(); 
-			$(this).toggleClass('active');
-			$(context).toggleClass('collapsed expanded'); 
-		});
 		
 		//$(context).resizable();
 		//$('footer', context).resizable({alsoResize:context});
@@ -1671,7 +1681,6 @@ var adminIndex =
 								.text(newVal == 1 ? 'yes' : 'no')
 							;
 						}
-						//else if ( self.type === 'varchar' && self.context.hasClass('passwordCol') )
 						// buggy <=== why? TODO : debug
 						/*
 						else if ( self.type === 'float' )
