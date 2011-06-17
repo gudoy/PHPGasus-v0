@@ -16,7 +16,7 @@
 		</p>
 		<form action="" method="post">
 			<input type="hidden" name="rssimporter" value="1" />
-			{include file='common/formFields/buttons/validate.tpl' btnLabel='Import'}
+			{include file='common/formFields/buttons/validate.tpl' label='import'}
 		</form>
 		{/if}
 	</div>

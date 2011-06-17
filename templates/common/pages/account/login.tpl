@@ -4,7 +4,7 @@
 
 {block name='mainContent'}
 	
-<div class="loginBlock" id="loginBlock">
+<div class="pageFormBlock loginBlock" id="loginBlock">
 {if $data.success}
 	<p class="notification success">{t}You are now logged in!{/t}</p>
 {else}
