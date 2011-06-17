@@ -1,11 +1,5 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='mainCol'}
-<div class="col" id="mainCol">
-{$smarty.block.parent}
-</div>
-{/block}
-
 {block name='asideContent'}
 {include file='common/blocks/api/commonParams.tpl'}
 {/block}

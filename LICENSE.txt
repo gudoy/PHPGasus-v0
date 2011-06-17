@@ -4,6 +4,6 @@
  *
  * Copyright 2009-2011, Guyllaume Doyer
  * Dual licensed under the MIT or GPL Version 2 licenses.
- * http://www.phpgasus.com/license
+ * http://www.phpgasus.com/about/license
  *
  */

@@ -29,11 +29,8 @@ class VResources extends AdminView
 		$resources 	= &$this->data['resources'];
 		$longer 	= null;
 		
-//var_dump($resources);
-		
 		// Try to get the longer resource name (to compute tab proper tab indentation)
 		foreach ( $resources as $props ){ $longer = ( empty($longer) || strlen($props['name']) > strlen($longer) ) ? $props['name'] : $longer; }
-
 		
 		$verTabPos = strlen($longer) + ( 4 - (strlen($longer) % 4) );
 		
@@ -68,8 +65,8 @@ class VResources extends AdminView
 			$code .= ", 'singular' => '" . $singular . "'";
 			$code .= ", 'plural' => '" . $plural . "'";
 			$code .= ", 'displayName' => '" . $displayName . "'";
-			$code .= ", 'defaultNameField' => " . ( is_sting($defaultNameField) ? "'" . $defaultNameField .  "'" : $defaultNameField );
-			$code .= ", 'extends' => " . ( is_sting($extends) ? "'" . $extends .  "'" : $extends );
+			$code .= ", 'defaultNameField' => " . ( is_string($defaultNameField) ? "'" . $defaultNameField .  "'" : $defaultNameField );
+			$code .= ", 'extends' => " . ( is_string($extends) ? "'" . $extends .  "'" : $extends );
 			$code .= ", 'database' => '" . $database . "'";
 			$code .= ", 'table' => '" . $table . "'";
 			$code .= ", 'alias' => '" . $alias . "'";
@@ -439,64 +436,6 @@ class VResources extends AdminView
 		$code .= ');' . $lb;
 		
 echo $code;
-	}
-
-	static function magicType($colName)
-	{
-		$parts = explode('_', $colName);
-		
-		$resources = &$this->dataModel['resources'];
-		
-		foreach ( (array) $parts as $part )
-		{
-			$sing = Tools::singular($part);
-			$plur = Tools::plural($part);
-			
-			// Check if is an existing resource
-			$isResource = isset($resources[$sing]) || isset($resources[$plur]);
-			
-			// If resource && resource not current one, assume it's a relation
-			
-			
-			// 'name$' 				=> 'string'
-			// 'title$' 			=> 'title'
-			// 'color' 				=> 'color'
-			
-			// '_url' 				=> 'url'
-			// 'url_' 				=> 'url'
-			
-			// 'phone' 				=> 'tel'
-			// 'mobile' 			=> 'tel'
-			
-			// is_ 					=> 'boolean'
-			// has_ 				=> 'boolean'
-			
-			// 'mail_'
-			// '_mail' 				=> 'email'
-			// '_id' 				=> 'onetoone'
-			//
-			
-			// '_nb' 				=> 'integer'
-			// '_number' 			=> 'integer'
-			// '_count' 			=> 'integer'
-			// '_age' 				=> 'integer' + length = 3
-			
-			// 'id' 				=> 'pk'
-			
-			// '_date' 				=> 'date'
-			// 'creation_date' 		=> 'timestamp'
-			// 'created_' 			=> 'timestamp'
-			// 'update_date' 		=> 'timestamp'
-			// 'updated_at' 		=> 'timestamp'
-			
-			// 'text' 				=> 'text'
-			// 'summary' 			=> 'text',
-			// 'description' 		=> 'text',
-			// 'desc' 				=> 'text',
-			
-			// TODO
-			// length, _len,
-		}
 	}
 	
 };

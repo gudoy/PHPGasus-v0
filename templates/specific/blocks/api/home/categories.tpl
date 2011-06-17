@@ -7,7 +7,7 @@
 	</header>
 	<ul class="apis">
 		<li class="item api">
-			<h4>
+			<h4 class="title">
 				<span class="method">GET</span>
 				<span class="uri">/ {$rUsedName}</span>
 			</h4>
@@ -20,9 +20,9 @@
 				</div>
 				<div class="prop successOutput success">
 					<span class="key">success{t}:{/t}</span>
-					<dl class="values">
-						<dt>200 OK</dt>
-					</dl>
+					<ul class="values">
+						<li>200 OK</li>
+					</ul>
 				</div>
 				<div class="prop possibleErrors errors">
 					<span class="key">{t}errors{/t}{t}:{/t}</span>
@@ -44,7 +44,7 @@
 			</div>
 		</li>
 		<li class="item api">
-			<h4>
+			<h4 class="title">
 				<span class="method">GET</span>
 				<span class="uri">/ {$rUsedName} / { $id or $name }</span>
 			</h4>
@@ -57,9 +57,9 @@
 				</div>
 				<div class="prop successOutput success">
 					<span class="key">success{t}:{/t}</span>
-					<dl class="values">
-						<dt>200 OK</dt>
-					</dl>
+					<ul class="values">
+						<li>200 OK</li>
+					</ul>
 				</div>
 				<div class="prop possibleErrors errors">
 					<span class="key">{t}errors{/t}{t}:{/t}</span>

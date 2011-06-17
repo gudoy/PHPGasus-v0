@@ -17,7 +17,7 @@ class VHome extends View
 			'method' 		=> __FUNCTION__,
 			'template'		=> 'specific/pages/home/' . __FUNCTION__ . '.tpl',
 		));
-		
+
 		// Then, render page
 		return $this->render();
 	}

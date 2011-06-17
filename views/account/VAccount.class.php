@@ -254,6 +254,36 @@ class VAccount extends View
 				
 		return $this->render();
 	}
+
+	public function confirmation()
+	{
+		// Redirect to home page if the activation_key is not found
+		if ( empty($_GET['key']) ){ return $this->redirect(_URL_HOME); }
+		
+		// Filter passed key
+		$key 	= filter_var($_GET['key'], FILTER_SANITIZE_STRING);
+		
+		// Get user data
+		$uId 	= CUsers::getInstance()->retrieve(array('conditions' => array('activation_key' => $key)));
+		
+		// Redirect to home page if the user has not been found (wrong key or already activated account)
+		if ( !$uId ){ return $this->redirect(_URL_HOME); }
+		
+		// Set account as 'activated' and remove activation key
+		$_POST 	= array('activated' => true, 'activation_key' => '');
+		CUsers::getInstance()->update(array('isApi' => 1, 'conditions' => array('id' => $uId)));
+		
+		// Set template data
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			'name' 			=> 'account' . ucfirst(__FUNCTION__),
+			'method' 		=> __FUNCTION__,
+			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
+			'resourceName' 	=> $this->resourceName,
+			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('Account Confirmation')),
+		));
+		
+		$this->render();
+	}
 	
 };
 
