@@ -1,4 +1,4 @@
-<div class="apiGroupBlock first">
+<div class="apiGroupBlock">
 	{$rUsedName='users'}
 	<header class="groupTitle">
 		<h3 class="title">
@@ -36,6 +36,8 @@
 				<div class="prop possibleErrors errors">
 					<span class="key">{t}errors{/t}{t}:{/t}</span>
 					<dl class="values">
+						<dt>409 Conflict</dt>
+						<dd>{$rUsedName} already exists</dd>
 						<dt>417 Expectation Failed</dt>
 						<dd>{$rUsedName} not found</dd>
 					</dl>

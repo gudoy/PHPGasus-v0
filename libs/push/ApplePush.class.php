@@ -2,9 +2,9 @@
 
 class ApplePush //extends Application
 {
-	var $data = array();
-	var $success = false;
-	var $errors = array();
+	public $data = array();
+	public $success = false;
+	public $errors = array();
 	
 	public function messagePusher($params = array())
 	{

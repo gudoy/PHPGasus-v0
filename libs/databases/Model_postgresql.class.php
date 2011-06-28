@@ -4,15 +4,15 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 
 class Model extends Application
 {
-	var $debug 			= false;
-	var $db 			= null;
-	var $success 		= false;
-	var $errors 		= null;
-	var $warnings 		= null;
-	var $affectedRows 	= null;
-	var $numRows		= null;
-	var $data 			= null;
-	var $afterQuery 	= null; 
+	public $debug 			= false;
+	public $db 			= null;
+	public $success 		= false;
+	public $errors 		= null;
+	public $warnings 		= null;
+	public $affectedRows 	= null;
+	public $numRows		= null;
+	public $data 			= null;
+	public $afterQuery 	= null; 
 	
 	public function __construct()
 	{

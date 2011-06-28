@@ -159,7 +159,7 @@ form .line.subtypeFile .emptyValueMode .actionBtn.editFileLink { display:inline-
 form .line.subtypeFile .emptyValueMode.editFileUrlMode input.file { display:none; }
 
 .filtersRow input,
-.filtersRow select { display:block; -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; font-family:inherit; font-size:inherit; }
+.filtersRow select { display:block; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; font-family:inherit; font-size:inherit; }
 .filtersRow input.filter { padding-left:16px; background-repeat:no-repeat; background-position:0 50%; }
 .filtersRow select { min-width:1em; background-image:none; }
 .fieldBlock .current .empty { display:none; }
@@ -275,9 +275,9 @@ header .paginationBlock { float:right; }
 .resourceDetailBlock dt { width:50%; display:inline-block; letter-spacing:normal; vertical-align:top; }
 .resourceDetailBlock dd { width:50%; display:inline-block; letter-spacing:normal; vertical-align:top; }
 /*
-.flexbox .resourceDetailBlock dl { display:-moz-box; display:-webkit-box; display:box; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; box-orient:horizontal; }
-.flexbox .resourceDetailBlock dt { width:50%; -moz-box-flex:1; }
-.flexbox .resourceDetailBlock dd { width:50%; -moz-box-flex:1; }
+.flexbox .resourceDetailBlock dl { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
+.flexbox .resourceDetailBlock dt { width:50%; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+.flexbox .resourceDetailBlock dd { width:50%; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
 .flexbox .resourceDetailBlock dd { height:20px; display:block; content:'testttt'; clear:both; background:red; }
 */ 
 
@@ -330,28 +330,6 @@ header .paginationBlock { float:right; }
     #sideCol,
     #sideCol.expanded { width:240px; }
     
-    /* Opera does not support flex box module (04/11, current version 11.10): fallback to displays table/table-cell */
-    /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
-    /* IE < 9 does not support table-cell: NO fallback */
-    .ie7 #body,
-    .ie8 #body,
-    .ie9 #body,
-    .opera9 #body,
-    .opera10 #body,
-    .opera11 #body { width:100%; display:table; }
-    .ie7 #sideCol,
-    .ie8 #sideCol,
-    .ie9 #sideCol,
-    .opera9 #sideCol,
-    .opera10 #sideCol,
-    .opera11 #sideCol { display:table-cell; float:none; vertical-align:top; }
-    .ie7 #mainCol,
-    .ie8 #mainCol,
-    .ie9 #mainCol,
-    .opera9 #mainCol,
-    .opera10 #mainCol,
-    .opera11 #mainCol { margin-left:0; display:table-cell; vertical-align:top; }
-    
     /* Buttons */
 	.toolbar .action,
 	.titleBlock .action,
@@ -387,17 +365,34 @@ header .paginationBlock { float:right; }
 	.adminUpdateBlock form { margin:10px; max-width:640px; }
 	
 	/* Experimental layout */
-	html.flexbox,
-	html.flexbox body { overflow:hidden; overflow-x:hidden; overflow-y:hidden; }
-	.flexbox #layout { max-height:100%; display:-moz-box; display:-webkit-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; box-orient:vertical; }
-	.flexbox #body { display:-moz-box; display:-webkit-box; display:box; -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; box-orient:horizontal; }
-    .flexbox #mainCol { -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; }
-	.flexbox #sideCol { display:-moz-box; display:-webkit-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; box-orient:vertical; }
-	.flexbox #sideCol #asideContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; }
-	.flexbox #mainCol { display:-moz-box; display:-webkit-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; box-orient:vertical; }
-	.flexbox #mainCol #mainColContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; }
+	html.api.flexbox,
+	html.admin.flexbox,
+	html.api.flexbox body,
+	html.admin.flexbox body { overflow:hidden; overflow-x:hidden; overflow-y:hidden; }
+	.api.flexbox #layout,
+	.admin.flexbox #layout { max-height:100%; display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.api.flexbox #body,
+	.admin.flexbox #body { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
+	.api.flexbox #mainCol,
+    .admin.flexbox #mainCol { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+    .api.flexbox #sideCol,
+	.admin.flexbox #sideCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.api.flexbox #sideCol #asideContent,
+	.admin.flexbox #sideCol #asideContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+	.api.flexbox #mainCol,
+	.admin.flexbox #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.api.flexbox #mainCol #mainColContent,
+	.admin.flexbox #mainCol #mainColContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+    /* Opera does not support flex box module (04/11, current version 11.10): fallback to displays table/table-cell */
+    /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
+    /* IE < 9 does not support table-cell: NO fallback, go hell */
+	html.no-flexbox { overflow-x:hidden; }
+	.no-flexbox #body { width:100%; min-height:90%; display:table; }
+	.no-flexbox #sideCol { display:table-cell; float:none; position:relative; vertical-align:top; position:relative; }
+	.no-flexbox #mainCol { margin-left:0; display:table-cell; position:relative; vertical-align:top; }
+	.no-flexbox footer.menu { position:absolute; left:0; right:0; bottom:0; }
 	
-	/* Fix for gecko to force it sizing the box correctly */
+	/* Fix for gecko to force it to size the box correctly */
 	.flexbox.gecko #mainColContent { min-height:1px; }
 }
 

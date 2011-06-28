@@ -9,16 +9,13 @@ $errorsAssoc = array(
 	'1002' => array('back' => 'Missing required fields',
 					'front' => _('Please fill all the required fields')),
 	'1003' => array('back' => 'Missing required field(s)',
-					'front' => _('Please fill all the required fields:<br/> %s')),
+					'front' => _('Please fill all the required fields: %s')),
 					
 	'1010' => array('back' => 'Wrong %s value',
 					'front' => _('The passed %s value is not the expected one.')),
 					
 	'1051' => array('back' => 'Missing required % resource(s)',
 					'front' => _('One or more resource(s) could not be found')),
-					
-
-					
 					
 	'4000' => array('back' => 'Database connection error',
 					'front' => _('An error occured on the site\'s database. Please come back later.')),
@@ -74,7 +71,7 @@ $errorsAssoc = array(
 	'10004' => array('back' => 'Passwords not matching',
 					'front' => _('The password and it\'s confirmation are not identical')),
 	'10005' => array('back' => 'Account not confirmed',
-					'front' => _('Your account has not already been confirmed')),
+					'front' => _('Your account has not already been confirmed.')),
 	'10006' => array('back' => 'Incorrect login format',
 					'front' => _('Login not correct. Only letters or numerics (3 to 32 characters) are allowed.')),
 	'10007' => array('back' => 'Incorrect password format',
@@ -111,7 +108,7 @@ $errorsAssoc = array(
 	'10024' => array('back' => 'Incorrect laststname format',
 					'front' => _('Only letters and dashes are allowed.')),
 	'10030' => array('back' => 'Too many login attemps',
-					'front' => _('You have run 5 unsucessful login attemps. For security issue, your account will be blocked during 30 minutes.')),
+					'front' => _('You have reached the max unsucessful login attemps number. For security issue, you won\'t be able to login during ' . _APP_MAX_LOGIN_ATTEMPTS_BAN_TIME . ' minutes.')),
 	'10031' => array('back' => 'Failed login attemp',
 					'front' => _('Remaining login attemps before this account to be blocked: %')),
 	'10032' => array('back' => 'Account blocked',

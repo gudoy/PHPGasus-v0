@@ -6,7 +6,7 @@ $_resourcesGroups = array(
 	'push'         => array('resources' => array('pushsubscriptions')),
 	'contents' 		=> array('resources' => array('entries', 'medias',)),
     'users'         => array('resources' => array('users', 'usersgroups', 'groups', 'groupsauths', 'sessions')),
-    'config'        => array('resources' => array('adminlogs', 'resources', 'tasks')),
+    'config'        => array('resources' => array('adminlogs', 'bans', 'resources', 'tasks',)),
 );
 
 
@@ -15,8 +15,9 @@ $_resourcesGroups = array(
 $resources = array(
 'adminlogs' 		=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'admin_title', 'displayName' => 'admin logs'),
 'apps' 				=> array('singular' => 'app', 'alias' => 'app', 'defaultNameField' => 'admin_title', 'searchable' => 1),
+'bans' 				=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'),
 'appsplatforms' 	=> array('singular' => 'appsplatform', 'table' => 'apps_platforms', 'alias' => 'appptf', 'defaultNameField' => 'id', 'displayName' => 'apps platforms'),
-'categories'			=> array('singular' => 'category', 'alias' => 'cat', 'defaultNameField' => 'admin_title', 'searchable' => 1, 'exposed' => 1),
+'categories'		=> array('singular' => 'category', 'alias' => 'cat', 'defaultNameField' => 'slug', 'searchable' => 1, 'exposed' => 1),
 'clients' 			=> array('singular' => 'client', 'alias' => 'cl', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title', 'searchable' => 1),
 'clientsapps' 		=> array('type' => 'relation', 'singular' => 'clientapp', 'plural' => 'clientsapps', 'displayName' => 'clients apps', 'defaultNameField' => 'null', 'extends' => 'null', 'database' => 'default', 'table' => 'client_apps', 'alias' => 'clapps', 'searchable' => false, 'exposed' => 'false', 'crudability' => 'CRUD'), 
 'countries' 		=> array('type' => 'native', 'singular' => 'country', 'plural' => 'countries', 'displayName' => 'countries', 'defaultNameField' => 'slug', 'extends' => 'null', 'database' => 'default', 'table' => 'countries', 'alias' => 'cntry', 'searchable' => true, 'exposed' => 'false', 'crudability' => 'CRUD'),
@@ -44,6 +45,14 @@ $dataModel = array(
     'resource_id'			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'editable' => 0, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email','displayName' => 'user'),
 	'revert_query' 			=> array('type' => 'text'),
+    'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
+    'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+),
+'bans' => array(
+    'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+    'ip'					=> array('type' => 'varchar', 'subtype' => 'ip', 'length' => 40, 'list' => 3),
+    'reason' 				=> array('type' => 'varchar', 'length' => 32),
+    'end_date'         		=> array('type' => 'timestamp', 'default' => null, 'list' => 1),
     'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
@@ -256,10 +265,10 @@ $dataModel = array(
 ),
 'tasks' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-    'admin_title'           => array('type' => 'varchar', 'length' => 32, 'list' => 1),
-    'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 1),
-    'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-    'processed_items_nb'    => array('type' => 'int', 'length' => 8, 'default' => null, 'list' => 1),
+    'admin_title'           => array('type' => 'varchar', 'length' => 32, 'list' => 3),
+    'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 3),
+    'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
+    'processed_items_nb'    => array('type' => 'int', 'length' => 8, 'default' => null, 'list' => 3),
     'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
@@ -267,6 +276,6 @@ $dataModel = array(
 
 // Filter resources
 // TODO:
-$dataModel['clients'] = &$dataModel['users'];
+//$dataModel['clients'] = &$dataModel['users'];
 
 ?>

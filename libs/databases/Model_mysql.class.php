@@ -2,21 +2,21 @@
 
 class Model extends Application
 {
-	var $debug         = false;
-	var $db            = null;
-	var $success       = false;
-	var $errors        = null;
-	var $warnings      = null;
-	var $affectedRows  = null;
-	var $numRows       = null;
-	var $data          = null;
-	var $afterQuery    = null;
-	var $launchedQuery = null;
+	public $debug         = true;
+	public $db            = null;
+	public $success       = false;
+	public $errors        = null;
+	public $warnings      = null;
+	public $affectedRows  = null;
+	public $numRows       = null;
+	public $data          = null;
+	public $afterQuery    = null;
+	public $launchedQuery = null;
 	
 	private $safeWrapper   = '`';
 	
 	// Default options
-	var $options = array(
+	public $options = array(
 		'conditions'              => array(), // TODO
 		//'sortBy'                  => null, // TODO
 		//'orderBy'                  => null, // TODO
@@ -109,96 +109,8 @@ class Model extends Application
 		return $this;
 	}
 	
-	// Deprecated
-	// TODO: remove and rename query_new to query
-	public function query($query, $options = null)
-	{
-	    if ( defined('_APP_USE_SQL_FETCH_V2') && _APP_USE_SQL_FETCH_V2 ){ return $this->query_new($query, $options); }
-        
-		$this->data = null;
-		
-		// Connect to the db
-		if ( !$this->db ) { $this->connect(); }
-		
-		$this->errors 			= array();
-		$o 						= &$options;																// Shortcut for options
-		$o['type'] 				= !empty($o['type']) ? $o['type'] : 'select'; 							// Set query type to select by default if not already setted
-		
-		$this->launchedQuery 	= $query;
-		
-		// Do the query
-		$queryResult 			= mysql_query($query, $this->db);
-		
-		// 
-		//$this->success 			= is_bool($queryResult) && $queryResult === false ? false : true;
-		$this->success 			= is_bool($queryResult) && !$queryResult ? false : true;
-		//$this->success 			= !(is_bool($queryResult) && !$queryResult);
-		//$this->success 				= is_bool($queryResult) && $queryResult;
 
-		// If the request succeed
-		if ( $this->success )
-		{
-			// Get number of rows affetected by a insert, update, delete request
-			$this->affectedRows = mysql_affected_rows($this->db);
-			
-			// Get number of selected rows (for select request)
-			$this->numRows 		= is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
-			
-			if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
-			
-			// If the request returns results
-			// HOW TO handle RETURNING clause for mysql ??? 
-			if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
-			{                
-				$this->fetchResults($queryResult, $o);
-				
-				$this->fixSpecifics($o);
-				
-				// TODO: if returning !== 'id', make a select using id value, then return column value
-				if ( !empty($o['returning']) ) { $this->data['id'] = $this->insertedId; }
-				
-				//if ( !empty($o['getFields']) && count($o['getFields']) === 1 )
-				/*
-				if ( !empty($o['getFields']) && count($o['getFields']) === 1 )
-				{
-                    $colName = $o['getFields'][0];
-
-                    // TODO: handle properly on fetch instead????
-                    if ( $this->numRows > 1 )
-                    {
-                        $tmpData = array();
-                        
-                        foreach ( $this->data as $item ){ if ( isset($item[$colName]) ){ $tmpData[] = $item[$colName]; } }
-                        
-                        $this->data = $tmpData;
-                        
-                        unset($tmpData);
-                    }
-                    else
-                    {
-                        $this->data = isset($this->data[$colName]) ? $this->data[$colName] : null;    
-                    }
-
-					
-				}*/
-			}
-			
-			// For insert, we may need to do some process once the request succeed
-			if ( $o['type'] === 'insert' && !empty($this->afterQuery) ){ $this->afterQuery(); }
-		}
-		else
-		{			
-			// Get the last error returned by the db
-			//$this->errors = mysql_error($this->db);
-			$errId = mysql_errno($this->db);
-			$this->errors[$errId] = mysql_error($this->db);
-		}	
-		
-		return $this;
-	}
-
-
-    public function query_new($query, $options = null)
+    public function query($query, $options = null)
     {
         $this->data = null;
         
@@ -210,14 +122,9 @@ class Model extends Application
         $o['type']              = !empty($o['type']) ? $o['type'] : 'select';   // Set query type to select by default if not already setted
         
         $this->launchedQuery    = $query;
-		
-//$this->dump('query_new');
         
         // Do the query
         $queryResult            = mysql_query($query, $this->db);
-//$this->dump(mysql_query($query, $this->db));
-
-//$this->dump($queryResult);
         
         // 
         $this->success          = is_bool($queryResult) && !$queryResult ? false : true;
@@ -227,14 +134,10 @@ class Model extends Application
         {
             // Get number of rows affetected by a insert, update, delete request
             $this->affectedRows = mysql_affected_rows($this->db);
-			
-//$this->dump(mysql_affected_rows($this->db));
             
             // Get number of selected rows (for select request)
             $this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
 			$this->numFields 	= is_resource($queryResult) ? mysql_num_fields($queryResult) : 0;
-			
-//$this->dump('fields: ' . $this->numFields);
             
             if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
             
@@ -242,7 +145,7 @@ class Model extends Application
             // HOW TO handle RETURNING clause for mysql ??? 
             if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
             {                
-                $this->fetchResults_new($queryResult, $o);
+                $this->fetchResults($queryResult, $o);
             }
             
             // For insert, we may need to do some process once the request succeed
@@ -285,53 +188,6 @@ class Model extends Application
 		
 		return $this;
 	}
-	
-	private function fixSpecificsSingle_old($dataRow)
-	{
-		if ( !is_array($dataRow) && !is_object($dataRow) ){ return $dataRow; }
-
-		$rModel 	= &$this->application->dataModel[$this->resourceName];
-		
-		foreach( $dataRow as $field => $value )
-		{
-			$rField      = !empty($rModel[$field]) ? $rModel[$field] : null;
-			$type        = !empty($rField['type']) ? $rField['type'] : null;
-			$subtype     = !empty($rField['subtype']) ? $rField['subtype'] : null;
-			$curVal      = &$dataRow[$field];
-
-			// Fix postgresql 't' === true and 'f' === false
-			if ( $type === 'bool' )
-			{
-				//$dataRow[$field] = $curVal === 't' ? true : ( $curVal === 'f' ? false : $curVal);  
-				//$dataRow[$field] = $curVal === 't' || $curVal == true  ? true : ( $curVal === 'f' || $curVal == false ? false : $curVal);
-				$dataRow[$field] = $curVal === 't' || $curVal == true  ? true : false;
-			}
-			else if ( $type === 'int' )
-			{
-				$dataRow[$field] = (int) $curVal;
-			}
-			else if ( $type === 'float' )
-			{
-				$dataRow[$field] = (float) $curVal;
-			}
-			else if ( $type === 'timestamp' )
-			{
-				//$dataRow[$field] = is_numeric($curVal) ? $curVal : strtotime($curVal);  
-				$dataRow[$field] = is_numeric($curVal) ? (int) $curVal : strtotime($curVal);
-			}
-			//else if ( $type === 'varchar' && $subtype === 'file' )
-			else if ( $type === 'varchar' && in_array($subtype, array('file', 'fileDuplicate')) )
-			{
-				if ( !empty($curVal) && !empty($rField['destBaseURL']) )
-				{
-					$dataRow[$field] = $rField['destBaseURL'] . $curVal;
-				}
-			}
-		}
-		
-		return $dataRow;
-	}
-	
 	
 	private function fixSpecificsSingle($dataRow, $options = array())
 	{
@@ -634,72 +490,7 @@ class Model extends Application
     }
 	
 
-	private function fetchResults($queryResult, $options = null)
-	{		
-		$o 			= &$options;
-		$o['mode'] 	= !empty($o['mode']) ? $o['mode'] : '';
-        $fixTypes   = defined('_APP_USE_ONFETCH_TYPEFIXING') && _APP_USE_ONFETCH_TYPEFIXING;
-		
-		// Special cases where we know that we will only get 1 result
-		// So, we do not want it to be put into an array but want it instead to be directly returned
-		if ( $o['mode'] === 'count' )
-		{
-			$this->data = mysql_result($queryResult, 0,0);
-		}
-		//else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning'])) && $this->numRows != 0 )
-        //else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning']) || count($o['getFields']) === 1) && $this->numRows != 0 )
-        //else if ( ($o['mode'] === 'onlyOne' || !empty($o['returning']) || count($o['getFields']) === 1) && $this->numRows === 1 )
-        else if ( $this->numRows > 0 && ($o['mode'] === 'onlyOne' || !empty($o['returning']) || (count($o['getFields']) === 1 && $this->numRows === 1)) )
-		{
-//$this->dump('1 row, x cols');
-			$this->data = mysql_fetch_array($queryResult, MYSQL_ASSOC);
-            
-            $this->data = $fixTypes ? $this->fixSpecificsSingle($this->data) : $this->data;
-			
-			if ( count($o['getFields']) === 1 )
-			{
-				$this->data = isset($this->data[$o['getFields'][0]]) ? $this->data[$o['getFields'][0]] : null;
-			}
-		}
-		// Otherwise, fetch the query results set
-		else
-		{            
-			if ( $this->numRows > 0 ) 
-			{
-				while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
-				{
-//var_dump($o['getFields']);
-					
-                    // If we only get 1 column in the results
-                    if ( ( count($o['getFields']) === 1 && empty($o['count'])) 
-                        || ( $o['mode'] === 'distinct' && !empty($o['field']) ) )
-                    {
-//$this->dump('several rows, 1 col');
-						
-                        $row            = $fixTypes ? $this->fixSpecificsSingle($row) : $row;
-                        $usedField      = $o['mode'] === 'distinct' && !empty($o['field']) ? $o['field'] : $o['getFields'][0];
-//$this->dump($usedField);
-//var_dump($row);
-                        $this->data[]   = $row[$usedField];
-                    }
-                    else
-                    {
-//$this->dump('several rows, several cols');
-                        //$this->data[] = $row;
-                        $this->data[] = $fixTypes ? $this->fixSpecificsSingle($row) : $row;
-                    }
-				}
-			}
-			else { $this->data = array(); }
-		}
-		
-		if ( is_resource($queryResult) ) { mysql_free_result($queryResult); }
-		
-		return $this;
-	}
-
-
-    private function fetchResults_new($queryResult, $options = null)
+    private function fetchResults($queryResult, $options = null)
     {       
         $o          = &$options;
 		$o 			= array_merge(array(
@@ -1065,7 +856,7 @@ class Model extends Application
 									'relation' 		=> 'onetomany',
 					);
 					
-					// Destroy tmp vars to prevent var name conflicts
+					// Destroy tmp vars to prevent  name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
 				}
 				elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
@@ -2540,12 +2331,8 @@ class Model extends Application
 		
 		//return ( !empty($o['returning']) && count((array) $o['returning']) === 1 ) ? $this->data[$o['returning']] : $this;
 		//return !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this;
-		return defined('_APP_USE_SQL_FETCH_V2') && _APP_USE_SQL_FETCH_V2
-			?  $this->data
-			: ( !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this )
+		return $this->data
 		;
-			
-		
 	}
 	
 	

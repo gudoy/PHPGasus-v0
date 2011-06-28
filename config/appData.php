@@ -1,6 +1,6 @@
 <?php
 
-define('_PHPGASUS_VERSION', 					'0.7.2.0');
+define('_PHPGASUS_VERSION', 					'0.7.3.0');
 
 ### APP META
 //define("_APP_NAME", 							'mynewproject');
@@ -66,15 +66,15 @@ define('_APP_GOOGLE_MAPS_API_KEY',               '');
 
 ### ACCOUNT SESSIONS HANDLING
 define('_SESSION_NAME', 						'token'); 		// Name of the sessions
-define('_APP_ALLOW_GET_SID_FROM_URL', 			true); 			// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
+define('_APP_ALLOW_GET_SID_FROM_URL', 			false); 			// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
 define('_APP_USE_ACCOUNTS', 					true); 			// Disable this prevent app from trying to update sessions table on each page load
 define('_APP_ALLOW_SIGNUP', 					false); 		// Allow users to sign up by themselves
 define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
 define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, when a user login, its sessions older than 1 day are deleted
 define('_APP_USE_ACCOUNTS_CONFIRMATION', 		true);          // Will require accounts to be confirmed (email sent with activation link)
-define('_APP_MAX_LOGIN_ATTEMPTS', 				10);          	// If the user tries to login more than X times, it's account will be blocked for some time (0 = no limit)
-define('_APP_MAX_LOGIN_ATTEMPTS_BAN_TIME', 		3600);          // Duration (in seconds) of the ban of the account due to too many login attemps
+define('_APP_MAX_LOGIN_ATTEMPTS', 				5);          	// If the user tries to login more than X times, it's account will be blocked for some time (0 = no limit)
+define('_APP_MAX_LOGIN_ATTEMPTS_BAN_TIME', 		7200);          // Duration (in seconds) of the ban of the account due to too many login attemps
 define('_APP_ALLOW_LOST_PASSWORD_RESET', 		true); 			// Allow users to reset their's password (send a mail with a link to reset it)
 
 ### AMAZON WEB SERVICES
@@ -82,21 +82,22 @@ define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');
 define('_AWS_SECRET_KEY', 						'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 						'yourBucketName');
 
-### FEATURES & REFACTORING
+### FEATURES
 define('_ADMIN_RESOURCES_NB_PER_PAGE', 			100);
 define('_APP_USE_EVENTS',                       true);          // Disable this if you do not need to use events 
-define('_APP_USE_SQL_TYPEFIXING',               false);         //
-define('_APP_USE_ONFETCH_TYPEFIXING', 			true);          //
-define('_APP_TYPEFIX_ONETOONE_GETFIELDS',       true);          //
-define('_APP_TYPEFIX_MANYTOMANY_GETFIELDS',     true);          //
-define('_APP_USE_ADMIN_METAS',                  false);         //
-define('_APP_SEARCH_ALWAYS_GLOBAL',             true);         //
+define('_APP_USE_SQL_TYPEFIXING',               false);         // experimental.
+define('_APP_USE_ONFETCH_TYPEFIXING', 			true);          // experimental.
+define('_APP_TYPEFIX_ONETOONE_GETFIELDS',       true);          // experimental.
+define('_APP_TYPEFIX_MANYTOMANY_GETFIELDS',     true);          // experimental.
+define('_APP_USE_ADMIN_METAS',                  false);         // experimental.
+define('_APP_SEARCH_ALWAYS_GLOBAL',             true); 			// experimental.
 define('_APP_USE_DEFERED_JS',                   false);         // experimental.
 define('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES',  true);          // experimental.
-define('_APP_USE_RESOURCESGROUPS',              true);          //
-define('_APP_USE_SQL_FETCH_V2',                 true);          //
-define('_APP_USE_SQL_REINDEXBY_V2',             false);          //
-define('_APP_ENABLE_SPLITED_ONE2ONE_COLS',      true);
+define('_APP_USE_RESOURCESGROUPS',              true);          // experimental.
+define('_APP_USE_SQL_REINDEXBY_V2',             false); 		// experimental.
+define('_APP_ENABLE_SPLITED_ONE2ONE_COLS',      true); 			// experimental.
+define('_APP_USE_FIREPHP_LOGGING',      		true); 			// experimental. In local & dev environment, use FirePHP server lib to log data (using $this->dump()) into Firefox console (require related extension).
+define('_APP_USE_CHROMEPHP_LOGGING',      		true); 			// experimental. In local & dev environment, use ChromePHP server lib to log data (using $this->dump()) into Chrome console (require related extension). 
 
 
 ?>

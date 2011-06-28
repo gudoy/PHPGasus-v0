@@ -33,25 +33,16 @@ class AES
 	}
 	
 	
-	public function hex2asc($hex)
+	public function hex2bin($hex)
 	{
 		return pack('H*', $hex);
-	}
-	
-	public function hexstr($hexstr)
-	{
-		$hexstr = str_replace(' ', '', $hexstr);
-		$hexstr = str_replace('\x', '', $hexstr);
-		$retstr = pack('H*', $hexstr);
-		
-		return $retstr;
 	}
 	
 	public function decrypt($encMsgStr, $key, $iv = null)
 	{
 		$key 			= $key;
 		$iv 			= !$iv ? $key : $iv;
-		$encMsgStr 		= self::hex2asc($encMsgStr);
+		$encMsgStr 		= self::hex2bin($encMsgStr);
 		
 		$decrypttext 	= mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $encMsgStr, MCRYPT_MODE_CBC, $iv);
 		/*

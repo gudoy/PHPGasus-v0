@@ -4,10 +4,9 @@
 
 class Application
 {
-	var $debug 	= false;
-	//var $logged = null;
-	var $logged = false;
-	var $inited = false;
+	public $debug 	= false;
+	public $logged 	= false;
+	public $inited 	= false;
 	
 	public function __construct()
 	{
@@ -217,17 +216,12 @@ class Application
 		{			
 			// Get the data of the passed session id
 			//$s = CSessions::getInstance()->retrieve(array('values' => $_GET[_SESSION_NAME], 'sortBy' => 'expiration_time', 'orderBy' => 'DESC', 'limit' => 1));
-			$sid = filter_var($_GET[_SESSION_NAME], FILTER_SANITIZE_STRING);
-			$s 	= CSessions::getInstance()->retrieve(array('conditions' => array('id' => $sid)));
+			$sid 	= filter_var($_GET[_SESSION_NAME], FILTER_SANITIZE_STRING);
 			
-			// If the client ip match the passed session's one, set it as the current session id
-			if ( !empty($s) && $_SERVER['REMOTE_ADDR'] === $s['ip'] )
-			{
-				session_id($_GET[_SESSION_NAME]);
-				session_start(); 
-				$_SESSION['id'] 		= $_GET[_SESSION_NAME];
-				$_SESSION['user_id'] 	= $s['user_id'];
-			}
+			session_id($sid);
+			session_start(); 
+			$_SESSION['id'] 		= $sid;
+			//$_SESSION['user_id'] 	= $s['user_id'];
 		}
 		
 		// Start the session if not already started 
@@ -236,30 +230,64 @@ class Application
 		// Get the current session id
 		$sid = session_id();
 		
+		// TODO: if session passed (cookie or anything) check that ip match the stored one
+		$CSessions = new CSessions();
+		$session = $CSessions->retrieve(array( 
+			'getFields' 	=> 'id,name,user_id,ip',
+			'sortBy' 		=> 'expiration_time',
+			'orderBy' 		=> 'DESC',
+			'conditions' 	=> array('name' => $sid),
+			'limit' 		=> 1, 
+		));
+		
+		// If the client ip match the passed session's one, set it as the current session id
+		if ( empty($session) || !empty($session['ipg']) || $_SERVER['REMOTE_ADDR'] !== $session['ip'] )
+		{
+			$this->logged = false;
+			return $this;
+		}
+		
+		// Store the user id in session
+		$_SESSION['user_id'] 	= $session['user_id'];
+		
+		/*
 		// Set session updated POST data
 		$newPOST = array(
 			'expiration_time' 	=> (time() + _APP_SESSION_DURATION),
 			'last_url' 			=> $this->currentURL(),
 		);
 		foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
+		*/
+		
+		$curPOST = $_POST;
+		$_POST = array(
+			'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + _APP_SESSION_DURATION,
+			'last_url' 			=> $this->currentURL(),
+		);
 		
 		// Try to update the session in db, if exists and not already expired
+		/*
 		$CSessions = CSessions::getInstance()->update(array(
 			'sortBy' => 'expiration_time',
 			'orderBy' => 'DESC',
 			'limit' => 1,
 			'conditions' 	=> array(
 				'name' => $sid,
+				//'ip' => $_SERVER['REMOTE_ADD'],
 				array('expiration_time', '>', ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) ),
 				
 			)
-		)); 
+		));*/
+		$CSessions->update(array('isApi' => 1, 'conditions' => array('id' => $session['id'])));
+		
 		
 		// If rows have been affected, it means that the user is properly logged (cause the session exists and is not expired)
 		$this->logged = $CSessions->success && $CSessions->model->affectedRows > 0;
 		
 		// Once this is done, unset previously setted POST
-		foreach ($newPOST as $key => $val) { unset($_POST['session' . ucfirst($key)]); }
+		//foreach ($newPOST as $key => $val) { unset($_POST['session' . ucfirst($key)]); }
+		unset($_POST);
+		$_POST = $curPOST;
 		
 		return $this;
 	}
@@ -433,18 +461,35 @@ class Application
 	public function dump($data, $options = null)
 	{        
 		//if ( in_array(_APP_CONTEXT, array('local','dev')) || $this->options['debug'] )
-		if ( in_array(_APP_CONTEXT, array('local','dev')) )
+		if ( !in_array(_APP_CONTEXT, array('local','dev')) ){ return; }
+			
+		// Get user agent
+		$ua = !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
+		
+//var_dump($ua);
+//var_dump(strpos($ua, 'Chrome'));
+		
+		if ( _APP_USE_CHROMEPHP_LOGGING && strpos($ua, 'Chrome') !== false )
 		{
-			//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHPCore/FirePHP.class.php');
-			//class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHP/fb.php'); 
-            //class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHP/Init.php');
-            class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');
-            
-            //var_dump($data);
-			FirePHP::getInstance(true)->log($data);
+	        class_exists('ChromePhp') || require(_PATH_LIBS . 'tools/ChromePHP/ChromePhp.php');
+	        
+			//ChromePhp::useFile(_PATH . '/tmp/', '/chromelogs');
+			ChromePhp::log($data);	
+		}
+		elseif ( _APP_USE_FIREPHP_LOGGING && strpos($ua, 'Gecko') !== false )
+		{
+	        class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');
+	        
+	        //var_dump($data);
+			FirePHP::getInstance(true)->log($data);	
+		}
+		else
+		{
+			// TODO
+			// ????
 		}
 		
-		return $this;
+		return;
 	}
     
     

@@ -14,7 +14,7 @@ var app =
 	isIpad: ( ua.indexOf('iPad') > -1 || Tools.getURLParamValue(window.location.href,'isIpad') == true ),
 	isAndroid: ua.indexOf('Android') > -1,
 	isMobile: window.screen.width <= 600,
-	//isBackBerry: ua.indexOf('Android') > -1,
+	//isBackBerry: ua.indexOf('BlackBerry') > -1,
 	support: {touch: (typeof Touch == "object")},
 	orientation: 'landscape',
 	

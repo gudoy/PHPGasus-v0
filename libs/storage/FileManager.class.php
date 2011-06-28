@@ -5,10 +5,10 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 class FileManager extends Application
 {
 	private static $_instance;
-	var $success 	= null;
-	var $errors 	= null;
-	var $ftp 		= null;
-	var $ftpLogged 	= null;
+	public $success 	= null;
+	public $errors 		= null;
+	public $ftp 		= null;
+	public $ftpLogged 	= null;
 	
 	public function _construct()
 	{

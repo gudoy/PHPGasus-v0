@@ -54,6 +54,22 @@ class VAccount extends View
 			//if ( empty($redir) ){ $this->redirect(_URL_HOME); }
 		}
 		
+		// If max login attemps feature has beend activated
+		if ( defined('_APP_MAX_LOGIN_ATTEMPTS') && _APP_MAX_LOGIN_ATTEMPTS >= 1 )
+		{
+			$ban = CBans::getInstance()->retrieve(array('by' => 'ip', 'values' => $_SERVER['REMOTE_ADDR']));
+			
+			//date_default_timezone_set('UTC');
+			
+			// If the ban is found and if the ban time is not passed or if ban if forever
+			// Do not continue
+			if ( $ban && ( empty($ban['end_date']) || $ban['end_date'] < $_SERVER['REQUEST_TIME'] ) )
+			{
+				$this->data['errors'][] = 10030;
+				return $this->statusCode(401);
+			}
+		}
+		
 		// Load proper controller and instanciate it
 		//$this->requireControllers('CSessions');
 		$CSessions = new CSessions();
@@ -61,9 +77,27 @@ class VAccount extends View
 		// If data have been posted
 		if ( !empty($_POST) )
 		{
+			// Increase login attemps count
+			$_SESSION['login_attemps'] = isset($_SESSION['login_attemps']) ? $_SESSION['login_attemps']+1 : 1;
+			
+			// If the user login attemps reached the max allowed one, ban it's ip for some time
+			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') && _APP_MAX_LOGIN_ATTEMPTS >= 1 && $_SESSION['login_attemps'] > _APP_MAX_LOGIN_ATTEMPTS )
+			{
+				$_POST = array(
+					'ip' 		=> $_SERVER['REMOTE_ADDR'],
+					'reason' 	=> 'max login allowed attemps',
+					'end_date' 	=> $_SERVER['REQUEST_TIME'] + _APP_MAX_LOGIN_ATTEMPTS_BAN_TIME, 
+				);
+				CBans::getInstance()->create(array('isApi' => 1));
+				
+				$this->data['errors'][] = 10030;
+				
+				return $this->statusCode(401);
+			}
+			
 			// Check for the required params
 			$reqParams = array('userEmail' => 20010, 'userPassword' => 20012);
-			foreach ($reqParams as $key => $val){ if ( empty($_POST[$key]) ) { $this->data['errors'][] = $val; $this->statusCode(400); } }
+			foreach ($reqParams as $key => $val){ if ( empty($_POST[$key]) ) { $this->data['errors'][] = $val; $this->statusCode(400); goto render; } }
 			
 			// Get the user data
 			//$this->requireControllers('CUsers');
@@ -74,19 +108,20 @@ class VAccount extends View
 			$orientation     = $_POST['deviceOrientation'] ? filter_var($_POST['deviceOrientation'], FILTER_SANITIZE_STRING) : null;
 			
 			// If user mail is not found
-			if ( empty($user) ){ $this->data['errors'][] = 10002; $this->statusCode(401); }
+			if ( empty($user) ){ $this->data['errors'][] = 10002; $this->statusCode(401); goto render; }
 			
 			// If pass does not match the stored one
-			if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); }			
+			if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); goto render; }
+
+			// If user is not confirmed
+			if ( !$user['activated'] ){ $this->data['error'][] = 10005; $this->statusCode(401); goto render; }
 			
 			// Build session data (after saving current post data)
 			$savePOST = $_POST;
 			$newPOST = array(
 				'name' 				=> session_id(), 
 				'user_id' 			=> $user['id'], 
-				//'expiration_time' 	=> time() + (int) _APP_SESSION_DURATION,
 				'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + (int) _APP_SESSION_DURATION,
-				 
 				'ip' 				=> $_SERVER['REMOTE_ADDR'],
 				//TODO, add this to session datamodel & to sessions db table
 				'resolution'        => $resolution,
@@ -115,6 +150,7 @@ class VAccount extends View
 			     'user_id'       => $newPOST['user_id'],
 			     'resolution'    => $resolution,
 			     'orientation'   => $orientation,
+			     'login_attemps' => 0, // reset login attemps
             ));
 			$this->logged = true;
 			
@@ -133,8 +169,10 @@ class VAccount extends View
 			
 			$this->respondError(201);
 		}
-				
+		
+		render:
 		return $this->render();
+		;
 	}
 	
 	
@@ -206,13 +244,6 @@ class VAccount extends View
 			$pass 		= !empty($_POST['userPassword']) ? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : '';
 			$confirm 	= !empty($_POST['userPassword_confirmation']) ? filter_var($_POST['userPassword_confirmation'], FILTER_SANITIZE_STRING) : '';
 			if ( $pass !== $confirm ) { $this->data['errors'][] = 10004; $this->statusCode(400); }
-			
-			$_POST = $_POST + array(
-				'userBilling_address' 	=> $_POST['userAddress'],
-				'userBilling_zipcode' 	=> $_POST['userZipcode'],
-				'userBilling_city' 		=> $_POST['userCity'],
-				'userBilling_country' 	=> $_POST['userCountry'],
-			);
 						
 			// Launch the creation
 			$this->C->create();

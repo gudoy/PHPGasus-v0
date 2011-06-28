@@ -12,7 +12,7 @@ $jsAssoc    = array(
 	'jqueryPlusUI'         => array('jquery', 'jqueryUI'),
 	'jqueryEasing'         => array($libs . 'jquery.easing.1.3.js'),
 	'timepicker'           => array($libs . 'jquery-ui-timepicker-addon.js'),
-	'modernizr'            => _APP_USE_MODERNIZR ? array($libs . 'modernizr-2.0.3.custom.js') : array(),
+	'modernizr'            => _APP_USE_MODERNIZR ? array($libs . 'modernizr-2.0.4.custom.js') : array(),
 	'tools'                => array('common/tools.js'),
 	
     # PHPGasus defaults

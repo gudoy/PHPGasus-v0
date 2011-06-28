@@ -44,15 +44,15 @@
 class Plist
 {
 	// string url
-	var $url; 
+	public $url; 
 	// DomDocument doc
-	var $doc; 
+	public $doc; 
 	// string dateFormat
-	var $dateFormat; 
+	public $dateFormat; 
 	// integer timeZone
-	var $timeZone; 
+	public $timeZone; 
 	// object dataArray
-	var $dataArray; 
+	public $dataArray; 
 	
 	// Plist()
 	// Plist(string url)

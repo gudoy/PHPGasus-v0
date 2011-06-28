@@ -4,9 +4,9 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 
 class RSSimporter extends Application
 {
-	var $data = null;
-	var $success = null;
-	var $errors = null;
+	public $data 	= null;
+	public $success = null;
+	public $errors 	= null;
 	
 	public function index($options = array())
 	{		

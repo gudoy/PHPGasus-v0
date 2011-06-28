@@ -45,6 +45,9 @@
 
 {block name='mainColFooter'}
 	<footer class="menu" id="mainColFooter">
+		{block name='poweredBy'}
+		<div class="block poweredByBlock" id="poweredByBlock">{t escape=no}powered by <a href="http://www.phpgasus.com">PHPGasus</a>{/t}</div>
+		{/block}
 		<ul>
 			<li class="toggler" id="mainColColToggler">
 				<a class="toggle plus" id="showMainCol"><span class="value">{t}show{/t}</span></a>

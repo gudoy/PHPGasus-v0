@@ -4,13 +4,13 @@ class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
 
 class Model extends Application
 {
-	var $debug 			= false;
-	var $db 			= null;
-	var $data 			= array();
-	var $success 		= false;
-	var $errors 		= array();
-	var $affectedRows 	= null;
-	var $numRows		= null;
+	public $debug 			= false;
+	public $db 				= null;
+	public $data 			= array();
+	public $success 		= false;
+	public $errors 			= array();
+	public $affectedRows 	= null;
+	public $numRows			= null;
 	
 	public function __construct()
 	{

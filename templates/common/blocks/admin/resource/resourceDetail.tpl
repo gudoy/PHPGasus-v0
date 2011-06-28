@@ -1,8 +1,9 @@
+{$resourceSingular = $data._resources[$resourceName].singular|default:$resourceName}
 <dl>
 	{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
 	{$type 	= $field.type}
 	{$value = $resource[$fieldName]}
-	<dt class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst}">
+	<dt class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst} {$resourceSingular}{$fieldName|ucfirst}" id="{$resourceSingular}{$fieldName|ucfirst}Label">
 		<span class="key">
 			{$fieldName|replace:'_':' '}{*t}:{/t*}
 		</span>
@@ -12,7 +13,7 @@
 		</small>
 		{/if}
 	</dt>
-	<dd class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst}">
+	<dd class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst} {$resourceSingular}{$fieldName|ucfirst}" id="{$resourceSingular}{$fieldName|ucfirst}">
 		<span class="value">{strip}
 		{if $type === 'bool'}
 			{if in_array($value, array(1,true,'1','true','t'), true)}

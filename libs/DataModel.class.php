@@ -2,9 +2,9 @@
 
 class DataModel
 {
-	var $resources 	= array();
-	var $groups 	= array();
-	var $colums 	= array();
+	public $resources 	= array();
+	public $groups 		= array();
+	public $colums 		= array();
 	
 	public function _construct()
 	{
@@ -238,8 +238,12 @@ class DataModel
 			// 'description' 		=> 'text',
 			// 'desc' 				=> 'text',
 			
+			// ip 					=> 'ip'
+			
 			// TODO
-			// length, _len,
+			// length, _len, 
+			// time, _time, year, _year, month, _month, day, _day, hour, _hour, minutes, _minutes, seconds, _seconds
+			
 		}
 	}
 }

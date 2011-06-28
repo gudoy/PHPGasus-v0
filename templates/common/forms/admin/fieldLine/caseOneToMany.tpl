@@ -25,7 +25,7 @@
 	<tbody>
 {*
 		<tr class="odd">
-			<td colspan="3">
+			<td colspan="0">
 				<a class="adminLink addLink addOneToManyItemLink" href="#">
 					<span class="value label">{t}add{/t}</span>
 				</a>

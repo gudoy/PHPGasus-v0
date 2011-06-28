@@ -7,9 +7,9 @@
 
 class AES
 {
-    var $key = NULL;
-    var $iv = NULL;
-    var $iv_size = NULL;
+    public $key = NULL;
+    public $iv = NULL;
+    public $iv_size = NULL;
 		
 	private static $_instance;
 	

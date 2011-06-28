@@ -12,8 +12,6 @@
 </tr>
 {foreachelse}
 <tr class="noData">
-	<td class="firstCol lastCol" colspan="{$displayedFieldsNb+5}">
-		{t}There's currently nothing here{/t}
-	</td>
+	<td class="firstCol lastCol" colspan="0">{t}There's currently nothing here{/t}</td>
 </tr>
 {/foreach}

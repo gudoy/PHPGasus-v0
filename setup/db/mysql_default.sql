@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
+
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL auto_increment,
   `email` varchar(255) default NULL,
@@ -117,18 +118,27 @@ CREATE TABLE IF NOT EXISTS `users` (
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,
   `name` varchar(128) default NULL,
+  `device_id` varchar(64) NOT NULL,
+  `activated` tinyint(1) NOT NULL default '0',
+  `activation_key` varchar(32) NOT NULL,
+  `password_reset_key` varchar(32) NOT NULL,
+  `private_key` varchar(16) NOT NULL,
   `creation_date` timestamp NULL default NULL,
   `update_date` timestamp NULL default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `first_name` (`first_name`),
-  KEY `last_name` (`last_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+  KEY `last_name` (`last_name`),
+  KEY `device_id` (`device_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
+--
+-- Contenu de la table `users`
+--
 
-INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `creation_date`, `update_date`) VALUES
-('', 'nobody@anonymous.com', 'f845fb444033f19b8568373351b868dd5b4e54af', 'john', 'doe', '', '2010-12-02 11:15:23', '2010-12-03 14:23:51'),
-('', 'guyllaume@clicmobile.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '2010-09-30 14:11:49', '2010-12-01 23:52:03');
+INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `device_id`, `activated`, `activation_key`, `password_reset_key`, `private_key`, `creation_date`, `update_date`) VALUES
+('', 'nobody@anonymous.com', 'f845fb444033f19b8568373351b868dd5b4e54af', 'john', 'doe', '', '', 0, '', '', '', '2010-12-02 11:15:23', '2011-06-28 11:11:06'),
+('', 'guyllaume@clicmobile.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '', 1, '', '', '', '2011-06-28 11:01:02', '2011-06-28 11:11:09');
 
 
 

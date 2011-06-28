@@ -1,20 +1,22 @@
 <?php
 
-class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
-
-class View extends Application
+interface ViewInterface
 {
-	var $controller        = null;
-	var $headers           = array();
-	var $events            = null;
-	var $data              = array(
+    public function index();
+}
+
+class View extends Application implements ViewInterface
+{
+	public $controller        = null;
+	public $headers           = array();
+	public $events            = null;
+	public $data              = array(
 		'success' 		=> false,
 		'errors' 		=> array(), 
 		'warnings' 		=> array()
 	);
     
-    var $application    = null;
-    //var $logged             = false;
+    public $application    = null;
 		
 	public function __construct(&$application = null)
 	{
@@ -22,6 +24,8 @@ class View extends Application
         
 		return $this->init();
 	}
+	
+	public function index(){}
 	
 	public function init()
 	{
@@ -165,12 +169,12 @@ $this->dump('id: ' . $id);
 $this->dump($allowed);
 */
 
+//var_dump($id);
+//die($m);
 		
 		// Special case if method is 'retrieve' but resource id is not set
 		// In this case, method is forced back to index 
 		if ( $m === 'retrieve' && is_null($id) ) { $m = 'index'; }
-		
-//$this->dump('m: ' . $m);
 		
 		//$m 			= !empty($pM) 
 		//					? $pM : !empty($gM) 
@@ -213,7 +217,11 @@ $this->dump($allowed);
 		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		
 		// List of known platforms
-		$knownPlatforms = array('Windows','Mac OS','linux','freebsd','iPhone','iPod','iPad','Android','BlackBerry','Symbian','Bada','AdobeAIR','tabbee','mobile','j2me');
+		$knownPlatforms = array(
+			'Windows','Mac OS','linux','freebsd', 							// OS
+			'iPhone','iPod','iPad','Android','BlackBerry','Bada','mobile', 	// Mobile
+			'j2me','AdobeAIR', 												// Specific
+		);
 		
 		foreach ( $knownPlatforms as $p )
 		{
@@ -239,22 +247,18 @@ $this->dump($allowed);
         
         $this->device   = array();
         $d              = &$this->device;
-		
+        
         // Get resolution
         $resol          = !empty($_SESSION['resolution']) ? explode('x', strtolower($_SESSION['resolution'])) : array();
         $w              = !empty($resol[0]) ? (int) $resol[0] : null;
         $h              = !empty($resol[1]) ? (int) $resol[1] : null;
-		
-//var_dump($_SESSION);
-//var_dump($resol);
         
         // Default values
         $d  = array(
             'resolution'    => array('width' => $w, 'height' => $h),
             'isMobile'      => isset($_GET['isMobile']) 
                                 ? in_array($_GET['isMobile'], array('1', 'true',1,true))
-                                //: ( !empty($w) ? ($w < 800) : null ),
-                                : ( !empty($w) ? ($w < 767) : null ),
+                                : ( !empty($w) ? ($w < 800) : null ),
             'orientation' => !empty($_SESSION['orientation']) 
                                 ? $_SESSION['orientation'] 
                                 : ( $w && $h ? ( $w > $h ? 'landscape' : 'portrait') : null),
@@ -278,7 +282,6 @@ $this->dump($allowed);
 			'version' 			=> 'unknownVersion',
 			'engine' 			=> 'unknownEngine',
 			'hasHTML5' 			=> false,
-			//'hasHTML5Forms' 	=> false,
 		);
 		
 		// Do not continue if browser sniffing has been disabled
@@ -292,27 +295,25 @@ $this->dump($allowed);
         //$knownEngines   = array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml', 'BlackBerry' => 'blackberry');
 		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml', 'BlackBerry' => 'mango');
 		$knownBrowsers 	= array(
-			'MSIE' 						=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
-			'Firefox' 					=> array('name' => 'firefox', 'displayName' => 'Firefox', 'alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
-			'Chrome' 					=> array('name' => 'chrome', 'displayName' => 'Chrome', 'alias' => 'chrome', 'versionPattern' => '/.*(Chrome)\/([0-9\.]*)\s.*/'),
-			'Safari' 					=> array('name' => 'safari', 'displayName' => 'Safari', 'alias' => 'safari', 'versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
-			'Opera' 					=> array('name' => 'opera', 'displayName' => 'Opera', 'alias' => 'opera', 'versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
-			'Konqueror'                 => array('name' => 'konqueror', 'displayName' => 'Konqueror', 'alias' => 'konqueror', 'versionPattern' => '/.*(Konqueror)\/([0-9\.]*)\s.*/'),
-            'BlackBerry'                => array('name' => 'blackberry', 'displayName' => 'BlackBerry', 'alias' => 'blackberry', 'versionPattern' => '/.*(BlackBerry[a-zA-Z0-9]*)\/([0-9\.]*)\s.*/'),
+			'MSIE' 			=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
+			'Firefox' 		=> array('alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
+			'Chrome' 		=> array('versionPattern' => '/.*(Chrome)\/([0-9\.]*)\s.*/'),
+			'Safari' 		=> array('versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
+			'Opera' 		=> array('versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
+			'Konqueror' 	=> array('versionPattern' => '/.*(Konqueror)\/([0-9\.]*)\s.*/'),
+            'BlackBerry' 	=> array('versionPattern' => '/.*(BlackBerry[a-zA-Z0-9]*)\/([0-9\.]*)\s.*/'),
 		);
 				
 		// Try to get the browser data using the User Agent
 		foreach ($knownBrowsers as $k => $b)
 		{
-			if ( isset($_GET['tabbee']) && $_GET['opera'] == true ){ $ua = 'Opera'; }
-			
 			if (strpos($ua, $k) !== false)
 			{
 				$data = array_merge($data, array(
-					'name' 			=> $b['name'],
+					'name' 			=> !empty($b['name']) ? $b['name'] : strtolower($k),
 					'identifier' 	=> $k,  
-					'displayName' 	=> $b['displayName'],
-					'alias' 		=> $b['alias'],
+					'displayName' 	=> !empty($b['displayName']) ? $b['displayName'] : $k,
+					'alias' 		=> !empty($b['alias']) ? $b['alias'] : strtolower($k),
 				)); break;
 			}
 		}
@@ -349,16 +350,6 @@ $this->dump($allowed);
 								|| ($alias === 'opera' && $maj >= 9)
 								|| ($alias === 'ie' && $maj >= 9)
                                 || ($alias === 'konqueror' && $maj >= 4 && $min >= 4 && $data['build'] >= 4);
-		
-		if ( !empty($scheme) )
-		{
-			$v 		= $scheme;
-			$data['support'] = array(
-				'datalist' => 
-								$alias === 'opera' && ($v['major'] > 10 || ($v['major'] == 10 && $v['minor'] == 5))
-								|| $alias === 'ff' && $v['major'] > 4,
-			);
-		}
 		
 		$this->browser = $data;
 		
@@ -413,8 +404,6 @@ $this->dump($allowed);
 				//$hr[] = $this->resourceName;
 			}
 		}
-
-//$this->dump($relResources);
 		
 		return $this;
 	}
@@ -592,11 +581,7 @@ $this->dump($allowed);
 			// TODO: RSS
 			// TODO: ATOM
 			// TODO: RDF
-			// TODO: ZIP??
-			// TODO: JPG??
-			// TODO: PNG??
-			// TODO: GIF??
-			// TODO: BMP??
+			// TODO: ZIP
 		);
 		
 		// If no 'output' param has been passed or if the passed one is not part of the available formats
@@ -1288,7 +1273,8 @@ $this->dump($allowed);
 		$uriParts = @parse_url(_URL . ltrim($_SERVER['REQUEST_URI'], '/'));
 //var_dump(explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/')));
 //die();
- 		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/'));
+ 		//$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/'));
+ 		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', strtolower($uriParts['path'])), '/'));
 //$this->dump($pathParts);
 		
         // Get user groups
@@ -1311,6 +1297,7 @@ $this->dump($allowed);
 		$classes = array_unique($classes);
 		
 //$this->dump($classes);
+//var_dump($pathParts);
 		
 		//return $classes;
 		return join(' ', $classes);

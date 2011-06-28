@@ -1,3 +1,5 @@
+{if $smarty.const._APP_MAX_LOGIN_ATTEMPTS >= 1 && $data.errors[0].id == 10030}
+{else}
 <form action="{$data.current.url}" id="frmLogin" class="commonForm loginForm" method="post" enctype="multipart/form-data">
 	
 	<fieldset>
@@ -34,3 +36,4 @@
 	</fieldset>
 
 </form>
+{/if}

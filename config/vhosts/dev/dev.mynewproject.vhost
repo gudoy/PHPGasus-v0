@@ -2,9 +2,12 @@
 		ServerName devcoffrettravelr.clicmobile.com
 		DocumentRoot "/var/www/Coffret_Digital/"
 		
-		SSLEngine on
-	
+		# Specific logs files. requires files to exists
+		ErrorLog /var/log/apache2/mynewproject/error.log
+		CustomLog /var/log/apache2/mynewproject/access.log combined
+		
 		# For PROD, use properly signed certificate
+		SSLEngine on
 		SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
 		SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 
@@ -30,6 +33,10 @@
 <VirtualHost *:80>
 		ServerName dev.mynewproject.com
 		DocumentRoot "/var/www/mynewproject/"
+		
+		# Specific logs files. requires files to exists
+		ErrorLog /var/log/apache2/mynewproject/error.log
+		CustomLog /var/log/apache2/mynewproject/access.log combined
 
 		<Directory "/var/www/mynewproject/">
 		

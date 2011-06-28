@@ -1,4 +1,4 @@
-<div class="apiGroupBlock first">
+<div class="apiGroupBlock">
 	{$rUsedName='account'}
 	<header class="groupTitle">
 		<h3 class="title">
@@ -12,7 +12,7 @@
 				<span class="uri">/ {$rUsedName} / login</span>
 			</h4>
 			<div class="props">
-				<div class="prop prop expectedInputData">
+				<div class="prop expectedInputData">
 					<span class="key">{t}expected{/t}{t}:{/t}</span>
 					<ul class="values">
 						<li>email</li>

@@ -2,20 +2,20 @@
 
 class Model extends Application
 {
-	var $debug         = false;
-	var $db            = null;
-	var $success       = false;
-	var $errors        = null;
-	var $warnings      = null;
-	var $affectedRows  = null;
-	var $numRows       = null;
-	var $data          = null;
-	var $afterQuery    = null;
-	var $safeWrapper   = '`';
-	var $launchedQuery = null;
+	public $debug         = false;
+	public $db            = null;
+	public $success       = false;
+	public $errors        = null;
+	public $warnings      = null;
+	public $affectedRows  = null;
+	public $numRows       = null;
+	public $data          = null;
+	public $afterQuery    = null;
+	public $safeWrapper   = '`';
+	public $launchedQuery = null;
 	
 	// Default options
-	var $options = array(
+	public $options = array(
 		// Should we force mysql to return real unix_timestamps for timestamp fields instead of mysql formatted dates/
 		// Setting to true prevents costly calls to strtotime() to do the conversion
 		'force_unix_timestamps'   => true,
@@ -688,7 +688,7 @@ $this->dump($this->queryResult);
 									'relation' 		=> 'onetomany',
 					);
 					
-					// Destroy tmp vars to prevent var name conflicts
+					// Destroy tmp vars to prevent  name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
 					
 //var_dump($this->queryData['fields'][$pivotTable . '_id']);
