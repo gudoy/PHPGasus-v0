@@ -2,7 +2,7 @@
 
 class Model extends Application
 {
-	public $debug         = true;
+	public $debug         = false;
 	public $db            = null;
 	public $success       = false;
 	public $errors        = null;
@@ -68,7 +68,7 @@ class Model extends Application
     
     public function dump($data = null, $options = array())
 	{
-		return $this->debug ? parent::dump($data, $options) : $this;
+		return $this->debug ? parent::dump($data, $options) : false;
 	}
     
     public function init($options = array())
@@ -590,6 +590,7 @@ class Model extends Application
 	}
 
 	
+	// TODO: make static
 	private function magicFields($fieldsStringOrArray = null)
 	{
 		$fields = Tools::toArray($fieldsStringOrArray);
@@ -608,7 +609,7 @@ class Model extends Application
 			);
 		}
 		
-		return $this;
+		//return $this;
 	}
 	
 	
@@ -812,7 +813,6 @@ class Model extends Application
 					// Remove fake column from query fields since we are going to use 'getFields' (defaulted to resource defaultNameField if empty) 
 					unset($this->queryData['fields'][$fieldName]);
 					
-					//$o['groupBy'] 	= !empty($o['groupBy']) ? $this->magic($o['groupBy']) : array();
 					$o['groupBy']      = !empty($o['groupBy']) ? Tools::toArray($o['groupBy']) : array();
 					$o['groupBy'][]    = 'id';
 
@@ -872,7 +872,6 @@ class Model extends Application
 
 					if ( !empty($field['relGetFields']) )
 					{
-						//$tmpFields = $this->magic($field['relGetFields']);
 						$tmpFields = Tools::toArray($field['relGetFields']);
 						
 						// 2 possible models for the fields list:

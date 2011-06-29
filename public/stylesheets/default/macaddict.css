@@ -205,6 +205,7 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .adminTable thead th.activeSort { background:#fff; background:-webkit-gradient(linear, left top, left bottom, from(#ddd), to(#fff)); background:-moz-linear-gradient(#ddd, #fff); background:-webkit-linear-gradient(#ddd, #fff); background:-o-linear-gradient(#ddd, #fff); background:-ms-linear-gradient(#ddd, #fff); }
 .adminTable tbody td.activeSort,
 .adminTable tbody th.activeSort { background:rgba(0,0,0,0.05); }
+.adminTable tbody td.idCol { padding-left:5px; padding-right:5px; }
 /* End Tables */
 
 
