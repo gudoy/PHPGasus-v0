@@ -14,7 +14,6 @@
                 <legend>
                     <span>{t}simple search{/t}</span>
                 </legend>
-                <a class="modeLink" id="advancedSearchLink" href="#advancedSearchFieldset">{t}avanced{/t}</a>
                 <div class="line">
                     <div class="labelBlock">
                         <label class="span">{'search'|gettext}</label>

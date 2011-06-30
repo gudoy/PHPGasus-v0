@@ -15,6 +15,8 @@ class VAccount extends ApiView
 	
 	public function index()
 	{
+		$args = func_get_args();
+		
 		$this->dispatchMethods($args, array('allowed' => 'login'));
 	}
 	
@@ -32,6 +34,7 @@ class VAccount extends ApiView
 		if ( !empty($_POST) )
 		{
 			// Check for the required params
+			//$reqParams = array('email', 'password','device_id');
 			$reqParams = array('email', 'password');
 			foreach ($reqParams as $param)
 			{
@@ -56,6 +59,10 @@ class VAccount extends ApiView
 			// If pass does not match the stored one
 			//if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); }
 			if ( empty($pass) || sha1($pass) !== $user['password'] ){ return $this->statusCode(401); }
+			
+			// Check that the passed device id is the same than the user one
+			$dvcId = filter_var($_POST['device_id'], FILTER_SANITIZE_STRING);
+			//if ( $dvcId !== $user['device_id'] ){ return $this->statusCode(409); }
 			
 			// Build session data (after saving current post data)
 			//$savePOST 	= $_POST;

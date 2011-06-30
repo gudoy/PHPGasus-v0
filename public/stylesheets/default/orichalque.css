@@ -367,35 +367,44 @@ header .paginationBlock { float:right; }
 	.adminUpdateBlock form { margin:10px; max-width:640px; }
 	
 	/* Experimental layout */
-	html.api.flexbox,
-	html.admin.flexbox,
-	html.api.flexbox body,
-	html.admin.flexbox body { overflow:hidden; overflow-x:hidden; overflow-y:hidden; }
-	.api.flexbox #layout,
-	.admin.flexbox #layout { max-height:100%; display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
-	.api.flexbox #body,
-	.admin.flexbox #body { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
-	.api.flexbox #mainCol,
-    .admin.flexbox #mainCol { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
-    .api.flexbox #sideCol,
-	.admin.flexbox #sideCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
-	.api.flexbox #sideCol #asideContent,
-	.admin.flexbox #sideCol #asideContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
-	.api.flexbox #mainCol,
-	.admin.flexbox #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
-	.api.flexbox #mainCol #mainColContent,
-	.admin.flexbox #mainCol #mainColContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
     /* Opera does not support flex box module (04/11, current version 11.50): fallback to displays table/table-cell */
     /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
-	html.no-flexbox { overflow-x:hidden; }
+	/* IE < 9 does not support table-cell: NO fallback, go hell */
+	html.api,
+	html.admin,
+	html.api body,
+	html.admin body { overflow:hidden; overflow-x:hidden; overflow-y:hidden; }
+	.api #layout,
+	.admin #layout { max-height:100%; display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.api #body,
+	.admin #body { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
+	.api #mainCol,
+    .admin #mainCol { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+    .api #sideCol,
+	.admin #sideCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.api #sideCol #asideContent,
+	.admin #sideCol #asideContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+	.api #mainCol,
+	.admin #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.api #mainCol #mainColContent,
+	.admin #mainCol #mainColContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+
+	html.api.no-flexbox,
+	html.admin.no-flexbox,
+	html.api.no-flexbox body,
+	html.admin.no-flexbox body { overflow:auto; overflow-y:auto; }
+	.api.no-flexbox #layout,
+	.admin.no-flexbox #layout { max-height:auto; }
 	.no-flexbox #body { width:100%; min-height:90%; display:table; }
 	.no-flexbox #sideCol { display:table-cell; float:none; position:relative; vertical-align:top; position:relative; }
 	.no-flexbox #mainCol { margin-left:0; display:table-cell; position:relative; vertical-align:top; }
 	.no-flexbox footer.menu { position:absolute; left:0; right:0; bottom:0; }
-	/* IE < 9 does not support table-cell: NO fallback, go hell */
 	
 	/* Fix for gecko to force it to size the box correctly */
 	.flexbox.gecko #mainColContent { min-height:1px; }
+	
+	/* Fix for opera that refuses align the search input & its submit button with display:table-cell */
+	.no-flexbox.opera #searchQueryFieldBlock input#searchQuery { height:25px; float:left; } 
 }
 
 /* 1280 x 1024 */
