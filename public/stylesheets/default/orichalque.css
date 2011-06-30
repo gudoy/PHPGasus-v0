@@ -9,7 +9,7 @@
 #mainNavTitle { display:none; }
 .js #mainNavBlock { display:inline-block; float:left; position:absolute; left:10px; top:5px; }
 .js #mainNavTitle { padding:2px 10px; display:inline-block; cursor:pointer; }
-.js #mainNavBlock > .nav { display:none; position:absolute; left:0; top:100%; }
+.js #mainNavBlock > .nav { display:none; position:absolute; left:0; top:100%; z-index:10000; }
 .js #mainNavBlock.expanded > .nav { display:block; text-align:left; }
 #myAccountNavBlock { width:auto; float:right; position:relative; text-align:left; }
 #myAccountNavBlock .titleBlock h2 { display:inline-block; }
@@ -135,7 +135,9 @@ input[type='search'].filter,
 .ui-inlineedit-form.valid,
 .ui-inlineedit-form.invalid { padding-right:20px; background-position:100% 50%; }
 
-html.create { background:none; }
+html.create,
+html.delete,
+html.update { background:none; }
 
 
 /* Start Forms */
@@ -383,14 +385,14 @@ header .paginationBlock { float:right; }
 	.admin.flexbox #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
 	.api.flexbox #mainCol #mainColContent,
 	.admin.flexbox #mainCol #mainColContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
-    /* Opera does not support flex box module (04/11, current version 11.10): fallback to displays table/table-cell */
+    /* Opera does not support flex box module (04/11, current version 11.50): fallback to displays table/table-cell */
     /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
-    /* IE < 9 does not support table-cell: NO fallback, go hell */
 	html.no-flexbox { overflow-x:hidden; }
 	.no-flexbox #body { width:100%; min-height:90%; display:table; }
 	.no-flexbox #sideCol { display:table-cell; float:none; position:relative; vertical-align:top; position:relative; }
 	.no-flexbox #mainCol { margin-left:0; display:table-cell; position:relative; vertical-align:top; }
 	.no-flexbox footer.menu { position:absolute; left:0; right:0; bottom:0; }
+	/* IE < 9 does not support table-cell: NO fallback, go hell */
 	
 	/* Fix for gecko to force it to size the box correctly */
 	.flexbox.gecko #mainColContent { min-height:1px; }

@@ -65,13 +65,13 @@ class VResources extends AdminView
 			$code .= ", 'singular' => '" . $singular . "'";
 			$code .= ", 'plural' => '" . $plural . "'";
 			$code .= ", 'displayName' => '" . $displayName . "'";
-			$code .= ", 'defaultNameField' => " . ( is_string($defaultNameField) ? "'" . $defaultNameField .  "'" : $defaultNameField );
-			$code .= ", 'extends' => " . ( is_string($extends) ? "'" . $extends .  "'" : $extends );
+			$code .= ", 'defaultNameField' => " . ( is_string($defaultNameField) ? "'" . $defaultNameField .  "'" : 'null' );
+			$code .= ", 'extends' => " . ( is_string($extends) ? "'" . $extends .  "'" : 'null' );
 			$code .= ", 'database' => '" . $database . "'";
 			$code .= ", 'table' => '" . $table . "'";
 			$code .= ", 'alias' => '" . $alias . "'";
 			$code .= ", 'searchable' => " . ( $searchable ? 'true' : 'false' ) . "";
-			$code .= ", 'exposed' => '" . ( $exposed ? 'true' : 'false' ) . "'";
+			$code .= ", 'exposed' => " . ( $exposed ? 'true' : 'false' ) . "";
 			$code .= ", 'crudability' => '" . $crudability . "'";
 			$code .= ")," . $lb;
 		}

@@ -270,7 +270,7 @@ $dataModel = array(
     'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'processed_items_nb'    => array('type' => 'int', 'length' => 8, 'default' => null, 'list' => 3),
     'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
-    'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+    'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 3),
 ),
 );
 

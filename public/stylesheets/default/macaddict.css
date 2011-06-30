@@ -217,7 +217,7 @@ span.loading:before { width:16px; height:16px; margin-right:5px; display:inline-
 
 /* Start Layout */
 #header,
-.js #mainNavBlock > .nav { background:#a7a7a7; border:1px solid #515151; border-width:1px 0; border-top-color:#e2e2e2; background:-webkit-gradient(linear, left top, left bottom, from(#d0d0d0), to(#a7a7a7)); background:-webkit-linear-gradient(#d0d0d0, #a7a7a7); background:-moz-linear-gradient(#d0d0d0, #a7a7a7); background:-o-linear-gradient(#d0d0d0, #a7a7a7); background:-ms-linear-gradient(#d0d0d0, #a7a7a7); background:linear-gradient(#d0d0d0, #a7a7a7); text-align:center; }
+.js #mainNavBlock > .nav { min-width:200px; background:#a7a7a7; border:1px solid #515151; border-width:1px 0; border-top-color:#e2e2e2; background:-webkit-gradient(linear, left top, left bottom, from(#d0d0d0), to(#a7a7a7)); background:-webkit-linear-gradient(#d0d0d0, #a7a7a7); background:-moz-linear-gradient(#d0d0d0, #a7a7a7); background:-o-linear-gradient(#d0d0d0, #a7a7a7); background:-ms-linear-gradient(#d0d0d0, #a7a7a7); background:linear-gradient(#d0d0d0, #a7a7a7); text-align:center; }
 #sideCol { background:#dee4ea; }
 #mainCol { background:#fff; }
 
@@ -365,10 +365,11 @@ section h4 a,
 #mainColFooter #mainColResizer { display:none; }
 .admin #poweredByBlock { position:absolute; right:10px; top:4px; background:1px 1px 0 rgba(255, 255, 255, 0.6); color:#ACACAC; }
 
+/*
 @media handheld, only screen and (min-width:320px)
 {
 	.js #mainNavBlock > .nav { min-width:300px; }
-} 
+}*/
 
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 

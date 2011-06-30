@@ -201,13 +201,19 @@ class DataModel
 			
 			// If resource && resource not current one, assume it's a relation
 			
+			// [default] 			=> 'string',
 			
-			// 'name$' 				=> 'string'
-			// 'title$' 			=> 'title'
+			// 'name$' 				=> 'string' + length 64
+			// '_name' 				=> 'string' + length 64
+			// 'title$' 			=> 'string'
+			// '_title' 			=> 'string'
 			// 'color' 				=> 'color'
 			
+			// slug 				=> 'slug'
+			
 			// '_url' 				=> 'url'
-			// 'url_' 				=> 'url'
+			// 'url_' 				=> 'url'			
+			// _uri 				=> 'url'
 			
 			// 'phone' 				=> 'tel'
 			// 'mobile' 			=> 'tel'
@@ -228,6 +234,7 @@ class DataModel
 			// 'id' 				=> 'pk'
 			
 			// '_date' 				=> 'date'
+			// '_at'
 			// 'creation_date' 		=> 'timestamp'
 			// 'created_' 			=> 'timestamp'
 			// 'update_date' 		=> 'timestamp'
@@ -243,7 +250,7 @@ class DataModel
 			// TODO
 			// length, _len, 
 			// time, _time, year, _year, month, _month, day, _day, hour, _hour, minutes, _minutes, seconds, _seconds
-			
+			// amout, price => floats
 		}
 	}
 }
