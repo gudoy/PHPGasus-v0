@@ -229,6 +229,7 @@ form .line.subtypeFile .emptyValueMode.editFileUrlMode input.file { display:none
 .adminTable tr.filtersRow.active td option { min-height:20px; }
 .adminTable tr.filtersRow td.actionsCol { font-size:0; }
 .adminTable .goToCol { width:16px; padding:8px; text-align:center; }
+.adminTable tbody td:hover .dataValue { width:100%; } 
 
 .adminTable th,
 .adminTable td,

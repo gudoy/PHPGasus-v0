@@ -8,10 +8,10 @@
 	<td class="col goToCol lastCol">
 	{include file='common/blocks/admin/resource/actions/retrieve.tpl' disabled=(strpos($crudability, 'R')>-1)?0:1}	
 	</td>
-	{*<td class="col colsHandlerCol"></td>*}
 </tr>
 {foreachelse}
 <tr class="noData">
-	<td class="firstCol lastCol" colspan="0">{t}There's currently nothing here{/t}</td>
+	{* TODO: use proper displayed fields count + 3 (checkbox col, actions co, goto col) *}
+	<td class="firstCol lastCol" colspan="{count($rModel)*2+3}">{t}There's currently nothing here{/t}</td>
 </tr>
 {/foreach}

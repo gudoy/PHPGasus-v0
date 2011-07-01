@@ -272,7 +272,7 @@ table thead .sort.asc { margin-bottom:4px; }
 .commonTable tbody th.hover,
 .commonTable tbody th:hover,
 .commonTable tbody td.hover,
-.commonTable tbody td:hover { outline:2px solid #5FA3ED; }
+.commonTable tbody td:hover { /*outline:2px solid #5FA3ED;*/ }
 .commonTable tbody td { border-left:1px solid #fff; border-right:1px solid #ccc; }
 .commonTable thead .title { margin-left:5px; margin-right:5px; display:inline-block; line-height:1em; :#fff; text-shadow:1px 1px 0 #000; vertical-align:middle; text-transform:capitalize; }
 /*

@@ -47,7 +47,7 @@
 				{/if}
 				{foreachelse}
 				<tr>
-					<td colspan="0">
+					<td colspan="3">
 						{t}There's currently no resources defined in the datamodel{/t}
 					</td>
 				</tr>
