@@ -205,7 +205,9 @@ var admin =
 	                        // Reset search results counts & specific css rules if necessary
 	                        if ( $('#adminSearchResultsBlock').length ) 	{ $('#adminSearchResultsBlock, #searchDynamicCSS').empty(); }
 	                        // Otherwise, just clear updated content container
-	                        else 											{ $('#mainCol').empty(); }
+	                        //else 											{ $('#mainCol').empty(); }
+	                        else 											{ $('#mainColContent').length ? $('#mainColContent').empty() : $('#mainCol').empty(); }
+	                        
 	                    },
 	                    error: function()
 	                    {
@@ -218,7 +220,8 @@ var admin =
 	                            query           = $('#searchQuery').val() || '',
 	                            rule            = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }",
 	                            $resultsCtnr    = $('#adminSearchResultsBlock'), 
-	                            $dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
+	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
+	                            $dest           = $resultsCtnr.length ? $resultsCtnr : ( $('#mainColContent').length ? $('#mainColContent') : $('#mainCol') );
 	                        
 	                        // Insert updated content
 	                        $dest.html($(r));
@@ -1739,7 +1742,7 @@ var adminRetrieve =
 			context 		= 'table.adminTable',
 			self 			= this;
 			
-		adminIndex.init();
+		//adminIndex.init();
 			
 		// Loop over all the delete buttons in the table
 		$(context)

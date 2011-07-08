@@ -9,78 +9,32 @@ class VResources extends AdminView
 		
         parent::__construct($application);
 		
-		$this->events->register('onAfterIndex', array('class' => &$this, 'method' => 'handleDatamodelCode'));
+		//$this->events->register('onAfterIndex', array('class' => &$this, 'method' => 'handleDatamodelCode'));
 		$this->events->register('onCreateSuccess', array('class' => &$this, 'method' => 'createResourceExtra'));
 		//$this->events->register('onAfterCreate', array('class' => &$this, 'method' => 'createResourceFiles'));
 		
 		return $this;
 	}
 	
-	public function handleDatamodelCode()
+	public function retrieve()
 	{
-		// If the resources are not defined, try to get them
-		if ( !isset($this->data['resources']) ){ $this->data['resources'] = $this->C->index(); }
+		$args = func_get_args();
 		
-		// If even after this, no resource where found, do not continue
-		if ( empty($this->data['resources']) ){ return $this; }
-		
-		$lb 		= "\n";
-		$code 		= '<?php' . $lb . $lb . '$resources = array(' . $lb;
-		$resources 	= &$this->data['resources'];
-		$longer 	= null;
-		
-		// Try to get the longer resource name (to compute tab proper tab indentation)
-		foreach ( $resources as $props ){ $longer = ( empty($longer) || strlen($props['name']) > strlen($longer) ) ? $props['name'] : $longer; }
-		
-		$verTabPos = strlen($longer) + ( 4 - (strlen($longer) % 4) );
-		
-		// Loop over the resources
-		foreach ( $resources as $props )
+		if ( !empty($args[0]) && $args[0] === 'code' )
 		{
-			// Do not continue if the name is not found
-			if ( empty($props['name']) ) { continue; }
-			
-			$name 				= $props['name'];
-			$type 				= isset($props['type']) ? $props['type'] : 'native';
-			$singular 			= !empty($props['singular']) ? $props['singular'] : '';
-			$plural 			= !empty($props['plural']) ? $props['plural'] : $name;
-			// TODO
-			$database 			= !empty($props['database']) ? $props['database'] : 'default';
-			// TODO: smart table name for resource name
-			$table 				= !empty($props['table']) ? $props['table'] : $name;
-			$alias 				= !empty($props['alias']) ? $props['alias'] : $table;
-			$displayName 		= !empty($props['displayName']) ? $props['displayName'] : $name;
-			$defaultNameField 	= !empty($props['defaultNameField']) ? $props['defaultNameField'] : null;
-			$extends 			= !empty($props['extends']) ? $props['extends'] : null;
-			$searchable 		= !empty($props['searchable']) ? $props['searchable'] : 0;
-			$exposed 			= !empty($props['exposed']) ? $props['exposed'] : 0;
-			$crudability 		= !empty($props['crudability']) ? $props['crudability'] : 'CRUD';
-			
-			$tabsCnt = floor(($verTabPos - strlen($name)) / 4);
-			$tabs = '';
-			for($i=0; $i<$tabsCnt; $i++){ $tabs .= "\t"; }
-			
-			$code .= "'" . $name . "' " . $tabs . "=> array(";
-			$code .= "'type' => '" . $type . "'";
-			$code .= ", 'singular' => '" . $singular . "'";
-			$code .= ", 'plural' => '" . $plural . "'";
-			$code .= ", 'displayName' => '" . $displayName . "'";
-			$code .= ", 'defaultNameField' => " . ( is_string($defaultNameField) ? "'" . $defaultNameField .  "'" : 'null' );
-			$code .= ", 'extends' => " . ( is_string($extends) ? "'" . $extends .  "'" : 'null' );
-			$code .= ", 'database' => '" . $database . "'";
-			$code .= ", 'table' => '" . $table . "'";
-			$code .= ", 'alias' => '" . $alias . "'";
-			$code .= ", 'searchable' => " . ( $searchable ? 'true' : 'false' ) . "";
-			$code .= ", 'exposed' => " . ( $exposed ? 'true' : 'false' ) . "";
-			$code .= ", 'crudability' => '" . $crudability . "'";
-			$code .= ")," . $lb;
+			$DataModel = new DataModel();
+			$DataModel->parseResources();
+			exit($DataModel->generateResources());
+		}
+		elseif ( !empty($args[0]) && $args[0] === 'file' )
+		{
+			$DataModel = new DataModel();
+			$DataModel->parseResources();
+			return $DataModel->buildResources();
 		}
 		
-		$code .= ');' . $lb . '?>';
-
-		$this->data['_extras']['dataModel']['resources']['code'] = $code;
-		
-		return $this;
+		call_user_func(array('parent', 'retrieve'), $args);
+		//parent::retrieve($args);
 	}
 	
 	
@@ -95,10 +49,10 @@ class VResources extends AdminView
 			'table' 	=> !empty($_POST['resourceTable']) ? filter_var($_POST['resourceTable'], FILTER_SANITIZE_STRING) : null,
 		);
 		
-		return $this
-			->createResourceTable()
-			->createResourceFiles()
-			;
+		$this->createResourceTable();
+		$this->createResourceFiles();
+		
+		return;
 	}
 	
 	public function createResourceTable()
@@ -109,7 +63,7 @@ class VResources extends AdminView
 		
 		$this->controller->model->createTable(array('name' => $name));
 		
-		return $this;
+		return;
 	}
 	
     public function createResourceFiles()
@@ -188,255 +142,8 @@ class VResources extends AdminView
 		readfile($zipFile);
 		unlink($zipFile);
 		
-		return this;
+		return;
     }
-
-	public function dataModelGenerator()
-	{
-		$args = func_get_args();
-		
-		$type = !empty($args[0]) ? $args[0] : null;
-		
-		if ( !in_array((string) $type, array('all','resources','groups','columns')) ){ return $this->index(); }
-		
-		// Create a zip archive and open it
-		$zipFile 	= tempnam('tmp', 'zip');
-		$zip 		= new ZipArchive();
-		$zip->open($zipFile, ZipArchive::OVERWRITE);
-		
-		// Create the proper folder into the archive
-		$zip->addEmptyDir('config/datamodel');
-		
-		$types = $type === 'all' ? array('resources','groups','colums') : (array) $type;
-		
-		$this->handleDatamodelCode();
-		
-		foreach ($types as $type)
-		{
-			$ctnt = &$this->data['_extras']['dataModel'][$type]['code'];
-			
-			if ( !$ctnt ){ continue; }
-			
-			// Create the proper file into the archive
-			$zip->addFromString('config/datamodel/' . $type . '.php', $ctnt);
-		}
-
-		$zip->close();
-		
-		// Stream the file to the client
-		header('Content-Type: application/zip');
-		header('Content-Length: ' . filesize($zipFile));
-		header('Content-Disposition: attachment; filename="[' . _APP_NAME . ']_' . 'dataModel_' . $type . '.zip"');
-		readfile($zipFile);
-		unlink($zipFile);
-	}
-
-	public function dataModelColumnsAnalyzer()
-	{
-		
-		
-		// If the dataModel is not defined, do not continue
-		if ( !isset($this->dataModel['resources']) ){ return; }
-		
-		$lb 		= "<br/>";
-		//$tab 		= "\t";
-		$tab 		= "&nbsp;&nbsp;&nbsp;&nbsp;";
-		
-		// Open resources array
-		$code 		= '$_resourcesModel = array(' . $lb;
-		
-		$known = array(
-			'types' 	=> array(
-				# Texts
-				'string', 'varchar', 'slug', 'email', 'password', 'url', 'tel', 'color', 'meta',
-				'slug', 'tag', 
-				'text', 'html', 'code',
-				
-				# Numbers
-				'int', 'integer', 'numeric',
-				'tinyint', 'smallint', 'mediumint', 'bigint',
-				'float', 'real', 'double',
-				
-				# Booleans
-				'bool','boolean',
-				
-				# Dates & times
-				'timestamp', 'datetime', 'date', 'time', 'year', 'month', 'week', 'day', 'hour', 'minutes', 'seconds', 
-				
-				# Relations
-				'onetoone', 'onetomany', 'manytoone', 'manytomany',
-				
-				# Misc
-				'pk', 'id', 'serial',
-				'enum', 'choice',
-				'file', 'image', 'video', 'sound', 'file',
-			),
-			'realtypes' => array(
-				# Texts
-				// strings (length=255) 
-					'string' 		=> 'string',
-					'varchar' 		=> 'string',
-					'slug' 			=> 'string', // + length = 64
-					'tag' 			=> 'string', // alias of slug
-					'email' 		=> 'string', // + validator pattern
-					'password'		=> 'string', // + modifiers = sha1
-					'url' 			=> 'string', // + validator pattern
-					'tel' 			=> 'string', // + length = 20???, + pattern ? 
-					'color'			=> 'string', // + length = 32, + validator pattern (#hex, rgb(), rgba(), hsl(), ... ?)
-					'meta' 			=> 'string',
-					// texts (length=null)				
-					'html' 			=> 'text',
-					'code' 			=> 'text',
-					'text' 			=> 'text',
-
-				# Numbers
-					// ints
-					'int' 			=> 'integer', // + min = -2147483648, + max = 2147483648
-					'integer'		=> 'integer', // + min = -2147483648, + max = 2147483648
-					'num'			=> 'integer', // + min = -2147483648, + max = 2147483648
-					'number'		=> 'integer', // + min = -2147483648, + max = 2147483648
-					
-					'tinyint' 		=> 'tinyint', // + min = -128, + max = 128 
-					'smallint' 		=> 'smallint', // + min = -32768, + max = 32768
-					'mediumint' 	=> 'mediumint', // + min = -8388608, + max = 8388608
-					'bigint' 		=> 'bigint', // + min = -9223372036854775808, + max = 9223372036854775808
-					
-					// floats
-					'float' 		=> 'float',
-					'real' 			=> 'float',
-					'double'		=> 'float',		
-					
-				# Booleans
-					'bool' 			=> 'boolean',
-					'boolean' 		=> 'boolean',
-					
-				# Dates & times
-					// timestamps
-					'timestamp' 	=> 'timestamp',
-					'date' 			=> 'date',
-					'datetime' 		=> 'datetime',
-					
-				# Relations
-					'onetoone' 		=> 'onetone',
-					'onetomany' 	=> 'onetomany',
-					'manytoone' 	=> 'manytoone',
-					'manytomany' 	=> 'manytomany',
-				
-				# Misc
-					// Enum
-					'enum' 			=> 'enum',
-					'choice' 		=> 'enum',
-					
-					// Pk + length = 11, pk = 1, editable = 0
-					'pk' 			=> 'integer', 
-					'id' 			=> 'integer',
-					'id' 			=> 'integer',
-			),
-		);
-		
-		// Load the datamodel
-		foreach (array_keys($this->dataModel['resources']) as $rName)
-		{
-			$code .= "'$rName' => array(" . $lb;
-			
-			// Shortcut for resource columns
-			$rCols = &$this->dataModel['resourcesFields'][$rName];
-			
-			foreach ( array_keys((array) $rCols) as $cName )
-			{
-				$row = '';
-				$row .= $tab . "'$cName' => array(";
-				
-				$type = $realtype = $ai = $pk = 
-						$length = $null = $default = $values = 
-						$index = 
-						$list = $editable = $searchable =
-					null;
-				
-				// Shortcut for cols properties
-				$p = &$rCols[$cName];
-				
-				# Autoincrement
-				$ai 			= isset($p['ai']) ? (int) $p['ai'] : 0;
-				
-				# Primary key
-				$pk 			= isset($p['pk']) ? (int) $p['pk'] : 0;
-				
-				# Type
-				$type 			= isset($p['type']) && in_array(strtolower($p['type']), $known['types']) ? strtolower($p['type']) : 'string';
-				if 		( $cName === 'id' ) 	{ $type = 'pk'; $ai = 1; $pk = 1; }
-				elseif 	( $cName === 'slug' ) 	{ $type = 'slug'; }
-				
-				# Realtype
-				$realtype  		= $known['realtypes'][$type];
-				
-				# Length
-				$length 		= isset($p['length']) && ( is_numeric($p['length']) || is_null($p['length']) )? $p['length'] : 'null';
-				if ( $realtype === 'string' )
-				{
-					if 		( $type === 'slug' ) 	{ $length = 64; }
-					elseif 	( $type === 'color' ) 	{ $length = 32; }
-					else 							{ $length = 255; }
-				}
-				elseif ( $realtype === 'integer' )
-				{
-					$length = 11;
-				}
-				if ( $pk ) { $length = 11; }
-				
-				# Null
-				$null 			= isset($p['null']) ? (int) (bool) $p['null'] : 0;
-				
-				# Default
-				$default 		= isset($p['default']) ? $p['default'] : 'null';
-				
-				# Values
-				$values 		= isset($p['values']) ? $p['values'] : 'null';
-				
-				# Index
-				$index 			= isset($p['index']) ? (int) (bool) $p['index'] : 0;
-				
-				# List
-				$list 			= isset($p['list']) ? (int) $p['list'] : 'list';
-				
-				# Editable
-				$editable 		= isset($p['editable']) ? (int) $p['editable'] : 'editable';
-				
-				
-				$row .= "'type' => '" . $type . "', ";
-				$row .= "'realtype' => '" . $realtype . "', ";
-				$row .= "'length' => '" . (string) $length . "', ";
-				$row .= "'null' => " . $null . ", ";
-				$row .= "'ai' => " . $ai . ", ";
-				$row .= "'pk' => " . $pk . ", ";
-				$row .= "'default' => " . $default . ", ";
-				$row .= "'values' => " . $values . ", ";
-				$row .= "'index' => " . $index . ", ";
-				
-				# deprecated
-				if ( !empty($p['possibleValues']) ){ $values = Tools::toArray($p['possibleValues']); }
-				
-				// from
-				// min
-				// max
-				
-				$row .= "'list' => " . $list . ", ";
-				// editable
-				// searchable
-
-
-				$row .= "), ";
-				$code .= $row . $lb;
-			}
-			
-			$code .= '),' . $lb;
-		}
-		
-		// Close resources array
-		$code .= ');' . $lb;
-		
-echo $code;
-	}
 	
 };
 

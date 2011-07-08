@@ -1,10 +1,6 @@
 <?php
 
-//class_exists('Application') || require(_PATH_LIBS . 'Application.class.php');
-
-// TODO: cleanup
-// TODO: remove 'extends Application' (no longer required since $this->singularize() has been replaced with Tools:singularize())
-class php2XML extends Application
+class php2XML
 {
 	public $eol 				= PHP_EOL;
 	//public $eol 				= "";
@@ -61,19 +57,13 @@ class php2XML extends Application
 			
 			$isLast 	= $i === $count;
 			$submode 	= null;
-			//$eltName 	= is_numeric($key) ? substr($parentName, 0, strlen($parentName)-1) : $key;
-			//$eltName 	= is_numeric($key) /*|| !empty($parentName)*/ ? $this->singularize($parentName) : $key;
-			//$eltName 	= is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? $this->singularize($parentName) : $key;
-			$eltName     = is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? Tools::singularize($parentName) : $key;
+			$eltName     = is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? Tools::singular($parentName) : $key;
 //$this->dump($key);
 //$this->dump($parentName);
 //if ( is_array($val) ) { $this->dump($eltName); } 
 			
 			// Store the current element
 			
-			//$this->output .= $this->addTabs($s->openTagTabs) . '<' . $eltName .  '>' . ($s->eolAfterOpenTag && !empty($val) ? $this->eol : '');
-			//$this->output .= $this->addTabs($tabsNb) . '<' . ( !empty($parentName) ? $this->singularize($parentName) : $eltName ) .  '>';
-			//$this->output .= $this->addTabs($tabsNb) . '<' . ( $eltName ) . ( is_numeric($key) ? ' key="' . $key . '"' : '' ) . '>';
 			$this->output .= $this->addTabs($tabsNb) . '<' . ( $eltName ) . ( $eltName !== $key ? ' key="' . $key . '"' : '' ) . '>';
 			
 			$this->output .= $s->eolAfterOpenTag && is_array($val) && !empty($val) ? $this->eol : '';
@@ -94,7 +84,7 @@ if ( is_array($val) )
 			//$this->output .= $this->addTabs($s->closeTagTabs) . '</' . $eltName .  '>' . ($s->eolAfterCloseTag ? $this->eol : '');
 			$this->output .= ( !is_array($val) || empty($val) ? '' : $this->addTabs($tabsNb) );
 			$this->output .= '</' . ( $eltName ) .  '>' . ($s->eolAfterCloseTag && !$isLast ? $this->eol : '');
-			//$this->output .= '</' . ( !empty($parentName) ? $this->singularize($parentName) : $eltName ) .  '>' . ($s->eolAfterCloseTag && !$isLast ? $this->eol : '');
+			//$this->output .= '</' . ( !empty($parentName) ? $this->singular($parentName) : $eltName ) .  '>' . ($s->eolAfterCloseTag && !$isLast ? $this->eol : '');
 		}
 	}
 	

@@ -7,7 +7,7 @@ class AdminView extends View
 		//$this->log(__METHOD__);
 		
 		// User levels authorized to access the current view (overload in proper view(s) for specific authorizations
-		$this->authLevel 			= !empty($this->authLevel) ? $this->authLevel : array('god','superadmin','admin');
+		//$this->authLevel 			= !empty($this->authLevel) ? $this->authLevel : array('god','superadmin','admin');
 		$this->authFailureRedirect 	= _URL_ADMIN;
 		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
@@ -16,18 +16,17 @@ class AdminView extends View
 		$this->dataModel = array(
 			'resources' 		=> &$resources,
 			'resourcesFields' 	=> &$dataModel,
-			//'resourceGroups' 	=> $resourceGroups,
 		);
 		
 		parent::__construct($application);
 		
-		$this
-			->requireLogin()								// Require that the user is logged
-			->requireAuth(); 								// and has admin rights for the current view
+		$this->requireLogin(); // Require that the user is logged
+		$this->requireAuth(); // and has admin rights for the current view						
 		
 		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
 		
 		// Try to get the current admin group and base path
+		/*
 		if ( !empty($this->filePath) )
 		{
 			$pos 							= isset($this->resourceName) 
@@ -36,8 +35,7 @@ class AdminView extends View
 			$tmp 							= explode('/', str_replace(_PATH_VIEWS, '', ($pos ? substr($this->filePath, 0, $pos-1) : $this->filePath)));
 			$tmpGroupName 					= $tmp[count((array) $tmp)-1];
 			$this->resourceAdminBasePath 	= join('/', $tmp) . (!empty($tmp) ? '/' : '');
-		}
-		
+		}*/
 		
 		// TODO: remove when no longer needed for backward compat
 		if ( !defined('_APP_USE_ADMIN_METAS') || _APP_USE_ADMIN_METAS )
@@ -62,8 +60,6 @@ class AdminView extends View
 		$this->data['search'] 			= array();
         $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
 											? 'contextual' : 'global';
-		
-//$this->dump($this->data);
 		
 		return $this;
 	}
@@ -133,11 +129,11 @@ class AdminView extends View
 		$o 						= &$options;
 		
 		// 
-		$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
-		$o['authLevel'] 		= !empty($o['authLevel']) && !is_array($o['authLevel']) ? (array) $o['authLevel'] : $o['authLevel'];
+		//$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
+		//$o['authLevel'] 		= !empty($o['authLevel']) && !is_array($o['authLevel']) ? (array) $o['authLevel'] : $o['authLevel'];
 		$o['failureRedirect'] 	= !empty($o['redirection']) ? $o['redirection'] : ( isset($this->authFailureRedirect) ? $this->authFailureRedirect : _URL_HOME );
         
-        $knownActions   = array('display','create','retrieve','update','delete','search');    // List of knowns auth
+        $knownActions   = array('display','create','retrieve','update','delete','search');    // List of knowns actions
 		
 		$curURL 		= $this->currentURL();
 		$t 				= parse_url($curURL); 
@@ -490,7 +486,6 @@ class AdminView extends View
 		$p 		= array_merge(array( 
             'dispatch' => true,
         ), $p);
-		
         
         // TODO: handle this properly using. Extract everything after the call to the 'dispatchMethods' into a 'listAll' method???
         if ( $p['dispatch'] )

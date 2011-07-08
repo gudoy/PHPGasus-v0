@@ -69,8 +69,7 @@ class Application
         if ( !empty($o['class']) ){ $name = strtolower(substr($o['class'], 1)); }
         
         $this->resourceName     = $name;
-        //$this->resourceSingular = !empty($singular) ? $singular : $this->singularize((string) $name);
-        $this->resourceSingular = !empty($singular) ? $singular : Tools::singularize((string) $name);
+        $this->resourceSingular = !empty($singular) ? $singular : Tools::singular((string) $name);
         
         return $this;
     }
@@ -212,11 +211,15 @@ class Application
 		// passed in the URL.
 		$ua = $_SERVER['HTTP_USER_AGENT'];
 		//if ( (strpos($ua, 'iPhone') !== false || strpos($ua, 'iPod') !== false || strpos($ua, 'iPad') !== false ) && !empty($_GET[_SESSION_NAME]) )
-		if ( _APP_ALLOW_GET_SID_FROM_URL && !empty($_GET[_SESSION_NAME]) )
-		{			
+		//if ( _APP_ALLOW_GET_SID_FROM_URL && !empty($_REQUEST[_SESSION_NAME]) )
+		if ( _APP_ALLOW_GET_SID_FROM_URL && ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) )
+		{
 			// Get the data of the passed session id
 			//$s = CSessions::getInstance()->retrieve(array('values' => $_GET[_SESSION_NAME], 'sortBy' => 'expiration_time', 'orderBy' => 'DESC', 'limit' => 1));
-			$sid 	= filter_var($_GET[_SESSION_NAME], FILTER_SANITIZE_STRING);
+			//$sid 	= filter_var($_REQUEST[_SESSION_NAME], FILTER_SANITIZE_STRING);
+			$sid 	= ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) 
+						? filter_var( !empty($_POST[_SESSION_NAME]) ? $_POST[_SESSION_NAME] : $_GET[_SESSION_NAME], FILTER_SANITIZE_STRING)
+						: null;
 			
 			session_id($sid);
 			session_start(); 
@@ -308,6 +311,9 @@ class Application
 			'sortBy' 	=> 'expiration_time',
 			'orderBy' 	=> 'DESC', 'limit' => 1
 		));
+		
+//var_dump($session);
+//var_dump($this->logged);
 
 		// Has the session been found and is it always valid (not expired)
 		$sessExp	 	= !empty($session) 

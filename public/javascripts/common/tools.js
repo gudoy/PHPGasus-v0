@@ -147,18 +147,43 @@ var Tools =
 		return Tools.strtr(str,charsTable);
 	},
 	
+
+	humanize: function(string){ return Tools.slug(string) },
+    slugify: function(string){ return Tools.slug(string) },	
+	slug: function(string)
+	{
+        var string = Tools.deaccentize(string);
+
+        return string
+        		.replace(/^[^A-Za-z0-9]+/g, '')
+        		.replace(/[^A-Za-z0-9]+$/g, '')
+        		.replace(/[^A-Za-z0-9]+/g, '-')
+        ;
+	},
 	
-    slugify: function(str)
-    {
-        var str = Tools.deaccentize(str);
 
-        // Replace non-standard chars
-		str = str.replace(/^[^A-Za-z0-9]+/g, '');
-		str = str.replace(/[^A-Za-z0-9]+$/g, '');
-		str = str.replace(/[^A-Za-z0-9]+/g, '-');
-
-        return str;
-    },
+	singular: function(plural)
+	{
+        var len 	= plural.length,
+        	sing 	= plural;          // Default
+        
+        if      ( len >= 5 && plural.slice(-4) === 'uses' )	{ sing = plural.replace(/(.*)uses/,'$1us'); }
+        else if ( len >= 4 && plural.slice(-3) === 'ses' )	{ sing = plural.replace(/(.*)ses/,'$1ss'); }
+        else if ( len >= 4 && plural.slice(-3) === 'hes' )	{ sing = plural.replace(/(.*)hes/,'$1h'); }
+        else if ( len >= 4 && plural.slice(-3) === 'ies' )	{ sing = plural.replace(/(.*)ies$/,'$1y'); }
+        else if ( len >= 4 && plural.slice(-3) === 'oes' )	{ sing = plural.replace(/(.*)oes$/,'$1o'); }
+        else if ( len >= 4 && plural.slice(-3) === 'ves' )	{ sing = plural.replace(/(.*)ves$/,'$1f'); }
+        else if ( len >= 2 && plural.slice(-1) === 'a' ) 	{ sing = plural.replace(/(.*)a$/,'$1um'); }
+        else if ( len >= 2 && plural.slice(-1) === 's' ) 	{ sing = plural.replace(/(.*)s$/,'$1'); }
+        
+        return sing;
+	},
+	
+	
+	consonants: function(string)
+	{
+		return string.replace(/[aeiouAEIOU]/g, '');
+	},
 	
 	
 	/* 

@@ -66,7 +66,7 @@ define('_APP_GOOGLE_MAPS_API_KEY',               '');
 
 ### ACCOUNT SESSIONS HANDLING
 define('_SESSION_NAME', 						'token'); 		// Name of the sessions
-define('_APP_ALLOW_GET_SID_FROM_URL', 			false); 			// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
+define('_APP_ALLOW_GET_SID_FROM_URL', 			false); 		// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
 define('_APP_USE_ACCOUNTS', 					true); 			// Disable this prevent app from trying to update sessions table on each page load
 define('_APP_ALLOW_SIGNUP', 					false); 		// Allow users to sign up by themselves
 define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minutes)
@@ -76,6 +76,7 @@ define('_APP_USE_ACCOUNTS_CONFIRMATION', 		true);          // Will require accou
 define('_APP_MAX_LOGIN_ATTEMPTS', 				5);          	// If the user tries to login more than X times, it's account will be blocked for some time (0 = no limit)
 define('_APP_MAX_LOGIN_ATTEMPTS_BAN_TIME', 		7200);          // Duration (in seconds) of the ban of the account due to too many login attemps
 define('_APP_ALLOW_LOST_PASSWORD_RESET', 		true); 			// Allow users to reset their's password (send a mail with a link to reset it)
+define('_APP_IP_WHITELIST', 					''); 			// CSV list of IP adresses than could not be banned. Ex: 127.0.0.1,192.168.0.1
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');

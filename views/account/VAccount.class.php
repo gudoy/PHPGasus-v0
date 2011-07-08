@@ -114,7 +114,7 @@ class VAccount extends View
 			if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); goto render; }
 
 			// If user is not confirmed
-			if ( !$user['activated'] ){ $this->data['error'][] = 10005; $this->statusCode(401); goto render; }
+			if ( defined('_APP_USE_ACCOUNTS_CONFIRMATION') && _APP_USE_ACCOUNTS_CONFIRMATION && !$user['activated'] ){ $this->data['error'][] = 10005; $this->statusCode(401); goto render; }
 			
 			// Build session data (after saving current post data)
 			$savePOST = $_POST;

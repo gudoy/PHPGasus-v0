@@ -19,6 +19,11 @@
             <h4 class="title">
                 <a href="{$resultsURL}" class="value">{$groupName}</a>
             </h4>
+            <nav class="actions">
+                {* if $group.results && ($displayedCount != $group.count) *}
+                {include file='common/blocks/actionBtn.tpl' classes="action go" href=$resultsURL label={'all'}}
+                {* /if *}
+            </nav>
             {if $displayedCount || $group.count}
             <span class="counts countsBlock">                
                 <span class="key">{t}counts{/t}</span>
@@ -36,11 +41,6 @@
                 {/if}
             </span>
             {/if}
-            <nav class="actions">
-                {* if $group.results && ($displayedCount != $group.count) *}
-                {include file='common/blocks/actionBtn.tpl' classes="action go" href=$resultsURL label={'all'}}
-                {* /if *}
-            </nav>
         </header>
         {if $group.results}
         {*
@@ -53,7 +53,9 @@
         </ul>
         *}
         <div class="adminBlock adminListingBlock resultsTableBlock">
-        {include file='common/blocks/admin/resource/list/table.tpl' rows=$group.results rName=$groupResource rModel=$data.dataModel[$groupResource] options=['addHiddenCols' => false]}
+        	<a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a>
+        	{include file='common/blocks/admin/resource/list/table.tpl' rows=$group.results rName=$groupResource rModel=$data.dataModel[$groupResource] options=['addHiddenCols' => false]}
+        	<a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a>
         </div>
         {/if}
     </div>

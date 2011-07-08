@@ -176,14 +176,10 @@ class Tools
     }
     
     
+	// Tries to return the singular of a given plural (common) word
+    static function singularize($plural){ return self::singular($plural); }
 	static function singular($plural)
 	{
-		return self::singularize($plural);
-	}
-	
-	
-    static function singularize($plural)
-    {
         $len    = strlen($plural);
         $sing   = $plural;          // Default
         
@@ -197,24 +193,17 @@ class Tools
         else if ( $len >= 2 && $plural[$len-1] === 's' )            { $sing = preg_replace('/(.*)s$/','$1', $plural); }
         
         return $sing;
-    }
-
-
-	static function slug($string)
-	{
-		return self::slugify($string);
 	}
 	
 
-    // function found on http://forum.webrankinfo.com/fonctions-pour-creer-slug-seo-friendly-url-t99376.html
-    // TODO: rename to humanize() ???? cf: http://codeigniter.com/user_guide/helpers/inflector_helper.html
-    static function slugify($string)
+	// Replace accents chars by their non-accentued equivalent 
+	// & replace non-URL friendly chars by dashes or nothing
+    // Found on http://forum.webrankinfo.com/fonctions-pour-creer-slug-seo-friendly-url-t99376.html
+    static function slugify($string){ return self::slug($string); }
+	static function humanize($string){ return self::slug($string); } // alias used by codeIgniter
+    static function slug($string)
     {
-        // remplace les caractères accentués par leur version non accentuée
-        //$id = strtr($string,'ŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ', 'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
         $id = Tools::deaccentize($string);
-
-        // remplace les caractères non standards
         $id = preg_replace(
                 array('`^[^A-Za-z0-9]+`', '`[^A-Za-z0-9]+$`', '`[^A-Za-z0-9]+`' ),
                 array('','','-'),
@@ -226,14 +215,14 @@ class Tools
     
     static function strtolower_utf8($string)
     {
-        $convert_to = array(
+        $to = array(
             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
             "v", "w", "x", "y", "z", "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï",
             "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "ø", "ù", "ú", "û", "ü", "ý", "а", "б", "в", "г", "д", "е", "ё", "ж",
             "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы",
             "ь", "э", "ю", "я"
         );
-        $convert_from = array(
+        $from = array(
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U",
             "V", "W", "X", "Y", "Z", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï",
             "Ð", "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж",
@@ -241,15 +230,26 @@ class Tools
             "Ь", "Э", "Ю", "Я"
         );
         
-        return str_replace($convert_from, $convert_to, $string); 
+        return str_replace($from, $to, $string); 
     }
+
+
+	static function consonants($string)
+	{
+		return str_replace(
+			array('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'),
+			'',
+			//Tools::deaccentize($string)
+			$string
+		);
+	}
     
     
     static function toArray($value)
     {
         switch(gettype($value))
         {
-            case 'array':       $value; break;
+            case 'array':       break;
             case 'string':      $value = preg_split("/,+\s*/", $value); break;
             case 'object':      $value = (array) $value; break;
             case 'integer': 
@@ -257,8 +257,7 @@ class Tools
             case 'boolean':     $value = array($value); break;
             case 'null':        $value = array(); break;
         }
-                
-        //return is_array($value) ? $value : preg_split("/,+\s*/", (string) $value);
+
         return $value;
     }
 
@@ -316,6 +315,7 @@ class Tools
 		
 	}
 
+	// TODO
 	static function sanitize($value, $params = array())
 	{
 		$p = array_merge(array(

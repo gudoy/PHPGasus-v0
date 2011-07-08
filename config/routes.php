@@ -2,6 +2,7 @@
 
 # BASE PATHS
 define("_PATH_DB",							_PATH . 'db/');
+define("_PATH_CONF",						_PATH . 'config/');
 define("_PATH_CONFIG",						_PATH . 'config/');
 define("_PATH_LIBS",						_PATH . 'libs/');
 define("_PATH_SMARTY",						_PATH_LIBS . 'templating/smarty3/');

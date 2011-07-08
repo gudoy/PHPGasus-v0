@@ -49,7 +49,7 @@ class Model extends Application
 		//  
 		if ( !empty($this->resourceName) )
 		{
-			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singularize((string) $this->resourceName);
+			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : Tools::singular((string) $this->resourceName);
 		}
 		
 		// Set the timeout
@@ -1419,23 +1419,33 @@ class Model extends Application
 			{
 				// Get the user whose data are being updated and get the logged user
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
-				$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
-                
-                // Get logged & updated users groups
-                $curUGroups     = !empty($currentUser['group_admin_titles']) ? explode(',',$currentUser['group_admin_titles']) : array();
-                $upUGroups      = !empty($updatedUser['group_admin_titles']) ? explode(',',$updatedUser['group_admin_titles']) : array();
-
-				// Has the current user higher authorization than the updated one
-				$foundUsersData = !empty($updatedUser) && !empty($currentUser);
+				$upUGroups      = !empty($updatedUser['group_admin_titles']) ? explode(',',$updatedUser['group_admin_titles']) : array();
 				
-				// Only god users, or a superadmins (if the update user is not a god or a superadmin too) have higher auths
-				$hasHigherAuth 	= in_array('gods', $curUGroups) || ( in_array('superadmins', $curUGroups) && count(array_intersect($upUGroups, array('gods','superadmins'))) ); 
-
-				$allowEdit	 	= $foundUsersData && ( $updatedUser['id'] === $currentUser['id'] || $hasHigherAuth);
-				$skip 			= $allowEdit ? false : true;
-				
-				// If the users data have been found but the current user is not allowed to edit password for this user 
-				if ( $foundUsersData && $skip ){ $this->warnings[] = 6050; }
+				// If the user is logged
+				if ( $this->logged )
+				{
+					// Get the logged user & usergroups
+					$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
+	                $curUGroups     = !empty($currentUser['group_admin_titles']) ? explode(',',$currentUser['group_admin_titles']) : array();
+	
+					// Has the current user higher authorization than the updated one
+					$foundUsersData = !empty($updatedUser) && !empty($currentUser);
+					
+					// Only god users, or a superadmins (if the update user is not a god or a superadmin too) have higher auths
+					$hasHigherAuth 	= in_array('gods', $curUGroups) || ( in_array('superadmins', $curUGroups) && count(array_intersect($upUGroups, array('gods','superadmins'))) ); 
+	
+					$allowEdit	 	= $foundUsersData && ( $updatedUser['id'] === $currentUser['id'] || $hasHigherAuth);
+					$skip 			= $allowEdit ? false : true;
+					
+					// If the users data have been found but the current user is not allowed to edit password for this user 
+					if ( $foundUsersData && $skip ){ $this->warnings[] = 6050; }
+				}
+				// Otherwise, do no allow password change and then skip the field and add a warning
+				else
+				{
+					$skip = true;
+					$this->warnings[] = 6050;
+				}
 			}
 			
 			// Skip current field process is we have to 

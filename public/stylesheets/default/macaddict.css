@@ -48,7 +48,9 @@ form fieldset:first-of-type legend { border-top:0; }
 form fieldset legend .value { margin:0 10px; display:block; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); text-transform:capitalize; }
 form fieldset .line:first-of-type { margin-top:20px; }
 form fieldset .line:buttonsLine { width:auto; float:none; }
+/*.webkit form fieldset .line:first-of-type { width:100%; float:left; }*/
 .webkit form fieldset .line:first-of-type { width:100%; float:left; }
+.webkit form fieldset .line.buttonsLine { width:auto; float:none; }
 form fieldset .line + .buttonsLine { margin-top:20px; }
 form .buttonsLine { width:auto; float:none; padding:10px; margin-bottom:0; border-top:1px solid #999999; background:#DEE4EA; }
 form .buttonsLine .fieldBlock { margin:0; }
@@ -289,6 +291,9 @@ section h4 a,
 #adminSearchResultsBlock > header { margin-bottom:0; }
 .resultsGroup .adminBlock { margin-top:20px; display:none; }
 .resultsGroup.expanded .adminBlock { display:block; }
+#adminSearchResultsBlock header .actions { margin-left:20px; margin-right:10px; float:right; }
+#adminSearchResultsBlock .resultsGroup { clear:both; } 
+#adminSearchResultsBlock .allResultsLink { margin:10px 10px 20px; display:inline-block; float:right; clear:both; font-size:14px; }
 
 
 /*

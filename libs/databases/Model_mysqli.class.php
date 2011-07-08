@@ -51,7 +51,7 @@ class Model extends Application
 		//  
 		if ( !empty($this->resourceName) )
 		{
-			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singularize((string) $this->resourceName);
+			$this->resourceSingular = !empty($this->resourceSingular) ? $this->resourceSingular : $this->singular((string) $this->resourceName);
 		}
 		
 		return $this->connect();
