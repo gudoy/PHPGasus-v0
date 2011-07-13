@@ -376,6 +376,8 @@ section h4 a,
 	.js #mainNavBlock > .nav { min-width:300px; }
 }*/
 
+#loginBlock #lostPasswordLink { margin:10px 20% 0; display:block; clear:both; float:right; position:relative; right:-8px; text-align:right; }
+
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 
 {
@@ -444,7 +446,7 @@ section h4 a,
     #lostPasswordBlock form,
     #resetPasswordBlock form { -webkit-box-shadow:0 0 3px #333, 5px 5px 10px #AFAFAF; box-shadow:0 0 3px #333, 5px 5px 10px #AFAFAF; }
     #loginBlock input { float:none; }
-    #loginBlock #lostPasswordLink { margin:10px 20% 0; display:inline-block; float:right; clear:both; position:relative; right:-8px; text-align:right; }
+    #loginBlock #lostPasswordLink { display:inline-block; }
 	
 	/* Api */
 	#apisBlock .apis { padding-left:20px; padding-right:20px; }

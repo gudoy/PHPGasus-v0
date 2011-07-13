@@ -4,7 +4,7 @@ class DataModel
 {
 	static $resources 	= array();
 	static $groups 		= array();
-	static $colums 		= array();
+	static $columns 	= array();
 	
 	//static $_r 			= null;
 	//static $_c 			= null;
@@ -83,6 +83,7 @@ class DataModel
 		$this->parseColumns();
 	}
 	
+	// Merge order: database, dataModel (generated), dataModel (manual)
 	public function parseResources()
 	{
 		// Get resources from dataModel
@@ -146,16 +147,191 @@ class DataModel
 		// TODO
 	}
 	
+	
+	// Merge order: database, dataModel (generated), dataModel (manual)
 	public function parseColumns()
-	{
-		// TODO
+	{		
+		// If the resource are not found, parse them
+		if ( !self::$resources ){ self::parseResources(); }
+
+		// Get columns in db, manual dataModel & generated dataModel files
+		$dbCols 			= $this->parseDBColumns(array_keys(self::$resources));
+		$writtenCols 		= $this->parseManualDataModelColumns();
+		//$generatedCols 		= $this->parseGeneratedDataModelColumns();
+
+		// Merge them temporaliry into an unique array
+		//$tmpColumns 		= array_merge($dbCols, $writtenCols, $generatedCols);
+		$tmpColumns 		= array_merge($dbCols, $writtenCols);
+		//self::$columns
 		
-		foreach(self::$resources as $resource)
+//var_dump($tmpColumns);
+		
+		// Loop over this temp array
+		foreach ( array_keys((array) $tmpColumns) as $rName )
 		{
-			// 
-			//$query = "DESCRIBE " . $resources " ;"; 
-			//CResources::getInstance()->index(array('manualQuery' => $query));
-		} 
+//var_dump($rName);
+			
+			// Shortcut for current resource columns
+			$rCols = &$tmpColumns[$rName];
+			
+			// Loop over the columns of the current resource
+			$i 		= 0;
+			$colsNb = count($rCols); 
+			foreach ( array_keys((array) $rCols) as $cName )
+			{
+//var_dump($cName);
+				
+				// Shortcut for column properties
+				$p = &$rCols[$cName];
+				
+				// Set default props values is not already defined
+				self::$columns[$rName][$cName] = array_merge(array(
+					//'name' 				=> $p['Field'],
+					'type' 				=> null,
+					'realtype' 			=> null,
+					'length' 			=> null,
+					'null' 				=> false,
+					'pk' 				=> false,
+					'possibleValues' 	=> null, 	// deprecated: use values instead
+					'values' 			=> null,
+					
+					// Relations
+					'relResource' 		=> null,
+					'relField' 			=> null,
+					'relGetFields' 		=> null, 	// 'field1,field2,...' or array('field1','field2',...) or array('field1' => 'my_field_1', 'field2' => 'my_field_2')
+					'relGetAS' 			=> null, 	// TODO: deprecate. use associative array in relGetFields
+					'pivotResource' 	=> null, 	//
+					'pivotLeftField' 	=> null, 	//
+					'pivotRightField' 	=> null, 	// 
+					
+					// Format and/or validation
+					'default' 			=> null,
+					'placeholder' 		=> null, 
+					'computed' 			=> false,	// deprecate. implements custom types instead (possibily with modifiers)
+					'unique' 			=> false, 	//
+					'index' 			=> false,
+					'required' 			=> false,
+					'eval' 				=> null, 	// deprecate: implement modifiers instead
+					'modifiers' 		=> null, 	// TODO: implement trim|lower|upper|camel|capitalize|now|escape, ....
+					'computedValue' 	=> null,	// deprecate. implements custom types instead (possibily with modifiers)
+					'pattern' 			=> null,
+					'step' 				=> null,
+					'min' 				=> null,
+					'max' 				=> null,
+					
+					// Files
+					'forceUpload' 		=> false,
+					'storeOn' 			=> null, 	// ftp|amazon_s3|amazon_ec2
+					'acl' 				=> null, 	// S3_ACL_PRIVATE, S3_ACL_PUBLIC, S3_ACL_OPEN, S3_ACL_AUTH_READ. default = S3_ACL_PRIVATE
+					'destRoot' 			=> null,
+
+					'exposed' 			=> null,
+					
+					// UI or admin purpose
+					'displayName' 		=> null,
+					'displayedValue' 	=> null,
+					'editable' 			=> false,
+					'list' 				=> 0,
+					'comment' 			=> null, 	
+				), $p);
+				
+				### Now, we can start to do some magic
+				
+				// Handle Numeric types
+				if ( $p['type'] === 'varchar' )
+				{
+					
+				}
+				// Handle Numbers types
+				elseif ( $p['type'] === 'int' )
+				{
+					// has AI && is first
+					if ( isset($p['AI']) && $i === 0 )
+					{
+						$p['type'] = 'serial';
+					}	
+				}
+					
+				$i++;
+			}
+		}
+
+var_dump(self::$columns);
+
+		return self::$columns;
+	}
+	
+	// string: resource name
+	// string: csv resource names
+	// array: resource names
+	// return: array (resource name => columns) is several resource names passed
+	// return: array of columns of the passed resource name
+	public function parseDBColumns($resources)
+	{
+		// Force the resource names to be an array
+		$rNames = Tools::toArray($resources);
+		
+		// Init returned data array
+		$dbCols = array();
+
+		// Loop over the resource names		
+		foreach($rNames as $rName)
+		{
+			// Set a shortcut to current resource data
+			$resource = &self::$resources[$rName];
+			
+			// Get resource DB columns data using proper query  
+			$query 		= "DESCRIBE " . $resource['table'] . ";"; 
+			$dbColumns 	= CResourcescolumns::getInstance()->index(array('manualQuery' => $query));
+			
+			// Do no continue if the table does not exists in DB	
+			if ( empty($dbColumns) ){ die($rName); }
+			
+			// Loop over the found columns
+			foreach ( array_keys($dbColumns) as $dbColumn )
+			{
+				// Shortcut for column properties
+				$p = &$dbColumns[$dbColumn];
+				
+				$realtype 	= strpos($p['Type'], '(') !== false ? substr($p['Type'], 0, strpos($p['Type'], '(')) : $p['Type'];
+				$values 	= $realtype === 'enum' 
+								? explode(',', str_replace(array('enum(',')',"'"),'', $p['Type']) ) 
+								: null;
+				
+				$dbCols[$rName][$p['Field']] = array(
+					'name' 				=> $p['Field'],
+					'realtype' 			=> $realtype,
+					'length' 			=> strpos($p['Type'], '(') !== false ? (int) substr($p['Type'], strpos($p['Type'], '(') + 1, -1) : null,
+					'null' 				=> $p['Null'] === 'YES' ? true : false,
+					'pk' 				=> $p['Key'] === 'PRI' ? true : false,
+					'values' 			=> $values,
+				);
+			}
+		}
+		
+		return count($rNames) === 1 ? $dbCols[$rNames[0]] : $dbCols;
+	}
+
+	public function parseManualDataModelColumns()
+	{
+		// Get resources from dataModel
+		require(_PATH_CONF . 'dataModel.php');
+		
+		// Init manual dataModel columns to an empty array
+		$manualCols = array();
+		
+		// If the the dataModel manuel file is defined, and is an array, take it
+		if ( is_array($dataModel) ){ $manualCols = &$dataModel; }
+		
+		return $manualCols;
+	}
+	
+	
+	public function parseGeneratedDataModelColumns()
+	{
+		$generatedCols = array();
+		
+		return $generatedCols;
 	}
 	
 	

@@ -32,7 +32,8 @@ var ui =
 {
 	init: function()
 	{
-		var detailSel 	= '#myAccountNavBlock',
+		var self 		= this,
+			detailSel 	= '#myAccountNavBlock',
 			mainNavSel 	= '#mainNavBlock';
 		
 		$('#mainNavTitle').click(function(e){ e.preventDefault(); e.stopPropagation(); $(mainNavSel).toggleClass('expanded'); });
@@ -59,8 +60,29 @@ var ui =
            // Otherwise, just expand it 
 			$dtl.addClass('expanded');
         });
+        
+        // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
+        if ( $('html').hasClass('ff') ){ self.fixFirefoxFlexbox(); }
 		
 		return this.langChooser().handleIphone().handleOrientation();
+	},
+	
+	
+	// Fix wrong flexbox layouting in Firefox when browser window does not use fullscreen
+	fixFirefoxFlexbox: function()
+	{
+        $(window).bind('resize load',function(e)
+        {
+        	var windowW = $(window).width(),
+        		maxH 	= $(window).height() - $('#header').height() - $('#asideFooter').height();
+        		
+			if ( windowW < 980 ){ return; }
+        	
+        	$('#asideContent').css({'height':maxH, 'max-height':maxH});
+        	$('#mainColContent').css({'height':maxH, 'max-height':maxH, 'overflow-y':'auto'});
+        });
+        
+        return this;
 	},
 	
 	langChooser: function()

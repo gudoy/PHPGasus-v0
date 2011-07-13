@@ -81,17 +81,22 @@ class View extends Application implements ViewInterface
 			$this->C 				= &$this->controller;
 		}
 		
-		$this
-			//->configSmarty()
-			->getPlatformData()
-            ->getDeviceData()
-            ->getBrowserData()
-			->handleOptions()
-			->handleRequest()
-			->outputFormat();
+		$this->getPlatformData();
+		//$this->configSmarty();
+		$this->getPlatformData();
+        $this->getDeviceData();
+        $this->getBrowserData();
+		$this->handleOptions();
+		$this->handleRequest();
+		$this->outputFormat();
 		
 		// Has the request been made via xhr	
-		$this->isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+		$this->isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
+								&& strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+								&& ( !isset($_GET['tplSelf']) || !in_array($_GET['tplSelf'], array('0','false')) );
+								
+//$this->dump('isAjax:');			
+//$this->dump($this->isAjaxRequest);
 		
 		$this->inited = true;
 		

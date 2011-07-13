@@ -9,7 +9,9 @@
 <meta name="revisit-after" content="7" />
 <meta name="author" content="{$smarty.const._APP_AUTHOR_NAME}" />
 <meta name="reply-to" content="{$smarty.const._APP_AUTHOR_MAIL}" />
-<meta name="owner" content="{$smarty.const._APP_OWNER_MAIL}" />{strip}
+<meta name="owner" content="{$smarty.const._APP_OWNER_MAIL}" />
+{if $data.view.meta.refresh}<meta http-equiv="Refresh" content="{$data.view.meta.refresh}" />{/if}
+{strip}
 {*
 http://www.google.com/support/news_pub/bin/answer.py?answer=191283
 <meta name="original-source" content="{$smarty.const._URL}{* current url *}{*">

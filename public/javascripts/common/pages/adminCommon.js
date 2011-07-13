@@ -465,7 +465,7 @@ var admin =
 											id 		= $.trim($slctd.find('td.idCol .dataValue').text()) || null,
 											txtVal 	= $.trim($slctd.find('td.defaultNameField .dataValue').text()) || null;
 											
-Tools.log(id + ' - ' + txtVal);
+//Tools.log(id + ' - ' + txtVal);
 										$input.val(id);
 										
 										$ctnr
@@ -1742,6 +1742,7 @@ var adminRetrieve =
 			context 		= 'table.adminTable',
 			self 			= this;
 			
+		admin.init();
 		//adminIndex.init();
 			
 		// Loop over all the delete buttons in the table

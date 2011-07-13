@@ -937,7 +937,8 @@ class Model extends Application
 								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' 
 								. ( !empty($field['groupConcat'])
 								    //? ' GROUP_CONCAT(DISTINCT CAST(' 
-								    ? ' GROUP_CONCAT(CAST('
+								    //? ' GROUP_CONCAT(CAST('
+								    ? ' CAST(GROUP_CONCAT('
                                     : '' )
 								. ( !empty($field['table']) 
 									//? $field['table']
@@ -947,7 +948,8 @@ class Model extends Application
 								. $field['name'] 
 								//. ( !empty($field['as']) ? $field['as'] : $field['name'] )
 								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
-								. ( !empty($field['groupConcat']) ? " AS CHAR) SEPARATOR ',' )" : '' )
+								//. ( !empty($field['groupConcat']) ? " AS CHAR) SEPARATOR ',' )" : '' )
+								. ( !empty($field['groupConcat']) ? ") AS CHAR)" : '' )
 								. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
 								. ( $type === 'timestamp' ? ") as " . $field['name'] : '' )
 								//. ( $type === 'int' ? "' AS UNSIGNED INTEGER)" : '' )
@@ -1421,12 +1423,18 @@ class Model extends Application
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
 				$upUGroups      = !empty($updatedUser['group_admin_titles']) ? explode(',',$updatedUser['group_admin_titles']) : array();
 				
+//$this->dump('here1');
+//$this->dump($this->logged);
+				
 				// If the user is logged
-				if ( $this->logged )
+				if ( $this->isLogged() )
 				{
 					// Get the logged user & usergroups
 					$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
 	                $curUGroups     = !empty($currentUser['group_admin_titles']) ? explode(',',$currentUser['group_admin_titles']) : array();
+
+//$this->dump($currentUser);					
+//$this->dump($curUGroups);
 	
 					// Has the current user higher authorization than the updated one
 					$foundUsersData = !empty($updatedUser) && !empty($currentUser);

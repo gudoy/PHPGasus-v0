@@ -44,32 +44,38 @@
             </th>
             {/if}
             {/foreach}
-            <th class="col goToCol">
-                <span class="title">{t}Go{/t}</span>
-            </th>
-            {if $o.addHiddenCols}
-            <th class="col colsHandlerCol last">
-               <div class="colsHandlerBlock" id="colsHandlerBlock">
-                   <a class="colsHandlerLink" href="#">
-                       <span class="label">{t}Manage columns{/t}</span>
-                   </a>
-                   <div class="colsHandlerManagerBlock hidden" id="colsHandlerManagerBlock" style="height:{$rCount*20}px;">
-                   {foreach array_keys($rModel) as $column}
-                       <div class="colLine">
-                           <input type="checkbox" id="{$column}ColDisplay" class="multi" {if $rModel[$column].list}checked="checked"{/if} />
-                           <label class="span" for="{$column}ColDisplay">{$column|replace:'_':' '}</label>
-                       </div>
-                   {/foreach}
-                   </div>
-               </div> 
-            </th>
-            {/if}
+			<th class="col colsCol goToCol last">
+				<div class="colsManagerBlock" id="colsManagerBlock">
+					<a id="colsManagerLink" href="#"><span class="label">{t}show/hide columns{/t}</span></a>
+					<ul class="colsBlock" id="colsBlock">
+					<li>
+						<input type="checkbox" id="actionsColDisplay" checked="checked" />
+						<label class="span" for="actionsColDisplay">{t}actions{/t}</label>
+					</li>
+					{foreach array_keys($rModel) as $column}
+						<li>
+						{if $smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && ($rModel[$column].type === 'onetoone' || $rModel[$column].fk)}
+							<input type="checkbox" id="{$column}ColDisplay" {if $rModel[$column].list}checked="checked"{/if} />
+							<label class="span" for="{$column}ColDisplay">{$column|replace:'_':' '}</label>
+						</li>
+						<li>
+							<input type="checkbox" id="{$rModel[$column].relGetAs}ColDisplay" {if $rModel[$column].list}checked="checked"{/if} />
+							<label class="span" for="{$rModel[$column].relGetAs}ColDisplay">{$rModel[$column].relGetAs|replace:'_':' '}</label>
+						{else}
+							<input type="checkbox" id="{$column}ColDisplay" {if $rModel[$column].list}checked="checked"{/if} />
+							<label class="span" for="{$column}ColDisplay">{$column|replace:'_':' '}</label>
+						{/if}
+						</li>
+					{/foreach}
+			       </ul>
+			   </div>
+			</th>
         </tr>
     </thead>
     <tbody>
         {foreach $rows as $row}
         {$rowNum = $row.id|default:$row@iteration}
-        <tr id="row{$rowNum}" class="dataRow {cycle values='even,odd'}">
+        <tr id="row{$rowNum}" class="dataRow {cycle values='even,odd'} {if $row@first} firstRow{/if}{if $row@last} lastRow{/if}">
             {if ($userResPerms.allow_create && in_array('create',$o.showActions)) || ($userResPerms.allow_update && in_array('update',$o.showActions)) || ($userResPerms.allow_delete && in_array('delete',$o.showActions))}
             <td class="col selecRowCol firstCol colSelectResources">
                 <input type="checkbox" name="ids[]" value="{$rowNum}" {if $smarty.post.ids && in_array($rowNum, $smarty.post.ids)}checked="checked"{/if} />
@@ -98,8 +104,7 @@
             {if $type === 'int' && $colProps.fk}{$type = 'onetoone'}{/if}
             {if $colProps.list || $o.showAllCols || $o.addHiddenCols}
             <td class="col dataCol {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{if !$o.showAllCols && !$colProps.list} hidden{/if}" headers="row{$rowNum} {$colName}Col">{strip}
-                <div class="value dataValue" data-exactValue="{$value}">
-				{strip}
+                <div class="value dataValue" data-exactValue="{$value}">{strip}
                 {if $type === 'timestamp' || $type === 'datetime'}
                     <time class="date">{$value|date_format:"%d %b %Y"}</time><span class="sep"> </span><time class="time">{$value|date_format:"%Hh%M</time>"}
                 {elseif $type === 'onetoone' || $colProps.fk}
@@ -116,17 +121,13 @@
                 {else}
                     {$value|default:''}
                 {/if}
-                {/strip}
-                </div>
+                {/strip}</div>
             {strip}</td>
             {/if}
             {/foreach}
-            <td class="col goToCol">
+            <td class="col goToCol lastCol">
                 {if in_array('retrieve',$o.showActions)}<a class="action view actionBtn adminLink viewLink" href="{$smarty.const._URL_ADMIN}{$o.goToResource|default:$rName}/{$row[$o.idCol]}"><span class="value">{t}view{/t}</span></a>{/if}
             </td>
-            {if $o.addHiddenCols}
-            <td class="col colsHandlerCol lastCol">&nbsp;</td>
-            {/if}
         </tr>
         {/foreach}
     </tbody>

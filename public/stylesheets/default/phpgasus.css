@@ -373,3 +373,10 @@ table thead .sort.asc { margin-bottom:4px; }
 #body:after,
 #footer:after,
 .tableWrapperBlock:after { height:0; clear:both; content:' '; display:block; visibility:hidden; }
+
+/* Micro clearfix: http://nicolasgallagher.com/micro-clearfix-hack/ */
+/*
+.clearfix:before,
+.clearfix:after { content:""; display:table; }
+.clearfix:after { clear:both; }
+*/

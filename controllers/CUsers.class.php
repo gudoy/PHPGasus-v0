@@ -23,7 +23,7 @@ class CUsers extends Controller
 		$this->userId = parent::create($options);
 		
 		// If the user creation succeed
-		if ( $this->success ){ $this->sendConfirmationMail(); }
+		if ( $this->success && _APP_USE_ACCOUNTS_CONFIRMATION ){ $this->sendConfirmationMail(); }
 		
 		return $this->userId;
 	}
