@@ -191,6 +191,7 @@ class DataModel
 					'realtype' 			=> null,
 					'length' 			=> null,
 					'null' 				=> false,
+					'unsigned' 			=> true, 	// TODO
 					'pk' 				=> false,
 					'possibleValues' 	=> null, 	// deprecated: use values instead
 					'values' 			=> null,
@@ -256,7 +257,7 @@ class DataModel
 			}
 		}
 
-var_dump(self::$columns);
+//var_dump(self::$columns);
 
 		return self::$columns;
 	}
@@ -343,42 +344,88 @@ var_dump(self::$columns);
 	}
 	
 	public function generateResources()
-	{
-		$lb 		= "\n";
-		$code 		= '<?php' . $lb . $lb . '$resources = array(' . $lb;
-		$longer 	= null;
+	{		
+		$lb 			= "\n";
+		$tab 			= "\t";
+		$code 			= '<?php' . $lb . $lb . '$_resources = array(' . $lb;
+		$longer 		= null;
 		
-		// Try to get the longer resource name (to compute tab proper tab indentation)
-		foreach ( self::$resources as $props )
-		{
-			$longer = ( empty($longer) || strlen($props['name']) > strlen($longer) ) ? $props['name'] : $longer;
-		}
+		$rPropNames 	= array(
+			// Semantic props
+			'type', 'singular', 'plural', 'displayName',
+			// Database binding props
+			'database', 'table', 'alias',
+			// Relation props
+			'defaultNameField', 'nameField', 'extends',
+			// Misc props
+			'searchable', 'exposed', 'crudability'
+		); 
 		
-		$verTabPos = strlen($longer) + ( 4 - (strlen($longer) % 4) );
+		// Build an array or resource names only (for perf issues)
+		$resNames 		= array_keys(self::$resources);
+		
+		// Get the longest resource name and use it to get position used to verticaly align the resource code (indentation)
+		$longRes 		= Tools::longestValue($resNames);
+		$resVertPos 	= strlen($longRes) + ( 4 - (strlen($longRes) % 4) );
+		
+		// Get the longest resource propery name
+		$longProp 		= Tools::longestValue($rPropNames);
+		$propVertPos	= strlen($longProp) + ( 4 - (strlen($longProp) % 4) );
 		
 		// Loop over the resources
-		foreach ( self::$resources as &$res )
-		{			
-			$tabsCnt = floor(($verTabPos - strlen($res['name']) / 4));
-			$tabs = '';
-			for($i=0; $i<$tabsCnt; $i++){ $tabs .= "\t"; }
+		foreach ( array_keys((array) self::$resources) as $rName )
+		{
+			// Shortcut for resource props
+			$p 	= &self::$resources[$rName];
 			
-			$code .= "'" . $res['name'] . "' " . $tabs . "=> array(";
-			$code .= "'type' => '" . $res['type'] . "'";
-			$code .= ", 'singular' => '" . $res['singular'] . "'";
-			$code .= ", 'plural' => '" . $res['plural'] . "'";
-			$code .= ", 'displayName' => '" . $res['plural'] . "'";
-			// TODO
-			//$code .= ", 'database' => '" . $displayName . "'";
-			$code .= ", 'defaultNameField' => " . (string) $res['defaultNameField'] . "'";
-			$code .= ", 'nameField' => " . (string) $res['nameField'] . "'";
-			$code .= ", 'extends' => " . ( is_string($res['extends']) ? "'" . $res['extends'] .  "'" : 'null' );
-			$code .= ", 'database' => '" . $res['database'] . "'";
-			$code .= ", 'table' => '" . $res['table'] . "'";
-			$code .= ", 'alias' => '" . $res['alias'] . "'";
-			$code .= ", 'searchable' => " . ( $res['searchable'] ? 'true' : 'false' ) . "";
-			$code .= ", 'exposed' => '" . ( $res['exposed'] ? 'true' : 'false' ) . "'";
-			$code .= ", 'crudability' => '" . $res['crudability'] . "'";
+			// Calculate the number of tabs required for proper vertical alignement of the current resource
+			//$tabsCnt = floor(($resVertPos - strlen($rName) / 4));
+			$resTabs = ($resVertPos - (strlen($rName)+3))/4;
+			//$resTabs = ( $resTabs < 1 ) ? 1 : ( ( $resTabs - ceil($resTabs) < 0.5 ) ? ceil($resTabs) : floor($resTabs) );
+			$tabs = '';
+			//for($i=0; $i<$resTabs; $i++){ $tabs .= $tab; }
+			
+			$code .= "'" . $p['name'] . "' " . $tabs . "=> array(" . $lb;
+			
+			foreach ($rPropNames as $propName)
+			{
+				// TODO: Calculate the number of tabs required for proper vertical alignement of the current property
+				//$tabsCnt = floor(($resVertPos - strlen($rName) / 4));
+				$propTabs = ($propVertPos - (strlen($propName)+3))/4;
+				//$propTabs = ( $propTabs < 1 ) ? 1 : ( ( $propTabs - ceil($propTabs) < 0.5 ) ? ceil($propTabs) : floor($propTabs) );
+				$tabs = '';
+				for($i=0; $i<$propTabs; $i++){ $tabs .= $tab; }
+				
+				$code .=  $tab . "'" . $propName . "' " . $tabs . "=> ";
+				
+				// Boolean props
+				if ( in_array($propName, array('searchable','exposed')) ) 	{ $code .= $p[$propName] ? 'true' : 'false'; }
+				// Defined string of default to null props
+				elseif ( in_array($propName, array('extends','database')) ) { $code .= !empty($p[$propName]) ? "'" . $p[$propName] . "'" : 'null'; }
+				// Default: string props
+				else 														{ $code .= "'" . $p[$propName] . "'"; }
+				
+				$code .=  "," . $lb;
+			}
+			
+			// 
+
+			/*
+			$code .= "'type' => '" . $p['type'] . "'";
+			$code .= $tab . "'singular' => '" . $p['singular'] . "'," . $lb;
+			$code .= $tab . "'plural' => '" . $p['plural'] . "'," . $lb;
+			$code .= $tab . "'displayName' => '" . $p['plural'] . "'," . $lb;
+			$code .= $tab . "'defaultNameField' => " . (string) $p['defaultNameField'] . "'," . $lb;
+			$code .= $tab . "'nameField' => " . (string) $p['nameField'] . "'," . $lb;
+			$code .= $tab . "'extends' => " . ( is_string($p['extends']) ? "'" . $p['extends'] .  "'" : 'null' ) . "," . $lb;
+			$code .= $tab . "'database' => " . (!empty($p['database']) ? "'" . $p['database'] . "'" : 'null') . "," . $lb;
+			$code .= $tab . "'table' => '" . $p['table'] . "'," . $lb;
+			$code .= $tab . "'alias' => '" . $p['alias'] . "'," . $lb;
+			$code .= $tab . "'searchable' => " . ( $p['searchable'] ? 'true' : 'false' ) . "," . $lb;
+			$code .= $tab . "'exposed' => '" . ( $p['exposed'] ? 'true' : 'false' ) . "'," . $lb;
+			$code .= $tab . "'crudability' => '" . $p['crudability'] . "'," . $lb;
+			*/
+			
 			$code .= ")," . $lb;
 		}
 		
@@ -390,7 +437,7 @@ var_dump(self::$columns);
 	public function generateGroups()
 	{
 		$lb 		= "\n";
-		$code 		= '<?php' . $lb . $lb . '$resources = array(' . $lb;
+		$code 		= '<?php' . $lb . $lb . '$_groups = array(' . $lb;
 
 		// TODO
 
@@ -402,9 +449,26 @@ var_dump(self::$columns);
 	public function generateColumns()
 	{
 		$lb 		= "\n";
-		$code 		= '<?php' . $lb . $lb . '$resources = array(' . $lb;
-		
-		// TODO
+		$code 		= '<?php' . $lb . $lb . '$_columns = array(' . $lb;
+				
+		// Loop over the resources columns
+		foreach ( array_keys((array) self::$resources) as $rName )
+		{
+			// Shortcut for resource col
+			$rCols = &self::$columns[$rName];
+			
+			// Get the longer colum name
+			$longest = Tools::longestValue(array_keys($rCols));
+			
+			//
+			foreach ( array_keys((array) $rCols) as $cName )
+			{
+				// Shortcut for columns properties
+				$p = &self::$columns[$rName][$cName];
+				
+				
+			}
+		}
 		
 		$code .= ');' . $lb . '?>';
 		

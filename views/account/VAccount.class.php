@@ -81,7 +81,11 @@ class VAccount extends View
 			$_SESSION['login_attemps'] = isset($_SESSION['login_attemps']) ? $_SESSION['login_attemps']+1 : 1;
 			
 			// If the user login attemps reached the max allowed one, ban it's ip for some time
-			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') && _APP_MAX_LOGIN_ATTEMPTS >= 1 && $_SESSION['login_attemps'] > _APP_MAX_LOGIN_ATTEMPTS )
+			// and if its IP it not in the whitelist
+			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') 
+				&& _APP_MAX_LOGIN_ATTEMPTS >= 1 
+				&& $_SESSION['login_attemps'] > _APP_MAX_LOGIN_ATTEMPTS
+				&& ( !defined('_APP_IP_WHITELIST') || !in_array($_SERVER['REMOTE_ADDR'], explode(',',_APP_IP_WHITELIST)) ) )
 			{
 				$_POST = array(
 					'ip' 		=> $_SERVER['REMOTE_ADDR'],

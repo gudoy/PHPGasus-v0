@@ -260,6 +260,43 @@ class Tools
 
         return $value;
     }
+	
+	static function sortByValueLength($a,$b) { return ( strlen($a) > strlen($b) ? -1 : 1 ); }
+	static function longestValue(array $array)
+	{
+		# method 1
+		//$t11 = microtime(true);
+		//foreach ( $resNames as $rName ){ $longer = ( empty($longer) || strlen($rName) > strlen($longer) ) ? $rName : $longest; }
+		//$t12 = microtime(true);
+		
+		# method 2 (slowest)
+		//$t21 = microtime(true);
+		// Sorting function to get longer column name
+		
+		usort($array, 'Tools::sortByValueLength');
+		$longest = $array[0];
+		//$t22 = microtime(true);
+		
+		# method 3 (fastest)
+		//$t31 = microtime(true);
+		$tmp = array_combine($array, array_map('strlen', $array));
+		arsort($tmp);
+		$longer3 = key($tmp);
+		unset($tmp);
+		//$t32 = microtime(true);
+		
+		
+		
+//var_dump(($t12 - $t11)*1000);
+//var_dump(($t22 - $t21)*1000);
+//var_dump(($t32 - $t31)*1000);
+//var_dump($longer);
+//var_dump($longer2);
+//var_dump($longer3);
+//die();
+
+		return $longest;
+	}
 
 
     static function XML2Array($xml, $recursive = false, $options = array())
