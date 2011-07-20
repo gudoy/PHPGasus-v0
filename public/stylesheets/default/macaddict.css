@@ -236,7 +236,7 @@ footer.menu { display:none; }
 #myAccountNavBlock .titleBlock .title { font-weight:normal; }
 #myAccountNavBlock .details { background:#fefefe; border:1px solid #bebebe; }
 #myAccountNavBlock .nav a { margin-bottom:10px; }
-#header .nav a { text-decoration:none; }
+#header .nav a { text-decoration:none; letter-spacing:normal; }
 #header .nav .item-lv1 > a { -webkit-tap-highlight-color:rgba(0,0,0,0.5); }
 #header .nav-lv2 { margin:0; padding:0; background:#fefefe; border:1px solid #bebebe; }
 #header .nav .item-lv2 { margin:0; }

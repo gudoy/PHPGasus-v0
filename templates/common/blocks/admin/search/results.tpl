@@ -21,7 +21,7 @@
             </h4>
             <nav class="actions">
                 {* if $group.results && ($displayedCount != $group.count) *}
-                {include file='common/blocks/actionBtn.tpl' classes="action go" href=$resultsURL label={'all'}}
+                {include file='common/blocks/actionBtn.tpl' class="action go" href=$resultsURL label={'all'}}
                 {* /if *}
             </nav>
             {if $displayedCount || $group.count}

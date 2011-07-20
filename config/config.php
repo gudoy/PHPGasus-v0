@@ -115,7 +115,7 @@ define("_FLUSH_BUFFER_EARLY", 			true);
 ## 	COMMON APPLICATION PARAMETERS	##
 ######################################
 
-define("_UNIQUE_VERSION", 				'0107111555');
+define("_UNIQUE_VERSION", 				'1807111200');
 define("_JS_VERSION", 					_UNIQUE_VERSION);
 define("_CSS_VERSION", 					_UNIQUE_VERSION);
 define("_FLASH_VERSION", 				_UNIQUE_VERSION);

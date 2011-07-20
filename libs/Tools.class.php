@@ -368,8 +368,7 @@ class Tools
 		// floats
 		if ( in_array($p['type'], array('float', 'real', 'double')) )
 		{
-			$value = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT);
-			//$value = floatval($value);
+			$value = floatval($value);
 		}
 		// phone number
 		else if ( $p['type'] === 'tel' )

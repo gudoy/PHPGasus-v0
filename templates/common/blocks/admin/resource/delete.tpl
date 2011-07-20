@@ -31,7 +31,7 @@
 				{t}Are you sure you want to delete the following resource(s){/t}{t}:{/t} {$data.resourceId}
 			</p>
 			<div class="buttonsLine">
-				{include file='common/blocks/actionBtn.tpl' id='cancelBtn' classes='cancelBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label='Cancel'|gettext}
+				{include file='common/blocks/actionBtn.tpl' id='cancelBtn' class='cancelBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label='Cancel'|gettext}
 				<span class="sep or">{t}or{/t}</span>
 				{include file='common/blocks/actionBtn.tpl' id='confirmBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName|cat:'/'|cat:$resourceId|cat:'?method=delete&amp;confirm=1' label='delete'|gettext}
 			</div>

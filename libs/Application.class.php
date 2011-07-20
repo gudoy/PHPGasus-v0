@@ -479,7 +479,8 @@ class Application
 		{
 	        class_exists('ChromePhp') || require(_PATH_LIBS . 'tools/ChromePHP/ChromePhp.php');
 	        
-			//ChromePhp::useFile(_PATH . '/tmp/', '/chromelogs');
+			//ChromePhp::useFile(_PATH . 'tmp/', 'chromelogs/');
+			ChromePhp::useFile(_PATH_PUBLIC . 'logs/chromelogs', '/public/logs/chromelogs/');
 			ChromePhp::log($data);	
 		}
 		elseif ( _APP_USE_FIREPHP_LOGGING && strpos($ua, 'Gecko') !== false )
@@ -690,56 +691,6 @@ class Application
 		}
 		
 		return $this;	
-	}
-	
-	
-	public function XML2Array($xml, $recursive = false, $options = array())
-	{
-        $this->log(__METHOD__);
-		
-		$o = array_merge(array(
-			'type' => 'xml',
-			'parent' => null,
-		), $options);
-		
-		$array                = !$recursive ? (array) simplexml_load_file($xml) : $xml;
-		//$array              = !$recursive ? (array) simplexml_load_file($xml, 'SimpleXMLElement', LIBXML_COMPACT) : $xml;
-		$fixTextNodesAttr     = defined('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES') && _XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES;
-		$data 		          = array();
-        
-		foreach ($array as $propName => $propVal)
-		{
-			if ( $o['type'] === 'rss' && $propName === 'description' )
-			{
-				$propVal = (string) $propVal;
-			}
-			
-			$type 				= in_array(gettype($propVal), array('object','array')) ? 'multi' : 'simple';
-			
-            # Fix for text nodes having attributes that are ignored
-            // If the element is an object
-            if ( $fixTextNodesAttr && is_object($propVal) )
-            {
-                $fixed = array();
-            
-                // Loop over its childens    
-                foreach ( $propVal as $k => $v )
-                {
-                    // Only handle text nodes which have both @attributes and a 0 indexed property        
-                    if ( ($v = (array) $v) && isset($v['@attributes']) && isset($v[0]) )
-                    {
-                        $fixed[$k][] = array('@attributes' => $v['@attributes'], 'text' => $v[0]);
-                    }
-                }
-            
-                $propVal = array_merge((array)$propVal, $fixed);
-            } 
-            # End of the fix
-			
-			$data[$propName] 	= $type === 'multi' ? Tools::XML2Array((array) $propVal, true, $o + array('parent' => $propVal)) : $propVal;
-		}
-		
-		return $data;
 	}
 
 	public function request($url, $params = array())

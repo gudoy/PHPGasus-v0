@@ -19,20 +19,20 @@
         <span class="actions">
         {strip}
         	{if $userResPerms.allow_update}
-            {$crudability=$data._resources[$resourceName].crudability|default:'CRUD'}
+            {$crudability = $data._resources[$resourceName].crudability|default:'CRUD'}
             {$disabled=(strpos($crudability, 'U')>-1)?0:1}
             <a class="action actionBtn edit editLink editAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
                 <span class="value">{'edit'|gettext}</span>
             </a>
             {/if}
             {if $userResPerms.allow_create && $userResPerms.allow_update}
-            {$disabled=(strpos($crudability, 'C')>-1&&strpos($crudability, 'U')>-1)?0:1}
+            {$disabled = (strpos($crudability, 'C')>-1&&strpos($crudability, 'U')>-1)?0:1}
             <a class="action actionBtn duplicate duplicateLink duplicateAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=duplicate{else}#{/if}">
                 <span class="value">{'duplicate'|gettext}</span>
             </a>
             {/if}
             {if $userResPerms.allow_delete}
-            {$disabled=(strpos($crudability, 'D')>-1)?0:1}
+            {$disabled = (strpos($crudability, 'D')>-1)?0:1}
             <a class="action actionBtn delete deleteLink deleteAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=delete{else}#{/if}">
                 <span class="value">{'delete'|gettext}</span>
             </a>
@@ -50,15 +50,15 @@
     </div>
     <div class="group itemsCounts">
         <span class="title">{t}items{/t}</span>
-        {$data.current.urlParams.offset=null}
-        {$newPageURL={$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
+        {$data.current.urlParams.offset = null}
+        {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
         <fieldset>
             <select id="itemsPerPage{$position|ucfirst}" class="sized itemPerPage" name="limit" formmethod="get">
                 {foreach array(25,50,100,200,500) as $nb}
                 <option value="{$nb}" {if $nb === $nbOfItemsPerPage}selected="selected"{/if}>{$nb}</option>
                 {/foreach}
             </select>
-            {include file='common/blocks/actionBtn.tpl' mode='button' classes='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
+            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
         </fieldset>
     </div>
     {if $data.total[$resourceName] > $data.current.limit}

@@ -12,8 +12,8 @@
 		</p>
 	</div>
 	<nav class="actions">
-		{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_HOME} id='goToHomeBtn' classes='action goToHomeBtn' label='back to home'|gettext}<span class="or">{t}or{/t}</span>
-		{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_LOGIN} id='goToLoginBtn' classes='action goToLoginBtn' label='login'|gettext}
+		{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_HOME} id='goToHomeBtn' class='action goToHomeBtn' label='back to home'|gettext}<span class="or">{t}or{/t}</span>
+		{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_LOGIN} id='goToLoginBtn' class='action goToLoginBtn' label='login'|gettext}
 	</nav>
 </section>
 

@@ -31,15 +31,15 @@
 	<input type="text" class="normal" {if !$editable || ($mode === 'create' && $field.computed)}disabled="disabled"{/if} value="{$resource[$fieldName]}" />
 	<div class="nav actions actionsBlock buttonsBlock">
 		{$repBntId='replace'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
-		{include file='common/blocks/actionBtn.tpl' mode='button' classes='replace replaceFileLink' id=$repBntId label='replace'|gettext}
+		{include file='common/blocks/actionBtn.tpl' mode='button' class='replace replaceFileLink' id=$repBntId label='replace'|gettext}
 		<span class="or">{t}or{/t}</span>
 		{$editBntId='edit'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
-		{include file='common/blocks/actionBtn.tpl' mode='button' classes='edit editFileLink' id=$editBntId label='edit URL'|gettext}
+		{include file='common/blocks/actionBtn.tpl' mode='button' class='edit editFileLink' id=$editBntId label='edit URL'|gettext}
 		<span class="or">{t}or{/t}</span>
 		<a class="action remove deleteFileLink" id="delete{$resourceFieldName|ucfirst}FileLink" href="{$smarty.const._URL_ADMIN}{$resourceName}{$resource.id}/{$fieldName}?method=update&amp;forceFileDeletion=1" title="{t}Delete this file{/t}">
 			<span class="label">{t}remove{/t}</span>
 		</a>
 		<span class="or">{t}or{/t}</span>
-		{include file='common/blocks/actionBtn.tpl' mode='button' classes='cancel cancelFileActionLink' label='cancel'|gettext}
+		{include file='common/blocks/actionBtn.tpl' mode='button' class='cancel cancelFileActionLink' label='cancel'|gettext}
 	</div>
 </div>

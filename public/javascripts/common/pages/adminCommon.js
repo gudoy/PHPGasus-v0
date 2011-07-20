@@ -202,6 +202,8 @@ var admin =
 	                    	// Add loading indicators
 	                        $('body').append($(app.loadingBlock).attr('id','loadingBlock'));
 	                        
+	                        $('#adminSearchBlock', '#sideCol').siblings().remove();
+	                        
 	                        // Reset search results counts & specific css rules if necessary
 	                        if ( $('#adminSearchResultsBlock').length ) 	{ $('#adminSearchResultsBlock, #searchDynamicCSS').empty(); }
 	                        // Otherwise, just clear updated content container

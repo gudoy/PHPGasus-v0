@@ -26,7 +26,7 @@ class RSSimporter extends Application
 		$this->errors 	= array();
 		
 		// Convert the RSS into a PHP object
-		$rssObj 		= $this->XML2Array($this->feedUrl, false, array('type' => 'rss'));
+		$rssObj 		= Tools::XML2Array($this->feedUrl, false, array('type' => 'rss'));
 		
 		// Load proper controllers and instanciate them
 		$this->requireControllers(array('CEntries','CMedias'));

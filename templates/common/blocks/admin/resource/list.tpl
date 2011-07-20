@@ -31,10 +31,6 @@
     {$curURL 		= $data.current.url}
     {if strpos($curURL,'?') !== false}{$linker = '&amp;'}{else}{$linker = '?'}{/if}
     {$curURLbase 	= "{$curURL|regex_replace:'/(.*)\\?(.*)$/U':'$1'}"}
-	
-    {* Pagination params *}
-    {if $smarty.get.offset}{$paginationParams = $paginationParams|cat:'&offset='|cat:$smarty.get.offset}{/if}
-    {if $smarty.get.limit}{$paginationParams = $paginationParams|cat:'&limit='|cat:$smarty.get.limit}{/if}
     
     {/strip}
     {block name='adminIndexContent'}

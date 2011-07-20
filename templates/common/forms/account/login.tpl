@@ -16,7 +16,7 @@
 			<div class="fieldBlock">
 				{include file='common/formFields/user/password.tpl' label={'password'|gettext} name='password' placeholder='password' inputOnly=1}
 				{if $smarty.const._APP_ALLOW_LOST_PASSWORD_RESET}
-				{include file='common/blocks/actionBtn.tpl' href=$smarty.const._URL_ACCOUNT_PASSWORD_LOST classes='lostPasswordLink' id='lostPasswordLink' label='lost password?'|gettext}
+				{include file='common/blocks/actionBtn.tpl' href=$smarty.const._URL_ACCOUNT_PASSWORD_LOST class='lostPasswordLink' id='lostPasswordLink' label='lost password?'|gettext}
 				{/if}
 			</div>
 		</div>

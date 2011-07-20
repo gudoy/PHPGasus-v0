@@ -445,7 +445,9 @@ class Model extends Application
             case 'manytomany':
             case 'onetomany':
             
-            case 'timestamp':   $v = is_numeric($v) ? (int) $v : $v; break;
+            //case 'timestamp':   $v = is_numeric($v) ? (int) $v : $v; break;
+            //case 'timestamp':   $v = is_numeric($v) ? (int) $v : strtotime($v); break;
+            case 'timestamp':   $v = is_numeric($v) ? (int) $v : (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U'); break;
             
             case 'bool':
             case 'boolean':     $v = in_array($v, array(true,1,'1','true','t')) ? true : false; break;
@@ -1911,6 +1913,7 @@ class Model extends Application
             // Special case when operator is IN/NOT IN and value is single, use =/!= instead
             $usedOperator   = in_array($usedOperator, array('IN','NOT IN')) && !$multiValues ? ( $usedOperator === 'NOT IN' ? '!=' : '=' ) : $usedOperator;
 
+//$this->dump($fields);
 //$this->dump($values);
 //$this->dump(count($values));
 //$this->dump('$usedOperator: ' . $usedOperator);
@@ -1988,7 +1991,6 @@ class Model extends Application
 			// Case for single field & single value operators
 			else
 			{
-//$this->dump($fields);
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -1999,8 +2001,6 @@ class Model extends Application
                 // If the column name contains a "., assume that it is like 'table'.'column', matching db real structure
                 $useAlias   = strpos($col, '.') === false;
                 $colParts   = !$useAlias ? explode('.',$col) : null;
-
-//$this->dump('qf:' . $qf);
 				
 				// Try to get the related resource for the current field/column, otherwise assume its the current one
 				$res        = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : ( !$useAlias ? $colParts[0] : $this->resourceName );
@@ -2010,8 +2010,8 @@ class Model extends Application
                                 : ( !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias );
                 $col        = !$useAlias ? $colParts[1] : $col;
 				
-//$this->dump($res . ':' . $col);
-//$this->dump($this->queryData);
+				// Handle special case where passed value can be a column name
+				$isValColname = is_string($values) && isset($this->application->dataModel[$this->resourceName][$values]);
 				
                 // Do not continue if the column is not a known one or if the resource does not belong to the queried ones for this request
                 if ( !isset($this->application->dataModel[$res][$col]) ){ continue; }
@@ -2021,7 +2021,9 @@ class Model extends Application
 				$output .= $condKeyword . $oParenthesis;
 				$output .= $alias . '.';
                 $output .= $col . ' ' . $usedOperator . ' ';
-                $output .= $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col, 'operator' => $operator)) . ' ';
+                $output .= $isValColname 
+                	? $values
+                	: $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col, 'operator' => $operator)) . ' ';
 			}
 			
 			// Get conditions alternatives
@@ -2043,15 +2045,11 @@ class Model extends Application
 	
 	public function handleConditionsColumns($options = array())
 	{
-//$this->dump('handleConditionsColumns');
-		
 		$o      = &$options;
 		$output = '';
 		
 		// Do not continue if there's no columns passed
 		if ( empty($o['columns']) ) { return $output; }
-		
-//var_dump($o['columns']);
 		
 		$j = 0;
 		foreach( $o['columns'] as $col )

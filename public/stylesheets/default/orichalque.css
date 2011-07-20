@@ -275,7 +275,7 @@ header .paginationBlock { float:right; }
 .resourceDetailBlock dd { width:50%; min-height:22px; padding:3px 1%; display:block; float:left; clear:none; text-align:left; }
 */
 .resourceDetailBlock dl { display:block; letter-spacing:-4px; }
-.resourceDetailBlock dt { width:50%; display:inline-block; letter-spacing:normal; vertical-align:top; }
+.resourceDetailBlock dt { width:50%; display:inline-block; float:left; letter-spacing:normal; vertical-align:top; }
 .resourceDetailBlock dd { width:50%; display:inline-block; letter-spacing:normal; vertical-align:top; }
 /*
 .flexbox .resourceDetailBlock dl { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
