@@ -2,7 +2,7 @@
 
 class Model extends Application
 {
-	public $debug         = false;
+	public $debug         = true;
 	public $db            = null;
 	public $success       = false;
 	public $errors        = null;
@@ -53,7 +53,7 @@ class Model extends Application
 		}
 		
 		// Set the timeout
-		//if( _DB_CONNECTION_TIMEOUT !== '' ) { ini_set('mysqli.connect_timeout', _DB_CONNECTION_TIMEOUT); }
+		if( _DB_CONNECTION_TIMEOUT !== '' ) { ini_set('mysql.connect_timeout', _DB_CONNECTION_TIMEOUT); }
 		
 		return $this->connect();
 	}
@@ -86,23 +86,16 @@ class Model extends Application
 	public function connect()
 	{
 		// Open a connection on the db server
-		//$this->db 			= @mysqli_connect(_DB_HOST, _DB_USER, _DB_PASSWORD);
-		$this->db 			= new mysqli(_DB_HOST, _DB_USER, _DB_PASSWORD, _DB_NAME);
 		
-		// Set the timeout
-		if( _DB_CONNECTION_TIMEOUT !== '' ) { $this->db->options(MYSQLI_OPT_CONNECT_TIMEOUT, _DB_CONNECTION_TIMEOUT); }
-		
-		// TODO: use error codes
-		if ( $this->db->connect_error )
+		try
+		{
+		    $this->db = new PDO('mysql:host=' . _DB_HOST . ';dbname=' . _DB_NAME, _DB_USER, _DB_PASSWORD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8") );
+		}
+		catch (PDOException $e)
 		{
 			// TODO: make something more user friendly. redirect to /error/
-			die('Database connection error. ' . ( $this->env['type'] === 'prod' 
-				? '' 
-				: $this->db-connect_errno() . ': ' . $this->db-connect_error() ));
+			die('Database connection error. ' . ( $this->env['type'] === 'prod' ? '' : $e->getMessage() ));
 		}
-		
-		// Tell mysql we are sending already utf8 encoded data
-		$this->db->real_query("SET NAMES 'UTF8'");
 		
 		return $this;
 	}
@@ -122,34 +115,34 @@ class Model extends Application
         $this->launchedQuery    = $query;
         
         // Do the query
-        $this->queryResult 		= $this->db->query($query);
+        //$queryResult 			= mysql_query($query, $this->db);
+        $queryResult 			= $o['type'] === 'select' ? $this->db->query($query) : $this->db->exec($query);
+		
+//var_dump($queryResult);
         
-//var_dump($query);
-//var_dump($this->queryResult);
-		
         // 
-        $this->success          = is_bool($this->queryResult) && !$this->queryResult ? false : true;
-		
-		$this->numFields 		= $this->db->field_count;
+        $this->success          = is_bool($queryResult) && !$queryResult ? false : true;
 
         // If the request succeed
         if ( $this->success )
         {
             // Get number of rows affetected by a insert, update, delete request
-            $this->affectedRows = $this->db->affected_rows;
+            //$this->affectedRows = mysql_affected_rows($this->db);
+            $this->affectedRows = $queryResult->rowCount;
             
-            if ( $o['type'] === 'insert' ){ $this->insertedId = $this->db->insert_id; }
+            // Get number of selected rows (for select request)
+            //$this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
+            $this->numRows      = $queryResult->rowCount;
+			$this->numFields 	= $queryResult->columnCount;
+            
+            //if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
+            if ( $o['type'] === 'insert' ){ $this->insertedId = $this->db->lastInsertId; }
             
             // If the request returns results
             // HOW TO handle RETURNING clause for mysql ??? 
-            //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
-            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && $this->numFields >= 1) )
-            {
-	            // Get number of selected rows (for select request)
-	            $this->numRows      = $this->queryResult->num_rows;
-				
-				                
-                $this->fetchResults($o);
+            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
+            {                
+                $this->fetchResults($queryResult, $o);
             }
             
             // For insert, we may need to do some process once the request succeed
@@ -159,8 +152,9 @@ class Model extends Application
         {           
             // Get the last error returned by the db
             //$this->errors = mysql_error($this->db);
-            $errId                  = $this->db->errno;
-            $this->errors[$errId]   = $this->db->error;
+            $errId                  = $this->db->errorCode();
+			$err = $this->db->errorInfo();
+            $this->errors[$errId]   = $err[2];
         }   
         
         return $this;
@@ -398,12 +392,19 @@ class Model extends Application
 
 
     public function fixData(&$data, $params = array())
-    {        
+    {
+//var_dump($data);
+//var_dump((array) $data);
+//die();
+		        
         // Extends default param values with passed ones 
         $p      = array_merge(array(
         ), $params);
         
-        // If data is an array, 
+        // If data is an array,
+        if ( is_object($data) ){ $data = (array) $data; }
+		
+		 
         if ( is_array($data) )
         {
             // Loop over it's fields
@@ -496,18 +497,20 @@ class Model extends Application
     }
 	
 
-    private function fetchResults($options = null)
+    private function fetchResults($queryResult, $options = null)
     {       
         $o          = &$options;
 		$o 			= array_merge(array(
 			'mode' => null,
 		), $o);
+		
+//var_dump($queryResult);
         
         if ( $o['mode'] === 'count' )
         {
 //var_dump('case count');
-            $row = $this->queryResult->fetch_row();
-            $this->data = (int) $row[0];
+            
+            $this->data = (int) mysql_result($queryResult, 0,0);
         }
         else if ( !empty($o['returning']) )
         {
@@ -518,7 +521,7 @@ class Model extends Application
         else if ( $o['mode'] === 'onlyOne' && count($o['getFields']) === 1 )
         {
 //var_dump('1 column 1 row');
-            $this->data = $this->queryResult->fetch_array(MYSQLI_ASSOC);
+            $this->data = mysql_fetch_array($queryResult, MYSQL_ASSOC);
             $usedCol    = $o['getFields'][0];
             $this->data = $this->fixDataValue($this->data[$usedCol], array('colName' => $usedCol));
         }
@@ -526,7 +529,10 @@ class Model extends Application
         else if ( $o['mode'] === 'onlyOne' && ( count($o['getFields']) > 1 || empty($o['getFields']) ) )
         {
 //var_dump('several columns 1 row');
-            $this->data = $this->fixData($this->queryResult->fetch_array(MYSQLI_ASSOC));
+            //$this->data = $this->fixData(mysql_fetch_array($queryResult, MYSQL_ASSOC));
+            $this->data = $this->fixData($queryResult->fetch(PDO::FETCH_OBJ));
+//var_dump($this->data);
+//die();
         }
         // 1 column, several rows
         else if ( $o['mode'] === 'distinct' && count($o['field']) === 1 )
@@ -535,7 +541,7 @@ class Model extends Application
             {
                 $usedCol    = $o['field'];
                 
-                while ($row = $this->queryResult->fetch_array(MYSQLI_ASSOC))
+                while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
                 {
                     //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
 					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)));
@@ -553,7 +559,7 @@ class Model extends Application
             {
                 $usedCol    = $o['getFields'][0];
                 
-                while ($row = $this->queryResult->fetch_array(MYSQLI_ASSOC))
+                while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
                 {
                     //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
 					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)));
@@ -567,7 +573,7 @@ class Model extends Application
 //$this->dump('several columns, several rows');
             if ( $this->numRows > 0 ) 
             {
-                while ($row = $this->queryResult->fetch_array(MYSQLI_ASSOC))
+                while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
                 {
                     //$this->data[] = $this->fixData($row);
                     $this->addToDataArray($this->fixData($row));
@@ -576,7 +582,7 @@ class Model extends Application
             else { $this->data = array(); }
         }
         
-        if ( is_resource($this->queryResult) ) { $this->queryResult->free_result(); }
+        if ( is_resource($queryResult) ) { mysql_free_result($queryResult); }
         
         return $this;
     }
@@ -592,8 +598,13 @@ class Model extends Application
 	{
 		$string = !empty($string) ? (string) $string : '';
 		
-		//return mysql_real_escape_string($string);
-		return $this->db->real_escape_string($string);
+		//return $this->db->quote($string, PDO::PARAM_STR);
+		
+//var_dump($string);
+//var_dump($this->db->quote($string, PDO::PARAM_STR));
+//die();
+		
+		return $string;
 	}
 
 	
@@ -628,7 +639,7 @@ class Model extends Application
 		if ( !empty($a['rename']) )
 		{
 			// Get the sql id of the resource
-			$lastId 		= $this->db->insert_id();
+			$lastId 		= mysql_insert_id();
 			
 			// Array tha will contains key/value couples to update
 			$updateKeyVals 	= array();

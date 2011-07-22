@@ -1,3 +1,6 @@
+/* Fix for opera that refuses align the search input & its submit button with display:table-cell */
+.no-flexbox.opera #searchQueryFieldBlock input#searchQuery { height:25px; float:left; } 
+
 .counts span { display:inline-block; vertical-align:middle; }
 .totalCount:before { display:inline-block; content:'/'; vertical-align:middle; }
 
@@ -251,11 +254,7 @@ form .line.subtypeFile .emptyValueMode.editFileUrlMode input.file { display:none
 .ui-timepicker-div td { font-size: 90%; }
 
 
-
-
-
 /* Start Sidecol */
-
 footer.menu .toggler .plus { display:none; }
 footer.menu .toggler.active .minus { display:none; }
 footer.menu .toggler.active .plus { display:block; }
@@ -270,13 +269,9 @@ header .paginationBlock { float:right; }
 
 .resourceDetailBlock { }
 .resourceDetailBlock .comment { display:none; }
-/*
-.resourceDetailBlock dt { width:45%; min-height:22px; padding:3px 1%; display:block; float:left; clear:both; font-weight:bold; }
-.resourceDetailBlock dd { width:50%; min-height:22px; padding:3px 1%; display:block; float:left; clear:none; text-align:left; }
-*/
 .resourceDetailBlock dl { display:block; letter-spacing:-4px; }
-.resourceDetailBlock dt { width:50%; display:inline-block; float:left; letter-spacing:normal; vertical-align:top; }
-.resourceDetailBlock dd { width:50%; display:inline-block; letter-spacing:normal; vertical-align:top; }
+.resourceDetailBlock dt { width:50%; display:inline-block; float:left; clear:both; letter-spacing:normal; vertical-align:top; }
+.resourceDetailBlock dd { width:50%; display:inline-block; float:left; letter-spacing:normal; vertical-align:top; }
 /*
 .flexbox .resourceDetailBlock dl { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
 .flexbox .resourceDetailBlock dt { width:50%; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
@@ -403,9 +398,6 @@ header .paginationBlock { float:right; }
 	
 	/* Fix for gecko to force it to size the box correctly */
 	.flexbox.gecko #mainColContent { min-height:1px; }
-	
-	/* Fix for opera that refuses align the search input & its submit button with display:table-cell */
-	.no-flexbox.opera #searchQueryFieldBlock input#searchQuery { height:25px; float:left; } 
 }
 
 /* 1280 x 1024 */

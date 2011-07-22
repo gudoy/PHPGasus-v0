@@ -75,7 +75,7 @@ define("_IN_MAINTENANCE", 				false); // Set this to true to redirect all reques
 
 
 # DATABASE PARAMETERS
-define("_DB_SYSTEM",   					'mysql'); // mysql, mysqli, postgresql, sqlite, mongodb
+define("_DB_SYSTEM",   					'mysqli'); // mysql, mysqli, postgresql, sqlite, mongodb, pdomysql
 define("_DB_HOST",    					'localhost');
 define("_DB_USER",      				'admin');
 define("_DB_PASSWORD",  				'F4K3paSSw0rD');

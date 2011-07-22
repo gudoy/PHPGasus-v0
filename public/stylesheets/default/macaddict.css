@@ -24,11 +24,6 @@ a { color:#3c65d7; }
 
 /* Sart Forms */
 .line { width:auto; float:none; clear:none; }
-form { /*letter-spacing:-4px;*/ }
-/*
-form p,
-form span { letter-spacing:normal; }
-*/
 form .buttonsLine:after,
 .adminListToolbar:after,
 .adminResourceDetailBlock:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
@@ -48,7 +43,6 @@ form fieldset:first-of-type legend { border-top:0; }
 form fieldset legend .value { margin:0 10px; display:block; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); text-transform:capitalize; }
 form fieldset .line:first-of-type { margin-top:20px; }
 form fieldset .line:buttonsLine { width:auto; float:none; }
-/*.webkit form fieldset .line:first-of-type { width:100%; float:left; }*/
 .webkit form fieldset .line:first-of-type { width:100%; float:left; }
 .webkit form fieldset .line.buttonsLine { width:auto; float:none; }
 form fieldset .line + .buttonsLine { margin-top:20px; }
@@ -232,7 +226,7 @@ footer.menu { display:none; }
 #branding a { color:#000; text-transform:capitalize; text-decoration:none; }
 /*#adminMainNav { margin:10px; clear:none; }*/
 .js #mainNavBlock > .nav { padding:0 20px; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; border:1px solid #515151; -webkit-box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; }
-#myAccountNavBlock { position:absolute; top:10px; right:10px; }
+#myAccountNavBlock { position:absolute; top:5px; right:10px; }
 #myAccountNavBlock .titleBlock .title { font-weight:normal; }
 #myAccountNavBlock .details { background:#fefefe; border:1px solid #bebebe; }
 #myAccountNavBlock .nav a { margin-bottom:10px; }
@@ -248,19 +242,19 @@ footer.menu { display:none; }
 #header .item-lv1 > a .value { font-size:13px; color:#000; text-shadow:0 1px 0 rgba(255,255,255,0.6); text-transform:uppercase; }
 /* End Header */
 
+section h4,
+section h4 a,
+.api .paramsList .name { color:#728293; text-transform:uppercase; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); }
 
 /*#mainCol .block .titleBlock,*/
+section header { padding:5px 0; margin-bottom:0; }
+section .adminBlock { margin:0 0 20px; }
 #mainCol section header,
 .api aside .titleBlock { background:#cacaca; background:-webkit-gradient(linear, left top, left bottom, from(#d7d7d7), to(#cacaca)); background:-webkit-linear-gradient(#d7d7d7, #cacaca); background:-moz-linear-gradient(#d7d7d7, #cacaca); background:-o-linear-gradient(#d7d7d7, #cacaca); background:-ms-linear-gradient(#d7d7d7, #cacaca); background:linear-gradient(#d7d7d7, #cacaca); border-top:1px solid #acacac; border-bottom:1px solid #b4b4b4; -webkit-box-shadow:0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow:0 1px 0 rgba(255, 255, 255, 0.5) inset; }
 #mainCol section .titleBlock .title,
 .api aside .titleBlock .title { margin:10px; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); text-transform:uppercase; }
-#mainCol .titleBlock .paginationBlock { margin-top:5px; margin-right:10px; }
-
-section header { margin-bottom:0; }
-section .adminBlock { margin:0 0 20px; }
-section h4,
-section h4 a,
-.api .paramsList .name { color:#728293; text-transform:uppercase; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); }
+#mainCol section .titleBlock .title { margin:5px 10px; }
+#mainCol .titleBlock .paginationBlock { margin-right:10px; }
 
 
 /* Start Dashboard */
@@ -412,7 +406,7 @@ section h4 a,
 	#mainColColToggler { display:none; }
 	/* End Side Col */
 	
-	#mainCol section header { padding-top:8px; padding-bottom:7px; }
+	#mainCol section header { padding-top:12px; padding-bottom:11px; }
 	section header { margin-bottom:20px; }
 	section .adminBlock { margin:0 20px 20px; }
 	
@@ -425,7 +419,7 @@ section h4 a,
 	#header #mainNavBlock > .nav { margin-top:10px; margin-bottom:10px; text-align:left; }
 	.js #mainNavBlock > .nav { background:none; border:none; -moz-border-radius:0; -webkit-border-radius:0; border-radius:0; -webkit-box-shadow:none; box-shadow:none; }
 	#adminMainNav .item-lv1 { margin-right:20px; }
-	#myAccountNavBlock { right:15px; }
+	#myAccountNavBlock { top:9px; right:15px; }
 	/* End Header */ 
 	
 	.loginForm,
