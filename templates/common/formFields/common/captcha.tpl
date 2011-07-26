@@ -13,7 +13,7 @@
     <div class="fieldBlock">
         <span class="captchaOperation">{$smarty.session.captchaOperation}</span>
         {if empty($type) || !in_array($type, array('email','phone','url')) || !$html5}{$type='text'}{/if}
-        <input type="text" class="sized {if $required}check-required{/if}" size="2" name="{$postValName}" id="{$postValName}" {if $required && $html5}required="required"{/if} />
+        <input type="text" class="sized {if $required}check-required{/if}" size="2" name="{$postValName}" id="{$postValName}" {if $required}required="required"{/if} />
         <small class="infos captchaHint">{t}hint{/t}{t}:{/t} {t}The answer is{/t} {$smarty.session.captchaResult}</small>
     </div>
 </div>

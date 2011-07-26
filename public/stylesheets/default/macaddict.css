@@ -202,6 +202,8 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .adminTable tbody td.activeSort,
 .adminTable tbody th.activeSort { background:rgba(0,0,0,0.05); }
 .adminTable tbody td.idCol { padding-left:5px; padding-right:5px; }
+.adminTable thead th.typeTimestamp,
+.adminTable tbody td.typeTimestamp { width:8em; text-align:center; }
 /* End Tables */
 
 
@@ -406,7 +408,7 @@ section .adminBlock { margin:0 0 20px; }
 	#mainColColToggler { display:none; }
 	/* End Side Col */
 	
-	#mainCol section header { padding-top:12px; padding-bottom:11px; }
+	#mainCol section header { min-height:27px; padding-top:12px; padding-bottom:11px; }
 	section header { margin-bottom:20px; }
 	section .adminBlock { margin:0 20px 20px; }
 	

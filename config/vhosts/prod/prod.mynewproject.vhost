@@ -1,3 +1,35 @@
+<VirtualHost *:443>
+		ServerName mynewproject.clicmobile.com
+		DocumentRoot "/var/www/mynewproject/"
+		
+		# Specific logs files. (requires files to exists)
+		ErrorLog /var/log/apache2/mynewproject/error.log
+		CustomLog /var/log/apache2/mynewproject/access.log combined
+		
+		# For PROD, use properly signed certificate
+		SSLEngine on
+		SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
+		SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+		<Directory "/var/www/mynewproject/">
+		
+			Order allow,deny
+			Allow from all
+			AllowOverride All
+		
+			RewriteEngine on
+			RewriteRule ^((?!index|public).*) index.php/$1/%{QUERY_STRING}	[L]
+
+			SetEnv APP_CONTEXT dev
+		
+		</Directory>
+
+		Include sites-available/performances.conf
+		Include sites-available/security.conf
+		Include sites-available/tweaks.conf
+
+</VirtualHost>
+
 <VirtualHost *:80>
 		ServerName mynewproject.com
 		DocumentRoot "/var/www/mynewproject/"

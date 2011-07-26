@@ -29,6 +29,8 @@ $errorsAssoc = array(
 					'front' => _('The resource(s) could not be created because there\'s already an unique record with passed data association(s).')),
 	'4050' => array('back' => 'Creation/update error due to fk constraint(s)',
 					'front' => _('The resource(s) could not be created/updated because one or more required field(s) are missing/empty.')),
+	'4061' => array('back' => 'Column(s) cannot be null',
+					'front' => _('The resource(s) could not be created because one or more field(s) have not been filled.')),
 	'4080' => array('back' => '%s',
 					'front' => _('Your query contains one or more unknown column(s)')),
 	'4081' => array('back' => 'Unknown column: %s',
@@ -37,6 +39,8 @@ $errorsAssoc = array(
 					'front' => _('Returned database error message: %s')),
 	'4110' => array('back' => 'Deletion error due to fk constraint(s)',
 					'front' => _('The resource(s) could not be deleted because other resource(s) are pointing to it (them). Please update/delete sibling resources first.')),
+	'4150' => array('back' => 'Tables alias conflict.',
+					'front' => _('Some resources seems to use the same alias, creating a conflict.')),
 					
 	'4210' => array('back' => 'Wrong condition format: %s',
 					'front' => _('Wrong condition format. Expected: field, [operator], $values. Received: %s')),

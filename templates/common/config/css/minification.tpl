@@ -10,7 +10,7 @@
 {/foreach}
 
 {if $chain !== ''}
-	<link href="{$smarty.const._URL_PUBLIC}min/?f={$chain}&{$version}" media="{$mediaTarget|default:'screen'}" rel="stylesheet" type="text/css" />
+	<link href="{$smarty.const._URL_PUBLIC}min/?f={$chain}&{$version}" media="{$mediaTarget|default:'screen'}" rel="stylesheet" />
 {/if}
 
 {/strip}

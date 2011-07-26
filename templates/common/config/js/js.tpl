@@ -12,11 +12,11 @@
 {foreach $data.js as $item}
 {if strpos($item, 'http://') !== false || strpos($item, 'http://') !== false}{$basePath=''}{else}{$basePath=$jsBasePath}{/if}
 {if strpos($item, '?') !== false}{$querySep='&amp;'}{else}{$querySep='?'}{/if}
-<script type="text/javascript" src="{$basePath}{$item}{$querySep}{$version}"{if !$html5} charset="utf-8"{/if}{if $useDefer} defer="defer"{/if}></script>
+<script src="{$basePath}{$item}{$querySep}{$version}"{if !$html5} charset="utf-8"{/if}{if $useDefer} defer="defer"{/if}></script>
 {/foreach}
 {/if}
 {if $view.name}
-<script type="text/javascript">
+<script>
 $(document).ready(function(){ if ( typeof({$view.name}) !== 'undefined' {if $data.options.outputExtension === 'xhtml'}&amp;&amp;{else}&&{/if} {$view.name}.init ) { {$view.name}.init(); } });
 </script>
 {/if}

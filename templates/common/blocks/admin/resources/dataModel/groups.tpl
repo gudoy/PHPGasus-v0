@@ -1,20 +1,14 @@
-{block name='adminDataModelCodeBlock'}
-<div class="block adminBlock adminDataModelBlock adminDataModelGroupsBlock" id="adminDataModelGroupsBlock">
+{block name='adminDataModelGroupsBlock'}
+<section class="block adminBlock adminDataModelBlock adminDataModelGroupsBlock" id="adminDataModelGroupsBlock">
 	<header class="titleBlock">
 		<h3 class="title">
-			<span>datamodel groups</span>	
+			<span>dataModel groups</span>	
 		</h3>
+		<nav class="toolbar actions">
+			{include file='common/blocks/actionBtn.tpl' id="dataModelGroupsFileLink" class="action file zip" href="{$smarty.const._URL_ADMIN}groups/file" label='file'|gettext}
+			{include file='common/blocks/actionBtn.tpl' id="dataModelGroupsCodeLink" class="action code" href="{$smarty.const._URL_ADMIN}groups/code" label='code'|gettext}
+		</nav>
 	</header>
-	<div class="content">
-		<fieldset>
-			{if $data._extras.dataModel.groups}
-			<ul class="groups">
-			{foreach $data._extras.dataModel.groups as $name => $props}
-				<li><span class="value">{$props.displayName|default:$name}</span></li>
-			{/foreach}
-			</ul>
-			{/if}
-		</fieldset>
-	</div>
-</div>
+	<div class="content"></div>
+</section>
 {/block}

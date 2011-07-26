@@ -25,18 +25,6 @@ class AdminView extends View
 		
 		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
 		
-		// Try to get the current admin group and base path
-		/*
-		if ( !empty($this->filePath) )
-		{
-			$pos 							= isset($this->resourceName) 
-												? strpos($this->filePath, (!empty($this->data['meta']['ancestorsPath']) ? $this->data['meta']['ancestorsPath'] : $this->data['meta']['name'] )) 
-												: false;
-			$tmp 							= explode('/', str_replace(_PATH_VIEWS, '', ($pos ? substr($this->filePath, 0, $pos-1) : $this->filePath)));
-			$tmpGroupName 					= $tmp[count((array) $tmp)-1];
-			$this->resourceAdminBasePath 	= join('/', $tmp) . (!empty($tmp) ? '/' : '');
-		}*/
-		
 		// TODO: remove when no longer needed for backward compat
 		if ( !defined('_APP_USE_ADMIN_METAS') || _APP_USE_ADMIN_METAS )
         {
@@ -952,7 +940,7 @@ $this->dump($this->data);
 		// Log the performed action
 		$oldPOST = $_POST;
 		$log = array(
-			//'admin_title' 		=> '',
+			//'slug' 			=> '',
 			'action' 			=> $p['action'],
 			'resource_name' 	=> $p['resource_name'],
 			'resource_id' 		=> $p['resource_id'],

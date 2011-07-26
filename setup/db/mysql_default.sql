@@ -1,7 +1,7 @@
 
 CREATE TABLE IF NOT EXISTS `admin_logs` (
   `id` int(11) NOT NULL auto_increment,
-  `admin_title` varchar(64) default NULL,
+  `slug` varchar(64) default NULL,
   `action` enum('create','update','delete','import') NOT NULL,
   `resource_name` varchar(32) NOT NULL,
   `resource_id` varchar(32) NOT NULL,
@@ -26,14 +26,6 @@ CREATE TABLE IF NOT EXISTS `groups` (
   KEY `admin_title` (`admin_title`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-INSERT INTO `groups` (`id`, `name`, `admin_title`, `creation_date`, `update_date`) VALUES
-('', 'users', 'users', '0000-00-00 00:00:00', '2010-11-26 17:59:01'),
-('', 'gods', 'gods', '0000-00-00 00:00:00', '2010-11-26 17:59:11'),
-('', 'superadmins', 'superadmins', '0000-00-00 00:00:00', '2010-11-26 17:59:20'),
-('', 'admins', 'admins', '0000-00-00 00:00:00', '2010-11-26 17:59:26'),
-('', 'contributors', 'contributors', '0000-00-00 00:00:00', '2010-11-26 17:59:39'),
-('', 'moderators', 'moderators', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
-
 
 
 CREATE TABLE IF NOT EXISTS `resources` (
@@ -53,16 +45,23 @@ CREATE TABLE IF NOT EXISTS `resources` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
-INSERT INTO `resources` (`id`, `name`, `singular`, `type`, `table`, `alias`, `extends`, `displayName`, `defaultNameField`, `creation_date`, `update_date`) VALUES
-('', 'adminlogs', 'adminlog', 'native', 'admin_logs', 'admlog', '', 'admin logs', 'admin_title', '2011-03-22 11:49:43', '2011-03-22 13:15:52'),
-('', 'groups', 'group', 'native', 'groups', 'gp', '', 'groups', 'admin_title', '2010-10-04 18:12:21', '2010-12-03 15:14:05'),
-('', 'groupsauths', 'groupsauth', 'relation', 'groups_auths', 'gpauth', '', 'groups auths', '', '2010-10-04 18:12:50', '2010-12-03 16:31:59'),
-('', 'sessions', 'session', 'native', 'sessions', 'sess', '', 'sessions', 'name', '2010-10-04 18:13:14', '2010-12-03 16:27:12'),
-('', 'users', 'user', 'native', 'users', 'u', '', 'users', 'email', '2010-10-04 18:13:22', '2010-12-03 16:28:21'),
-('', 'usersgroups', 'usersgroup', 'relation', 'users_groups', 'ugp', '', 'user-groups', '', '2010-10-04 18:13:36', '2010-12-03 16:32:36'),
-('', 'resources', 'resource', 'native', 'resources', 'res', '', 'resources', 'name', '2010-10-07 16:28:33', '2010-12-03 16:29:39'),
-('', 'tasks', 'task', 'native', 'tasks', 'tsk', '', 'tasks', 'admin_title', '2011-03-22 10:47:15', '2011-03-22 10:47:15');
-
+CREATE TABLE IF NOT EXISTS `resources_columns` (
+  `id` int(11) NOT NULL auto_increment,
+  `resource_id` int(11) NOT NULL,
+  `name` varchar(32) NOT NULL,
+  `type` enum('string','email','password','url','tel','color','meta','ip','slug','tag','text','html','code','int','tinyint','float','smallint','mediumint','bigint','bool','boolean','timestamp','datetime','date','time','year','month','week','day','hour','minutes','seconds','onetoone','onetomany','manytoone','manytomany','id','enum','file','image','video','sound') NOT NULL,
+  `realtype` enum('serial','bit','tinyint','bool','smallint','mediumint','int','bigint','float','double','double precision','decimal','date','datetime','timestamp','time','year','char','varchar','binary','varbinary','tinyblob','tinytext','blob','text','mediumblob','mediumtext','longblob','longtext','enum','set') NOT NULL,
+  `length` bigint(20) NOT NULL,
+  `pk` tinyint(1) NOT NULL default '0',
+  `ai` tinyint(1) NOT NULL default '0',
+  `fk` tinyint(1) NOT NULL default '0',
+  `default` varchar(255) NOT NULL,
+  `null` tinyint(1) NOT NULL default '0',
+  `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  KEY `resource_id` (`resource_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `groups_auths` (
@@ -100,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 
 CREATE TABLE IF NOT EXISTS `tasks` (
   `id` int(11) NOT NULL auto_increment,
-  `admin_title` varchar(64) default NULL,
+  `slug` varchar(64) default NULL,
   `type` enum('import') default NULL,
   `subtype` varchar(32) default NULL,
   `processed_items_nb` int(8) default NULL,
@@ -130,18 +129,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `first_name` (`first_name`),
   KEY `last_name` (`last_name`),
   KEY `device_id` (`device_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Contenu de la table `users`
---
-
-INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `device_id`, `activated`, `activation_key`, `password_reset_key`, `private_key`, `creation_date`, `update_date`) VALUES
-('', 'nobody@anonymous.com', 'f845fb444033f19b8568373351b868dd5b4e54af', 'john', 'doe', '', '', 0, '', '', '', '2010-12-02 11:15:23', '2011-06-28 11:11:06'),
-('', 'guyllaume@clicmobile.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '', 1, '', '', '', '2011-06-28 11:01:02', '2011-06-28 11:11:09');
-
-
-
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `users_groups` (
@@ -154,13 +142,7 @@ CREATE TABLE IF NOT EXISTS `users_groups` (
   UNIQUE KEY `users_id_2` (`user_id`,`group_id`),
   KEY `users_id` (`user_id`),
   KEY `groups_id` (`group_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1083 ;
-
-INSERT INTO `users_groups` (`id`, `user_id`, `group_id`, `creation_date`, `update_date`) VALUES
-(1, 1, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(2, 2, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(3, 2, 2, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
-
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
 ALTER TABLE `admin_logs`
@@ -176,3 +158,42 @@ ALTER TABLE `sessions`
 ALTER TABLE `users_groups`
   ADD CONSTRAINT `users_groups_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `users_groups_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `resources_columns`
+  ADD CONSTRAINT `resources_columns_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+  
+  
+
+
+INSERT INTO `resources` (`id`, `name`, `singular`, `type`, `table`, `alias`, `extends`, `displayName`, `defaultNameField`, `creation_date`, `update_date`) VALUES
+('', 'adminlogs', 'adminlog', 'native', 'admin_logs', 'admlog', '', 'admin logs', 'admin_title', '2011-03-22 11:49:43', '2011-03-22 13:15:52'),
+('', 'bans', 'ban', 'native', 'bans', 'ban', '', 'bans', 'ip', '2011-06-20 11:33:34', '2011-06-20 11:33:34'),
+('', 'resourcescolumns', 'resourcescolumn', 'native', 'resources_columns', 'rc', '', 'resources columns', '', '2011-07-07 13:23:03', '2011-07-07 13:23:03'),
+('', 'groups', 'group', 'native', 'groups', 'gp', '', 'groups', 'admin_title', '2010-10-04 18:12:21', '2010-12-03 15:14:05'),
+('', 'groupsauths', 'groupsauth', 'relation', 'groups_auths', 'gpauth', '', 'groups auths', '', '2010-10-04 18:12:50', '2010-12-03 16:31:59'),
+('', 'sessions', 'session', 'native', 'sessions', 'sess', '', 'sessions', 'name', '2010-10-04 18:13:14', '2010-12-03 16:27:12'),
+('', 'users', 'user', 'native', 'users', 'u', '', 'users', 'email', '2010-10-04 18:13:22', '2010-12-03 16:28:21'),
+('', 'usersgroups', 'usersgroup', 'relation', 'users_groups', 'ugp', '', 'user-groups', '', '2010-10-04 18:13:36', '2010-12-03 16:32:36'),
+('', 'resources', 'resource', 'native', 'resources', 'res', '', 'resources', 'name', '2010-10-07 16:28:33', '2010-12-03 16:29:39'),
+('', 'tasks', 'task', 'native', 'tasks', 'tsk', '', 'tasks', 'slug', '2011-03-22 10:47:15', '2011-03-22 10:47:15');
+  
+
+INSERT INTO `groups` (`id`, `name`, `admin_title`, `creation_date`, `update_date`) VALUES
+('', 'users', 'users', '0000-00-00 00:00:00', '2010-11-26 17:59:01'),
+('', 'gods', 'gods', '0000-00-00 00:00:00', '2010-11-26 17:59:11'),
+('', 'superadmins', 'superadmins', '0000-00-00 00:00:00', '2010-11-26 17:59:20'),
+('', 'admins', 'admins', '0000-00-00 00:00:00', '2010-11-26 17:59:26'),
+('', 'contributors', 'contributors', '0000-00-00 00:00:00', '2010-11-26 17:59:39'),
+('', 'moderators', 'moderators', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+
+  
+INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `device_id`, `activated`, `activation_key`, `password_reset_key`, `private_key`, `creation_date`, `update_date`) VALUES
+('', 'nobody@anonymous.com', 'f845fb444033f19b8568373351b868dd5b4e54af', 'john', 'doe', '', '', 0, '', '', '', '2010-12-02 11:15:23', '2011-06-28 11:11:06'),
+('', 'guyllaume@clicmobile.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '', 1, '', '', '', '2011-06-28 11:01:02', '2011-06-28 11:11:09');
+
+  
+INSERT INTO `users_groups` (`id`, `user_id`, `group_id`, `creation_date`, `update_date`) VALUES
+('', 1, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+('', 2, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+('', 2, 2, '0000-00-00 00:00:00', '0000-00-00 00:00:00');

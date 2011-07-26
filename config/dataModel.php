@@ -3,43 +3,42 @@
 ### RESOURCES GROUPS ###
 $_resourcesGroups = array(
 	'apps' 			=> array('resources' => array('apps','platforms','appsplatforms','clients','clientsapps')),
-	'push'         => array('resources' => array('pushsubscriptions')),
 	'contents' 		=> array('resources' => array('entries', 'medias',)),
     'users'         => array('resources' => array('users', 'usersgroups', 'groups', 'groupsauths', 'sessions')),
-    'config'        => array('resources' => array('adminlogs', 'bans', 'resources', 'tasks',)),
+    'config'        => array('resources' => array('adminlogs', 'bans', 'resources', 'resourcescolumns', 'tasks',)),
 );
 
 
 ### DATAMODEL: RESOURCES ###
 // Deprecated
 $resources = array(
-'adminlogs' 		=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'admin_title', 'displayName' => 'admin logs'),
+'adminlogs' 		=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs'),
 'apps' 				=> array('singular' => 'app', 'alias' => 'app', 'defaultNameField' => 'admin_title', 'searchable' => 1),
-'bans' 				=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'),
+'bans' 				=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'), 
 'appsplatforms' 	=> array('singular' => 'appsplatform', 'table' => 'apps_platforms', 'alias' => 'appptf', 'defaultNameField' => 'id', 'displayName' => 'apps platforms'),
 'categories'		=> array('singular' => 'category', 'alias' => 'cat', 'defaultNameField' => 'slug', 'searchable' => 1, 'exposed' => 1),
 'clients' 			=> array('singular' => 'client', 'alias' => 'cl', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title', 'searchable' => 1),
 'clientsapps' 		=> array('type' => 'relation', 'singular' => 'clientapp', 'plural' => 'clientsapps', 'displayName' => 'clients apps', 'defaultNameField' => 'null', 'extends' => 'null', 'database' => 'default', 'table' => 'client_apps', 'alias' => 'clapps', 'searchable' => false, 'exposed' => 'false', 'crudability' => 'CRUD'), 
 'countries' 		=> array('type' => 'native', 'singular' => 'country', 'plural' => 'countries', 'displayName' => 'countries', 'defaultNameField' => 'slug', 'extends' => 'null', 'database' => 'default', 'table' => 'countries', 'alias' => 'cntry', 'searchable' => true, 'exposed' => 'false', 'crudability' => 'CRUD'),
-'entries' 			=> array('singular' => 'entry', 'alias' => 'e', 'defaultNameField' => 'admin_title'),
+'entries' 			=> array('singular' => 'entry', 'alias' => 'e', 'defaultNameField' => 'admin_title', 'searchable' => 1),
 'groups' 			=> array('singular' => 'group', 'alias' => 'gp', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title'),
 'groupsauths' 		=> array('singular' => 'groupsauth', 'table' => 'groups_auths',  'alias' => 'gpauth', 'crudability' => 'CRUD', 'defaultNameField' => 'group_id'),
 'medias' 			=> array('singular' => 'media', 'table' => 'medias', 'alias' => 'me', 'defaultNameField' => 'admin_title', 'searchable' => 1),
 'platforms' 		=> array('singular' => 'platform', 'alias' => 'ptf', 'defaultNameField' => 'admin_title'),
 'products' 			=> array('singular' => 'product', 'alias' => 'p', 'defaultNameField' => 'admin_title', 'searchable' => 1),
-'pushregistrations' => array('singular' => 'pushregistration','table' => 'push_registrations', 'alias' => 'pshreg','defaultNameField' => 'device_id','displayName' => 'push registrations'),
 'resources' 		=> array('singular' => 'resource', 'alias' => 'res', 'crudability' => 'CRUD', 'defaultNameField' => 'name'),
+'resourcescolumns' 	=> array('singular' => 'resourcecolumn', 'alias' => 'rescol', 'table' => 'resources_columns', 'crudability' => 'CRUD', 'defaultNameField' => 'columns', 'displayName' => 'columns'),
 'sessions' 			=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'id'),
-'tasks' 			=> array('singular' => 'task', 'alias' => 'tsk', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title'),
+'tasks' 			=> array('singular' => 'task', 'alias' => 'tsk', 'crudability' => 'CRUD', 'defaultNameField' => 'slug'),
 'users' 			=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'searchable' => 1),
-'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'defaultNameField' => 'user_id'),
+'usersgroups' 		=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD'),
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
 $dataModel = array(
 'adminlogs' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-    'admin_title'           => array('type' => 'varchar', 'length' => 64, 'list' => 3),
+    'slug'           		=> array('type' => 'varchar', 'length' => 64, 'list' => 3),
     'action' 				=> array('type' => 'enum', 'possibleValues' => array('create','update','delete','import'), 'list' => 1),
     'resource_name'			=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'resource_id'			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
@@ -133,8 +132,9 @@ $dataModel = array(
 ),
 'entries' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'admin_title' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'slug' 					=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'title', 'length' => 64, 'list' => 3),
 	'type' 					=> array('type' => 'enum', 'default' => 'news', 'possibleValues' => array('news','comment','blogPost','tweet','rssItem'), 'list' => 1),
+	'title' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 3),
 	'title_FR' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
 	'link_url' 				=> array('type' => 'varchar', 'subtype' => 'url', 'list' => 1),
 	'origine_url' 			=> array('type' => 'varchar', 'subtype' => 'url'),
@@ -195,37 +195,44 @@ $dataModel = array(
 ),
 'products' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-		'admin_title' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-		'title_FR' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
-		'title_EN' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
-		'description_FR' 		=> array('type' => 'text'),
-		'description_EN' 		=> array('type' => 'text'),
-		'creation_date'			=> array('type' => 'timestamp', 'list' => 1, 'editable' => false,'computed' => true, 'computedValue' => 'NOW()'),
-		'update_date'			=> array('type' => 'timestamp', 'list' => 1,'computed' => true, 'computedValue' => 'NOW()', 'forceUpdate' => true),
-		'price_euros' 			=> array('type' => 'varchar', 'length' => 10, 'default' => '800', 'list' => 1),
-		'price_dollars' 		=> array('type' => 'varchar', 'length' => 10, 'default' => '1000', 'list' => 1),
-		'available_nb' 			=> array('type' => 'int', 'default' => 200, 'list' => 1),
-),
-'pushsubscriptions' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-	'device_id' 			=> array('type' => 'varchar', 'length' => 128, 'list' => 3, 'unique' => 1, 'required' => 1),
-	'token' 				=> array('type' => 'varchar', 'list' => 1, 'required' => 1),
-	'language' 				=> array('type' => 'varchar', 'length' => 5, 'list' => 1, 'eval' => 'strtolower(trim(---self---))',),
-	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
-	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
+	'admin_title' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'title_FR' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
+	'title_EN' 				=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
+	'description_FR' 		=> array('type' => 'text'),
+	'description_EN' 		=> array('type' => 'text'),
+	'creation_date'			=> array('type' => 'timestamp', 'list' => 1, 'editable' => false,'computed' => true, 'computedValue' => 'NOW()'),
+	'update_date'			=> array('type' => 'timestamp', 'list' => 1,'computed' => true, 'computedValue' => 'NOW()', 'forceUpdate' => true),
+	'price_euros' 			=> array('type' => 'varchar', 'length' => 10, 'default' => '800', 'list' => 1),
+	'price_dollars' 		=> array('type' => 'varchar', 'length' => 10, 'default' => '1000', 'list' => 1),
+	'available_nb' 			=> array('type' => 'int', 'default' => 200, 'list' => 1),
 ),
 'resources' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
-	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 3 , 'required' => 1),
-	'singular' 				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'type'                   => array('type' => 'enum', 'default' => 'native', 'possibleValues' => array('native','relation','filter'), 'list' => 3),
 	'table'                 => array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'name' 					=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'table', 'length' => 32, 'list' => 3 , 'required' => 1),
+	'singular' 				=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'type' 					=> array('type' => 'enum', 'default' => 'native', 'possibleValues' => array('native','relation','filter'), 'list' => 3),
 	'alias'                 => array('type' => 'varchar', 'length' => 8, 'list' => 1),
-	'extends'              => array('type' => 'varchar', 'length' => 8, 'list' => 0),
-	//'displayName'          => array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'length' => 32, 'list' => 0),
-	'displayName'              => array('type' => 'varchar', 'length' => 32, 'list' => 0),
+	'extends' 				=> array('type' => 'varchar', 'length' => 8, 'list' => 0),
+	'displayName' 			=> array('type' => 'varchar', 'length' => 32, 'list' => 0),
 	//'searchable' 			=> array('type' => 'boolean', 'default' => false, 'list' => 1),
 	'defaultNameField' 		=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
+),
+'resourcescolumns' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'resource_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'relResource' => 'resources', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'resource_name'),
+	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
+	'type' 					=> array('type' => 'enum', 'possibleValues' => array('string', 'email', 'password', 'url', 'tel', 'color', 'meta', 'ip', 'slug', 'tag', 'text', 'html', 'code', 'int', 'tinyint', 'float', 'smallint', 'mediumint', 'bigint', 'bool','boolean','timestamp', 'datetime', 'date', 'time', 'year', 'month', 'week', 'day', 'hour', 'minutes', 'seconds', 'onetoone', 'onetomany', 'manytoone', 'manytomany', 'id', 'enum', 'file', 'image', 'video', 'sound',), 'list' => 3),
+	'realtype' 				=> array('type' => 'enum', 'possibleValues' => array('serial', 'bit', 'tinyint', 'bool', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'double precision', 'decimal', 'date', 'datetime', 'timestamp', 'time', 'year', 'char', 'varchar', 'binary', 'varbinary', 'tinyblob', 'tinytext', 'blob', 'text', 'mediumblob', 'mediumtext', 'longblob', 'longtext', 'enum', 'set'), 'list' => 3),
+	//'length' 				=> array('type' => 'bigint', 'list' => 1),
+	'length' 				=> array('type' => 'int', 'length' => '9223372036854775808', 'default' => 0, 'list' => 1),
+	'pk' 					=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'ai' 					=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'fk' 					=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'default' 				=> array('type' => 'varchar', 'length' => 255, 'list' => 1), // TODO: null, now() or user defined value. how to handle this???
+	'null' 					=> array('type' => 'bool', 'default' => 0, 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 0),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
@@ -265,7 +272,7 @@ $dataModel = array(
 ),
 'tasks' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
-    'admin_title'           => array('type' => 'varchar', 'length' => 32, 'list' => 3),
+    'slug'           		=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 3),
     'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'processed_items_nb'    => array('type' => 'int', 'length' => 8, 'default' => null, 'list' => 3),
@@ -273,9 +280,5 @@ $dataModel = array(
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 3),
 ),
 );
-
-// Filter resources
-// TODO:
-//$dataModel['clients'] = &$dataModel['users'];
 
 ?>

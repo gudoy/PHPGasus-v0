@@ -1,5 +1,4 @@
 {$capFieldName 			= $fieldName|ucfirst}
-{*$resourceFieldName 	= $data.meta.singular|cat:$capFieldName*}
 {$resourceFieldName 	= $data._resources[$resourceName].singular|cat:$capFieldName}
 {$isRequired 			= ($field.required || $field.pk)}
 {$editable 				= $field.editable|default:true}

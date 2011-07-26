@@ -1,5 +1,5 @@
 {if !$smarty.const._APP_USE_MODERNIZR}
-<script type="text/javascript">document.body.className += ' js';</script>
+<script>document.body.className += ' js';</script>
 {/if}
 <noscript id="nojs">
 	<p>

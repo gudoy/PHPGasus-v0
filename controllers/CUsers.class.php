@@ -35,7 +35,7 @@ class CUsers extends Controller
 		
 		$user = $this->retrieve(array('conditions' => array('id' => $this->userId)));
 		
-		$Mailer 		= new Mailer(&$this->application);
+		$Mailer 		= new Mailer($this->application);
 		$from 			= _APP_OWNER_CONTACT_MAIL;
 		$to 			= $user['email'];
 		$subject 		= '[' . _APP_TITLE . '] ' . _('Please activate your account');
@@ -58,7 +58,7 @@ class CUsers extends Controller
 		
 		$user = $this->retrieve(array('conditions' => array('id' => $userId)));
 		
-		$Mailer 		= new Mailer(&$this->application);
+		$Mailer 		= new Mailer($this->application);
 		$from 			= _APP_OWNER_CONTACT_MAIL;
 		$to 			= $user['email'];
 		$subject 		= '[' . _APP_TITLE . '] ' . _('Reset your password');

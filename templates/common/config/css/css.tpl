@@ -16,7 +16,7 @@
 {foreach $data.css as $item}
 {strip}
 {if strpos($item, $smarty.const._APP_PROTOCOL) !== false || strpos($item, $smarty.const._APP_PROTOCOL) !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
-	<link href="{$basePath}{$item}?{$version}" media="screen" rel="stylesheet" type="text/css" />
+	<link href="{$basePath}{$item}?{$version}" media="screen" rel="stylesheet" />
 {/strip}
 {/foreach}
 {/if}

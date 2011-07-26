@@ -15,9 +15,9 @@
 	{/block}
 	
 	{if $resourceName === 'resources'}
-	{include file='common/blocks/admin/resources/dataModel/groups.tpl'}
 	{include file='common/blocks/admin/resources/dataModel/resources.tpl'}
-	{include file='common/blocks/admin/resources/dataModel/generator.tpl'}
+	{include file='common/blocks/admin/resources/dataModel/groups.tpl'}
+	{include file='common/blocks/admin/resources/dataModel/columns.tpl'}
 	{/if}
 
 </form>

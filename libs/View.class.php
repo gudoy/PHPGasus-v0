@@ -1244,21 +1244,6 @@ $this->dump($allowed);
 		
 		$v = !empty($this->data['view']) ? $this->data['view'] : array();
 		
-		/*
-		if ( !empty($this->resourceName) )
-		{
-			$tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['metas'][$this->resourceName]['breadcrumbs']));
-		}
-		else if ( !empty($this->resourceGroupName) )
-		{
-			$tmp = $this->resourceGroupName;
-		}
-		else { $tmp = ''; }
-		
-		//$method = !empty($this->data['current']['method']) ? $this->data['current']['method'] : 'index';
-		$method = !empty($v['method']) ? $v['method'] : 'index';
-		*/
-		
 		return $smartname;
 	}
 	
@@ -1272,15 +1257,8 @@ $this->dump($allowed);
 		$v = &$d['view'];
 				
 		// Get uri parts
-//var_dump(pathinfo($_SERVER['REQUEST_URI']));
-//var_dump(parse_url($_SERVER['REQUEST_URI']));
-		//$uriParts = parse_url($_SERVER['REQUEST_URI']);
-		$uriParts = @parse_url(_URL . ltrim($_SERVER['REQUEST_URI'], '/'));
-//var_dump(explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/')));
-//die();
- 		//$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/'));
+		$uriParts 	= @parse_url(_URL . ltrim($_SERVER['REQUEST_URI'], '/'));
  		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', strtolower($uriParts['path'])), '/'));
-//$this->dump($pathParts);
 		
         // Get user groups
         $uGps       = !empty($d['current']['user']['group_admin_titles']) ? explode(',',$d['current']['user']['group_admin_titles']) : array();
@@ -1301,10 +1279,6 @@ $this->dump($allowed);
 		
 		$classes = array_unique($classes);
 		
-//$this->dump($classes);
-//var_dump($pathParts);
-		
-		//return $classes;
 		return join(' ', $classes);
 	}
 	

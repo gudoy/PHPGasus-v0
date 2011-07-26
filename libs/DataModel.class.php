@@ -44,9 +44,9 @@ class DataModel
 			$mthd = 'generate' . ucfirst($name);
 			$zip->addFromString($dir . $name . '.php', self::$mthd());
 		}
-		//$zip->addFromString($dir . 'resources.php', self::generateResources());
-		//$zip->addFromString($dir . 'columns.php', self::generateColumns());
-		//$zip->addFromString($dir . 'groups.php', self::generateGroups());
+		$zip->addFromString($dir . 'resources.php', self::generateResources());
+		$zip->addFromString($dir . 'columns.php', self::generateColumns());
+		$zip->addFromString($dir . 'groups.php', self::generateGroups());
 		
 		$zip->close();
 		
@@ -57,7 +57,7 @@ class DataModel
 		readfile($zipFile);
 		unlink($zipFile);
 		
-		$this->generate();
+		//$this->generate();
 	}
 	
 	public function buildResources()
@@ -137,6 +137,8 @@ class DataModel
 			ksort($res);
 		}
 
+		sort(self::$resources);
+
 //var_dump(self::$resources);
 //die();
 
@@ -150,12 +152,12 @@ class DataModel
 	
 	// Merge order: database, dataModel (generated), dataModel (manual)
 	public function parseColumns()
-	{		
+	{				
 		// If the resource are not found, parse them
 		if ( !self::$resources ){ self::parseResources(); }
 
 		// Get columns in db, manual dataModel & generated dataModel files
-		$dbCols 			= $this->parseDBColumns(array_keys(self::$resources));
+		$dbCols 			= $this->parseDBColumns(self::$resources);
 		$writtenCols 		= $this->parseManualDataModelColumns();
 		//$generatedCols 		= $this->parseGeneratedDataModelColumns();
 
@@ -184,8 +186,10 @@ class DataModel
 				// Shortcut for column properties
 				$p = &$rCols[$cName];
 				
+				$cProps = &self::$columns[$rName][$cName];
+				
 				// Set default props values is not already defined
-				self::$columns[$rName][$cName] = array_merge(array(
+				$cProps = array_merge(array(
 					//'name' 				=> $p['Field'],
 					'type' 				=> null,
 					'realtype' 			=> null,
@@ -193,6 +197,7 @@ class DataModel
 					'null' 				=> false,
 					'unsigned' 			=> true, 	// TODO
 					'pk' 				=> false,
+					'ai' 				=> false,
 					'possibleValues' 	=> null, 	// deprecated: use values instead
 					'values' 			=> null,
 					
@@ -236,6 +241,10 @@ class DataModel
 					'comment' 			=> null, 	
 				), $p);
 				
+				// Force booleans
+				$cProps['pk'] = $cProps['pk'] ? true : false;
+				$cProps['ai'] = $cProps['ai'] ? true : false;
+				
 				### Now, we can start to do some magic
 				
 				// Handle Numeric types
@@ -258,8 +267,9 @@ class DataModel
 		}
 
 //var_dump(self::$columns);
+//die();
 
-		return self::$columns;
+		//return self::$columns;
 	}
 	
 	// string: resource name
@@ -270,23 +280,25 @@ class DataModel
 	public function parseDBColumns($resources)
 	{
 		// Force the resource names to be an array
-		$rNames = Tools::toArray($resources);
+		$resources = Tools::toArray($resources);
 		
 		// Init returned data array
 		$dbCols = array();
 
 		// Loop over the resource names		
-		foreach($rNames as $rName)
+		foreach(array_keys($resources) as $key)
 		{
-			// Set a shortcut to current resource data
-			$resource = &self::$resources[$rName];
+			// Set a shortcut to current resource data & resource name
+			$resource 	= &self::$resources[$key];
+			$rName 		= &$resource['name'];
 			
 			// Get resource DB columns data using proper query  
 			$query 		= "DESCRIBE " . $resource['table'] . ";"; 
 			$dbColumns 	= CResourcescolumns::getInstance()->index(array('manualQuery' => $query));
 			
 			// Do no continue if the table does not exists in DB	
-			if ( empty($dbColumns) ){ die($rName); }
+			//if ( empty($dbColumns) ){ die($rName); }
+			if ( empty($dbColumns) ){ continue; }
 			
 			// Loop over the found columns
 			foreach ( array_keys($dbColumns) as $dbColumn )
@@ -310,7 +322,7 @@ class DataModel
 			}
 		}
 		
-		return count($rNames) === 1 ? $dbCols[$rNames[0]] : $dbCols;
+		return count($resources) === 1 ? $dbCols[$rNames[0]] : $dbCols;
 	}
 
 	public function parseManualDataModelColumns()
@@ -436,7 +448,8 @@ class DataModel
 	
 	public function generateGroups()
 	{
-		$lb 		= "\n";
+		$lb 			= "\n";
+		$tab 			= "\t";
 		$code 		= '<?php' . $lb . $lb . '$_groups = array(' . $lb;
 
 		// TODO
@@ -448,26 +461,69 @@ class DataModel
 	
 	public function generateColumns()
 	{
-		$lb 		= "\n";
-		$code 		= '<?php' . $lb . $lb . '$_columns = array(' . $lb;
+		$lb 			= "\n";
+		$tab 			= "\t";
+		$code 			= '<?php' . $lb . $lb . '$_columns = array(' . $lb;
 				
 		// Loop over the resources columns
-		foreach ( array_keys((array) self::$resources) as $rName )
+		foreach ( array_keys((array) self::$resources) as $rKey )
 		{
-			// Shortcut for resource col
-			$rCols = &self::$columns[$rName];
+			// Shortcut for resource name & resource cols
+			$rName 		= &self::$resources[$rKey]['name'];
+			$rCols 		= &self::$columns[$rName];
 			
-			// Get the longer colum name
-			$longest = Tools::longestValue(array_keys($rCols));
+			// Get the resource columns names
+			$rColNames 	= array_keys((array) $rCols);
 			
-			//
-			foreach ( array_keys((array) $rCols) as $cName )
+			// Get the longer column name
+			$longCol 		= Tools::longestValue($rColNames);
+			$colVertPos		= strlen($longCol) + ( 4 - (strlen($longCol) % 4) );
+			
+			$code .= "'" . $rName . "' => array(" . $lb;
+			
+			// Loop over the resource columns
+			foreach ( $rColNames as $cName )
 			{
-				// Shortcut for columns properties
-				$p = &self::$columns[$rName][$cName];
+				// Shortcut for column properties
+				$cProps = &$rCols[$cName];
 				
+				$colTabs = ($colVertPos - (strlen($cName)+3))/4;
+				$tabs = '';
+				for($i=0; $i<$colTabs; $i++){ $tabs .= $tab; }
 				
+				$code .= $tab . "'" . $cName . "' " . $tabs . "=> array(";
+				
+				// Loop over the columns properties
+				foreach (array_keys((array) $cProps) as $pName)
+				{
+					$pValue = &$cProps[$pName];
+					
+					$code .= "'" . $pName . "' => "; 
+					
+					if ( is_null($pValue) )
+					{
+						$code .= "null";
+					}
+					else if ( is_bool($pValue) )
+					{
+						$code .= $pValue ? "true" : "false"; 
+					}
+					else if ( is_numeric($pValue) )
+					{
+						$code .= $pValue;
+					}
+					else
+					{
+						$code .= "'" . $pValue . "'";
+					}
+					
+					$code .= ", ";
+				}
+				
+				$code .= ")," . $lb;
 			}
+			
+			$code .= ")," . $lb;
 		}
 		
 		$code .= ');' . $lb . '?>';

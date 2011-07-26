@@ -1,8 +1,8 @@
 <VirtualHost *:443>
-		ServerName devcoffrettravelr.clicmobile.com
-		DocumentRoot "/var/www/Coffret_Digital/"
+		ServerName dev.mynewproject.com
+		DocumentRoot "/var/www/mynewproject/"
 		
-		# Specific logs files. requires files to exists
+		# Specific logs files. (requires files to exists)
 		ErrorLog /var/log/apache2/mynewproject/error.log
 		CustomLog /var/log/apache2/mynewproject/access.log combined
 		
@@ -11,7 +11,7 @@
 		SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
 		SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 
-		<Directory "/var/www/Coffret_Digital/">
+		<Directory "/var/www/mynewproject/">
 		
 			Order allow,deny
 			Allow from all
@@ -34,7 +34,7 @@
 		ServerName dev.mynewproject.com
 		DocumentRoot "/var/www/mynewproject/"
 		
-		# Specific logs files. requires files to exists
+		# Specific logs files. (requires files to exists)
 		ErrorLog /var/log/apache2/mynewproject/error.log
 		CustomLog /var/log/apache2/mynewproject/access.log combined
 

@@ -1,6 +1,6 @@
 {if !strpos(strtolower($smarty.server.PHP_SELF), 'index.php/admin/') && !strpos(strtolower($smarty.server.PHP_SELF), 'index.php/api/') 
 && $smarty.const._APP_USE_GOOGLE_ANALYTICS && in_array($smarty.const._APP_CONTEXT, array('prod','preprod'))}
-<script type="text/javascript">
+<script>
 var _gaq = _gaq || [];
 
 _gaq.push(['_setAccount', '{$smarty.const._APP_GOOGLE_ANALYTICS_UA}']);

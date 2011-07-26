@@ -2384,7 +2384,7 @@ class Model extends Application
 		
 		// Execute the query and store the returned data
 		//$this->data = $this->query($query)->data;
-		$this->query($query);
+		$this->query($query, array('type' => 'create'));
 		
 		return $this;
 	}
