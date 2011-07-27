@@ -38,13 +38,6 @@ class Application
 		
 		// Known classes types
 		$known = array('M' => 'model', 'V' => 'view', 'C' =>'controller');
-		
-		/*
-		if 		( $firstLetter === 'M' && $secondIsUpper)	{ $type = 'model'; 		$path = _PATH_MODELS; }
-		elseif 	( $firstLetter === 'C' && $secondIsUpper)	{ $type = 'controller'; $path = _PATH_CONTROLLERS; }
-		elseif 	( $firstLetter === 'V' && $secondIsUpper)	{ $type = 'view'; 		$path = _PATH_VIEWS; }
-		else 												{ $type = 'lib'; 		$path = _PATH_LIBS; }
-		*/
 
 		$type = isset($known[$first]) && $secondIsUpper ? $known[$first] : 'lib';
 		$path = constant('_PATH_' . strtoupper($type  . 's'));
@@ -85,12 +78,6 @@ class Application
 		// fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
 		$accptHeader = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']) : '';
 		
-//var_dump($accptHeader);
-
-//$this->dump('_APP_LANGUAGES: ' . _APP_LANGUAGES);
-//$this->dump($known);
-//$this->dump('accept header: ' . $accptHeader);
-		
 		// Try to find lang in GET param
 		if ( empty($lang) && in_array(strtolower($_GET['lang']), $known) )		{ $lang = strtolower($_GET['lang']); }
 		
@@ -116,8 +103,6 @@ class Application
 			
 			// Sort array by value
 			arsort($acptLangs);
-			
-//$this->dump($acptLangs);
 			
 			// Check for match between accepted languages and known ones
 			foreach ($acptLangs as $lg) { if ( in_array($lg, $known) ){ $lang = $lg; break; } }
@@ -146,50 +131,6 @@ class Application
 		// Store the current lang
 		$_SESSION['lang'] 	= $language . '_' . $territory;
 	}
-	
-	
-	public function setlanguage_old($lang = '')
-	{
-		$this->log(__METHOD__);
-		
-		$accept 	= !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null;
-		$detected 	= array(
-						'primary' 	=> $accept[0].$accept[1],
-						'secondary' => strlen($accept) > 5 
-							? substr($accept,3,2)."_".strtoupper(substr($accept,6,2)) 
-							: substr($accept,0,2)."_".strtoupper(substr($accept,3,2)),
-		);
-		
-		$locale 	= ( !empty($_GET['lang']) && strlen($_GET['lang']) === 5 		// Second priority level: lang url GET param
-							? $_GET['lang'] 
-							: ( !empty($_SESSION['lang']) && strlen($_SESSION['lang']) === 5 // Third priority level: lang session value
-								? $_SESSION['lang'] 
-								: ( !empty($detected)	// Fourth priority level: try to use detection through
-									? strtolower($detected['primary']) . "_" . strtoupper($detected['primary']) 
-									: _APP_DEFAULT_LANGUAGE 							// Otherwise, use default configurated app language
-								)  
-							)
-						);
-		
-		// Special case when coming from iphone app
-		if ( !empty($_GET['referer']) )
-		{
-			$appLang 	= $this->getURLParamValue($_GET['referer'], 'appLang');
-			$locale 	= strtolower($appLang) . '_' . strtoupper($appLang);
-		}
-		 
-		$lang 		= substr($locale,0,2);
-		putenv('LANG='.$lang.'utf8');
-		$lc = setlocale(LC_ALL, $locale.'.utf8', $locale, $lang);
-		bindtextdomain(_APP_NAME, _PATH_I18N);
-		textdomain(_APP_NAME);
-		bind_textdomain_codeset(_APP_NAME, 'UTF-8');
-		
-		$_SESSION['lang'] 	= $locale;
-		
-		return $this;
-	}
-	
 	
 	public function handleSession()
 	{
@@ -262,8 +203,8 @@ class Application
 		foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
 		*/
 		
-		$curPOST = $_POST;
-		$_POST = array(
+		$curPOST 	= $_POST;
+		$_POST 		= array(
 			'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + _APP_SESSION_DURATION,
 			'last_url' 			=> $this->currentURL(),
 		);
@@ -312,9 +253,6 @@ class Application
 			'orderBy' 	=> 'DESC', 'limit' => 1
 		));
 		
-//var_dump($session);
-//var_dump($this->logged);
-
 		// Has the session been found and is it always valid (not expired)
 		$sessExp	 	= !empty($session) 
 							? (is_numeric($session['expiration_time']) ? $session['expiration_time'] : strtotime($session['expiration_time']) )
@@ -538,13 +476,10 @@ class Application
                 //define('INSIGHT_SERVER_PATH', '/index.php');	
 			}
 			
+			ini_set('display_errors', 1);
 			error_reporting(E_ALL);
 			
 			//$this->Smarty->debugging 		= true;
-			
-			ini_set('xdebug.var_display_max_depth', 6);
-			//ini_set('xdebug.var_display_max_data', 4096);
-			ini_set('xdebug.var_display_max_data', 40000);
 		}
 		else
 		{
@@ -553,6 +488,11 @@ class Application
 		}
 		
 		// 
+		ini_set('register_globals', 0);
+		
+		ini_set('xdebug.var_display_max_depth', 6);
+		ini_set('xdebug.var_display_max_data', 99999);
+		ini_set('xdebug.var_display_max_children', 999);
 		ini_set('xdebug.max_nesting_level', 500); // default is 100, which can be cumbersome with smarty
 
 
@@ -594,27 +534,6 @@ class Application
 		
 		return strpos($sn, $subdomain . '.' . $domain) > -1 ? true : false;
 	}
-	
-	
-	/*
-	public function requireClass($name, $type, $shortPath = '')
-	{
-        $this->log(__METHOD__);
-		
-		switch ($type)
-		{
-			//case 'libs': 		class_exists($name) || require(_PATH_LIBS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
-			case 'libs': 		class_exists($name) || require(_PATH_LIBS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-			//case 'controllers': class_exists($name) || require(_PATH_CONTROLLERS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
-			case 'controllers': class_exists($name) || require(_PATH_CONTROLLERS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-			//case 'models': 		class_exists($name) || require(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
-			case 'models': 		class_exists($name) || require(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-			//case 'views': 		class_exists($name) || require(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
-			case 'views': 		class_exists($name) || require(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-		}
-		
-		return $this;
-	}*/
 	
 	public function requireClass($name, $type, $shortPath = '')
 	{
@@ -739,7 +658,7 @@ class Application
 							: (!empty($p['accept']) ? $p['accept'] : $default['method']);
 		
 		// Try to use HttpRequest extension (PECL extension)
-		if 		( extension_loaded('http') )
+		if ( extension_loaded('http') )
 		{
 			// Init the request
 			$req = new HttpRequest($url, constant('HttpRequest::METH_' . strtoupper($rqP['method'])));

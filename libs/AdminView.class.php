@@ -4,10 +4,7 @@ class AdminView extends View
 {	
     public function __construct(&$application)
 	{
-		//$this->log(__METHOD__);
-		
 		// User levels authorized to access the current view (overload in proper view(s) for specific authorizations
-		//$this->authLevel 			= !empty($this->authLevel) ? $this->authLevel : array('god','superadmin','admin');
 		$this->authFailureRedirect 	= _URL_ADMIN;
 		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
@@ -484,8 +481,6 @@ class AdminView extends View
 		$this->log(__METHOD__);
         
         $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
-        
-        //$curURL     = $this->currentURL();
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
@@ -517,9 +512,6 @@ class AdminView extends View
 		
 		$this->events->trigger('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
-		// Set the current method
-		//$this->data['view']['method'] 	= __FUNCTION__;
-		
 		// Check for crudability
 		$meta 		= !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'C') === false ){ $this->redirect($meta['fullAdminPath']); }
@@ -533,7 +525,6 @@ class AdminView extends View
 		if ( !empty($_POST) )
 		{
 			// Launch the creation
-			//$this->C->create();
 			$this->resourceId = $this->C->create(array('returning' => 'id'));
 		}
 		else if ( !empty($referer) && strpos($cleanURL, $referer) !== false && empty($_POST) )
@@ -595,9 +586,6 @@ class AdminView extends View
 		// Log current method
 		$this->log(__METHOD__);
 		
-		// Set the current method
-		//$this->data['view']['method'] 	= __FUNCTION__;
-		
 		$data = $this->C->retrieve(array('values' => $this->resourceId));
 		
 		if ( !empty($data) )
@@ -646,9 +634,6 @@ class AdminView extends View
         
         $this->events->trigger('onBeforeRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
-		// Set the current method
-		//$this->data['view']['method'] 	= __FUNCTION__;
-		
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'R') === false ){ $this->redirect($meta['fullAdminPath']); }
@@ -683,9 +668,6 @@ class AdminView extends View
 		
 		$this->events->trigger('onBeforeUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
-		// Set the current method
-		//$this->data['view']['method'] 	= __FUNCTION__;
-		
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'U') === false ){ $this->redirect($meta['fullAdminPath']); }
@@ -695,7 +677,6 @@ class AdminView extends View
 		// Handle file deletion
 		if ( !empty($_GET['forceFileDeletion']) && !empty($args[1]) )
 		{
-			//$rName 			= $this->resourceName; 		// Shortcut for resourceName
 			$fName 			= $args[1]; 					// Shortcut for file field name
 			$rFields 		= !empty($this->resourceName) ? $this->dataModel['resourcesFields'][$this->resourceName] : null;
 			
@@ -776,9 +757,6 @@ $this->dump($this->data);
 		
 		$this->events->trigger('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
-		// Set the current method
-		//$this->data['view']['method'] 	= __FUNCTION__;
-		
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'D') === false ){ $this->redirect($meta['fullAdminPath']); }		
@@ -825,7 +803,6 @@ $this->dump($this->data);
         if ( empty($this->resourceId) ) { return $this; }
 		
 		$id                       = (int) $this->resourceId;
-		//$id                       = is_array($this->resourceId) ? $this->resourceId[0] : (int) $this->resourceId;
         $this->data['pagination'] = array();
         
     	// Define common options
@@ -855,11 +832,8 @@ $this->dump($this->data);
                 $this->data['_dataModel'],
                 $this->data['_resources'],
                 $this->data['dataModel'],
-                //$this->data['resources'],
                 $this->data['_resourcesGroups']
             );
-			
-			//if ( empty($this->resourceName) || $this->resourceName !== 'resources' )  unset($this->data['resources']);
 		}
 		
 		return parent::beforeRender($options);

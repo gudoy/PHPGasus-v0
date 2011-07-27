@@ -123,32 +123,26 @@ class Model extends Application
         
         // Do the query
         $this->queryResult 		= $this->db->query($query);
-        
-//var_dump($query);
-//var_dump($this->queryResult);
-		
+
         // 
         $this->success          = is_bool($this->queryResult) && !$this->queryResult ? false : true;
-		
-		$this->numFields 		= $this->db->field_count;
 
         // If the request succeed
         if ( $this->success )
         {
             // Get number of rows affetected by a insert, update, delete request
             $this->affectedRows = $this->db->affected_rows;
-            
-            if ( $o['type'] === 'insert' ){ $this->insertedId = $this->db->insert_id; }
+			
+			// Get created resource id, number of retrieved rows & columns
+			$this->insertedId 	= $o['type'] === 'insert' ? $this->db->insert_id : null; 
+            $this->numRows      = is_object($this->queryResult) ? $this->queryResult->num_rows : 0;
+			$this->numFields 	= is_object($this->queryResult) ? $this->queryResult->field_count : 0;
             
             // If the request returns results
             // HOW TO handle RETURNING clause for mysql ??? 
-            //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
-            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && $this->numFields >= 1) )
-            {
-	            // Get number of selected rows (for select request)
-	            $this->numRows      = $this->queryResult->num_rows;
-				
-				                
+            //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && $this->numFields >= 1) )
+            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && ($this->numFields >= 1 || !empty($o['returning']))) )
+            {       
                 $this->fetchResults($o);
             }
             
@@ -511,7 +505,6 @@ class Model extends Application
         }
         else if ( !empty($o['returning']) )
         {
-//$this->dump($this->insertedId);
 			if 	( $o['returning'] === 'id' ) { $this->data = (int) $this->insertedId; }
         }
         // 1 column, 1 row
@@ -2351,8 +2344,7 @@ class Model extends Application
 		
 		//return ( !empty($o['returning']) && count((array) $o['returning']) === 1 ) ? $this->data[$o['returning']] : $this;
 		//return !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this;
-		return $this->data
-		;
+		return $this->data;
 	}
 	
 	
@@ -2373,7 +2365,7 @@ class Model extends Application
 		
 		// Execute the query and store the returned data
 		//$this->data = $this->query($query)->data;
-		$this->query($query);
+		$this->query($query, array('type' => 'create'));
 		
 		return $this;
 	}

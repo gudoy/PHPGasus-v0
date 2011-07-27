@@ -25,7 +25,7 @@ class VResources extends AdminView
 			$DataModel = new DataModel();
 			$DataModel->parseResources();
 			
-			header('Content-Type: plain/text');
+			//header('Content-Type: plain/text');
 			exit($DataModel->generateResources());
 		}
 		elseif ( !empty($args[0]) && $args[0] === 'file' )

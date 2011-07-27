@@ -135,15 +135,16 @@ class Model extends Application
             // Get number of rows affetected by a insert, update, delete request
             $this->affectedRows = mysql_affected_rows($this->db);
             
-            // Get number of selected rows (for select request)
+			// Get created resource id, number of retrieved rows & columns
             $this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
 			$this->numFields 	= is_resource($queryResult) ? mysql_num_fields($queryResult) : 0;
-            
-            if ( $o['type'] === 'insert' ){ $this->insertedId = mysql_insert_id($this->db); }
+			$this->insertedId 	= $o['type'] === 'insert' ? mysql_insert_id($this->db) : null;
             
             // If the request returns results
             // HOW TO handle RETURNING clause for mysql ??? 
-            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
+            //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
+            //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && $this->numFields >= 1) )
+            if ( $o['type'] === 'select' || ($o['type'] === 'insert' && ($this->numFields >= 1 || !empty($o['returning']))) )			
             {                
                 $this->fetchResults($queryResult, $o);
             }
@@ -2346,8 +2347,7 @@ class Model extends Application
 		
 		//return ( !empty($o['returning']) && count((array) $o['returning']) === 1 ) ? $this->data[$o['returning']] : $this;
 		//return !empty($o['returning']) ? ( isset($this->data[$o['returning']]) ? $this->data[$o['returning']] : null) : $this;
-		return $this->data
-		;
+		return $this->data;
 	}
 	
 	

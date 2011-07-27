@@ -35,6 +35,12 @@ class CUsers extends Controller
 		
 		$user = $this->retrieve(array('conditions' => array('id' => $this->userId)));
 		
+		// Generate an unique key and insert it into the db
+		$key 	= Tools::generateUniqueID(array('length' => 32, 'resource' => 'users', 'field' => 'activation_key'));
+		$user 	= array_merge($user, array('activation_key' => $key));
+		$_POST 	= array('activation_key' => $key);
+		$this->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
+		
 		$Mailer 		= new Mailer($this->application);
 		$from 			= _APP_OWNER_CONTACT_MAIL;
 		$to 			= $user['email'];

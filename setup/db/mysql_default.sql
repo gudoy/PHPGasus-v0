@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `slug` varchar(64) default NULL,
   `type` enum('import') default NULL,
   `subtype` varchar(32) default NULL,
-  `processed_items_nb` int(8) default NULL,
+  `items_count` int(8) default NULL,
   `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
   `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)
