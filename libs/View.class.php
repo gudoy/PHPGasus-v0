@@ -424,7 +424,7 @@ $this->dump($allowed);
 		// Known options
 		$known    = array(
 			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
-			'reindexby','indexby','indexBy',
+			'reindexBy', 'reindexby',  'indexby','indexBy',
 			'operation','debug','confirm',
 			'errors','successes','warnings','notifications',
 			'css', 'js', 'minify',
@@ -481,8 +481,8 @@ $this->dump($allowed);
 
 		// Handle indexBy & reindexby
 		// Dreprecated
-		if 		( !empty($this->options['indexby']) ){ $this->options['reindexby'] = $this->options['indexby']; }
-		else if ( !empty($this->options['indexBy']) ){ $this->options['reindexby'] = $this->options['indexBy']; }
+		//if 		( !empty($this->options['indexby']) ){ $this->options['reindexby'] = $this->options['indexby']; }
+		//else if ( !empty($this->options['indexBy']) ){ $this->options['reindexby'] = $this->options['indexBy']; }
 		
 		return $this;
 	}

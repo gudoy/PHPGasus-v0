@@ -139,6 +139,9 @@ class Model extends Application
             $this->numRows      = is_resource($queryResult) ? mysql_num_rows($queryResult) : 0;
 			$this->numFields 	= is_resource($queryResult) ? mysql_num_fields($queryResult) : 0;
 			$this->insertedId 	= $o['type'] === 'insert' ? mysql_insert_id($this->db) : null;
+
+			// This will contains the ids of all the retrieven rows for each of the query resources 
+			$this->retrievedIds = array();
             
             // If the request returns results
             // HOW TO handle RETURNING clause for mysql ??? 
@@ -148,6 +151,12 @@ class Model extends Application
             {                
                 $this->fetchResults($queryResult, $o);
             }
+			
+//$this->dump('retrievenIds: ');
+//$this->dump($this->retrievedIds);
+
+			// HandleRelated
+			$this->handleRelated();
             
             // For insert, we may need to do some process once the request succeed
             if ( $o['type'] === 'insert' && !empty($this->afterQuery) ){ $this->afterQuery(); }
@@ -162,6 +171,38 @@ class Model extends Application
         
         return $this;
     }
+
+
+	public function handleRelated()
+	{
+//$this->dump(__METHOD__);
+		if ( empty($this->fetchRelated) ){ return; }
+		
+		foreach ($this->fetchRelated as $rName => $item)
+		{
+			$_r 	= &$this->resources[$rName];
+			$_c 	= &$this->application->dataModel[$rName];
+			$as 	= ( !empty($_r['alias']) ? $_r['alias'] : $rName );
+			
+			$dest = explode('.', $item['injectInto']);
+			$cName = 'C' . ucfirst($rName);
+			//{'C'. ucfirst($rName)}::getInstance()->index(array('injectInto' => array('resource' => $dest[0], 'column' => $dest[1]), 'related'));
+			
+			//$query = 	"SELECT " . $as . "." . join(', ' . $as . ".", array_keys($_c)) . " ";
+			$query = 	"SELECT " . $as . "." . join(', ' . $as . ".", array_keys($_c)) . ", el.entry_id" . " ";
+			$query .= 	"FROM " . ( !empty($_r['table']) ? $_r['table'] : $rName ) . ' AS ' . $as . " ";
+			$query .= 	"LEFT JOIN entries_links AS el ON el.link_id = lk.id "; 
+			$query .= 	"WHERE el.entry_id IN (" . join(', ', $this->retrievedIds['entries']) . ") ";
+			
+//$this->dump($query);
+			
+			//$this->query($query, $item);
+			
+			$relData = $cName::getInstance()->index(array_merge($item, array('manualQuery' => $query)));
+$this->dump($relData);
+			//$this->data = array_merge($this->data, (array) $relData);
+		}
+	}
 
 	
 	private function fixSpecifics($options = null)
@@ -503,12 +544,10 @@ class Model extends Application
         if ( $o['mode'] === 'count' )
         {
 //var_dump('case count');
-            
             $this->data = (int) mysql_result($queryResult, 0,0);
         }
         else if ( !empty($o['returning']) )
         {
-//$this->dump($this->insertedId);
 			if 	( $o['returning'] === 'id' ) { $this->data = (int) $this->insertedId; }
         }
         // 1 column, 1 row
@@ -566,8 +605,8 @@ class Model extends Application
             {
                 while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
                 {
-                    //$this->data[] = $this->fixData($row);
-                    $this->addToDataArray($this->fixData($row));
+                    $tmp = array();
+                    $this->addToDataArray($this->fixData($row), $tmp, $o);
                 }
             }
             else { $this->data = array(); }
@@ -579,9 +618,49 @@ class Model extends Application
     }
 
 
-	public function addToDataArray($item, $params = array())
+	public function addToDataArray($item, &$params = array(), &$options = array())
 	{
-		$this->data[] = $item;
+		$o = &$options;
+		
+//$this->dump(__METHOD__);
+//$this->dump($options);
+//$this->dump(isset($this->application->dataModel[$this->resourceName][$o['indexBy']]));
+		
+		// If fhe indexBy options has been passed 
+		// with an existing column of the current resource
+		// and if this column has been retrieved
+		//if ( !empty($o['indexBy']) && DataModel::isColumn($this-resourceName, $o['indexBy']) && !empty($item[$o['indexBy']]) )
+		if ( !empty($o['indexBy']) && isset($this->application->dataModel[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
+		{
+			$key 				= &$item[$o['indexBy']];
+			$this->data[$key] 	= $item;	
+		}
+		else if ( !empty($o['injectInto']) && !empty($o['injectUsing']) )
+		{
+//$this->dump('add to array with injectInto');
+//$this->dump($o);
+//$this->dump($item);
+			$dest = explode('.', $o['injectInto']);
+			
+//$this->dump($dest);
+//$this->dump($item[$o['injectUsing']]);
+			
+			/*
+			if ( isset($this->data[$dest[0]][$item[$o['injectUsing']]]) )
+			{
+				$this->data[$dest[0]][$item[$o['injectUsing']]][$dest[1]][] = $item;
+			}*/
+			//$this->data[$dest[0]][$item[$o['injectUsing']]][$dest[1]][] = $item;
+			$this->data[$item[$o['injectUsing']]][$dest[1]][] = $item;
+		}
+		else
+		{
+			$this->data[] = $item;
+		}
+		
+		
+		// Store retrieve items ids
+		if ( !empty($item['id']) ){ $this->retrievedIds[$this->resourceName][] = $item['id']; }
 	}
 
 
@@ -694,10 +773,14 @@ class Model extends Application
 			'fields' => array(),
 			'tables' => array(),
 		);
+		
+		$this->fetchRelated = array();
 
 		// Get fields we want to request
 		if ( !empty($o['getFields']) ) 	{ $this->magicFields($o['getFields']); }
 		else 							{ $this->magicFields($rModel); }
+		
+//$this->dump($this->queryData['fields']);
 		
 		if ( !empty($o['count']) )
 		{			
@@ -793,20 +876,37 @@ class Model extends Application
 				$type = $field['type'];
 
 				// Do not process relation fields
-				if ( $type === 'onetomany' && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
+				if ( $type === 'onetomany' && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ))
 				{
 					$relType 			= !empty($field['relType']) ? $field['relType'] : 'onetomany';
 					$relResource 		= !empty($field['relResource']) ? $field['relResource'] : $fieldName;
+
+//$this->dump($fieldName . ' : pivot' . @$field['usingPivot']);
+					
 					$relTable 			= !empty($this->resources[$relResource]['table']) ? $this->resources[$relResource]['table'] : $relResource;
 					$relResourceAlias 	= !empty($this->resources[$relResource]['alias']) ? $this->resources[$relResource]['alias'] : null;
 					$relField 			= !empty($field['relField']) ? $field['relField'] : 'id';
-					//$pivotResource 		= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . '_' . $relResource;
 					$pivotResource 		= !empty($field['pivotResource']) ? $field['pivotResource'] : $this->resourceName . $relResource;
-					$pivotTable 		 = !empty($this->resources[$pivotResource]['table']) ? $this->resources[$pivotResource]['table'] : $pivotResource;
+					$pivotTable 		= !empty($this->resources[$pivotResource]['table']) ? $this->resources[$pivotResource]['table'] : $pivotResource;
 					$pivotLeftField 	= !empty($field['pivotLeftField']) ? $field['pivotLeftField'] : $this->resourceSingular . '_' . 'id';
 					$pivotRightField 	= !empty($field['pivotRightField']) ? $field['pivotRightField'] : $this->resources[$relResource]['singular'] . '_' . 'id';
 					$pivotAlias 		= !empty($this->resources[$pivotResource]['alias']) ? $this->resources[$pivotResource]['alias'] : null;
-					$getFields             = !empty($field['getFields']) ? Tools::toArray($field['getFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
+					$getFields 			= !empty($field['getFields']) ? Tools::toArray($field['getFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
+					
+					// 
+					if ( isset($field['usingPivot']) && !$field['usingPivot'] )
+					{
+//$this->dump('no pivot');
+						// Remove column from query fields since it's not an existing table column 
+						unset($this->queryData['fields'][$fieldName]);
+						
+						//$this->fetchRelated[] = array('column' => $fieldName, 'relResource' => $relResource, 'relColumn' => $relField);
+						//$this->fetchRelated[] = array('column' => $fieldName, 'relResource' => $relResource, 'relColumn' => $relField);
+						//$this->fetchRelated[$this->resourceName][] = array('column' => $fieldName, 'relResource' => $relResource, 'relColumn' => $relField);
+						$this->fetchRelated[$relResource] = array('injectInto' => $this->resourceName . '.' . $fieldName, 'injectUsing' => $pivotLeftField);
+//$this->dump($this->fetchRelated);
+						continue;
+					}
 					
 					$crossJoins 		.= 'LEFT OUTER JOIN ' . $pivotTable . ( !empty($pivotAlias) ? ' AS ' . $pivotAlias : '');
 					$crossJoins 		.= ' ON ' . $this->alias . '.' . $relField . ' = ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotLeftField  . ' ';
@@ -862,7 +962,12 @@ class Model extends Application
 					// Destroy tmp vars to prevent  name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
 				}
-				elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
+				//elseif ( !empty($field['relResource']) && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ) )
+				//elseif ( !empty($field['relResource']) && empty($o['getFields']) )
+				elseif ( !empty($field['relResource']) 
+						&& ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) )
+						&& ( !isset($o['joins']) || $o['joins'] ) 
+					)
 				{
 //$this->dump($field['relResource']);
 					
@@ -991,12 +1096,12 @@ class Model extends Application
 			//$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->dbTableName . " AS " . $this->dbTableShortName . " ";
 			$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
 			$query 		.= 	( !empty($leftJoins) ? $leftJoins : " " );
-			$query 		.= 	( !empty($crossJoins) ? $crossJoins : '' );
+			$query 		.= 	( !empty($crossJoins) ? $crossJoins : "" );
 			$query 		.= 	$where . $conditions;
 			$query 		.= 	$groupBy;
-			$query 		.= 	( !empty($orderBy) ? $orderBy . " " : '' );
-			$query 		.= 	( !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : '' );
-			$query 		.= 	( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : '' );
+			$query 		.= 	( !empty($orderBy) ? $orderBy . " " : "" );
+			$query 		.= 	( !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : "" );
+			$query 		.= 	( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : "" );
 		}
 		
 		return $query;
@@ -2236,7 +2341,7 @@ class Model extends Application
 				$i++;
 			}
 			
-			$orderBy .= !empty($tmpOrderBy) ? " ORDER BY " . $tmpOrderBy : '';
+			$orderBy .= !empty($tmpOrderBy) ? "ORDER BY " . $tmpOrderBy : '';
 		}
 		
 		return $orderBy;

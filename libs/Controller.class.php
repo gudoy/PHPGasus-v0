@@ -372,25 +372,29 @@ var_dump($parts);
 	
     // TODO: index on database fetch	
 	public function reindex($options = array())
-	{
+	{		
 		// Shortcut for options and default options
 		$o 					= &$options;
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		$o['indexModifier'] = !empty($o['indexModifier']) ? $o['indexModifier'] : null;
+		
+		// Handle deprecate param name (incorrect camelCase)
+		$o['reindexBy'] 	= isset($o['reindexby']) ? $o['reindexby'] : null;
 
 		// Do not continue if there's no data to process of if data is not an array( ie: for count operations) 
-		if ( empty($this->data) || empty($o['reindexby']) || !is_array($this->data) || !isset($this->data[0][$o['reindexby']])) { return false; }
+		//if ( empty($this->data) || empty($o['reindexby']) || !is_array($this->data) || !isset($this->data[0][$o['reindexby']])) { return false; }
+		if ( empty($this->data) || empty($o['reindexBy']) || !is_array($this->data) || !isset($this->data[0][$o['reindexBy']])) { return false; }
 		
 		$tmpData 	= array();
-		$isIndex 	= $o['reindexby'] === 'id' || ( !empty($rModel[$o['reindexby']]['fk']) && $rModel[$o['reindexby']]['fk']);
+		$isIndex 	= $o['reindexBy'] === 'id' || ( !empty($rModel[$o['reindexBy']]['fk']) && $rModel[$o['reindexBy']]['fk']);
 		$isUnique 	= isset($o['isUnique']) ? $o['isUnique'] : ( $isIndex ? true : false );	// Will the new indexes containes unique values or arrays?
 		
 		foreach ($this->data as $item)
 		{
 			// Set index key/name
-			if 			( $o['indexModifier'] === 'lower' )	{ $k = strtolower($item[$o['reindexby']]); }
-			else if 	( $o['indexModifier'] === 'upper' )	{ $k = strtoupper($item[$o['reindexby']]); }
-			else 											{ $k = $item[$o['reindexby']]; }  
+			if 			( $o['indexModifier'] === 'lower' )	{ $k = strtolower($item[$o['reindexBy']]); }
+			else if 	( $o['indexModifier'] === 'upper' )	{ $k = strtoupper($item[$o['reindexBy']]); }
+			else 											{ $k = $item[$o['reindexBy']]; }  
 			
 			// Do not assign data whose index is empty
 			if ( $k === '' || $k === null ){ continue; }

@@ -166,10 +166,17 @@ class DataModel
 		'possibleValues', 						// TODO deprecate: use values instead
 		
 		# Relations
-		'relResource', 'relField', 
-		'relGetFields', 						// TODO: 'field1,field2,...' or array('field1','field2',...) or array('field1' => 'my_field_1', 'field2' => 'my_field_2') 
-		'relGetAs', 							// TODO: deprecate. use associative array in relGetFields 
-		'pivotResource', 'pivotLeftField', 'pivotRightField', 
+		//'on 									// TODO: ???
+		'relResource', 							// TODO: ??? replace by on, to, or from????
+		'relField', 							// TODO: deprecate in favor of relColumn
+		'relColumn', 							// TODO: implement 
+		'getFields','relGetFields', 			// TODO: deprecate in favor of getColumns
+		'relGetAs', 							// TODO: deprecate. use associative array in relGetFields
+		'getColumns', 							// TODO: 'col1,cold2,...' or array('col1','col2',...) or array('col1' => 'my_col_1', 'col2' => 'my_col_2')
+		'usingPivot', 
+		'pivotResource', 'pivotLeftField', 'pivotRightField',
+		'fetchingStrategy',  					// 'join','select','subselect','batch'
+		'lazy', 								// TODO: ???
 
 		# Format/validation related
 		'placeholder', 'required', 
@@ -283,7 +290,6 @@ class DataModel
 				'table' 			=> !empty($res['table']) ? $res['table'] : self::getDbTableName($name),
 				'alias' 			=> !empty($res['alias']) ? $res['alias'] : self::getDbTableName($name),
 				'displayName' 		=> !empty($res['displayName']) ? $res['displayName'] : $name,
-				// TODO: deprecate. use nameField instead
 				'defaultNameField' 	=> !empty($res['defaultNameField']) ? $res['defaultNameField'] : self::guessNameField($name),
 				'nameField' 		=> !empty($res['nameField']) ? $res['nameField'] : self::guessNameField($name),
 				'extends' 			=> !empty($res['extends']) ? $res['extends'] : null,

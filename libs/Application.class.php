@@ -476,8 +476,9 @@ class Application
                 //define('INSIGHT_SERVER_PATH', '/index.php');	
 			}
 			
+			//error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
+			error_reporting(2147483647); 						// display all errors
 			ini_set('display_errors', 1);
-			error_reporting(E_ALL);
 			
 			//$this->Smarty->debugging 		= true;
 		}
