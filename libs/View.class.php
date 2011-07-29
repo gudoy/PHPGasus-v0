@@ -225,6 +225,7 @@ $this->dump($allowed);
 		$knownPlatforms = array(
 			'Windows','Mac OS','linux','freebsd', 							// OS
 			'iPhone','iPod','iPad','Android','BlackBerry','Bada','mobile', 	// Mobile
+			'hpwOS', 														// Tablets
 			'j2me','AdobeAIR', 												// Specific
 		);
 		
@@ -297,8 +298,16 @@ $this->dump($allowed);
 		
 		// Known browsers data
 		$data 			= $this->browser;
-        //$knownEngines   = array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml', 'BlackBerry' => 'blackberry');
-		$knownEngines 	= array('Trident' => 'trident', 'MSIE' => 'trident', 'AppleWebKit' => 'webkit', 'Presto' => 'presto', 'Gecko' => 'gecko', 'KHTML' => 'khtml', 'BlackBerry' => 'mango');
+		$knownEngines 	= array(
+			'Trident' 		=> 'trident', 
+			'MSIE' 			=> 'trident', 
+			'AppleWebKit' 	=> 'webkit', 
+			'Presto' 		=> 'presto', 
+			'Gecko' 		=> 'gecko', 
+			'KHTML' 		=> 'khtml', 
+			'BlackBerry' 	=> 'mango',
+			'wOSBrowser' 	=> 'webkit',
+		);
 		$knownBrowsers 	= array(
 			'MSIE' 			=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
 			'Firefox' 		=> array('alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
@@ -423,8 +432,9 @@ $this->dump($allowed);
 
 		// Known options
 		$known    = array(
-			'output', 'method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
-			'reindexBy', 'reindexby',  'indexby','indexBy',
+			'output','method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
+			'reindexBy','reindexby', 		// TODO: deprecate 
+			'indexBy','indexByUnique',
 			'operation','debug','confirm',
 			'errors','successes','warnings','notifications',
 			'css', 'js', 'minify',

@@ -2,64 +2,77 @@
 
 class VEntries extends ApiView
 {
-	public function __construct()
-	{		
-		$this->resourceName 	= strtolower(preg_replace('/^V(.*)/','$1', __CLASS__));
+    public function __construct(&$application)
+    {
+        $this->setResource(array('class' => __CLASS__));
 		$this->filePath 		= dirname(__FILE__);
 		
-		parent::__construct();
+		parent::__construct($application);
 		
 		return $this;
 	}
 		
 	
-	public function index($resourceId = null, $options = null)
+	public function index()
 	{
-		$this->data['view']['method'] = __FUNCTION__;
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		
-		if ( !empty($_POST['ids']) )
-		{
-			$resourceId 				= join(',', $_POST['ids']);
-			$_SERVER['REQUEST_METHOD'] 	= 'GET';
-			$_GET['method'] 			= $_POST['method'];
-		}
+		$this->dispatchMethods($args, array('allowed' => 'index,retrieve'));
+		//$this->dispatchMethods($args, array('allowed' => 'index,create,retrieve,update,delete'));
 		
-		$m = $_SERVER['REQUEST_METHOD'];
-		$a = isset($_GET['method']) ? $_GET['method'] : null;
+		# Comment/remove the following block if you want to allow listing resources
+		//$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : 'id' ) ); 
+		//$opts 		= array_merge($o, $opts);
+		//$resources 	= $this->C->index(array_merge($o, $opts)); 								// Try to get the resources
 		
-		if ( $m === 'GET' && !empty($resourceId))			{ return $this->retrieve($resourceId, $options); }
-		
+		$resources 	= $this->C->index($o); 														// Try to get the resources
+
 		// Set output data		
 		$this->data = array_merge($this->data, array(
-			$this->resourceName => $this->C->index($this->options),
-			'success' 			=> $this->C->success, 
-			'errors'			=> $this->C->errors,
-			'warnings' 			=> $this->C->warnings,
+			$rName 			=> $resources,
+			'success' 		=> $this->C->success, 
+			'errors'		=> $this->C->errors,
+			'warnings' 		=> $this->C->warnings,
 		));
 		
-		if ( !count($this->data[$this->resourceName]) ){ $this->respondError(204); }
+		// If no resource has been found
+		if ( empty($resources) ) { return $this->statusCode(204); }
+		# listing block end
 			
-		//return $this->render(__FUNCTION__);
 		return $this->render();
 	}
-
 	
-	public function retrieve($resourceId = null, $options = null)
+	
+	public function retrieve()
 	{
-		$this->data['view']['method'] = __FUNCTION__;
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name
+		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
+		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
+		$rid 		= filter_var($rid, constant($filter));										// Filter the value
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'slug' ) ) ); 
+		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
-		$this->resourceId 	= $resourceId;
+		// If no resource identifier has been found
+		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
+		
+		// Try to get the wishlist
+		$resource 	= $this->C->retrieve($opts);
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
-			$this->resourceName 	=> $this->C->retrieve(array_merge($this->options, array('values' => $this->resourceId))),
-			'success' 				=> $this->C->success, 
-			'errors'				=> $this->C->errors,
-			'warnings' 				=> $this->C->warnings,
-			//'resourceId' 			=> $this->resourceId,
+			$rName 		=> $resource,
+			'success' 	=> $this->C->success, 
+			'errors'	=> $this->C->errors,
+			'warnings' 	=> $this->C->warnings,
 		));
 		
-		//return $this->render(__FUNCTION__);
+		// If no resource has been found
+		if ( empty($resource) ) { return $this->statusCode(204); }
+		
 		return $this->render();
 	}
 

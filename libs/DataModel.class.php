@@ -173,9 +173,8 @@ class DataModel
 		'getFields','relGetFields', 			// TODO: deprecate in favor of getColumns
 		'relGetAs', 							// TODO: deprecate. use associative array in relGetFields
 		'getColumns', 							// TODO: 'col1,cold2,...' or array('col1','col2',...) or array('col1' => 'my_col_1', 'col2' => 'my_col_2')
-		'usingPivot', 
 		'pivotResource', 'pivotLeftField', 'pivotRightField',
-		'fetchingStrategy',  					// 'join','select','subselect','batch'
+		'fetchingStrategy',  					// null,'none,','join','select','subselect','batch'
 		'lazy', 								// TODO: ???
 
 		# Format/validation related

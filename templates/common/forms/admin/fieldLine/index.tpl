@@ -28,7 +28,7 @@
 	
 	<div class="labelBlock{if $field.comment} hasInfos{/if}">
 		{strip}
-		{if $field.relResource}
+		{if $field.relResource && $field.type !== 'onetomany'}
 		<label for="{$resourceFieldName}{$itemIndex}">{$data._resources[$field.relResource].singular|default:$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
 			{if $isRequired}<span class="required">*</span>{/if}
 		</label>

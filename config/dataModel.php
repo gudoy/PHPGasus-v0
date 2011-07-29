@@ -147,6 +147,13 @@ $dataModel = array(
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
+'entrieslinks' => array(
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'entry_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'relResource' => 'entries', 'relField' => 'id', 'relGetFields' => 'slug', 'relGetAs' => 'entry_slug'),
+	'link_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'relResource' => 'links', 'relField' => 'id', 'relGetFields' => 'url', 'relGetAs' => 'link_url'),
+	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
+	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
+),
 'groups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
