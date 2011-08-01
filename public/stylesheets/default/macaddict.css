@@ -325,8 +325,8 @@ section .adminBlock { margin:0 0 20px; }
 .js.api .paramsList .details { display:none; }
 .js.api .paramsList .details.expanded { padding-top:10px; display:block; }
 .api .paramsList .details .acceptedValues { margin-top:5px; margin-bottom:10px; display:block; }
-.api aside .paramsList .name { margin-top:15px; padding-left:15px; background-position:0 50%; background-repeat:no-repeat; background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAoUlEQVQY02OYt2QDz+v3nxjwYYYFyzYtAyqcA8RyOBVt2n7wHlDBfyD+BcSTgVgUm6L7UEUw/AWIu4BYCJ8iGP4IxHUgN+NT9H/Fup0PV2/YbYtV0ZpNe/5fvXX/P9Cqw0BsjKJo1fpd/y9evQ2SPA/EHihuWrZm+/8zF2/8f/Xu4w2gYDiG7y7fuLfzxZv3T4GcNCBmxhpOQMISiDnxhTgApM0cgWTlijgAAAAASUVORK5CYII=); }
-.api aside .paramsList .name.expanded { background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAKCAYAAABmBXS+AAAAq0lEQVQY02OYt2TDHCD+jwfPZ7j/+PmyBcs2YVUAEr/76NkqhtfvP0kfOHr2DzZF+w6f/gOUlwMpYnj07NXURSs2oygA8e8/eTEXJA9WBMRCh09c+Ims6MCxcz+B4hLIihievHjTvnjlVrCCxSu2/AeaPgkmB1cExDzHz1z+ClJ05OSF7yDTsSlieP76femaTXv+A01tQRZHUQTEbM9ev7sIMhWfIgZ0BSAMALMxCJgNICGxAAAAAElFTkSuQmCC); }
+.api aside .paramsList .name { margin-top:15px; padding-left:15px; background-position:0 50%; background-repeat:no-repeat; background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAoUlEQVQY02OYt2QDz+v3nxjwYYYFyzYtAyqcA8RyOBVt2n7wHlDBfyD+BcSTgVgUm6L7UEUw/AWIu4BYCJ8iGP4IxHUgN+NT9H/Fup0PV2/YbYtV0ZpNe/5fvXX/P9Cqw0BsjKJo1fpd/y9evQ2SPA/EHihuWrZm+/8zF2/8f/Xu4w2gYDiG7y7fuLfzxZv3T4GcNCBmxhpOQMISiDnxhTgApM0cgWTlijgAAAAASUVORK5CYII="); }
+.api aside .paramsList .name.expanded { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAKCAYAAABmBXS+AAAAq0lEQVQY02OYt2TDHCD+jwfPZ7j/+PmyBcs2YVUAEr/76NkqhtfvP0kfOHr2DzZF+w6f/gOUlwMpYnj07NXURSs2oygA8e8/eTEXJA9WBMRCh09c+Ims6MCxcz+B4hLIihievHjTvnjlVrCCxSu2/AeaPgkmB1cExDzHz1z+ClJ05OSF7yDTsSlieP76femaTXv+A01tQRZHUQTEbM9ev7sIMhWfIgZ0BSAMALMxCJgNICGxAAAAAElFTkSuQmCC"); }
 .api aside .paramsList .operators { margin-left:20px; }
 
 #apiParamsSection { padding-bottom:20px; }
@@ -358,10 +358,10 @@ section .adminBlock { margin:0 0 20px; }
 .js .translationsNav.expanded .lang:hover { background:#1942ee; background:-webkit-gradient(linear, left top, left bottom, from(#5170f6), to(#1942ee)); background:-webkit-linear-gradient(#5170f6, #1942ee); background:-moz-linear-gradient(#5170f6, #1942ee); background:-o-linear-gradient(#5170f6, #1942ee); background:-ms-linear-gradient(#5170f6, #1942ee); background:linear-gradient(#5170f6, #1942ee); }
 
 
-.toggle.plus { background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAQAAABuBnYAAAAALklEQVR42mNgAAPf/wH/GZCB939fnAK+/71RIIPPf08g9ABCTzCEqvNAMAkKAACOWiQIZVi92AAAAABJRU5ErkJggg==); } 
-.toggle.minus { background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAQAAABuBnYAAAAAE0lEQVR42mNgIB3k/UeFmAKkAwALmhbRFDdxEwAAAABJRU5ErkJggg==); }
-.resize { background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAALCAAAAABn8JP5AAAAIklEQVR42mPI+/E/7ycQMYAYIISPkfv9PxgRxfj//T8YAQAm1EWlIM+gmwAAAABJRU5ErkJggg==); }
-.more { background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAADCAAAAAB+XZokAAAAGklEQVR42mPo8fT07GH4X+1R/Z/h///i//8BR7gJn4HBkuYAAAAASUVORK5CYII=); }
+.toggle.plus { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAQAAABuBnYAAAAALklEQVR42mNgAAPf/wH/GZCB939fnAK+/71RIIPPf08g9ABCTzCEqvNAMAkKAACOWiQIZVi92AAAAABJRU5ErkJggg=="); } 
+.toggle.minus { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAQAAABuBnYAAAAAE0lEQVR42mNgIB3k/UeFmAKkAwALmhbRFDdxEwAAAABJRU5ErkJggg=="); }
+.resize { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAALCAAAAABn8JP5AAAAIklEQVR42mPI+/E/7ycQMYAYIISPkfv9PxgRxfj//T8YAQAm1EWlIM+gmwAAAABJRU5ErkJggg=="); }
+.more { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAADCAAAAAB+XZokAAAAGklEQVR42mPo8fT07GH4X+1R/Z/h///i//8BR7gJn4HBkuYAAAAASUVORK5CYII="); }
 
 #mainColFooter { position:relative; }
 #mainColFooter #mainColResizer { display:none; }
