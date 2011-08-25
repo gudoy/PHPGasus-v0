@@ -19,7 +19,7 @@ class DataModel
 		
 		# Relations
 		'extends', 
-		'parent', 'parents', 'siblings', 'children', 	// TODO: implement
+		//'parent', 'parents', 'siblings', 'children', 	// TODO: implement
 		
 		# PHPGasus features related
 		'searchable', 'crudability', 'exposed',
@@ -190,6 +190,7 @@ class DataModel
 		'destRoot', 'destName', 'destFolder',
 		
 		// UI or admin purpose
+		'uiWidget',
 		'displayName', 'displayedValue', 'list',
 		'editable', 'forceUpdate',
 		'comment',

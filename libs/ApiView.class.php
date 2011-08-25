@@ -11,6 +11,13 @@ class ApiView extends View
 		parent::__construct($application);
 	}
 	
+	public function dispatchMethods($args = array(), $params = array())
+	{
+		$params['isApi'] = true;
+		
+		return parent::dispatchMethods($args, $params);
+	}
+	
 	public function validateRequest()
 	{
 		if ( empty($_GET['requestSign']) || empty($_GET['accessKeyId']) ){ $this->respondError(401); }
@@ -47,7 +54,8 @@ class ApiView extends View
 		$this->data['view']['css'] 			= array('api');
 		
 		// Only for html/xhtml output, we want to be able to build a 'smart' form from the resource datamodel 
-		if ( in_array($this->options['output'], array('html','xhtml')) )
+		//if ( in_array($this->options['output'], array('html','xhtml')) )
+		if ( $this->application->env['type'] === 'dev' && in_array($this->options['output'], array('html','xhtml')) )
 		{
 			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 			

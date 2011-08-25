@@ -10,7 +10,7 @@ class Controller extends Application
 	public $data 					= array();
 	
 	public function __construct()
-	{		
+	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		$this->application->dataModel = &$dataModel;
@@ -31,8 +31,8 @@ class Controller extends Application
 	public function __call($method, $args)
     {
 //var_dump(__METHOD__);
-var_dump($method);
-var_dump($args);
+//var_dump($method);
+//var_dump($args);
 
 		// PATTERN: verb[Limiters][offseters][restricters][conditioners][condition operator][sorters]
 		
@@ -480,8 +480,12 @@ var_dump($parts);
 				$usedSpGlobale = isset($_FILES[$f]) ? 'files' : 'post';
 				$spGlobaleItems = $usedSpGlobale === 'files' ? $_FILES[$f] : $_POST[$f];
 				
-				if ( is_array($spGlobaleItems) && count($spGlobaleItems) > 0 && ($usedSpGlobale !== 'files' || (isset($o['multipleItems']) && $o['multipleItems'] === true)) )
+				if ( is_array($spGlobaleItems) 
+						&& count($spGlobaleItems) > 0 
+						&& ($usedSpGlobale === 'files' || !empty($o['multipleItems']))
+					)
 				{
+//var_dump('case multiple items');
 					// Loop over superglobal field indexes
 					$i = 0;
 					foreach ($spGlobaleItems as $index => $val)
@@ -492,6 +496,7 @@ var_dump($parts);
 				}
 				else
 				{
+//var_dump('case single item');
 					// Assign it to the field in the $resourceData array
 					$resourceData[0][$fieldName] = $this->filterSingle($field, $spGlobaleItems, $o);
 				}
@@ -596,6 +601,20 @@ var_dump($parts);
 			//$filteredData = $f == '1' ? 1 : 0;
 			//$filteredData = $f == '1' || $f == 'true' || $f == 't' ? 1 : 0;
 			$filteredData = in_array($f, array(1,true,'1','true','t'), true) ? 1 : 0;
+		}
+		else if ( $field['type'] === 'set' )
+		{
+			// Handle case where all values are passed in 1 value (csv string)
+			$tmp = is_array($f) ? $f : Tools::toArray(preg_replace('/\s/','',$f)); 	// Remove spaces an makes it an array 
+
+//var_dump('type set');
+//var_dump($tmp);
+//var_dump($field['possibleValues']);
+			
+			// Filter to get only values authorized
+			$filteredData = array_intersect($tmp, Tools::toArray($field['possibleValues']));
+			
+//var_dump($filteredData);
 		}
 		else if ( $field['type'] === 'text' )
 		{

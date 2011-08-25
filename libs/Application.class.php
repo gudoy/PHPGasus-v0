@@ -20,12 +20,11 @@ class Application
 		if ( $this->inited ) { return $this; }
 		
 		// 
-		spl_autoload_register('Application::__autoload'); 
+		spl_autoload_register('Application::__autoload');
 		
-        //$this->configEnv();
+        $this->configEnv();
 		$this->handleSession();
 		$this->setlanguage();
-		
 		
 		$this->inited = true;
 	}
@@ -79,13 +78,13 @@ class Application
 		$accptHeader = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']) : '';
 		
 		// Try to find lang in GET param
-		if ( empty($lang) && in_array(strtolower($_GET['lang']), $known) )		{ $lang = strtolower($_GET['lang']); }
+		if ( empty($lang) && isset($_GET['lang']) && in_array(strtolower($_GET['lang']), $known) )		{ $lang = strtolower($_GET['lang']); }
 		
 		// Try to find lang in POST param
-		if ( empty($lang) && in_array(strtolower($_POST['lang']), $known) )		{ $lang = strtolower($_POST['lang']); }
+		if ( empty($lang) && isset($_POST['lang']) && in_array(strtolower($_POST['lang']), $known) )		{ $lang = strtolower($_POST['lang']); }
 		
 		// Try to find lang in SESSION param
-		if ( empty($lang) && in_array(strtolower($_SESSION['lang']), $known) )	{ $lang = strtolower($_SESSION['lang']); }
+		if ( empty($lang) && isset($_SESSION['lang']) && in_array(strtolower($_SESSION['lang']), $known) )	{ $lang = strtolower($_SESSION['lang']); }
 		
 		// If the lang has not been found and if there's an Accept-Llanguage http header
 		if ( empty($lang) && !empty($accptHeader) )
@@ -142,8 +141,6 @@ class Application
 		
 		// If setted to true, allow sessions to be available for other subdomains
 		if ( _APP_IS_SESSION_CROSS_SUBDOMAIN ) { ini_set('session.cookie_domain', '.' . _DOMAIN); /*session_set_cookie_params(0, '/', '.' . _DOMAIN);*/  }
-		
-		ini_set('session.cookie_httponly', 1);
 		
 		// Set the session name accordingly to the conf
 		session_name(_SESSION_NAME);
@@ -210,26 +207,12 @@ class Application
 		);
 		
 		// Try to update the session in db, if exists and not already expired
-		/*
-		$CSessions = CSessions::getInstance()->update(array(
-			'sortBy' => 'expiration_time',
-			'orderBy' => 'DESC',
-			'limit' => 1,
-			'conditions' 	=> array(
-				'name' => $sid,
-				//'ip' => $_SERVER['REMOTE_ADD'],
-				array('expiration_time', '>', ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) ),
-				
-			)
-		));*/
 		$CSessions->update(array('isApi' => 1, 'conditions' => array('id' => $session['id'])));
-		
 		
 		// If rows have been affected, it means that the user is properly logged (cause the session exists and is not expired)
 		$this->logged = $CSessions->success && $CSessions->model->affectedRows > 0;
 		
 		// Once this is done, unset previously setted POST
-		//foreach ($newPOST as $key => $val) { unset($_POST['session' . ucfirst($key)]); }
 		unset($_POST);
 		$_POST = $curPOST;
 		
@@ -274,10 +257,29 @@ class Application
 		// Force timezone
 		date_default_timezone_set('UTC');
 		
+		// Get current page url
 		$curURL = $this->currentURL();
+		
+//var_dump($curURL);
+		
+		// Remove base url from it
+		$curURL = str_replace(_URL, '', $curURL);
+		
+//var_dump($curURL);
+		
 		$t 		= parse_url($curURL);
-		$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
-        
+//var_dump($t);
+		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
+		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
+		
+		$redir = ltrim($t['path'] . '/' . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : ''), '/');
+		
+//var_dump(__METHOD__);
+//var_dump($redir);
+//var_dump($this->isLogged());
+//var_dump(_URL_LOGIN . '?successRedirect=' . $redir);
+//die();
+		
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
 		if ( !$this->isLogged() )
 		{	
@@ -403,7 +405,7 @@ class Application
 	
     
 	public function dump($data, $options = null)
-	{        
+	{
 		//if ( in_array(_APP_CONTEXT, array('local','dev')) || $this->options['debug'] )
 		if ( !in_array(_APP_CONTEXT, array('local','dev')) ){ return; }
 			
@@ -487,6 +489,9 @@ class Application
 			// Report simple running errors
 			error_reporting(E_ERROR | E_PARSE);
 		}
+		
+		ini_set('session.cookie_httponly', 1);
+		ini_set('session.cookie_secure', 1);
 		
 		// 
 		ini_set('register_globals', 0);

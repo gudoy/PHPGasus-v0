@@ -362,13 +362,18 @@ class Tools
 		// ints
 		if ( in_array($p['type'], array('int', 'integer', 'numeric', 'tinyint', 'smallint', 'mediumint', 'bigint')) )
 		{
-			$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+			//$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+			$value = is_numeric($value) ? intval($value) : false;
 			//$value = intval($value);
 		}
 		// floats
-		if ( in_array($p['type'], array('float', 'real', 'double')) )
+		elseif ( in_array($p['type'], array('float', 'real', 'double')) )
 		{
 			$value = floatval($value);
+		}
+		elseif ( in_array($p['type'], array('bool','boolean')) )
+		{
+			$value = in_array($f, array(1,true,'1','true','t'), true) ? 1 : 0;
 		}
 		// phone number
 		else if ( $p['type'] === 'tel' )

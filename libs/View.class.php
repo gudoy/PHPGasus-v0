@@ -21,6 +21,8 @@ class View extends Application implements ViewInterface
 	public function __construct(&$application = null)
 	{
 	    $this->application = &$application;
+		
+		$this->env = $this->application->env;
         
 		return $this->init();
 	}
@@ -59,7 +61,7 @@ class View extends Application implements ViewInterface
 			// onAfterCreate(admin)
 		} 
 		
-		$this->configEnv();
+		//$this->configEnv();
 		
 		// TODO: use get_called_class if PHP 5.3
 		// Use the class name to get the resource name
@@ -176,6 +178,9 @@ $this->dump($allowed);
 
 //var_dump($id);
 //die($m);
+
+		// In APIs, to protect against CRSF, do not allow delete method to be called in overloaded GET
+		if ( !empty($params['isApi']) && $m === 'delete' && strtolower($_SERVER['REQUEST_METHOD']) !== 'delete' ){ return $this->statusCode(405); }
 		
 		// Special case if method is 'retrieve' but resource id is not set
 		// In this case, method is forced back to index 
@@ -532,8 +537,12 @@ $this->dump($allowed);
 	{
         $this->log(__METHOD__);
 		
+var_dump(__METHOD__);
+		
 		$tplSelf 	= !empty($_GET['tplSelf']) && $_GET['tplSelf'] != 0;
 		$url 		= !empty($_GET['redirect']) ? $_GET['redirect'] : $url;
+		
+var_dump($url);
 		
 		// Prevent redirection loop
 		//if ($_SERVER['HTTP_REFERER'] === $url)
@@ -552,7 +561,11 @@ $this->dump($allowed);
 		}
 		else
 		{
+			
+var_dump("Location:" . $url);
+//die();
 			header("Location:" . $url);
+			//header("Location:" . _URL . $url);
 			die();
 		}
 	}
@@ -1309,7 +1322,8 @@ $this->dump($allowed);
 			'platform' 			=> $this->platform,
 			'browser'			=> $this->browser,
 			'device'            => $this->device,
-			'env' 				=> $this->env,
+			//'env' 				=> $this->env,
+			'env' 				=> $this->application->env,
 			'options'			=> $this->options,
 			'css' 				=> $this->getCSS(),
 			'js' 				=> $this->getJS(),

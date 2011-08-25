@@ -63,6 +63,8 @@ $errorsAssoc = array(
 	
 	'9000' => array('back' => 'Access unauthorized.',
 					'front' => _('You don\'t have the permissions to access this page/section.')),
+	'9100' => array('back' => 'Invalid CSRF Token.',
+					'front' => _('We think you may not really wanted to do this. If we are wrong, please retry.')),
 
 	'10000' => array('back' => 'Missing required fields',					// Deprecated: use 1002 instead
 					'front' => _('Please fill all the required fields')), 	// Deprecated: use 1002 instead
@@ -221,6 +223,8 @@ $errorsAssoc = array(
 
 	'20260' => array('back' => 'Already registered device',
 					'front' => _('This device seems to already have registered for this app\'s push messages')),
+	'20270' => array('back' => 'Too long push message',
+					'front' => _('Push would be %d characters long. Only 256 allowed.')),
 					
 	'20300' => array('back' => 'Already purchased content',
 					'front' => _('This device seems to already have purchased this content')),

@@ -233,6 +233,21 @@ class AdminView extends View
 		$redir .= ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=9000';
 		return !$match ? $this->redirect($redir) : true;
 	}
+
+	protected function isCSRFTokenValid()
+	{
+		if ( !isset($_POST['csrftoken']) || !isset($_SESSION['csrftoken']) || $_POST['csrftoken'] !== $_SESSION['csrftoken']  )
+		{
+			$this->data['errors'][] = '9100';
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+		
+		//return true;
+	}
 	
     
     public function handleSearch()
@@ -760,21 +775,32 @@ $this->dump($this->data);
 		// Check for crudability
 		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
 		if ( !empty($meta) && strpos($meta['crudability'], 'D') === false ){ $this->redirect($meta['fullAdminPath']); }		
+
+
+		// Get to be deleted data
+		$this->data = array_merge($this->data, array(
+			'resourceId' 		=> $this->resourceId,
+			$this->resourceName => $this->C->retrieve(array('values' => $this->resourceId)),
+		));
 		
 		// If the confirmation param has been passed
 		//if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['confirm']) && $_GET['confirm']) )
-		if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (int) $this->options['confirm'] === 1 )
+		//if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (int) $this->options['confirm'] === 1 )
+		if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' 
+			|| ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST['confirm'] && $this->isCSRFTokenValid()) )
 		{
 			// Launch the deletion
 			$this->C->delete(array('values' => $this->resourceId));
+			
+			// Set output data		
+			$this->data = array_merge($this->data, array(
+				'success' 		=> $this->C->success, 
+				'errors'		=> $this->C->errors,
+			));
 		}
-		
-		// Set output data		
-		$this->data = array_merge($this->data, array(
-			'success' 		=> $this->C->success, 
-			'errors'		=> $this->C->errors,
-			'resourceId' 	=> $this->resourceId,
-		));
+
+		// Generate a CSRF token
+		$_SESSION['csrftoken'] = md5(uniqid(rand(), true));	
 		
 		if ( $this->data['success'] )
 		{
