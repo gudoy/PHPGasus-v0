@@ -2,7 +2,7 @@
 
 class MGroups extends Model
 {
-	public function __construct($application = null)
+	public function __construct(&$application = null)
 	{
 		$this->setResource(array('class' => __CLASS__));
 		

@@ -2,7 +2,7 @@
 
 class MSessions extends Model
 {
-	public function __construct($application = null)
+	public function __construct(&$application = null)
 	{
 		$this->setResource(array('class' => __CLASS__));
 		
@@ -25,7 +25,7 @@ class MSessions extends Model
 		return parent::update($resourceData, $options);
 	}
 	
-	public function delete($options)
+	public function delete($options = array())
 	{
 		$o 			= &$options;
 		$o['by'] 	= !empty($o['by']) ? $o['by'] : 'name';
@@ -33,7 +33,7 @@ class MSessions extends Model
 		return parent::delete($options);
 	}
 	
-	public function retrieve($options)
+	public function retrieve($options = array())
 	{
 		$o 			= &$options;
 		$o['by'] 	= !empty($o['by']) ? $o['by'] : 'name';
