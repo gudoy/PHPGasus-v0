@@ -19,7 +19,7 @@ class Model extends Application
 		return $this->connect();
 	}
 
-	public function connect()
+	public function connect(&$application)
 	{
 		// Open a connection on the db server
 		$this->db = new SQLite3(_PATH_DB . 'tvmag.db.sqlite');

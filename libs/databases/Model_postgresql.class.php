@@ -14,7 +14,7 @@ class Model extends Application
 	public $data 			= null;
 	public $afterQuery 	= null; 
 	
-	public function __construct()
+	public function __construct(&$application)
 	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		

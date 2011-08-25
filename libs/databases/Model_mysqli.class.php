@@ -2,7 +2,7 @@
 
 class Model extends Application
 {
-	public $debug         = true;
+	public $debug         = false;
 	public $db            = null;
 	public $success       = false;
 	public $errors        = null;
@@ -498,6 +498,9 @@ $this->dump($relData);
             case 'pk':            
             case 'onetoone':
             case 'int':         $v = (int) $v;  break;
+				
+			case 'set':
+								$v = !empty($v) ? explode(',', (string) $v) : array();
             
             case 'file':
             case 'fileduplicate':
@@ -1381,6 +1384,11 @@ $this->dump($relData);
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";  
 			}
+			else if ( $field['type'] === 'set' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? join(',', (array) $d[$fieldName]) : ( !empty($field['default']) ? join('', Tools::toArray($field['default'])) : '' );
+				$value 	= "'" . $this->escapeString($tmpVal) . "'";  
+			}
 			else if ( $field['type'] === 'point' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
@@ -1437,7 +1445,8 @@ $this->dump($relData);
 			else if ( $field['type'] === 'int' && !empty($field['fk']) )
 			{
 				$value = !empty($d[$fieldName]) 
-							? $d[$fieldName] 
+							//? $d[$fieldName]
+							? intVal($d[$fieldName])
 							: (isset($field['default']) ? ( is_null($field['default']) ? "NULL" : $field['default']) : "NULL");
 			}
 			// Otherwise, just take the posted data value
@@ -1848,6 +1857,11 @@ $this->dump($relData);
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";  
 				//$value = "'" . $this->escapeString(trim($tmpVal)) . "'";
+			}
+			else if ( $field['type'] === 'set' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? join(',', (array) $d[$fieldName]) : ( !empty($field['default']) ? join('', Tools::toArray($field['default'])) : '' );
+				$value 	= "'" . $this->escapeString($tmpVal) . "'";  
 			}
 			else if ( $field['type'] === 'point' )
 			{
