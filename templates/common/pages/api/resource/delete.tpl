@@ -4,22 +4,21 @@
 
 	{$resourceName=$data.view.resourceName}
 
-	<div class="box block grid_10">
-		
-		<h2>{t}data{/t}</h2>
-		
-	{if $data.success}
-		<div class="notifierBlock">
-			<p class="notification success">
-				{t}The resource has been successfully delete!{/t}
-			</p>
+	{if $data.env.type === 'dev'}
+	<section class="apiDataSection" id="apiDataSection">
+		<header class="titleBlock">
+			<h2 class="title">{t}data{/t}</h2>
+		</header>
+		<div class="content">
+			{if $data.success}
+				<div class="notifierBlock">
+					<p class="notification success">
+						{t}The resource has been successfully deleted!{/t}
+					</p>
+				</div>
+			{/if}
 		</div>
+	</section>
 	{/if}
-	
-	</div>
-	
-	<div class="grid_6">		
-		{include file='common/blocks/api/resource/dataModel.tpl'}
-	</div>
 	
 {/block}

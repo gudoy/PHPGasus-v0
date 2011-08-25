@@ -19,9 +19,10 @@
 			<div class="fieldBlock">
 				<input type="hidden" name="update{$resourceName|capitalize}" id="update{$resourceName|capitalize}" value="1" />
 				<input type="hidden" name="method" id="method" value="update" />
+				<input type="hidden" name="csrftoken" id="csrftoken" value="{$smarty.session.csrftoken}" />
 				{$parentResURI = $smarty.const._URL_ADMIN|cat:$resourceName}
 				{$backURI = $smarty.server.HTTP_REFERER|replace:'&':'&amp;'|default:$parentResURI}
-				{include file='common/blocks/actionBtn.tpl' href=$backURI class='cancelBtn' id='cancelBtn' label='cancel'|gettext}
+				{include file='common/blocks/actionBtn.tpl' href=$parentResURI class='cancelBtn' id='cancelBtn' label='cancel'|gettext}
 				<span class="sep or">{t}or{/t}</span>
 				{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' id='validateBtn' type='submit' label='update'|gettext}
 				{if $viewMode === 'admin'}

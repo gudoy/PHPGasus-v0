@@ -70,6 +70,8 @@
 		{include file='common/forms/admin/fieldLine/caseDatetime.tpl'}
 	{elseif $type == 'enum'}
 		{include file='common/forms/admin/fieldLine/caseEnum.tpl'}
+	{elseif $type == 'set'}
+		{include file='common/forms/admin/fieldLine/caseSet.tpl'}
 	{elseif $type === 'varchar' && $field.subtype === 'password'}
 		{include file='common/forms/admin/fieldLine/casePassword.tpl'}
 	{elseif $type === 'varchar' && ($field.subtype === 'file' || $field.subtype === 'fileDuplicate')}
@@ -79,7 +81,6 @@
 	{else}
 		{include file='common/forms/admin/fieldLine/caseVarchar.tpl'}
 	{/if}
-	
 	</div>
 	
 </div>

@@ -9,6 +9,7 @@
 	{$resourceName = $data.current.resource}
 	{$isAdminView = in_array('admin', explode(' ',$view.smartclasses))}
 
+	{if $data.env.type === 'dev'}
 	<section class="apiDataSection" id="apiDataSection">
 		<header class="titleBlock">
 			<h2 class="title">{t}data{/t}</h2>
@@ -23,5 +24,6 @@
 		{/foreach}
 		</div>
 	</section>
+	{/if}
 	
 {/block}

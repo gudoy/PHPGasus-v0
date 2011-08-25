@@ -34,6 +34,10 @@ class VAccount extends View
 		$sr 	= 'successRedirect';
 		$redir 	= !empty($_POST[$sr]) ? $_POST[$sr] : ( !empty($_GET[$sr]) ? $_GET[$sr] : null );
 		
+//var_dump(__METHOD__);
+//var_dump($redir);
+//die();
+		
 		// Set template data
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name'           => 'account' . ucfirst(__FUNCTION__),
@@ -49,7 +53,8 @@ class VAccount extends View
 		{
 			$this->data['success'] = true;
 			
-			$url = !empty($redir) ? $redir : _URL_HOME;
+			//$url = !empty($redir) ? $redir : _URL_HOME;
+			$url = !empty($redir) ? _URL . $redir : _URL_HOME;
 			$this->redirect($url);
 			//if ( empty($redir) ){ $this->redirect(_URL_HOME); }
 		}
@@ -168,7 +173,8 @@ class VAccount extends View
 			// Return them as proper data session object
 			$this->data[$this->resourceSingular] = array('id' => $newPOST['name'], 'user_id' => $newPOST['user_id']);
 			
-			if ( !empty($redir) ) { $this->redirect($redir); }
+			//if ( !empty($redir) ) { $this->redirect($redir); }
+			if ( !empty($redir) ) { $this->redirect(_URL . $redir); }
 			
 			$this->respondError(201);
 		}

@@ -12,6 +12,9 @@ class VApi extends ApiView
 	
 	public function index($options = null)
 	{
+		// Prevent public access to api reference
+		$this->requireLogin();
+		
 		$this->data['view']['name'] 	= 'apiHome';
 		$this->data['view']['template'] = 'specific/pages/api/index.tpl'; 
 		
@@ -21,7 +24,7 @@ class VApi extends ApiView
 	
 	public function sha1()
 	{
-		if ( $this->env['type'] !== 'dev' ){ $this->redirect(_URL_API); }
+		if ( $this->application->env['type'] !== 'dev' ){ $this->redirect(_URL_API); }
 		
 		if ( !empty($_POST['stringToHandle']) && isset($_GET['godmod']) )
 		{
@@ -40,7 +43,7 @@ class VApi extends ApiView
 	
 	public function encrypt()
 	{
-		if ( $this->env['type'] !== 'dev' ){ $this->redirect(_URL_API); }
+		if ( $this->application->env['type'] !== 'dev' ){ $this->redirect(_URL_API); }
 		
 		if ( !empty($_POST['stringToHandle']) && isset($_GET['godmod']) )
 		{
