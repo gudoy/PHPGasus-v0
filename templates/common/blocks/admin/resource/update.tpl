@@ -1,4 +1,4 @@
-<header class="titleBlock">
+<header class="header titleBlock">
 	<h2 class="title">
         <a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$resourceName} - {$data[$resourceName].id}

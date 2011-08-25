@@ -42,7 +42,55 @@ class VCategories extends ApiView
 			
 		return $this->render();
 	}
-	
+
+	public function create()
+	{
+		$this->requireLogin();
+		
+		$args 		= func_get_args(); 															// Get passed arguments
+		$o 			= &$this->options;															// Shortcurt/alias for options
+		$rName 		= $this->resourceName; 														// Shortcut for resource name 
+		
+		
+		// If POST data have been passed
+		if ( !empty($_POST) )
+		{
+			if ( empty($_POST['name']) ){ $this->data['errors'][1001] = 'name'; return $this->statusCode(417); }
+			
+			// Check that the category does not already exists
+			$category = $this->C->retrieve(array('by' => 'name', 'values' => filter_var($_POST['name'], FILTER_SANITIZE_STRING)));
+			if ( !empty($category) )
+			{ 
+				$this->data['categories'] = $category; 
+				
+				return $this->statusCode(409);
+			}
+			
+			// Try to update the resource & get the create resource
+			$rid 					= $this->C->create(array('returning' => 'id'));
+
+			// Get the output data
+			$this->data				 = array_merge($this->data, array(
+				'success' 	=> $this->C->success, 
+				'errors'	=> $this->C->errors,
+				'warnings' 	=> $this->C->warnings,
+			));
+		}
+				
+		// If the operation succeed, reset the $_POST
+		if ( $this->data['success'] )
+		{
+			unset($_POST);
+			
+			// Get the created resource
+			$this->data[$rName] = $this->C->retrieve(array('by' => 'id', 'values' => $rid));
+			
+			return $this->statusCode(201);
+		}
+		
+		return $this->render();
+	}
+
 	public function retrieve()
 	{
 		$args 		= func_get_args(); 															// Get passed arguments

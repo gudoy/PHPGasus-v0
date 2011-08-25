@@ -4,6 +4,9 @@
 			{$resourceName} - {$data[$resourceName].id}
 		</a>
 	</h2>
+	<span class="actions actionsBlock">
+		{include file='common/blocks/admin/resource/actions/actions.tpl'}
+	</span>
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='delete'}
 </header>
 
@@ -26,16 +29,7 @@
 			</div>
 		</div>
 		{else}
-		<div class="notificationsBlock confirmationBlock" id="confirmationBlock">
-			<p class="notification warning">
-				{t}Are you sure you want to delete the following resource(s){/t}{t}:{/t} {$data.resourceId}
-			</p>
-			<div class="buttonsLine">
-				{include file='common/blocks/actionBtn.tpl' id='cancelBtn' class='cancelBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label='Cancel'|gettext}
-				<span class="sep or">{t}or{/t}</span>
-				{include file='common/blocks/actionBtn.tpl' id='confirmBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName|cat:'/'|cat:$resourceId|cat:'?method=delete&amp;confirm=1' label='delete'|gettext}
-			</div>
-		</div>
+		{include file='common/forms/admin/frmAdminResourceDelete.tpl' viewMode='admin' resource=$data.$resourceName}
 		{/if}
 		
 	</div>

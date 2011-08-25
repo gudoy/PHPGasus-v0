@@ -18,7 +18,7 @@
 {/if}
 {if !$smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS || ($smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && $field.type !== 'onetoone' && !$field.fk)}
 <td id="{$fieldName}Col{$resource.id}" class="col dataCol {$fieldName}Col type{$field.type|ucfirst}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{if $field.relResource} typeRel{/if}{if !$field.list} hidden{/if}" headers="row{$resource.id} {$fieldName}Col">
-	<div class="value dataValue" id="{$fieldName}{$resource.id}" {if $field.type === 'timestamp'}title="{$value|date_format:"%Y-%m-%d %H:%M:%S"}"{/if} data-exactValue="{$value}">{include file='common/blocks/admin/resource/list/cols/dataValue.tpl'}</div>
+	<div class="value dataValue" id="{$fieldName}{$resource.id}" {if $field.type === 'timestamp'}title="{$value|date_format:"%Y-%m-%d %H:%M:%S"}"{/if} data-exactValue="{if $value.type === 'set'}{join(',',$value)|default:''}{else}{$value}{/if}">{include file='common/blocks/admin/resource/list/cols/dataValue.tpl'}</div>
 </td>
 {/if}
 {/if}

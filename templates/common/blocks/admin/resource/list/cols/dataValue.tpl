@@ -17,6 +17,19 @@
 		{/if}
 	</a>
 	{/if}
+{elseif $field.type === 'set'}
+	{if strlen(join(',',$value)) > 40}
+	<details>
+		<summary>({count($value)} {t}items{/t})</summary>
+		{foreach $value as $item}
+		<span class="item">{$item}<a class="deleteItem deleteSetItem">{t}x{/t}</a></span>
+		{/foreach}
+	</details>
+	{else}
+		{foreach $value as $item}
+		<span class="item">{$item}<a class="deleteItem deleteSetItem">{t}x{/t}</a></span>
+		{/foreach}
+	{/if}
 {elseif $field.subtype === 'url'}
 	{if $value}
 	<a class="url" href="{if strpos($value, $smarty.const._APP_PROTOCOL) === false}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">

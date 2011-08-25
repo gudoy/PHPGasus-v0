@@ -34,8 +34,8 @@ class VAccount extends ApiView
 		if ( !empty($_POST) )
 		{
 			// Check for the required params
-			//$reqParams = array('email', 'password','device_id');
-			$reqParams = array('email', 'password');
+			$reqParams = array('email', 'password','device_id');
+			//$reqParams = array('email', 'password');
 			foreach ($reqParams as $param)
 			{
 				// If the field is found
@@ -62,7 +62,11 @@ class VAccount extends ApiView
 			
 			// Check that the passed device id is the same than the user one
 			$dvcId = filter_var($_POST['device_id'], FILTER_SANITIZE_STRING);
-			//if ( $dvcId !== $user['device_id'] ){ return $this->statusCode(409); }
+			if ( $dvcId !== $user['device_id'] )
+			{
+				$this->data['users'] = $user;
+				return $this->statusCode(409);
+			}
 			
 			// Build session data (after saving current post data)
 			//$savePOST 	= $_POST;
