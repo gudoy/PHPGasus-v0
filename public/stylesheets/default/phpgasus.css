@@ -139,7 +139,10 @@ form span.label small { display:block; font-weight:normal; text-transform:none; 
 /*form span,*/
 form label.span { display:inline; font-weight:normal; }
 form .line { margin-bottom:1em; }
-form .multi { display:-moz-inline-block!important; display:-moz-inline-box!important; display:inline-block!important; vertical-align:middle; }
+form .multi,
+form .fieldBlock input.multi,
+form .fieldBlock label.span.multi { display:inline-block; vertical-align:middle; }
+/*form .fieldBlock .fieldItem { display:inline-block; margin-right:20px; }*/
 form input.multi,
 form input.multi,
 form select.sized { margin-left:0; margin-right:5px; vertical-align:middle; }
@@ -179,7 +182,9 @@ form .fieldBlock .currentItem .figure { margin-right:10px; float:left; }
 form .fieldBlock .currentItem .details:after { height:0; clear:both; content:' '; display:block; visibility:hidden; font-size:1%; }
 form .fieldBlock .currentItem .details .name { margin-bottom:10px; display:block; }
 
-
+form .fieldBlock .fieldItem { clear:both; }
+form .fieldBlock .toggleAll { display:none; cursor:pointer; }
+.js form .fieldBlock .toggleAll { margin:2px 0; display:inline-block; }
 form .fieldBlock .editFieldBlock {  }
 form .fieldBlock .relField { }
 form .fieldBlock .relField input { margin-right:5px; display:inline-block; vertical-align:middle; }

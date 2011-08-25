@@ -363,7 +363,8 @@ var admin =
 			url: url,
 			data: 'confirm=1&output=json',
 			dataType: 'json',
-			type: 'GET',
+			//type: 'GET',
+			type: 'DELETE',
 			success: function(response)
 			{
 				var r 		= response || {},		// Shortcut for the response
@@ -372,8 +373,6 @@ var admin =
 				// If the request did not succeed, we do not continue
 				if ( !success )
 				{
-					//var errs = 
-					
 					$('table.adminTable')
 						.parents('.adminListBlock')
 						.insertBefore('<div class="notificationsBlock errorsBlock"></div>')
@@ -1110,6 +1109,15 @@ var admin =
 		});
 		
 		return this;
+	},
+	
+	handleSetFields: function()
+	{
+		$('div.typeSet', 'form')
+			.find('.toggleAll')
+			.click(function(){ $(this).siblings('.fieldItem').find('input').each(function(){ this.checked = !this.checked; }); });
+		
+		return this;
 	}
 };
 
@@ -1181,6 +1189,8 @@ var adminIndex =
 				jt.focus(); 
 				
 				if ( jt.hasClass('dataValue') || jt.hasClass('validity') )	{ return self.inlineEdit(jCel); }
+				
+				else if ( jt.is('summary') )	{ return jt.parent('details').toggleAttr('open'); }
 				
 				// If the target is an input, just return
 				else if ( jt.is(':input') )
@@ -1791,6 +1801,7 @@ var adminCreate =
 			.handleOneToOneFields()
 			.handleOneToManyFields()
 			.handleFileFields()
+			.handleSetFields()
 		;
 		
 		return this;
@@ -1812,6 +1823,7 @@ var adminUpdate =
 			.handleOneToOneFields()
 			.handleOneToManyFields()
 			.handleFileFields()
+			.handleSetFields()
 		;
 		
 		return this;
