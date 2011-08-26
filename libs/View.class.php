@@ -537,12 +537,8 @@ $this->dump($allowed);
 	{
         $this->log(__METHOD__);
 		
-var_dump(__METHOD__);
-		
 		$tplSelf 	= !empty($_GET['tplSelf']) && $_GET['tplSelf'] != 0;
 		$url 		= !empty($_GET['redirect']) ? $_GET['redirect'] : $url;
-		
-var_dump($url);
 		
 		// Prevent redirection loop
 		//if ($_SERVER['HTTP_REFERER'] === $url)
@@ -561,9 +557,6 @@ var_dump($url);
 		}
 		else
 		{
-			
-var_dump("Location:" . $url);
-//die();
 			header("Location:" . $url);
 			//header("Location:" . _URL . $url);
 			die();

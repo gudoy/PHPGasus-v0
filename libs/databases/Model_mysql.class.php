@@ -501,6 +501,9 @@ $this->dump($relData);
             case 'pk':            
             case 'onetoone':
             case 'int':         $v = (int) $v;  break;
+				
+			case 'set':
+								$v = !empty($v) ? explode(',', (string) $v) : array();
             
             case 'file':
             case 'fileduplicate':
@@ -562,7 +565,8 @@ $this->dump($relData);
         else if ( $o['mode'] === 'onlyOne' && ( count($o['getFields']) > 1 || empty($o['getFields']) ) )
         {
 //var_dump('several columns 1 row');
-            $this->data = $this->fixData(mysql_fetch_array($queryResult, MYSQL_ASSOC));
+			$data 		= mysql_fetch_array($queryResult, MYSQL_ASSOC);
+            $this->data = $this->fixData($data);
         }
         // 1 column, several rows
         else if ( $o['mode'] === 'distinct' && count($o['field']) === 1 )
@@ -1381,6 +1385,11 @@ $this->dump($relData);
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";  
 			}
+			else if ( $field['type'] === 'set' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? join(',', (array) $d[$fieldName]) : ( !empty($field['default']) ? join('', Tools::toArray($field['default'])) : '' );
+				$value 	= "'" . $this->escapeString($tmpVal) . "'";  
+			}
 			else if ( $field['type'] === 'point' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
@@ -1437,7 +1446,8 @@ $this->dump($relData);
 			else if ( $field['type'] === 'int' && !empty($field['fk']) )
 			{
 				$value = !empty($d[$fieldName]) 
-							? $d[$fieldName] 
+							//? $d[$fieldName]
+							? intVal($d[$fieldName])
 							: (isset($field['default']) ? ( is_null($field['default']) ? "NULL" : $field['default']) : "NULL");
 			}
 			// Otherwise, just take the posted data value
@@ -1848,6 +1858,11 @@ $this->dump($relData);
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";  
 				//$value = "'" . $this->escapeString(trim($tmpVal)) . "'";
+			}
+			else if ( $field['type'] === 'set' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? join(',', (array) $d[$fieldName]) : ( !empty($field['default']) ? join('', Tools::toArray($field['default'])) : '' );
+				$value 	= "'" . $this->escapeString($tmpVal) . "'";  
 			}
 			else if ( $field['type'] === 'point' )
 			{

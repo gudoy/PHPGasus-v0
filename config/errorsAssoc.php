@@ -225,6 +225,8 @@ $errorsAssoc = array(
 					'front' => _('This device seems to already have registered for this app\'s push messages')),
 	'20270' => array('back' => 'Too long push message',
 					'front' => _('Push would be %d characters long. Only 256 allowed.')),
+	'20280' => array('back' => 'Push connection error.',
+					'front' => _('The push server returned an error: %')),
 					
 	'20300' => array('back' => 'Already purchased content',
 					'front' => _('This device seems to already have purchased this content')),

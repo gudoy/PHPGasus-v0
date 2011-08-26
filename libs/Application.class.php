@@ -162,10 +162,9 @@ class Application
 			session_id($sid);
 			session_start(); 
 			$_SESSION['id'] 		= $sid;
-			//$_SESSION['user_id'] 	= $s['user_id'];
 		}
 		
-		// Start the session if not already started 
+		// Start the session if not already started
 		if ( session_id() === '') { session_start(); }
 		
 		// Get the current session id
@@ -190,15 +189,6 @@ class Application
 		
 		// Store the user id in session
 		$_SESSION['user_id'] 	= $session['user_id'];
-		
-		/*
-		// Set session updated POST data
-		$newPOST = array(
-			'expiration_time' 	=> (time() + _APP_SESSION_DURATION),
-			'last_url' 			=> $this->currentURL(),
-		);
-		foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
-		*/
 		
 		$curPOST 	= $_POST;
 		$_POST 		= array(
@@ -260,25 +250,14 @@ class Application
 		// Get current page url
 		$curURL = $this->currentURL();
 		
-//var_dump($curURL);
-		
 		// Remove base url from it
 		$curURL = str_replace(_URL, '', $curURL);
 		
-//var_dump($curURL);
-		
 		$t 		= parse_url($curURL);
-//var_dump($t);
 		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		
-		$redir = ltrim($t['path'] . '/' . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : ''), '/');
-		
-//var_dump(__METHOD__);
-//var_dump($redir);
-//var_dump($this->isLogged());
-//var_dump(_URL_LOGIN . '?successRedirect=' . $redir);
-//die();
+		$redir = ltrim(trim($t['path'], '/') . '/' . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : ''), '/');
 		
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
 		if ( !$this->isLogged() )
@@ -470,12 +449,6 @@ class Application
 				ob_start();
 				
 				class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHPCore/FirePHP.class.php');
-                //class_exists('FirePHP') || require(_PATH_LIBS . 'tools/FirePHP/FirePHP/Init.php');
-				
-                //define('INSIGHT_IPS', '*');
-                //define('INSIGHT_AUTHKEYS', 'AAC8FCFBD667AE9AC51A54D3318CA411');
-                //define('INSIGHT_PATHS', _PATH_LIBS . 'tools/FirePHP/Insight');
-                //define('INSIGHT_SERVER_PATH', '/index.php');	
 			}
 			
 			//error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
@@ -489,9 +462,9 @@ class Application
 			// Report simple running errors
 			error_reporting(E_ERROR | E_PARSE);
 		}
-		
-		ini_set('session.cookie_httponly', 1);
-		ini_set('session.cookie_secure', 1);
+
+		ini_set('session.cookie_httponly', 	1);
+		ini_set('session.cookie_secure', 	_APP_PROTOCOL === 'https' ? 1 :0 ); // Only active this when used with https
 		
 		// 
 		ini_set('register_globals', 0);

@@ -47,8 +47,6 @@ define('_APP_USE_MODERNIZR', 					true); 			// If allowed, the js lib Modernizr 
 
 // IOS (iPhone/iPad/i???) OPTIONS
 define('_APP_STORE_URL', 						'http://itunes.apple.com');
-define('_APP_IPHONE_PUSH_GATEWAY_TEST', 		'ssl://gateway.sandbox.push.apple.com:2195');
-define('_APP_IPHONE_PUSH_GATEWAY_PROD', 		'ssl://gateway.push.apple.com:2195');
 define('_APP_IOS_WEBAPP_CAPABLE', 				false); 		// 
 define('_APP_IOS_INISCALE', 					'1.0'); 		// Default page scale for iphones (default = 1.0)
 define('_APP_IOS_MAXSCALE', 					'3.0'); 		// Allow iphones to scale up/down pages (default = 1.0) 

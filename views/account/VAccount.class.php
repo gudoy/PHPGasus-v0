@@ -34,10 +34,6 @@ class VAccount extends View
 		$sr 	= 'successRedirect';
 		$redir 	= !empty($_POST[$sr]) ? $_POST[$sr] : ( !empty($_GET[$sr]) ? $_GET[$sr] : null );
 		
-//var_dump(__METHOD__);
-//var_dump($redir);
-//die();
-		
 		// Set template data
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name'           => 'account' . ucfirst(__FUNCTION__),
