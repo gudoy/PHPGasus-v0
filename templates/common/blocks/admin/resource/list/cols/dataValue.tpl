@@ -9,7 +9,9 @@
 {elseif $field.subtype === 'file' || $field.subtype == 'fileDuplicate'}
 	{if $value}
 		{$baseURL = $field.destBaseURL|default:$smarty.const._URL}
-	<a class="currentItem file" href="{if strpos($value, $smarty.const._APP_PROTOCOL) === false}{rtrim($baseURL,'/')}{if $field.storeAs === 'filename'}{$field.destFolder}{/if}{/if}{$value}">
+		{$hasProtocol =  strpos($value, '://')}
+	{*<a class="currentItem file" href="{if !$hasProtocol}{rtrim($baseURL,'/')}{if $field.storeAs === 'filename'}{$field.destFolder}{/if}{/if}{$value}">*}
+	<a class="currentItem file" href="{if !$hasProtocol}{rtrim($baseURL,'/')}/{if $field.storeAs === 'filename'}{ltrim($field.destFolder, '/')}{/if}{/if}{ltrim($value, '/')}">
 		{if $field.mediaType && $field.mediaType == 'image' && $field.storeAs !== 'filename'}
 		<img class="value" src="{$smarty.const._URL}{$value}" alt="{$value}: {$resource.id}" />
 		{else}

@@ -18,6 +18,13 @@
        <option value="{$value}">{$value}</option>
        {/foreach}
     </select>
+{elseif $type === 'set'}
+    <select name="{$filterName}" id="{$filterId}">
+        <option></option>
+       {foreach $column.possibleValues as $value}
+       <option value="{$value}">{$value}</option>
+       {/foreach}
+    </select>
 {elseif $type === 'bool'}
     <select name="{$filterName}" id="{$filterId}">
         <option></option>

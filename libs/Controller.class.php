@@ -480,12 +480,12 @@ var_dump($parts);
 				$usedSpGlobale = isset($_FILES[$f]) ? 'files' : 'post';
 				$spGlobaleItems = $usedSpGlobale === 'files' ? $_FILES[$f] : $_POST[$f];
 				
-				if ( is_array($spGlobaleItems) 
-						&& count($spGlobaleItems) > 0 
-						&& ($usedSpGlobale === 'files' || !empty($o['multipleItems']))
-					)
+				// Case multiple items
+				//if ( is_array($spGlobaleItems) && count($spGlobaleItems) > 0 && ($usedSpGlobale !== 'files' || (isset($o['multipleItems']) && $o['multipleItems'] === true)) )
+				//if ( is_array($spGlobaleItems) && count($spGlobaleItems) > 0 && ( $usedSpGlobale !== 'files' || !empty($o['multipleItems']) ) )
+				//if ( is_array($spGlobaleItems) && count($spGlobaleItems) > 0  && ($usedSpGlobale === 'files' || !empty($o['multipleItems'])) )
+				if ( !empty($o['multipleItems']) && is_array($spGlobaleItems) && count($spGlobaleItems) > 0 )
 				{
-//var_dump('case multiple items');
 					// Loop over superglobal field indexes
 					$i = 0;
 					foreach ($spGlobaleItems as $index => $val)
@@ -494,9 +494,9 @@ var_dump($parts);
 						$i++;
 					}
 				}
+				// Case single item
 				else
 				{
-//var_dump('case single item');
 					// Assign it to the field in the $resourceData array
 					$resourceData[0][$fieldName] = $this->filterSingle($field, $spGlobaleItems, $o);
 				}

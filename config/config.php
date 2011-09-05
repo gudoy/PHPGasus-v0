@@ -10,12 +10,9 @@ define("_SUBDOMAIN", 					str_replace('.' . _DOMAIN, '', $_SERVER['HTTP_HOST']))
 
 if ( _APP_CONTEXT === 'local' )
 {
-	define("_ALLOW_FIREPHP_LOGGING", 	true);
-
 	define("_SMARTY_COMPILE_CHECK", 	true); 
 	define("_SMARTY_FORCE_COMPILE", 	true); 
 	
-	// Is minification used for css & js
 	define("_MINIFY_JS", 				false);
 	define("_MINIFY_CSS", 				false);
 }

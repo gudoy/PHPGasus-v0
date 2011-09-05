@@ -46,6 +46,8 @@ class FileManager extends Application
 		
 			# Misc
 			'text/plain' 						=> 'txt',
+			'text/xml'							=> 'xml',
+			'application/xml'					=> 'xml',
 
 			# Image files
 			'image/jpg' 						=> 'jpg',

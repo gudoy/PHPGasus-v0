@@ -207,7 +207,7 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .adminTable tbody td.typeSet .value { vertical-align:middle; } 
 .adminTable tbody td.typeSet .item { margin:1px 3px 2px 0; padding:0 5px 0 5px; display:inline-block; background:#DDD; background:-webkit-linear-gradient(white, #DDD); background:-moz-linear-gradient(white, #DDD); background:-o-linear-gradient(white, #DDD); background:-ms-linear-gradient(white, #DDD); background:linear-gradient(white, #DDD); border:1px solid #AAA; border-radius:3px; vertical-align:middle; }
 .adminTable tbody td.typeSet .item > a { width:12px; min-height:18px; padding:0 0 0 5px; display:none; content:''; text-indent:-9999em; background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAAAAADhZOFXAAAARElEQVR4XgVAQQqAIBCc589FdvMNhkLPSljZzlK3CbznLT19Y7DMPNgQzmL0gJaRFoLSyDKFrDSnTXR6rMqB3ZaU1/cDlHou1DZI6fcAAAAASUVORK5CYII=") no-repeat 50% 5px; vertical-align:middle; cursor:pointer; }
-.adminTable tbody td.typeSet details 
+.adminTable tbody td.typeSet details {}
 .adminTable tbody td.typeSet details .item { display:none; }
 .adminTable tbody td.typeSet details[open] .item { display:block; float:left; clear:both; }
 /*.js .adminTable tbody td.typeSet .item > a { display:inline-block; }*/

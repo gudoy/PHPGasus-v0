@@ -22,6 +22,11 @@
 	{$postedVal = $smarty.post[$resourceFieldName]|default:null}
 {/if}
 
+{* For ADMIN *}
+{* We do not want ontomany link to field to be displayed since we can't create them until we create the resource *}
+{if $viewMode === 'admin'}
+	{if $type === 'onetomany'}{$displayLine = false}{/if}
+{/if} 
 
 {if $displayLine}
 <div id="{$fieldName}Field" class="line type{$field.type|ucfirst}{if $field.fk} typeOneToOne{/if}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
@@ -51,9 +56,8 @@
 	</div>
 	
 	<div class="fieldBlock">
-	{if $field.relResource && ( $viewMode === 'admin' || $mode === 'create')}
-		{* include file='common/forms/admin/fieldLine/caseRelation.tpl' *}
-		{include file='common/forms/admin/fieldLine/caseOneToOne_new.tpl'}
+	{if ( $type === 'onetoone' || $field.fk ) && ( $viewMode === 'admin' || $mode === 'create')}
+		{include file='common/forms/admin/fieldLine/caseOneToOne.tpl'}
 	{elseif $type === 'int' || $type === 'float'}
 		{include file='common/forms/admin/fieldLine/caseInt.tpl'}
 	{elseif $type == 'bool'}

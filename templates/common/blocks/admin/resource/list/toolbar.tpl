@@ -1,4 +1,4 @@
-{$crudability 		= $resources[$resourceName].crudability|default:'CRUD'}
+{$crudability 		= $data._resources[$resourceName].crudability|default:'CRUD'}
 {$nbOfItemsPerPage	= $data.current.limit|default:$smarty.const._ADMIN_RESOURCES_NB_PER_PAGE}
 {$userResPerms 		= $data.current.user.auths[$resourceName]}
 <div class="menu toolbar adminToolbar adminListToolbar {$position}" id="adminListToolbar{$position|ucfirst}">
@@ -6,7 +6,7 @@
     <div class="group createButtons">
     	{if $userResPerms.allow_create}
         <span class="actions">
-            {$disabled=(strpos($crudability, 'C')>-1)?0:1}
+            {$disabled = (strpos($crudability, 'C')!== false)?0:1}
             <a class="action actionBtn add addLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}?method=create{else}#{/if}">
                 <span class="value">{'new'|gettext}</span>
             </a>
@@ -20,19 +20,19 @@
         {strip}
         	{if $userResPerms.allow_update}
             {$crudability = $data._resources[$resourceName].crudability|default:'CRUD'}
-            {$disabled=(strpos($crudability, 'U')>-1)?0:1}
+            {$disabled=(strpos($crudability, 'U')!== false)?0:1}
             <a class="action actionBtn edit editLink editAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
                 <span class="value">{'edit'|gettext}</span>
             </a>
             {/if}
             {if $userResPerms.allow_create && $userResPerms.allow_update}
-            {$disabled = (strpos($crudability, 'C')>-1&&strpos($crudability, 'U')>-1)?0:1}
+            {$disabled = (strpos($crudability, 'C')!== false && strpos($crudability, 'U')>-1)?0:1}
             <a class="action actionBtn duplicate duplicateLink duplicateAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=duplicate{else}#{/if}">
                 <span class="value">{'duplicate'|gettext}</span>
             </a>
             {/if}
             {if $userResPerms.allow_delete}
-            {$disabled = (strpos($crudability, 'D')>-1)?0:1}
+            {$disabled = (strpos($crudability, 'D')!== false)?0:1}
             <a class="action actionBtn delete deleteLink deleteAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=delete{else}#{/if}">
                 <span class="value">{'delete'|gettext}</span>
             </a>

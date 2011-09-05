@@ -1186,11 +1186,20 @@ var adminIndex =
 					//intercept 	= a, 							// Do we need to intercept click (no if no an anchor)
 					jCel 		= jt.closest('td');					// jQuery Reference to the closest <td>
 					
-				jt.focus(); 
+				jt.focus();
 				
 				if ( jt.hasClass('dataValue') || jt.hasClass('validity') )	{ return self.inlineEdit(jCel); }
 				
-				else if ( jt.is('summary') )	{ return jt.parent('details').toggleAttr('open'); }
+				//else if ( jt.is('summary') )	{ return jt.parent('details').toggleAttr('open'); }
+				else if ( jt.is('summary') )
+				{
+					$p = jt.parent('details');
+					
+					if ( $p.prop('open') === 'open' ){ $p.removeAttr('open').removeProp('open'); }
+					else { $p.prop('open','open').attr('open','open'); }
+					
+					return;
+				}
 				
 				// If the target is an input, just return
 				else if ( jt.is(':input') )

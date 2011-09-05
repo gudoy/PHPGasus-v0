@@ -43,7 +43,6 @@ define("_URL_FLASHS", 	 	 				_URL . 'public/media/flash/');
 define("_URL_IMAGES", 						_URL_STATIC_1 . 'media/images/');
 //define("_URL_IMAGES_STATIC", 				_URL . 'public/media/images/');
 define("_URL_AUDIOS", 	 	 				_URL . 'public/media/audios/');
-define("_URL_WIDGET_INSTALL", 				_URL . 'public/widget/builds/' . _APP_WIDGET_NAME);
 
 
 # SOME COMMON URIs
