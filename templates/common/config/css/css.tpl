@@ -15,8 +15,9 @@
 {else}
 {foreach $data.css as $item}
 {strip}
-{if strpos($item, $smarty.const._APP_PROTOCOL) !== false || strpos($item, $smarty.const._APP_PROTOCOL) !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
-	<link href="{$basePath}{$item}?{$version}" media="screen" rel="stylesheet" />
+{if strpos($item, 'http://') !== false || strpos($item, 'https://') !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
+{if strpos($item, 'http://') !== false || strpos($item, 'https://') !== false}{$version=''}{else}{$version='?'|cat:$version}{/if}
+	<link href="{$basePath}{$item}" media="screen" rel="stylesheet" />
 {/strip}
 {/foreach}
 {/if}

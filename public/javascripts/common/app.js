@@ -71,6 +71,10 @@ var ui =
 	// Fix wrong flexbox layouting in Firefox when browser window does not use fullscreen
 	fixFirefoxFlexbox: function()
 	{
+		var $html = $('html');
+		
+		if ( !$html.hasClass('admin') && $html.hasClass('api') ){ return this; } 
+		
         $(window).bind('resize load',function(e)
         {
         	var windowW = $(window).width(),

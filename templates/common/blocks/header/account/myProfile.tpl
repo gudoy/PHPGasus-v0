@@ -26,9 +26,9 @@
         </figure>
         <nav class="nav actions actionsBlock">
         	{block name='loggedUserProfileLink'}
-            <a rel="me" href="{$user.edit_profile_url}" id="editMyProfileLink" class="adminLink editLink editMyProfileLink">{t}my profile{/t}</a>
+            <a rel="me" class="action edit" href="{$user.edit_profile_url}" id="editMyProfileLink">{t}my profile{/t}</a>
             {/block}
-            <a rel="noindex" href="{$smarty.const._URL_LOGOUT}">{t}logout{/t}</a>
+            <a rel="noindex" class="action" href="{$smarty.const._URL_LOGOUT}">{t}logout{/t}</a>
         </nav>
     </div>  
 </div>

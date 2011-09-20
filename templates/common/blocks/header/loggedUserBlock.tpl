@@ -18,7 +18,7 @@
 			<span class="value">{$userScreenName}</span>
 		</a>
 		{/block}
-		<a class="actionBtn logoutLink" href="{$smarty.const._URL_LOGOUT}">
+		<a class="action actionBtn logoutLink" href="{$smarty.const._URL_LOGOUT}">
 			<span class="label value">{t}logout{/t}</span>
 		</a>
 	</div>

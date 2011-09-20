@@ -145,7 +145,7 @@ class Model extends Application
             // HOW TO handle RETURNING clause for mysql ??? 
             //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && $this->numFields >= 1) )
             if ( $o['type'] === 'select' || ($o['type'] === 'insert' && ($this->numFields >= 1 || !empty($o['returning']))) )
-            {       
+            {
                 $this->fetchResults($o);
             }
 
@@ -693,7 +693,7 @@ class Model extends Application
 			$this->data[] = $item;
 		}
 		
-		// Store retrieved items ids
+		// Store retrieven items ids
 		if ( !empty($item['id']) ){ $this->retrievedIds[$this->resourceName][] = $item['id']; }
 	}
 

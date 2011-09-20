@@ -112,7 +112,7 @@ class Model extends Application
 
     public function query($query, $options = null)
     {
-        $this->data = null;
+        //$this->data = null;
         
         // Connect to the db
         if ( !$this->db ) { $this->connect(); }
@@ -145,18 +145,15 @@ class Model extends Application
             
             // If the request returns results
             // HOW TO handle RETURNING clause for mysql ??? 
-            //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && !empty($o['returning'])) )
             //if ( $o['type'] === 'select' || ($o['type'] === 'insert' && $this->numFields >= 1) )
             if ( $o['type'] === 'select' || ($o['type'] === 'insert' && ($this->numFields >= 1 || !empty($o['returning']))) )			
-            {                
+            {
                 $this->fetchResults($queryResult, $o);
             }
-			
-//$this->dump('retrievenIds: ');
-//$this->dump($this->retrievedIds);
 
-			// HandleRelated
-			$this->handleRelated();
+			// HandleRelated (if not expressly disabled)
+			if ( ( defined('_APP_FETCH_RELATED_ONETOMANY') && _APP_FETCH_RELATED_ONETOMANY )
+				&& ( !isset($o['handleRelated']) || $o['handleRelated'] ) ){ $this->handleRelated(); }
             
             // For insert, we may need to do some process once the request succeed
             if ( $o['type'] === 'insert' && !empty($this->afterQuery) ){ $this->afterQuery(); }
@@ -176,31 +173,48 @@ class Model extends Application
 	public function handleRelated()
 	{
 //$this->dump(__METHOD__);
+//$this->dump($this->fetchRelated);
 		if ( empty($this->fetchRelated) ){ return; }
+		//if ( empty($this->fetchRelated) || empty($this->retrievedIds) ){ return; }
 		
 		foreach ($this->fetchRelated as $rName => $item)
 		{
-			$_r 	= &$this->resources[$rName];
-			$_c 	= &$this->application->dataModel[$rName];
-			$as 	= ( !empty($_r['alias']) ? $_r['alias'] : $rName );
+			$_r 		= &$this->resources; 								// Shortcut for datamodel resources
+			$_c 		= &$this->application->dataModel; 					// Shortcut for datamodel resources columns
+			$as 		= ( !empty($_r[$rName]['alias']) 					// Related resource alias
+							? $_r[$rName]['alias'] 
+							: $rName ); 								
+			$dest 		= explode('.', $item['injectInto']); 				// Destination (resource & column)
+			$cName 		= 'C' . ucfirst($rName); 							// Shortcut for controller name
 			
-			$dest = explode('.', $item['injectInto']);
-			$cName = 'C' . ucfirst($rName);
-			//{'C'. ucfirst($rName)}::getInstance()->index(array('injectInto' => array('resource' => $dest[0], 'column' => $dest[1]), 'related'));
+			$usePivot 	= !empty($_c[$dest[0]][$dest[1]]['pivotResource']); // Is the relation a many to many (use a pivot)?
+			$pRes 		= $usePivot 										// Pivot table name
+							? $_c[$dest[0]][$dest[1]]['pivotResource']
+							: null ;
+			$pTable 	= $usePivot 
+							? ( !empty($_r[$pRes]['table']) ? $_r[$pRes]['table'] : $pRes ) 
+							: null ;								
+			$pAlias 	= $this->resources[$pRes]['alias']; 				// Pivot table alias
+			$pLCol 		= $_c[$dest[0]][$dest[1]]['pivotLeftField']; 		// Pivot left column
+			$pRCol 		= $_c[$dest[0]][$dest[1]]['pivotRightField']; 		// Pivot right column
 			
-			//$query = 	"SELECT " . $as . "." . join(', ' . $as . ".", array_keys($_c)) . " ";
-			$query = 	"SELECT " . $as . "." . join(', ' . $as . ".", array_keys($_c)) . ", el.entry_id" . " ";
+			$query = 	"SELECT " . $as . "." . join(', ' . $as . ".", array_keys($_c[$rName])) . ", " . $pAlias . "." . $pLCol . " ";
 			$query .= 	"FROM " . ( !empty($_r['table']) ? $_r['table'] : $rName ) . ' AS ' . $as . " ";
-			$query .= 	"LEFT JOIN entries_links AS el ON el.link_id = lk.id "; 
-			$query .= 	"WHERE el.entry_id IN (" . join(', ', $this->retrievedIds['entries']) . ") ";
+			$query .= 	( $usePivot ) 
+							? "LEFT JOIN " . $pTable . " AS " . $pAlias . " ON " . $pAlias . "." . $pRCol . " =  " . $pAlias . "." . "id " 
+							: ''; 
+			$query .= 	"WHERE el.entry_id " 
+							. ( count($this->retrievedIds['entries']) === 1 
+								? " = " . (int) $this->retrievedIds['entries']
+								: "IN (" . join(', ', $this->retrievedIds['entries']) . ")"
+								) 
+							. " ";
 			
 //$this->dump($query);
 			
-			//$this->query($query, $item);
-			
-			$relData = $cName::getInstance()->index(array_merge($item, array('manualQuery' => $query)));
-$this->dump($relData);
-			//$this->data = array_merge($this->data, (array) $relData);
+			//$this->query($query, array_merge($item, array('handleRelated' => false)));
+			$tmp = $cName::getInstance()->index(array_merge(array('manualQuery' => $query, 'handleRelated' => false, 'indexBy' => $pLCol), $item));
+//var_dump($tmp);
 		}
 	}
 
@@ -547,7 +561,8 @@ $this->dump($relData);
         if ( $o['mode'] === 'count' )
         {
 //var_dump('case count');
-            $this->data = (int) mysql_result($queryResult, 0,0);
+            $row = $this->queryResult->fetch_row();
+            $this->data = (int) $row[0];
         }
         else if ( !empty($o['returning']) )
         {
@@ -565,8 +580,11 @@ $this->dump($relData);
         else if ( $o['mode'] === 'onlyOne' && ( count($o['getFields']) > 1 || empty($o['getFields']) ) )
         {
 //var_dump('several columns 1 row');
-			$data 		= mysql_fetch_array($queryResult, MYSQL_ASSOC);
-            $this->data = $this->fixData($data);
+			$row 		= mysql_fetch_array($queryResult, MYSQL_ASSOC);
+            $this->data = $this->fixData($row);
+            
+			// Store retrieved item id
+			if ( !empty($row['id']) ){ $this->retrievedIds[$this->resourceName][] = $row['id']; }
         }
         // 1 column, several rows
         else if ( $o['mode'] === 'distinct' && count($o['field']) === 1 )
@@ -596,7 +614,7 @@ $this->dump($relData);
                 while ($row = mysql_fetch_array($queryResult, MYSQL_ASSOC))
                 {
                     //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
-					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)));
+					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)), $o);
                 }
             }
             else { $this->data = array(); }
@@ -628,42 +646,56 @@ $this->dump($relData);
 		
 //$this->dump(__METHOD__);
 //$this->dump($options);
+//$this->dump($o);
+//$this->dump($this->resourceName);
 //$this->dump(isset($this->application->dataModel[$this->resourceName][$o['indexBy']]));
 		
-		// If fhe indexBy options has been passed 
-		// with an existing column of the current resource
+		// Handle unique indexing
 		// and if this column has been retrieved
-		//if ( !empty($o['indexBy']) && DataModel::isColumn($this-resourceName, $o['indexBy']) && !empty($item[$o['indexBy']]) )
-		if ( !empty($o['indexBy']) && isset($this->application->dataModel[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
-		{
-			$key 				= &$item[$o['indexBy']];
-			$this->data[$key] 	= $item;	
-		}
-		else if ( !empty($o['injectInto']) && !empty($o['injectUsing']) )
+
+		/*
+		if ( !empty($o['injectInto']) && !empty($o['injectUsing']) )
 		{
 //$this->dump('add to array with injectInto');
 //$this->dump($o);
+//$this->dump($this->options);
 //$this->dump($item);
 			$dest = explode('.', $o['injectInto']);
-			
+
+//$this->dump($this->data);			
 //$this->dump($dest);
 //$this->dump($item[$o['injectUsing']]);
+
+			// TODO: find a way to not have to do this?
+			// We need that the data be indexed by unique id
+			//if ( empty($o['indexByUnique']) ){ return; }
 			
-			/*
-			if ( isset($this->data[$dest[0]][$item[$o['injectUsing']]]) )
+			if ( isset($this->data[$item[$o['injectUsing']]]) )
 			{
-				$this->data[$dest[0]][$item[$o['injectUsing']]][$dest[1]][] = $item;
-			}*/
-			//$this->data[$dest[0]][$item[$o['injectUsing']]][$dest[1]][] = $item;
-			$this->data[$item[$o['injectUsing']]][$dest[1]][] = $item;
+				$this->data[$item[$o['injectUsing']]][$dest[1]][] = $item;
+			}
+		}
+		
+		else*/ if ( !empty($o['indexByUnique']) && !empty($item[$o['indexByUnique']]) )
+		//else if ( !empty($o['indexByUnique']) && isset($this->application->dataModel[$this->resourceName][$o['indexByUnique']]) && !empty($item[$o['indexByUnique']]) )
+		{
+			$key 				= &$item[$o['indexByUnique']];
+			$this->data[$key] 	= $item;
+		}
+		// Handle non-unique indexing
+		//else if ( !empty($o['indexBy']) && isset($this->application->dataModel[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
+		else if ( !empty($o['indexBy']) && !empty($item[$o['indexBy']]) )
+		{
+//$this->dump('case non unique indexing');
+			$key 				= &$item[$o['indexBy']];
+			$this->data[$key][] = $item;
 		}
 		else
 		{
 			$this->data[] = $item;
 		}
 		
-		
-		// Store retrieve items ids
+		// Store retrieven items ids
 		if ( !empty($item['id']) ){ $this->retrievedIds[$this->resourceName][] = $item['id']; }
 	}
 
@@ -765,7 +797,7 @@ $this->dump($relData);
 	}
 	
 	
-	public function buildSelect($options = array())
+	public function buildSelect(&$options = array())
 	{
 	    $this->init($options);
         
@@ -884,8 +916,6 @@ $this->dump($relData);
 				{
 					$relType 			= !empty($field['relType']) ? $field['relType'] : 'onetomany';
 					$relResource 		= !empty($field['relResource']) ? $field['relResource'] : $fieldName;
-
-//$this->dump($fieldName . ' : pivot' . @$field['usingPivot']);
 					
 					$relTable 			= !empty($this->resources[$relResource]['table']) ? $this->resources[$relResource]['table'] : $relResource;
 					$relResourceAlias 	= !empty($this->resources[$relResource]['alias']) ? $this->resources[$relResource]['alias'] : null;
@@ -898,19 +928,35 @@ $this->dump($relData);
 					$getFields 			= !empty($field['getFields']) ? Tools::toArray($field['getFields']) : array($relField, $this->resources[$relResource]['defaultNameField']);
 					
 					// 
-					if ( isset($field['usingPivot']) && !$field['usingPivot'] )
+					if ( defined('_APP_FETCH_RELATED_ONETOMANY') && _APP_FETCH_RELATED_ONETOMANY == true && isset($field['fetchingStrategy']) )
 					{
-//$this->dump('no pivot');
+//$this->dump('case fetch related onetomany');
+						
+						// Remove column from query fields since it's not an existing table column 
+						unset($this->queryData['fields'][$fieldName]);
+
+						if ( !$field['fetchingStrategy'] || $field['fetchingStrategy'] === 'none' ){ continue; }
+						
+						// TODO: find a way to not have to do this?
+						// We have to force indexByInique for this to work
+						$options['indexByUnique'] = 'id';
+						
+						$this->fetchRelated[$relResource] = array(
+							'injectInto' 	=> $this->resourceName . '.' . $fieldName, 
+							'injectUsing' 	=> $pivotLeftField
+						);
+						
+						continue;
+					}
+					else if ( isset($field['fetchingStrategy']) && $field['fetchingStrategy'] === 'none' )
+					{
+//$this->dump('case do no handle onetomany columns');
 						// Remove column from query fields since it's not an existing table column 
 						unset($this->queryData['fields'][$fieldName]);
 						
-						//$this->fetchRelated[] = array('column' => $fieldName, 'relResource' => $relResource, 'relColumn' => $relField);
-						//$this->fetchRelated[] = array('column' => $fieldName, 'relResource' => $relResource, 'relColumn' => $relField);
-						//$this->fetchRelated[$this->resourceName][] = array('column' => $fieldName, 'relResource' => $relResource, 'relColumn' => $relField);
-						$this->fetchRelated[$relResource] = array('injectInto' => $this->resourceName . '.' . $fieldName, 'injectUsing' => $pivotLeftField);
-//$this->dump($this->fetchRelated);
-						continue;
+						continue;				
 					}
+//$this->dump('case other'); 
 					
 					$crossJoins 		.= 'LEFT OUTER JOIN ' . $pivotTable . ( !empty($pivotAlias) ? ' AS ' . $pivotAlias : '');
 					$crossJoins 		.= ' ON ' . $this->alias . '.' . $relField . ' = ' . ( !empty($pivotAlias) ? $pivotAlias : $pivotTable ) . '.' . $pivotLeftField  . ' ';
@@ -1529,9 +1575,11 @@ $this->dump($relData);
 			if ( !empty($field['subtype']) && $field['subtype'] === 'fileMetaData' && !empty($d[$field['relatedFile']]) ) { $skip = false; }
 			
 			// except for fields whose subtype is fileDuplicate
-			else if ( !empty($field['subtype']) && $field['subtype'] === 'fileDuplicate' && !empty($field['original']) && !empty($d[$field['original']]) ) { $skip = false; }
+			elseif ( !empty($field['subtype']) && $field['subtype'] === 'fileDuplicate' && !empty($field['original']) && !empty($d[$field['original']]) ) { $skip = false; }
 			
-			//else if ( !empty($field['subtype']) && $field['subtype'] === 'uniqueID' ) { $skip = false; }
+			//elseif ( !empty($field['subtype']) && $field['subtype'] === 'uniqueID' ) { $skip = false; }
+			
+			elseif ( $field['type'] === 'onetomany' ) { $skip = true; }
 			
 			// For password fields, users can only edit their password 
 			//if ( isset($field['subtype']) && $field['subtype'] === 'password' && $this->resourceName === 'users' )
@@ -2420,6 +2468,8 @@ $this->dump($relData);
 	
 	public function index($options = array())
 	{
+		$this->data = null;
+		
 		// Set default params
 		// TODO: use $this->options instead, and use array_merge
 		$o 				= &$options;
@@ -2451,6 +2501,8 @@ $this->dump($relData);
 	
 	public function create($resourceData = null, $options = array())
 	{
+		$this->data = null;
+		
 		// Do not continue if no data has been passed 
 		if ( empty($resourceData) ) { return; }
 		
@@ -2496,6 +2548,8 @@ $this->dump($relData);
 	
 	public function retrieve($options = array())
 	{
+		$this->data = null;
+		
 		// TODO: use $this->options instead, and use array_merge
 		$o 				= &$options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
@@ -2520,6 +2574,8 @@ $this->dump($relData);
 	
 	public function update($resourceData = null, $options = array())
 	{
+		$this->data = null;
+		
 		// TODO: use $this->options instead, and use array_merge
 		$o 				= &$options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
@@ -2551,7 +2607,9 @@ $this->dump($relData);
 	
 	
 	public function delete($options = array())
-	{		
+	{
+		$this->data = null;
+		
 		$o 				= &$options;
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		$o['values'] 	= !empty($o['values']) ? $o['values'] : null;

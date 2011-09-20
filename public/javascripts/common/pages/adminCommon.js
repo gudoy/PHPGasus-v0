@@ -1113,9 +1113,37 @@ var admin =
 	
 	handleSetFields: function()
 	{
-		$('div.typeSet', 'form')
-			.find('.toggleAll')
-			.click(function(){ $(this).siblings('.fieldItem').find('input').each(function(){ this.checked = !this.checked; }); });
+		$('div.typeSet', 'form').each(function()
+		{				
+			var $this 		= $(this),
+				$all 		= $this.find('input'), 			// Reference to all the inputs
+				$none 		= $all.filter('.toggleAll'), 	// Reference to the toggleAll input
+				$noneLabel 	= $none.next('label'); 			// Reference to the toggleAll label
+				allNb 		= $all.length - 1; 				// Count of input (minus the toggleAll one)
+			;
+			
+			// Remove the 'toggleAll' input for the reference
+			$all = $all.not('.toggleAll');
+			
+			// Update the 'toggleAll' input: transform it into an hidden input
+			$noneLabel.find('a').text(function(i, val) { return val = '[' + $(this).parent().data('altvalue') + ' / ' + val + ']'; });
+			
+			// Update the 'toggleAll' label: preprend the alternative value (stored as a data attribute)
+			$none.detach().attr('type','hidden').removeAttr('value').insertBefore($noneLabel);
+
+			// Bind click events to the checkboxes and the 'toggleAll' link
+			$this
+				.delegate('input:checkbox', 'click', function(e)
+				{
+					if ( !$all.filter(':checked').length ){ $none.val('none'); }
+				})
+				.delegate('a.toggleAll', 'click', function(e)
+				{								
+					if ( $all.filter(':checked').length === allNb )	{ $all.removeAttr('checked'); $none.val('none'); }
+					else 											{ $all.attr('checked','checked'); $none.removeAttr('value'); } 		
+				})
+			;
+		});
 		
 		return this;
 	}
@@ -1127,7 +1155,10 @@ var adminIndex =
 	
 	init: function()
 	{	    
-		var self 	= this;
+		var self 	= this,
+			support = {
+				detailsSummary: ( 'open' in document.createElement('details') )
+			};
 
 		admin.init();
 		
@@ -1190,15 +1221,19 @@ var adminIndex =
 				
 				if ( jt.hasClass('dataValue') || jt.hasClass('validity') )	{ return self.inlineEdit(jCel); }
 				
-				//else if ( jt.is('summary') )	{ return jt.parent('details').toggleAttr('open'); }
 				else if ( jt.is('summary') )
 				{
-					$p = jt.parent('details');
+					if ( support.detailsSummary ){ return; }
 					
-					if ( $p.prop('open') === 'open' ){ $p.removeAttr('open').removeProp('open'); }
-					else { $p.prop('open','open').attr('open','open'); }
+					var $p = jt.parent('details');
 					
-					return;
+					if 		( $p.attr('open') === 'open' )	{ $p.removeAttr('open'); }
+					else 									{ $p.attr('open','open'); }
+					
+					e.preventDefault();
+					e.stopPropagation();
+					
+					return true;
 				}
 				
 				// If the target is an input, just return

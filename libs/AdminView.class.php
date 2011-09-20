@@ -226,8 +226,6 @@ class AdminView extends View
 		unset($u['password']);
 		$this->data['current']['user'] = $u;
 
-//var_dump($this->data['current']['user']);
-
 		// TODO: redirect + notify ('you dont have credentials to access this area')???
 		$redir = $o['failureRedirect'];
 		$redir .= ( strpos($redir, '?') !== false ? '&' : '?' ) . 'errors=9000';

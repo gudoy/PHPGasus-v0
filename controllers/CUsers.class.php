@@ -41,7 +41,8 @@ class CUsers extends Controller
 		$_POST 	= array('activation_key' => $key);
 		$this->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
 		
-		$Mailer 		= new Mailer($this->application);
+		//$Mailer 		= new Mailer($this->application);
+		$Mailer 		= new Mailer(new Application());
 		$from 			= _APP_OWNER_CONTACT_MAIL;
 		$to 			= $user['email'];
 		$subject 		= '[' . _APP_TITLE . '] ' . _('Please activate your account');

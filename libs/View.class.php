@@ -804,6 +804,7 @@ $this->dump($allowed);
             //$output = html_specialchars_decode($output, ENT_COMPAT, 'UTF-8');
             //$output = str_replace(array('<;','>'), array("&lt;", '&gt;'), $output);
 			//$output = str_replace(array("<", '>', "'", '"'), array('&lt;','&gt;', '&apos;', '&quot;'), $output);
+			$output = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '"', "'", '"'), $output);
 			exit($output);
 		}
 		else if ( $of === 'plistxml' )
@@ -1329,6 +1330,16 @@ $this->dump($allowed);
                 'resource' 					=> !empty($this->resourceName) ? $this->resourceName : null,
 			)),
 		));
+		
+		// Get user data if logged
+		if ( $this->application->logged && empty($this->data['current']['user']) )
+		{
+            $user = CUsers::getInstance()->retrieve(array('values' => $_SESSION['user_id']));
+			unset($user['password']);
+			$this->data['current']['user'] = $user;
+		}
+		
+$this->dump($this->data);
 		
 		if ( isset($v['cache']) && !$v['cache'] ){ $this->Smarty->caching = 0; }  
 

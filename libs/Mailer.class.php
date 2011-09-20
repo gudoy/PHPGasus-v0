@@ -9,7 +9,7 @@ class Mailer extends View
 	
 	public function __construct(&$application)
 	{
-		parent::__construct();
+		parent::__construct($application);
 		
 		$this->configSmarty();
 		

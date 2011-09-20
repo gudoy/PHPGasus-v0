@@ -372,7 +372,7 @@ var_dump($parts);
 	
     // TODO: index on database fetch	
 	public function reindex($options = array())
-	{		
+	{
 		// Shortcut for options and default options
 		$o 					= &$options;
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
