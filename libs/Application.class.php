@@ -110,9 +110,6 @@ class Application
 		// If the lang has still not been found, use the default language
 		if ( empty($lang) && defined('_APP_DEFAULT_LANGUAGE') ) { $lang = strtolower(_APP_DEFAULT_LANGUAGE); }
 
-//$this->dump('lang: ' . $lang);
-//die();
-
 		$parts 		= strpos($lang, '_') !== false ? explode('_', $lang) : array($lang);  
 		$language 	= $parts[0];
 		$territory 	= strtoupper( !empty($parts[1]) ? $parts[1] : $parts[0] );

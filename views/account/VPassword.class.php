@@ -100,15 +100,34 @@ class VPassword extends View
 		// If there's no error
 		if ( !empty($_POST) && !$this->data['errors'] )
 		{
+			// Since user passwords are protected against modification (only editable by logged owner)
+			// We have to temporarily log the user session
+			$curPOST = $_POST;
+			$_POST = array(
+				'name' 				=> session_id(), 
+				'user_id' 			=> $user['id'], 
+				'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + (int) _APP_SESSION_DURATION,
+				'ip' 				=> $_SERVER['REMOTE_ADDR'],
+			);
+			$sid = CSessions::getInstance()->create(array('isApi' => 1, 'returning' => 'id'));
+			// Store the session data
+			$_SESSION = array_merge((array) $_SESSION, array(
+			     'id'            => session_id(), 
+			     'user_id'       => $user['id'],
+            ));
+			
 			// If everything is ok, reset the user password
+			$_POST = $curPOST;
 			$_POST = array('password' => $_POST['userNewPassword'], 'password_reset_key' => '');
 			
-			// Since user passwords are protected againts modification (only editable by logged owner)
-			// We have to insert it temporarily into the session
-			// Only then we'll the password change can be done
-			$_SESSION['user_id'] = $user['id'];
+//$this->dump($_POST);
+//$this->dump($_SESSION);
+			
+			// Only then can the password be changed			
 			$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
+			$this->application->logged = false;
 			unset($_SESSION);
+			session_destroy();
 			
 			$this->data['success'] = $CUsers->success;
 		}

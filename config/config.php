@@ -46,7 +46,6 @@ if ( _APP_CONTEXT === 'dev' )
 // in the the other environnement's configuration ABOVE
 
 # Get the projet full path on the server
-//define("_PATH",							getcwd() . '/'); // does not return the expected path when called via CLI
 define("_PATH",							realpath((dirname(realpath(__FILE__))) . '/../') . '/'); // 
 
 # Get app name using base projet folder name

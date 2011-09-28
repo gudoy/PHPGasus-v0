@@ -9,6 +9,7 @@
 {$langAttr 			= 'lang="'|cat:$curLang|cat:'"'}
 
 {if $doctype === 'html5' && $data.options.output !== 'xhtml'}
+{$htmlAttrbitues 	= " $langAttr $xmllang"}
 {elseif $doctype === 'xhtml-strict-1.1'}
 {$doctypeCompl 		= ' PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"'}
 {$htmlAttrbitues 	= " $xmlns $xmllang"}

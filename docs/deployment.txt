@@ -40,6 +40,7 @@ svn co https://svn.yourdomain.com/mynewproject/trunk/
 4) FOLDER PERMISSIONS
 ************************************
 
-CHMOD tmp/ 777
-CHMOD templates/templates_c/ 777
-CHMOD libs/templating/smarty3/cache/ 777 
+CHMOD tmp/ >755
+CHMOD templates/templates_c/ >755
+CHMOD libs/templating/smarty3/cache/ >755
+[CHMOD i18n/ >755] (only if you use i18n)
