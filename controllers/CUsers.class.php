@@ -65,7 +65,8 @@ class CUsers extends Controller
 		
 		$user = $this->retrieve(array('conditions' => array('id' => $userId)));
 		
-		$Mailer 		= new Mailer($this->application);
+		//$Mailer 		= new Mailer($this->application);
+		$Mailer 		= new Mailer(new Application);
 		$from 			= _APP_OWNER_CONTACT_MAIL;
 		$to 			= $user['email'];
 		$subject 		= '[' . _APP_TITLE . '] ' . _('Reset your password');

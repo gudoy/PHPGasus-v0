@@ -144,7 +144,7 @@ class Application
 		
 		// Specific case for session forwarding from iphone/ipod/ipad app to safari where the session id is 
 		// passed in the URL.
-		$ua = $_SERVER['HTTP_USER_AGENT'];
+		$ua = !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
 		//if ( (strpos($ua, 'iPhone') !== false || strpos($ua, 'iPod') !== false || strpos($ua, 'iPad') !== false ) && !empty($_GET[_SESSION_NAME]) )
 		//if ( _APP_ALLOW_GET_SID_FROM_URL && !empty($_REQUEST[_SESSION_NAME]) )
 		if ( _APP_ALLOW_GET_SID_FROM_URL && ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) )

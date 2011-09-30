@@ -40,7 +40,7 @@ define("_URL_DESIGN", 	 					_URL . 'public/stylesheets/default/images/');
 define("_URL_MEDIA", 	 	 				_URL . 'public/media/');
 define("_URL_FLASHS", 	 	 				_URL . 'public/media/flash/');
 //define("_URL_FLASHS", 	 	 				_URL_STATIC_1 . 'media/flash/');
-define("_URL_IMAGES", 						_URL_STATIC_1 . 'media/images/');
+define("_URL_IMAGES", 						_URL . 'public/media/images/');
 //define("_URL_IMAGES_STATIC", 				_URL . 'public/media/images/');
 define("_URL_AUDIOS", 	 	 				_URL . 'public/media/audios/');
 

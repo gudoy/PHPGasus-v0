@@ -20,7 +20,7 @@ define('_APP_OWNER_MAP_URL', 					'');
 
 ### SOME HTML RELATED OPTIONS
 define('_APP_DEFAULT_LANGUAGE', 				'fr_FR'); 		// or en_US, en_GB, de_DE, es_EN, it_IT, ja_JP, zh_CN, ko_KR
-define('_APP_LANGUAGES', 						'fr_FR'); 		// List of languages (translatations) for the app, separated by comas
+define('_APP_LANGUAGES', 						'fr_FR,en_US');// List of languages (translatations) for the app, separated by comas
 define('_APP_DOCTYPE', 							'html5');		// 'html5', 'xhtml-strict-1.1', 'xhtml-strict', 'xhtml-transitional', 
 define('_APP_DEFAULT_OUTPUT_FORMAT', 			'html');		// Is there case where it won't be html?
 define('_APP_DEFAULT_OUTPUT_MIME', 				'text/html');	// 

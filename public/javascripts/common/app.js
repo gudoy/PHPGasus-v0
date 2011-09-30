@@ -73,7 +73,7 @@ var ui =
 	{
 		var $html = $('html');
 		
-		if ( !$html.hasClass('admin') && $html.hasClass('api') ){ return this; } 
+		if ( !$html.hasClass('admin') && !$html.hasClass('api') ){ return this; } 
 		
         $(window).bind('resize load',function(e)
         {
