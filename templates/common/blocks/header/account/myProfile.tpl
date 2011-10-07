@@ -26,7 +26,7 @@
         </figure>
         <nav class="nav actions actionsBlock">
         	{block name='loggedUserProfileLink'}
-            <a rel="me" class="action edit" href="{$user.edit_profile_url}" id="editMyProfileLink">{t}my profile{/t}</a>
+            <a class="action edit password" href="{$smarty.const._URL_ACCOUNT_PASSWORD_CHANGE}">{t}change password{/t}</a>
             {/block}
             <a rel="noindex" class="action" href="{$smarty.const._URL_LOGOUT}">{t}logout{/t}</a>
         </nav>

@@ -14,6 +14,18 @@ CREATE TABLE IF NOT EXISTS `admin_logs` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE IF NOT EXISTS `bans` (
+  `id` int(11) NOT NULL auto_increment,
+  `ip` varchar(40) NOT NULL,
+  `reason` varchar(32) NOT NULL,
+  `end_date` timestamp NULL default NULL,
+  `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `ip` (`ip`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+
 
 CREATE TABLE IF NOT EXISTS `groups` (
   `id` int(11) NOT NULL auto_increment,
@@ -114,6 +126,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL auto_increment,
   `email` varchar(255) default NULL,
   `password` varchar(64) NOT NULL,
+  `password_expiration` timestamp NOT NULL,
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,
   `name` varchar(128) default NULL,

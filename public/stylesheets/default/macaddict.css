@@ -235,10 +235,6 @@ footer.menu { display:none; }
 #branding a { color:#000; text-transform:capitalize; text-decoration:none; }
 /*#adminMainNav { margin:10px; clear:none; }*/
 .js #mainNavBlock > .nav { padding:0 20px; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; border:1px solid #515151; -webkit-box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; }
-#myAccountNavBlock { position:absolute; top:5px; right:10px; }
-#myAccountNavBlock .titleBlock .title { font-weight:normal; }
-#myAccountNavBlock .details { background:#fefefe; border:1px solid #bebebe; }
-#myAccountNavBlock .nav a { margin-bottom:10px; }
 #header .nav a { text-decoration:none; letter-spacing:normal; }
 #header .nav .item-lv1 > a { -webkit-tap-highlight-color:rgba(0,0,0,0.5); }
 #header .nav-lv2 { margin:0; padding:0; background:#fefefe; border:1px solid #bebebe; }
@@ -247,6 +243,11 @@ footer.menu { display:none; }
 #header .nav .item-lv2.current { background:#1942ee; background:-webkit-gradient(linear, left top, left bottom, from(#5170f6), to(#1942ee)); background:-webkit-linear-gradient(#5170f6, #1942ee); background:-moz-linear-gradient(#5170f6, #1942ee); background:-o-linear-gradient(#5170f6, #1942ee); background:-ms-linear-gradient(#5170f6, #1942ee); background:linear-gradient(#5170f6, #1942ee); } 
 #header .nav .item-lv2.current > a { color:#fff; font-weight:bold; border:none; }
 #header .nav .item-lv2 > a .value { text-transform:capitalize; }
+#myAccountNavBlock { position:absolute; top:5px; right:10px; }
+#myAccountNavBlock .titleBlock .title { font-weight:normal; }
+#myAccountNavBlock .details { background:#fefefe; border:1px solid #bebebe; }
+#myAccountNavBlock .nav { /*top:1em;*/ }
+#myAccountNavBlock .nav a { margin-bottom:10px; clear:both; background:none; color:#3C65D7; text-transform:capitalize; text-decoration:underline; }
 
 #header .item-lv1 > a .value { font-size:13px; color:#000; text-shadow:0 1px 0 rgba(255,255,255,0.6); text-transform:uppercase; }
 /* End Header */

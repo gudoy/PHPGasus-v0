@@ -15,6 +15,8 @@ class VApi extends ApiView
 		// Prevent public access to api reference
 		$this->requireLogin();
 		
+		$this->requireAuth();
+		
 		$this->data['view']['name'] 	= 'apiHome';
 		$this->data['view']['template'] = 'specific/pages/api/index.tpl'; 
 		

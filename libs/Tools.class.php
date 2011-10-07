@@ -2,6 +2,16 @@
 
 class Tools
 {
+	// Only works in php >5.3
+	static function __callStatic($name, $args)
+	{
+		if ( substr($name, 0, 8) === 'sanitize' )
+		{
+			$type = strtolower(str_replace('sanitize','',$name));
+			return self::sanitize($args[0], array('type' => $type));
+		}
+	}
+	
     
     static function deaccentize($str)
     {
@@ -351,8 +361,7 @@ class Tools
 	{
 		
 	}
-
-	// TODO
+	
 	static function sanitize($value, $params = array())
 	{
 		$p = array_merge(array(
@@ -362,6 +371,8 @@ class Tools
 		// ints
 		if ( in_array($p['type'], array('int', 'integer', 'numeric', 'tinyint', 'smallint', 'mediumint', 'bigint')) )
 		{
+			// TODO: handle min & max values 
+			
 			//$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
 			$value = is_numeric($value) ? intval($value) : false;
 			//$value = intval($value);
@@ -376,12 +387,12 @@ class Tools
 			$value = in_array($f, array(1,true,'1','true','t'), true) ? 1 : 0;
 		}
 		// phone number
-		else if ( $p['type'] === 'tel' )
+		elseif ( $p['type'] === 'tel' )
 		{
 			$value = preg_replace('/\D/', '', $value);
 		}
 		// TODO: all other types
-		else
+		elseif ( $p['type'] === 'string' )
 		{
 			$value = filter_var($value, FILTER_SANITIZE_STRING);
 		}

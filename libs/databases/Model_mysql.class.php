@@ -2619,7 +2619,7 @@ class Model extends Application
 		if ( empty($o['values']) && empty($o['conditions']) ) { return false; }
 		
 		// Build the proper query
-		$query = $this->buildDelete($o);
+		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildDelete($o);
 		
 		$this->dump($query);
 

@@ -460,10 +460,14 @@ class Application
 			error_reporting(E_ERROR | E_PARSE);
 		}
 
+
+		// Prevent cookie manipulation via javascript
 		ini_set('session.cookie_httponly', 	1);
-		ini_set('session.cookie_secure', 	_APP_PROTOCOL === 'https' ? 1 :0 ); // Only active this when used with https
 		
-		// 
+		// Secure session cookies if login is only activated through https,
+		ini_set('session.cookie_secure', ( _APP_HTTPSONLY_LOGIN && strpos(_APP_PROTOCOL, 'https') !== false ) ? 1 : 0);	
+		
+		// Always disable register globals 
 		ini_set('register_globals', 0);
 		
 		ini_set('xdebug.var_display_max_depth', 6);

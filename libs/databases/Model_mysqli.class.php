@@ -2613,12 +2613,12 @@ class Model extends Application
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		$o['values'] 	= !empty($o['values']) ? $o['values'] : null;
 		$o['type'] 		= 'delete';
-		
+				
 		// Do not continue if no value has been passed
-		if ( empty($o['values']) && empty($o['conditions']) ) { return false; }
+		if ( empty($o['values']) && empty($o['conditions']) && empty($o['manualQuery']) ) { return false; }
 		
 		// Build the proper query
-		$query = $this->buildDelete($o);
+		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildDelete($o);
 		
 		$this->dump($query);
 

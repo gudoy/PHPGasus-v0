@@ -62,7 +62,7 @@ define("_URL_ACCOUNT_CONFIRMATION", 		_URL . 'account/confirmation');
 //define("_URL_FORGOTTEN_PASSWORD", 			_URL . 'account/password/forgotten');
 //define("_URL_EDIT_PASSWORD", 				_URL . 'account/password');
 define("_URL_ACCOUNT_PASSWORD_LOST", 		_URL . 'account/password/lost');
-define("_URL_ACCOUNT_PASSWORD_EDIT", 		_URL . 'account/password/new');
+define("_URL_ACCOUNT_PASSWORD_CHANGE", 		_URL . 'account/password/change');
 define("_URL_ACCOUNT_PASSWORD_RESET", 		_URL . 'account/password/reset');
 define("_URL_RESEND_CONFIRMATION_MAIL", 	_URL . 'account/confirmation');
 define("_URL_ABOUT", 						_URL . 'about');

@@ -1,0 +1,1 @@
+{extends file='common/pages/account/password/change.tpl'}

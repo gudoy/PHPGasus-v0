@@ -18,6 +18,28 @@ class ApiView extends View
 		return parent::dispatchMethods($args, $params);
 	}
 	
+	public function hasAuth()
+	{
+		if ( empty($_SESSION['user_id']) ){ return false; }
+		
+		// Get the user id
+		$uid = $_SESSION['user_id'];
+		
+		// Get logged user data
+		$u 			= CUsers::getInstance()->retrieve(array('values' => $uid));
+		$gpNames 	= !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array(); 
+		
+		// Look for allowed group names
+		$intersect = array_intersect($gpNames, array('gods','superadmin','admin','apiclient'));
+		
+		return !empty($intersect);
+	}
+	
+	public function requireAuth()
+	{
+		if ( !$this->hasAuth() ){ $this->redirect(_URL_HOME); } 
+	}
+	
 	public function validateRequest()
 	{
 		if ( empty($_GET['requestSign']) || empty($_GET['accessKeyId']) ){ $this->respondError(401); }

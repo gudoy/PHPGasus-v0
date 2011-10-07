@@ -18,7 +18,7 @@ class MMedias extends Model
 		return parent::index($options);
 	}
 	
-	public function retrieve($options)
+	public function retrieve($options = array())
 	{
 		$o 				= &$options;
 		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'importance';

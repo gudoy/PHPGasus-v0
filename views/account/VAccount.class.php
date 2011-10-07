@@ -119,6 +119,9 @@ class VAccount extends View
 
 			// If user is not confirmed
 			if ( defined('_APP_USE_ACCOUNTS_CONFIRMATION') && _APP_USE_ACCOUNTS_CONFIRMATION && !$user['activated'] ){ $this->data['errors'][] = 10005; $this->statusCode(401); goto render; }
+
+			// If password is expired
+			if ( $user['password_expiration'] < ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() )){ $this->data['errors'][] = 10033; $this->redirect(_URL_ACCOUNT_PASSWORD_CHANGE . '?errors=10033'); }
 			
 			// Build session data (after saving current post data)
 			$savePOST = $_POST;

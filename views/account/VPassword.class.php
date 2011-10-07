@@ -35,6 +35,17 @@ class VPassword extends View
 				$CUsers->sendResetPasswordMail($user['id']);
 				
 				$this->data['success'] = true;
+				
+				/*
+				// If password expiration feature is activated
+				if ( defined('_APP_PASSWORDS_EXPIRATION') && _APP_PASSWORDS_EXPIRATION > 0 )
+				{
+					$curTime = !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+					$_POST = array(
+						'password_expiration' => $curTime + _APP_PASSWORDS_EXPIRATION
+					);
+					$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));	
+				}*/
 			}
 		}
 
@@ -117,11 +128,13 @@ class VPassword extends View
             ));
 			
 			// If everything is ok, reset the user password
-			$_POST = $curPOST;
-			$_POST = array('password' => $_POST['userNewPassword'], 'password_reset_key' => '');
-			
-//$this->dump($_POST);
-//$this->dump($_SESSION);
+			$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+			$_POST 		= $curPOST;
+			$_POST 		= array(
+				'password' 				=> $_POST['userNewPassword'], 
+				'password_reset_key' 	=> '',
+				'password_expiration' 	=> _APP_PASSWORDS_EXPIRATION_TIME > 0 ? $curTime + _APP_PASSWORDS_EXPIRATION_TIME : null,
+			);
 			
 			// Only then can the password be changed			
 			$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
@@ -134,31 +147,66 @@ class VPassword extends View
 		
 		end:
 		return $this->render();
+		;
 	}
 	
-	/*
 	public function change()
 	{
+		// Require the user to be logged
+		$this->requireLogin();
+		
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
-			'name'           => 'accountPassword' . ucfirst(__FUNCTION__),
+			'name'          => 'accountPassword' . ucfirst(__FUNCTION__),
 			'method' 		=> __FUNCTION__,
 			'template'		=> 'specific/pages/account/password/' . __FUNCTION__ . '.tpl',
 		));
-		
+
 		if ( !empty($_POST) )
-		{
-			// Check for required fields
-			$req 		= array('userEmail','userOldPassword','userNewPassword','userNewPasswordConfirm');
-			$present 	= array_intersect($_POST,$req);
+		{			
+			// Required params (param => error code if missing)
+			$req = array('userOldPassword' => 20012, 'userNewPassword' => 20013, 'userNewPasswordConfirm' => 20014);
+
+			// Foreach of the required params
+			foreach ($req as $key => $val)
+			{
+				// If it has been passed, and is not empty after beeing sanitized, just continue
+				if ( isset($_POST[$key])
+					&& ($_POST[$key] = Tools::sanitizeString($_POST[$key])) 
+					&& !empty($_POST[$key]) ) { continue; }
+				
+				// Otherwise, return the proper error 
+				$this->data['errors'][] = $val;
+			}
+			if ( !empty($this->data['errors']) ){ $this->render(); }
 			
-			// Compare required fields list with passed one
-			if ( $present !== $req ) { $this->data['errors'][1001] = join(', ', $present); }
+			// Check if password and password confirmation are the same
+			if ( $_POST['userNewPassword'] !== $_POST['userNewPasswordConfirm'] ) { $this->data['errors'][] = '10004'; $this->render(); }
 			
-			// If everything is ok, reset the user password
+			// Get user data
+			$CUsers = new CUsers();
+			$user 	= $CUsers->retrieve(array('by' => 'id', 'values' => $_SESSION['user_id']));
+			
+			// If pass does not match the stored one
+			if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10016; $this->render(); }
+			
+			// If everything is ok, update the user password
+			if ( empty($this->data['errors']) )
+			{
+				$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+				$_POST 		= array(
+					'password' 				=> $_POST['userNewPassword'], 
+					'password_reset_key' 	=> '',
+					'password_expiration' 	=> _APP_PASSWORDS_EXPIRATION_TIME > 0 ? $curTime + _APP_PASSWORDS_EXPIRATION_TIME : null,
+				);
+				$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
+				$_POST 		= array();
+				
+				$this->data['success'] = $CUsers->success;
+			}
 		}
 
-		return $this->render();
-	}*/
+		$this->render();
+	}
 	
 };
 

@@ -69,12 +69,14 @@ define('_APP_USE_ACCOUNTS', 					true); 			// Disable this prevent app from tryi
 define('_APP_ALLOW_SIGNUP', 					false); 		// Allow users to sign up by themselves
 define('_APP_SESSION_DURATION', 				900); 			// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 		true); 			// 
+define('_APP_HTTPSONLY_LOGIN', 					true); 			// Only allow login on HTTPS (add 'httpOnly' & 'secure' params to session/cookies)
 define('_APP_KEEP_OLD_SESSIONS', 				false); 		// By default, when a user login, its sessions older than 1 day are deleted
 define('_APP_USE_ACCOUNTS_CONFIRMATION', 		true);          // Will require accounts to be confirmed (email sent with activation link)
 define('_APP_MAX_LOGIN_ATTEMPTS', 				5);          	// If the user tries to login more than X times, it's account will be blocked for some time (0 = no limit)
 define('_APP_MAX_LOGIN_ATTEMPTS_BAN_TIME', 		7200);          // Duration (in seconds) of the ban of the account due to too many login attemps
 define('_APP_ALLOW_LOST_PASSWORD_RESET', 		true); 			// Allow users to reset their's password (send a mail with a link to reset it)
 define('_APP_IP_WHITELIST', 					''); 			// CSV list of IP adresses than could not be banned. Ex: 127.0.0.1,192.168.0.1
+define('_APP_PASSWORDS_EXPIRATION', 			0); 			// (in seconds). Use this to make password valid only for a specific duration (set 0 to disable this)
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 						'yourAccessKeyHere');
