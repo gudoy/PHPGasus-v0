@@ -1,5 +1,4 @@
-{block name='beforeErrorsMain'}{/block}
-{block name='errorsMain'}
+{block name='errorsBlock'}
 {if count($data.errors)}
 <div id="errorsBlock" class="notificationsBlock errorsBlock">
 	<ul class="errors errorsList">
@@ -10,4 +9,3 @@
 </div>
 {/if}
 {/block}
-{block name='afterErrorsMain'}{/block}

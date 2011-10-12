@@ -126,6 +126,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL auto_increment,
   `email` varchar(255) default NULL,
   `password` varchar(64) NOT NULL,
+  `password_old_1` varchar(64) NOT NULL,
+  `password_old_2` varchar(64) NOT NULL,
   `password_expiration` timestamp NOT NULL,
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,

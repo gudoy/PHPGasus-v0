@@ -1093,11 +1093,13 @@ $this->dump($allowed);
 		
 		// Store current errors (error codes)
 		$urlErrors = !empty($this->options['errors']) ? explode(',',$this->options['errors']) : array();
+		
 		//$tmpErrors = array_merge((array) $this->data['errors'], $urlErrors);
 		// array_merge fails on associative arrays whose keys are valid numerics
 		// ie: array_merge(array(1001 => 'somevalue'), array('foo')) results int array(0 => 'somevalue') (expected: array('1001' => 'somevalue', 0 => 'foo')
 		//$tmpErrors = (array) $this->data['errors'] + $urlErrors;
-		$tmpErrors = !empty($this->data['errors']) ? (array) $this->data['errors'] + $urlErrors : null;
+		//$tmpErrors = !empty($this->data['errors']) ? (array) $this->data['errors'] + $urlErrors : null;
+		$tmpErrors = ( !empty($this->data['errors']) ? (array) $this->data['errors'] : array() ) + ( !empty($urlErrors) ? $urlErrors : array() );
 		
 		// If there's no errors, do not continue
 		if ( empty($tmpErrors) ) { return $this; }
@@ -1208,22 +1210,13 @@ $this->dump($allowed);
 			default: 	$h = '200 OK'; 						break;
 		}
 		
-		//header('HTTP/1.1 ' . $h); 
-		//$this->headers[] = 'HTTP/1.1 ' . $h;
-		
 		// As long as the output format is not html and the code not 201
 		// (sending) a 201 
-		//if ( !in_array($this->options['output'], array('html','xhtml')) && !in_array($h, array(201)) )
 		if ( !in_array($this->options['output'], array('html','xhtml')) || !in_array($h, array(201)) )
 		{
 			// Add it to the headers
 			$this->headers[] = 'HTTP/1.1 ' . $h;
 		}
-		
-		$this->data = array_merge($this->data, array(
-			//'request' 	=> str_replace('&', '&amp;', $_SERVER['REQUEST_URI']),
-			//'status' 	=> (int) $statusCode,
-		));
 
 		//return $this->display();
 		//return in_array($this->options['output'], array('html','xhtml')) ? $this : $this->display();

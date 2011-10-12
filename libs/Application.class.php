@@ -242,7 +242,7 @@ class Application
 		if ( !_APP_USE_ACCOUNTS ){ return $this; }
 		
 		// Force timezone
-		date_default_timezone_set('UTC');
+		//date_default_timezone_set('UTC');
 		
 		// Get current page url
 		$curURL = $this->currentURL();
@@ -258,8 +258,16 @@ class Application
 		
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
 		if ( !$this->isLogged() )
-		{	
-			$this->data['errors'][] = 10100;		
+		{
+			$this->data['errors'][] = 10100;
+			
+			// In API views with output other than (x)html, do no redirect
+			// but instead, just return an error with proper status code 
+			if ( $this instanceof ApiView && !in_array($this->options['output'], array('html','xhtml')) )
+			{
+				return $this->statusCode(401); 
+			}
+				
 			return $this->redirect(_URL_LOGIN . '?successRedirect=' . $redir);
 		}
 		
@@ -362,10 +370,11 @@ class Application
 		}
 		
 		// If the file is correctly loaded
-		if( require($view['path'] . '/' . $view['fullname'] . '.class.php') )
-		{
+		if( ($loaded = require($view['path'] . '/' . $view['fullname'] . '.class.php')) && $loaded && class_exists($view['fullname']) )
+		{			
 			// Get method and arguments
-			$method		= !empty($s[0]) && method_exists($view['fullname'], $s[0]) ? array_shift($s) : 'index';			
+			// checking if method exists and does not start by an '_' char (used for methods that should not be exposed)
+			$method		= !empty($s[0]) && method_exists($view['fullname'], $s[0]) && $s[0][0] !== '_' ? array_shift($s) : 'index';			
 			$arguments 	= !empty($s) ? $s : array();
 			
 			// Call the proper function with the proper arguments after having instanciated the proper function

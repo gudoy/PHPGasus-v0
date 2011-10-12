@@ -10,7 +10,6 @@ $_resourcesGroups = array(
 
 
 ### DATAMODEL: RESOURCES ###
-// Deprecated
 $resources = array(
 'adminlogs' 		=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs'),
 'apps' 				=> array('singular' => 'app', 'alias' => 'app', 'defaultNameField' => 'admin_title', 'searchable' => 1),
@@ -254,6 +253,8 @@ $dataModel = array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
 	'email' 				=> array('type' => 'varchar', 'subtype' => 'email', 'list' => 3, 'searchable' => 1),
 	'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 1, 'exposed' => 0),
+	'password_old_1' 		=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 1, 'exposed' => 0),
+	'password_old_2' 		=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 1, 'exposed' => 0),
 	'password_expiration'	=> array('type' => 'timestamp', 'editable' => 0, 'searchable' => 0, 'list' => 1, 'default' => null),
 	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 3, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 0),
 	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 3, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 0),

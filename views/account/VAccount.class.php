@@ -49,10 +49,8 @@ class VAccount extends View
 		{
 			$this->data['success'] = true;
 			
-			//$url = !empty($redir) ? $redir : _URL_HOME;
 			$url = !empty($redir) ? _URL . $redir : _URL_HOME;
 			$this->redirect($url);
-			//if ( empty($redir) ){ $this->redirect(_URL_HOME); }
 		}
 		
 		// If max login attemps feature has beend activated
@@ -71,23 +69,20 @@ class VAccount extends View
 			}
 		}
 		
-		// Load proper controller and instanciate it
-		//$this->requireControllers('CSessions');
+		// Instanciate proper controller
 		$CSessions = new CSessions();
 		
 		// If data have been posted
 		if ( !empty($_POST) )
-		{
-			// Increase login attemps count
-			$_SESSION['login_attemps'] = isset($_SESSION['login_attemps']) ? $_SESSION['login_attemps']+1 : 1;
-			
-			// If the user login attemps reached the max allowed one, ban it's ip for some time
+		{			
+			// If the user login attemps reached the max allowed one
 			// and if its IP it not in the whitelist
 			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') 
 				&& _APP_MAX_LOGIN_ATTEMPTS >= 1 
-				&& $_SESSION['login_attemps'] > _APP_MAX_LOGIN_ATTEMPTS
+				&& isset($_SESSION['login_attemps']) && $_SESSION['login_attemps'] >= _APP_MAX_LOGIN_ATTEMPTS
 				&& ( !defined('_APP_IP_WHITELIST') || !in_array($_SERVER['REMOTE_ADDR'], explode(',',_APP_IP_WHITELIST)) ) )
 			{
+				// Ban it's ip for some time
 				$_POST = array(
 					'ip' 		=> $_SERVER['REMOTE_ADDR'],
 					'reason' 	=> 'max login allowed attemps',
@@ -95,33 +90,57 @@ class VAccount extends View
 				);
 				CBans::getInstance()->create(array('isApi' => 1));
 				
+				// Add the proper error
 				$this->data['errors'][] = 10030;
 				
+				// Reset login attemps count (to avoid conflicts when it will be unbanned)
+				unset($_SESSION['login_attemps']);
+				
+				// And finaly return with the proper status code
 				return $this->statusCode(401);
 			}
 			
+			// Increase login attemps count
+			$_SESSION['login_attemps'] = isset($_SESSION['login_attemps']) ? $_SESSION['login_attemps']+1 : 1;
+			
+			// Add a warning with remaining login attempts
+			if ( $_SESSION['login_attemps'] >= 1 ){ $this->data['warnings'][10031] = _APP_MAX_LOGIN_ATTEMPTS - $_SESSION['login_attemps']; }
+			
 			// Check for the required params
-			$reqParams = array('userEmail' => 20010, 'userPassword' => 20012);
-			foreach ($reqParams as $key => $val){ if ( empty($_POST[$key]) ) { $this->data['errors'][] = $val; $this->statusCode(400); goto render; } }
+			$req = array('userEmail' => 20010, 'userPassword' => 20012);
+			foreach ($req as $key => $val){ if ( empty($_POST[$key]) ) { $this->data['errors'][] = $val; $this->statusCode(400); return $this->render(); } }
+			
+			// Filter POST data
+			$email 			= !empty($_POST['userEmail']) 			? filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL) : null;
+			$pass 			= !empty($_POST['userPassword']) 		? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : null; 
+			$resolution 	= !empty($_POST['deviceResolution']) 	? filter_var($_POST['deviceResolution'], FILTER_SANITIZE_STRING) : null;
+			$orientation 	= !empty($_POST['deviceOrientation']) 	? filter_var($_POST['deviceOrientation'], FILTER_SANITIZE_STRING) : null;
 			
 			// Get the user data
-			$email           = !empty($_POST['userEmail']) ? filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL) : null;
-			$pass            = !empty($_POST['userPassword']) ? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : null; 
-			$user            = CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email));
-			$resolution      = $_POST['deviceResolution'] ? filter_var($_POST['deviceResolution'], FILTER_SANITIZE_STRING) : null;
-			$orientation     = $_POST['deviceOrientation'] ? filter_var($_POST['deviceOrientation'], FILTER_SANITIZE_STRING) : null;
+			$CUsers 		= new CUsers();
+			$user 			= $CUsers->retrieve(array('by' => 'email', 'values' => $email));
+			
+//var_dump($user);
 			
 			// If user mail is not found
-			if ( empty($user) ){ $this->data['errors'][] = 10002; $this->statusCode(401); goto render; }
+			if ( !$user ){ $this->data['errors'][] = 10002; $this->statusCode(401); return $this->render(); }
 			
 			// If pass does not match the stored one
-			if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); goto render; }
+			if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); return $this->render(); }
 
 			// If user is not confirmed
-			if ( defined('_APP_USE_ACCOUNTS_CONFIRMATION') && _APP_USE_ACCOUNTS_CONFIRMATION && !$user['activated'] ){ $this->data['errors'][] = 10005; $this->statusCode(401); goto render; }
+			if ( defined('_APP_USE_ACCOUNTS_CONFIRMATION') 
+				&& _APP_USE_ACCOUNTS_CONFIRMATION && !$user['activated'] )
+			{ $this->data['errors'][] = 10005; $this->statusCode(401); return $this->render(); }
 
-			// If password is expired
-			if ( $user['password_expiration'] < ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() )){ $this->data['errors'][] = 10033; $this->redirect(_URL_ACCOUNT_PASSWORD_CHANGE . '?errors=10033'); }
+			// If password is expired 
+			// and user does not belongs to a groups who is not exempted of password expirations
+			if ( defined('_APP_PASSWORDS_EXPIRATION_TIME') 
+				&& _APP_PASSWORDS_EXPIRATION_TIME > 0 
+				&& ( !$user['password_expiration'] || $user['password_expiration'] < (!empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time()) )
+				&& ( !($uGps = array_intersect((array) Tools::toArray(_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS), (array) Tools::toArray($user['group_admin_titles']))) && empty($uGps) )
+			)
+			{ $this->data['errors'][] = 10033; $this->redirect(_URL_ACCOUNT_PASSWORD_EXPIRED . '?errors=10033'); }
 			
 			// Build session data (after saving current post data)
 			$savePOST = $_POST;
@@ -149,7 +168,11 @@ class VAccount extends View
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
 		{
+			// Clean the POST
 			unset($_POST);
+			
+			// Remove remaning attempts warning by deleting all warnings
+			unset($this->data['warnings']);
 			
 			// Store the session data
 			$_SESSION = array_merge((array) $_SESSION, array(
@@ -159,7 +182,8 @@ class VAccount extends View
 			     'orientation'   => $orientation,
 			     'login_attemps' => 0, // reset login attemps
             ));
-			$this->logged = true;
+			$this->logged 				= true;
+			$this->application->logged 	= true;
 			
 			// Clean old expired session for this user id
 			!_APP_KEEP_OLD_SESSIONS && $CSessions->delete(array(
@@ -178,9 +202,7 @@ class VAccount extends View
 			$this->respondError(201);
 		}
 		
-		render:
 		return $this->render();
-		;
 	}
 	
 	

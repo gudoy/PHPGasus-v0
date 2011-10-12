@@ -4,9 +4,8 @@
 
     {include file='common/layout/header.tpl'}
     
-    {if !isset($view.errorsBlock) || (isset($view.errorsBlock) && $view.errorsBlock)}
-    {include file='common/config/errors.tpl'}
-    {/if}
+    {if !isset($view.errorsBlock) || (isset($view.errorsBlock) && $view.errorsBlock)}{include file='common/config/errors.tpl'}{/if}
+    {if !isset($view.warningsBlock) || (isset($view.warningsBlock) && $view.warningsBlock)}{include file='common/config/warnings.tpl'}{/if}
     
     {block name='bodyContent'}
     <div id="body">

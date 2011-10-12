@@ -213,7 +213,11 @@ class Model extends Application
 //$this->dump($query);
 			
 			//$this->query($query, array_merge($item, array('handleRelated' => false)));
-			$tmp = $cName::getInstance()->index(array_merge(array('manualQuery' => $query, 'handleRelated' => false, 'indexBy' => $pLCol), $item));
+			// $cName::getInstance() is invalid if PHP < 5.3
+			//$tmp = $cName::getInstance()->index(array_merge(array('manualQuery' => $query, 'handleRelated' => false, 'indexBy' => $pLCol), $item));
+			//$tmp = eval("$cName::getInstance()->index(array_merge(array('manualQuery' => $query, 'handleRelated' => false, 'indexBy' => $pLCol), $item))");
+			$CName 	= new $cName();
+			$tmp 	= $CName->index(array_merge(array('manualQuery' => $query, 'handleRelated' => false, 'indexBy' => $pLCol), $item));
 //var_dump($tmp);
 		}
 	}

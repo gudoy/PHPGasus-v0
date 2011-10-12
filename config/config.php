@@ -38,10 +38,6 @@ if ( _APP_CONTEXT === 'dev' )
 }
 
 
-if ( _APP_CONTEXT === 'prod' )
-{
-	define("_APP_NAME", 					'wealthManagement');
-}
 
 
 ##########

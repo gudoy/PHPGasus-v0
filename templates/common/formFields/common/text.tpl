@@ -19,7 +19,7 @@
 	<div class="fieldBlock">
 {/if}
 		{if empty($type) || !in_array($type, array('email','phone','url','search','password','datetime','date','time'))}{$type='text'}{/if}
-		<input type="{$type}" class="normal{if $required} check-required{/if}" name="{$postValName}" id="{$postValName}"{if $type !== 'password' && $value || $smarty.post[$postValName]} value="{$value|default:{$smarty.post[$postValName]|escape:'html'}}"{/if}{if $required} required="required"{/if}{if $placeholder} placeholder="{$placeholder}"{/if}{if $autofocus} autofocus="autofocus"{/if}{if $disabled} disabled="disabled"{/if}{if $autocomplete} autocomplete="{if $autocomplete}on{else}off{/if}"{/if} />
+		<input type="{$type}" class="normal{if $required} check-required{/if}" name="{$postValName}" id="{$postValName}"{if $type !== 'password' && $value || $smarty.post[$postValName]} value="{$value|default:{$smarty.post[$postValName]|escape:'html'}}"{/if}{if $required} required="required"{/if}{if $placeholder} placeholder="{$placeholder}"{/if}{if $autofocus} autofocus="autofocus"{/if}{if $disabled} disabled="disabled"{/if} autocomplete="{if $autocomplete == false}off{else}on{/if}" />
 {if !isset($inputOnly) || !$inputOnly}
 	</div>
 </div>

@@ -4,11 +4,16 @@ class Tools
 {
 	// Only works in php >5.3
 	static function __callStatic($name, $args)
-	{
-		if ( substr($name, 0, 8) === 'sanitize' )
+	{		
+		if 		( substr($name, 0, 8) === 'sanitize' )
 		{
 			$type = strtolower(str_replace('sanitize','',$name));
 			return self::sanitize($args[0], array('type' => $type));
+		}
+		elseif ( substr($name, 0, 8) === 'validate' )
+		{
+			$type = strtolower(str_replace('validate','',$name));
+			return self::validate($args[0], array('type' => $type));
 		}
 	}
 	
@@ -356,10 +361,23 @@ class Tools
         return $data;
     } 
 
-	// TODO
 	static function validate($value, $params = array())
 	{
+		$p = array_merge(array(
+			'type' => 'string'
+		), $params);
 		
+		$isValid = false;
+
+		// TODO: complete
+		switch($p['type'])
+		{
+			case 'email': 	$isValid = !!filter_var($value, FILTER_VALIDATE_EMAIL); break;
+			case 'sting': 
+			default:  		$isValid = true; break; 
+		}
+		
+		return $isValid;
 	}
 	
 	static function sanitize($value, $params = array())
@@ -368,6 +386,7 @@ class Tools
 			'type' => 'string'
 		), $params);
 
+		/*
 		// ints
 		if ( in_array($p['type'], array('int', 'integer', 'numeric', 'tinyint', 'smallint', 'mediumint', 'bigint')) )
 		{
@@ -384,7 +403,7 @@ class Tools
 		}
 		elseif ( in_array($p['type'], array('bool','boolean')) )
 		{
-			$value = in_array($f, array(1,true,'1','true','t'), true) ? 1 : 0;
+			$value = in_array($value, array(1,true,'1','true','t'), true) ? 1 : 0;
 		}
 		// phone number
 		elseif ( $p['type'] === 'tel' )
@@ -395,6 +414,42 @@ class Tools
 		elseif ( $p['type'] === 'string' )
 		{
 			$value = filter_var($value, FILTER_SANITIZE_STRING);
+		}*/
+		
+		// TODO: complete
+		switch($p['type'])
+		{
+			// Ints
+			case 'int':
+			case 'integer':
+			case 'numeric':
+			case 'tinyint':
+			case 'smallint':
+			case 'mediumint':
+			case 'bigint':
+				//$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+				$value = is_numeric($value) ? intval($value) : false; break;
+				//$value = intval($value);
+				
+			// Floats
+			case 'float':
+			case 'real':
+			case 'double':
+				$value = floatval($value); break;
+				
+			// Booleans
+			case 'bool':
+			case 'boolean':
+				$value = in_array($value, array(1,true,'1','true','t'), true) ? 1 : 0; break;
+				
+			// Strings
+			case 'email':
+				$value = filter_var($value, FILTER_SANITIZE_EMAIL); break;
+			case 'tel':
+				$value = preg_replace('/\D/', '', $value); break;
+			case 'string':
+			default:	
+				$value = filter_var($value, FILTER_SANITIZE_STRING); break;
 		}
 		
 		return $value;

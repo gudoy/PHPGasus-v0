@@ -64,6 +64,7 @@ define("_URL_ACCOUNT_CONFIRMATION", 		_URL . 'account/confirmation');
 define("_URL_ACCOUNT_PASSWORD_LOST", 		_URL . 'account/password/lost');
 define("_URL_ACCOUNT_PASSWORD_CHANGE", 		_URL . 'account/password/change');
 define("_URL_ACCOUNT_PASSWORD_RESET", 		_URL . 'account/password/reset');
+define("_URL_ACCOUNT_PASSWORD_EXPIRED", 	_URL . 'account/password/expired');
 define("_URL_RESEND_CONFIRMATION_MAIL", 	_URL . 'account/confirmation');
 define("_URL_ABOUT", 						_URL . 'about');
 define("_URL_SITEMAP", 						_URL . 'about/sitemap');

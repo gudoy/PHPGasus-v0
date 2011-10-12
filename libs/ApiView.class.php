@@ -30,7 +30,7 @@ class ApiView extends View
 		$gpNames 	= !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array(); 
 		
 		// Look for allowed group names
-		$intersect = array_intersect($gpNames, array('gods','superadmin','admin','apiclient'));
+		$intersect = array_intersect($gpNames, array('gods','superadmins','admins','apiclients'));
 		
 		return !empty($intersect);
 	}
@@ -77,7 +77,8 @@ class ApiView extends View
 		
 		// Only for html/xhtml output, we want to be able to build a 'smart' form from the resource datamodel 
 		//if ( in_array($this->options['output'], array('html','xhtml')) )
-		if ( $this->application->env['type'] === 'dev' && in_array($this->options['output'], array('html','xhtml')) )
+		if ( in_array($this->options['output'], array('html','xhtml')) 
+			&& ($this->application->env['type'] === 'dev' || !empty($this->data['view']['allowApiHTMLFormView'])) )
 		{
 			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 			
@@ -87,7 +88,7 @@ class ApiView extends View
 			// For create and update views
 			if ( in_array($m, array('create','update')) )
 			{
-		        // TODO: used? double bloom with $this->data['_resources'] & $this->data['resourcesFields']?
+		        // TODO: used? doubloon with $this->data['_resources'] & $this->data['resourcesFields']?
 				$this->dataModel = array(
 					'resources' 		=> &$resources,
 					'resourcesFields' 	=> &$dataModel,

@@ -25,10 +25,14 @@
             </figcaption>
         </figure>
         <nav class="nav actions actionsBlock">
-        	{block name='loggedUserProfileLink'}
+			{if $data.logged}
+			{block name='loggedUserProfileLink'}
             <a class="action edit password" href="{$smarty.const._URL_ACCOUNT_PASSWORD_CHANGE}">{t}change password{/t}</a>
             {/block}
             <a rel="noindex" class="action" href="{$smarty.const._URL_LOGOUT}">{t}logout{/t}</a>
+            {else}
+            <a rel="noindex" class="action" href="{$smarty.const._URL_LOGIN}">{t}login{/t}</a>
+            {/if}
         </nav>
     </div>  
 </div>

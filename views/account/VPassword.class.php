@@ -12,6 +12,11 @@ class VPassword extends View
 		return $this;
 	}
 	
+	public function index()
+	{
+		//$this->redirect(_URL_HOME);
+	}
+	
 	public function lost()
 	{
 		if ( !_APP_ALLOW_LOST_PASSWORD_RESET ){ return $this->redirect(_URL_HOME); }
@@ -55,10 +60,6 @@ class VPassword extends View
 	
 	public function reset()
 	{
-		// TODO: used some goto to prevent doing some tests while others failed
-		// !!! goto operator is only available since php 5.3 !!!
-		// Removing them will just display all errors to the users (even if the first test failed)
-		
 		// TODO:
 		// make password reset key valid only for some time (48 hours?)
 		
@@ -77,20 +78,20 @@ class VPassword extends View
 		$uId 		= !empty($args[0]) ? intVal($args[0]) : null;
 		
 		// Check that the user id has been passed
-		if ( !$uId ){ $this->data['errors'][1001] = 'id'; goto end; }
+		if ( !$uId ){ $this->data['errors'][1001] = 'id'; $this->render(); }
 
 		// Check that the user id has been passed
-		if ( empty($_GET['key']) ){ $this->data['errors'][1001] = 'key'; goto end; }
+		if ( empty($_GET['key']) ){ $this->data['errors'][1001] = 'key'; $this->render(); }
 		
 		// Get user
 		$CUsers 	= new CUsers();
 		$user 		= !empty($args[0]) ? $CUsers->retrieve(array('by' => 'id', 'values' => $uId)) : null;
 		
 		// Check that the user has been sent an security key
-		if ( empty($user['password_reset_key']) ){ $this->data['errors'][10017] = null; goto end; } // Missing reset password key in database
+		if ( empty($user['password_reset_key']) ){ $this->data['errors'][10017] = null; $this->render(); } // Missing reset password key in database
 		
 		// Check that the passed key match the store one 
-		if ( $key !== $user['password_reset_key'] ){ $this->data['errors'][10018] = null; goto end; } // Wrong security reset password key
+		if ( $key !== $user['password_reset_key'] ){ $this->data['errors'][10018] = null; $this->render(); } // Wrong security reset password key
 		
 		if ( !empty($_POST) )
 		{			
@@ -99,13 +100,13 @@ class VPassword extends View
 			$present 	= array_intersect(array_keys($_POST),$req);
 			
 			// Compare required fields list with passed one
-			if ( $present !== $req ) { $this->data['errors'][1001] = join(', ', $present); goto end; }
+			if ( $present !== $req ) { $this->data['errors'][1001] = join(', ', $present); $this->render(); }
 			
 			// Check that the new password is not empty
-			if ( empty($_POST['userNewPassword']) ){ $this->data['errors'][1001] = 'new password'; goto end; }
+			if ( empty($_POST['userNewPassword']) ){ $this->data['errors'][1001] = 'new password'; $this->render(); }
 
 			// Check if passed password are not empty & are identical
-			if ( $_POST['userNewPassword'] !== $_POST['userNewPasswordConfirm'] ){ $this->data['errors'][] = 10004; goto end; }
+			if ( $_POST['userNewPassword'] !== $_POST['userNewPasswordConfirm'] ){ $this->data['errors'][] = 10004; $this->render(); }
 		}
 
 		// If there's no error
@@ -144,14 +145,12 @@ class VPassword extends View
 			
 			$this->data['success'] = $CUsers->success;
 		}
-		
-		end:
-		return $this->render();
-		;
+
+		$this->render();
 	}
 	
 	public function change()
-	{
+	{		
 		// Require the user to be logged
 		$this->requireLogin();
 		
@@ -161,22 +160,54 @@ class VPassword extends View
 			'template'		=> 'specific/pages/account/password/' . __FUNCTION__ . '.tpl',
 		));
 
+		$this->_handlePasswordChange();
+
+		$this->render();
+	}
+
+	public function expired()
+	{
+		// If password expiration feature is activated
+		if ( !defined('_APP_PASSWORDS_EXPIRATION_TIME') || _APP_PASSWORDS_EXPIRATION_TIME <= 0 ){ $this->redirect(_URL_HOME); }
+		
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			'name'          => 'accountPassword' . ucfirst(__FUNCTION__),
+			'method' 		=> __FUNCTION__,
+			'template'		=> 'specific/pages/account/password/' . __FUNCTION__ . '.tpl',
+		));
+		 
+		$this->_handlePasswordchange();
+		
+		$this->render();	
+	}
+	
+	
+	public function _handlePasswordChange()
+	{
 		if ( !empty($_POST) )
 		{			
 			// Required params (param => error code if missing)
 			$req = array('userOldPassword' => 20012, 'userNewPassword' => 20013, 'userNewPasswordConfirm' => 20014);
+			
+			// If the user is not logged, add the email to the required fields array
+			if ( !$this->isLogged() ){ $req = array('userEmail' => 20010) + $req; }
 
-			// Foreach of the required params
+			// Foreach of the required fields
 			foreach ($req as $key => $val)
 			{
-				// If it has been passed, and is not empty after beeing sanitized, just continue
-				if ( isset($_POST[$key])
-					&& ($_POST[$key] = Tools::sanitizeString($_POST[$key])) 
-					&& !empty($_POST[$key]) ) { continue; }
+				// If it has not been passed
+				if ( !isset($_POST[$key]) )	{ $this->data['errors'][] = $val; continue; }
 				
-				// Otherwise, return the proper error 
-				$this->data['errors'][] = $val;
+				// Otherwise, clean it
+				$type 			= $key === 'userEmail' ? 'email' : 'string';
+				$_POST[$key] 	= Tools::sanitize($_POST[$key], array('type' => $type));
+				
+				// If the field is invalid or empty after sanitization
+				if ( ($key === 'userEmail' && !Tools::validateEmail($_POST[$key]))
+					|| empty($_POST[$key]) ){ $this->data['errors'][] = $val; continue; }
 			}
+			
+			// If there's errors at this point, do not continue and just render
 			if ( !empty($this->data['errors']) ){ $this->render(); }
 			
 			// Check if password and password confirmation are the same
@@ -184,10 +215,19 @@ class VPassword extends View
 			
 			// Get user data
 			$CUsers = new CUsers();
-			$user 	= $CUsers->retrieve(array('by' => 'id', 'values' => $_SESSION['user_id']));
+			$opts 	= !$this->isLogged() 
+						? array('by' => 'email', 	'values' => $_POST['userEmail']) 
+						: array('by' => 'id', 		'values' => $_SESSION['user_id']);
+			$user 	= $CUsers->retrieve($opts);
 			
 			// If pass does not match the stored one
 			if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10016; $this->render(); }
+
+			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
+			if ( defined('_APP_PASSWORD_FORBID_LAST_TWO') && _APP_PASSWORD_FORBID_LAST_TWO 
+				&& !empty($user['password_old_1']) && !empty($user['password_old_2'])
+				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2'])) )
+			{ $this->data['errors'][] = 10019; $this->render(); }
 			
 			// If everything is ok, update the user password
 			if ( empty($this->data['errors']) )
@@ -195,17 +235,20 @@ class VPassword extends View
 				$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
 				$_POST 		= array(
 					'password' 				=> $_POST['userNewPassword'], 
+					'password_old_2' 		=> !empty($user['password_old_1']) ? $user['password_old_1'] : null,
+					'password_old_1' 		=> !empty($user['password']) ? $user['password'] : null,
 					'password_reset_key' 	=> '',
 					'password_expiration' 	=> _APP_PASSWORDS_EXPIRATION_TIME > 0 ? $curTime + _APP_PASSWORDS_EXPIRATION_TIME : null,
 				);
 				$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
+				
+				// Clean $_POST
 				$_POST 		= array();
+				unset($_POST);
 				
 				$this->data['success'] = $CUsers->success;
 			}
 		}
-
-		$this->render();
 	}
 	
 };
