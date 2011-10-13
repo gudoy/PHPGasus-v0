@@ -24,7 +24,7 @@ class Model extends Application
 	);
 	
 	public function __construct(&$application)
-	{		
+	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		//$this->dataModel 	= $dataModel;
@@ -1237,7 +1237,7 @@ class Model extends Application
                 $uf             = &$d[$fieldName];
 				
 				$destRoot 		= !empty($field['destRoot']) ? $field['destRoot'] : ''; 
-				$destFolder 	= $field['destFolder'];
+				$destFolder 	= !empty($field['destFolder']) ? $field['destFolder'] : '';
 				
 				// Get the setted destination name or use the uploaded file name 
 				$destName 		= !empty($field['destName'])
@@ -1542,6 +1542,9 @@ class Model extends Application
 		
 		$rName 		= &$this->resourceName;
 		$rModel 	= &$this->application->dataModel[$this->resourceName];
+		
+//var_dump($rModel);
+//var_dump(@$rModel['password_expiration']);
 		
 		// Start writing request
 		$query 		= "UPDATE ";

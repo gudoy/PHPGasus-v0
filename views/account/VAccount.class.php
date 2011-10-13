@@ -134,7 +134,7 @@ class VAccount extends View
 			{ $this->data['errors'][] = 10005; $this->statusCode(401); return $this->render(); }
 
 			// If password is expired 
-			// and user does not belongs to a groups who is not exempted of password expirations
+			// and user does not belong to a groups who is exempted of password expiration
 			if ( defined('_APP_PASSWORDS_EXPIRATION_TIME') 
 				&& _APP_PASSWORDS_EXPIRATION_TIME > 0 
 				&& ( !$user['password_expiration'] || $user['password_expiration'] < (!empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time()) )
@@ -244,7 +244,7 @@ class VAccount extends View
 			'name' 			=> 'account' . ucfirst(__FUNCTION__),
 			'method' 		=> __FUNCTION__,
 			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
-			'resourceName' 	=> $this->resourceName,
+			//'resourceName' 	=> $this->resourceName,
 			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('sign up')),
 		));
 		
@@ -260,7 +260,7 @@ class VAccount extends View
 		if ( !empty($_POST) )
 		{
 			// Check for the required params
-			$req 	= array('email','password','password_confirmation','first_name','last_name','address','country','city','zipcode','TCS_accepted','TU_accepted');
+			$req 	= array('email','password','password_confirmation');
 			$miss 	= '';
 			foreach ($req as $name) { if ( empty($_POST['user' . ucfirst($name)]) ) { $miss .= ( empty($miss) ? '' : ', ') . $name; } }
 			if  ( !empty($miss) ) { $this->data['errors'][1003] = $miss; $this->statusCode(400); } 
@@ -289,25 +289,6 @@ class VAccount extends View
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
 		{
-			// Send the confirmation mail
-			$this->requireLibs('Mailer');
-			
-			$this->Mailer = new Mailer();
-			
-			$user 		= CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email, 'limit' => 1));	
-			$from 		= 'Collectorserie <info@collectorserie.com>';
-			$to			= $email;
-			$subject 	= _('Your Account');
-			$content 	= $this->Mailer->fetch(array(
-				'template' 	=> 'common/mails/account/signup/success.tpl',
-				'data' 		=> array('user' => $user)
-			));			
-
-			// Send the mail				
-			$this->Mailer->send(array('from' => $from, 'to' => $to, 'subject' => $subject, 'content' => $content));
-			
-			if ( !$this->Mailer->success ) 	{ $this->errors = array_merge($this->data['errors'], $this->Mailer->errors); }
-			
 			unset($_POST);
 			
 			$this->respondError(201);

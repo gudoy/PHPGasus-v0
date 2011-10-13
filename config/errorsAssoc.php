@@ -122,7 +122,7 @@ $errorsAssoc = array(
 	'10032' => array('back' => 'Account blocked',
 					'front' => _('Your account has been blocked. Please contact us by email: %')),
 	'10033' => array('back' => 'Password expired',
-					'front' => _('Your password is expired. Please use the \'change password\' feature first.')),
+					'front' => _('Your password is expired. You have to change it to be able to login again.')),
 	'10040' => array('back' => 'WS Invalid login/password',
 					'front' => _('Invalid login and/or password')),
 	'10050' => array('back' => 'Parental codes not matching',

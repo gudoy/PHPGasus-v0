@@ -441,7 +441,7 @@ $this->dump($allowed);
 			'reindexBy','reindexby', 		// TODO: deprecate 
 			'indexBy','indexByUnique',
 			'operation','debug','confirm',
-			'errors','successes','warnings','notifications',
+			'success', 'errors','successes','warnings','notifications',
 			'css', 'js', 'minify',
 		);
 		
@@ -687,6 +687,7 @@ $this->dump($allowed);
 		if ( !empty($this->options['output']) ){ $this->outputFormat(); }
 		$of = &$this->options['output']; // Shortcut for the ouptput format
 
+		$this->getSuccess();
 		$this->getErrors();
 		$this->getWarnings();
 		
@@ -1084,6 +1085,13 @@ $this->dump($allowed);
 		}
 		
 		return $this;
+	}
+	
+	public function getSuccess()
+	{
+		if ( !isset($this->options['success']) ) { return; }
+		
+		$this->data['success'] = Tools::sanitize($this->options['success'], array('type' => 'bool'));
 	}
 	
 	

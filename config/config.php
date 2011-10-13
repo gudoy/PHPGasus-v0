@@ -63,12 +63,10 @@ define("_URL", 							_APP_PROTOCOL . ( $_SERVER['SERVER_NAME'] !== $_SERVER['SE
 											
 define("_URL_REL", 						$_SERVER['SERVER_NAME'] !== $_SERVER['SERVER_ADDR'] ? '/' : _PATH_REL );
 
-
 define("_URL_STATIC", 					_APP_PROTOCOL . 'static.' . _DOMAIN . '/');
 define("_URL_STATIC_1", 				_APP_PROTOCOL . 'static1.' . _DOMAIN . '/');
 define("_URL_ADMIN", 					_URL . 'admin/');
 define("_URL_API", 						_URL . 'api/');
-
 
 define("_IN_MAINTENANCE", 				false); // Set this to true to redirect all requests to the maintenance page (/maintenance)
 

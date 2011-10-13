@@ -1238,7 +1238,7 @@ class Model extends Application
                 $uf             = &$d[$fieldName];
 				
 				$destRoot 		= !empty($field['destRoot']) ? $field['destRoot'] : ''; 
-				$destFolder 	= $field['destFolder'];
+				$destFolder 	= !empty($field['destFolder']) ? $field['destFolder'] : '';
 				
 				// Get the setted destination name or use the uploaded file name 
 				$destName 		= !empty($field['destName'])

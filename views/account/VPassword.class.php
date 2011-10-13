@@ -40,17 +40,6 @@ class VPassword extends View
 				$CUsers->sendResetPasswordMail($user['id']);
 				
 				$this->data['success'] = true;
-				
-				/*
-				// If password expiration feature is activated
-				if ( defined('_APP_PASSWORDS_EXPIRATION') && _APP_PASSWORDS_EXPIRATION > 0 )
-				{
-					$curTime = !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
-					$_POST = array(
-						'password_expiration' => $curTime + _APP_PASSWORDS_EXPIRATION
-					);
-					$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));	
-				}*/
 			}
 		}
 
@@ -73,7 +62,7 @@ class VPassword extends View
 			'template'		=> 'specific/pages/account/password/' . __FUNCTION__ . '.tpl',
 		));
 		
-		// Get passed the security key
+		// Get the passed security key
 		$key 		= !empty($_GET['key']) ? filter_var($_GET['key'], FILTER_SANITIZE_STRING) : null;
 		$uId 		= !empty($args[0]) ? intVal($args[0]) : null;
 		
@@ -81,17 +70,24 @@ class VPassword extends View
 		if ( !$uId ){ $this->data['errors'][1001] = 'id'; $this->render(); }
 
 		// Check that the user id has been passed
-		if ( empty($_GET['key']) ){ $this->data['errors'][1001] = 'key'; $this->render(); }
+		if ( !$key ){ $this->data['errors'][1001] = 'key'; $this->render(); }
+		
+		// Instanciate proper controller
+		$CUsers 			= new CUsers();
+		
+		// We have to make the 'password_expiration' fields temporarily editable
+		$uDM 				= &$CUsers->application->dataModel['users'];
+		$curPassExpEditable = isset($uDM['password_expiration']['editable']) ? $uDM['password_expiration']['editable'] : null ;
+		$uDM['password_expiration']['editable'] = true;
 		
 		// Get user
-		$CUsers 	= new CUsers();
-		$user 		= !empty($args[0]) ? $CUsers->retrieve(array('by' => 'id', 'values' => $uId)) : null;
+		$user 				= !empty($args[0]) ? $CUsers->retrieve(array('by' => 'id', 'values' => $uId)) : null;
 		
-		// Check that the user has been sent an security key
-		if ( empty($user['password_reset_key']) ){ $this->data['errors'][10017] = null; $this->render(); } // Missing reset password key in database
+		// Check that the user has really been sent a reset key
+		if ( empty($user['password_reset_key']) ){ $this->data['errors'][10017] = null; $this->render(); }
 		
-		// Check that the passed key match the store one 
-		if ( $key !== $user['password_reset_key'] ){ $this->data['errors'][10018] = null; $this->render(); } // Wrong security reset password key
+		// Check that the passed key match the stored one 
+		if ( $key !== $user['password_reset_key'] ){ $this->data['errors'][10018] = null; $this->render(); }
 		
 		if ( !empty($_POST) )
 		{			
@@ -105,15 +101,22 @@ class VPassword extends View
 			// Check that the new password is not empty
 			if ( empty($_POST['userNewPassword']) ){ $this->data['errors'][1001] = 'new password'; $this->render(); }
 
-			// Check if passed password are not empty & are identical
+			// Check if passed passwords are identical
 			if ( $_POST['userNewPassword'] !== $_POST['userNewPasswordConfirm'] ){ $this->data['errors'][] = 10004; $this->render(); }
+			
+			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
+			if ( defined('_APP_PASSWORD_FORBID_LAST_TWO') && _APP_PASSWORD_FORBID_LAST_TWO 
+				&& !empty($user['password_old_1']) && !empty($user['password_old_2'])
+				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2']))
+			)
+			{ $this->data['errors'][] = 10019; $this->render(); }
 		}
 
 		// If there's no error
 		if ( !empty($_POST) && !$this->data['errors'] )
 		{
 			// Since user passwords are protected against modification (only editable by logged owner)
-			// We have to temporarily log the user session
+			// We have to temporarily log the user, creating a session
 			$curPOST = $_POST;
 			$_POST = array(
 				'name' 				=> session_id(), 
@@ -122,11 +125,9 @@ class VPassword extends View
 				'ip' 				=> $_SERVER['REMOTE_ADDR'],
 			);
 			$sid = CSessions::getInstance()->create(array('isApi' => 1, 'returning' => 'id'));
+			
 			// Store the session data
-			$_SESSION = array_merge((array) $_SESSION, array(
-			     'id'            => session_id(), 
-			     'user_id'       => $user['id'],
-            ));
+			$_SESSION = array_merge((array) $_SESSION, array('id' => session_id(), 'user_id' => $user['id']));
 			
 			// If everything is ok, reset the user password
 			$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
@@ -139,12 +140,17 @@ class VPassword extends View
 			
 			// Only then can the password be changed			
 			$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
+			
+			// We can now log the user out
 			$this->application->logged = false;
 			unset($_SESSION);
 			session_destroy();
 			
 			$this->data['success'] = $CUsers->success;
 		}
+
+		// We can now return 'password_expiration' editable property to its original value
+		$uDM['password_expiration']['editable'] 	= $curPassExpEditable;
 
 		$this->render();
 	}
@@ -178,6 +184,8 @@ class VPassword extends View
 		 
 		$this->_handlePasswordchange();
 		
+		if ( $this->data['success'] ) { $this->redirect(_URL_ACCOUNT_PASSWORD_EXPIRED . '?success=1'); }
+		
 		$this->render();	
 	}
 	
@@ -185,7 +193,8 @@ class VPassword extends View
 	public function _handlePasswordChange()
 	{
 		if ( !empty($_POST) )
-		{			
+		{
+var_dump($_POST);
 			// Required params (param => error code if missing)
 			$req = array('userOldPassword' => 20012, 'userNewPassword' => 20013, 'userNewPasswordConfirm' => 20014);
 			
@@ -215,23 +224,57 @@ class VPassword extends View
 			
 			// Get user data
 			$CUsers = new CUsers();
+			
+			// We have to make the 'password_expiration' fields temporarily editable
+			$uDM 		= &$CUsers->application->dataModel['users'];
+			$curPassExpEditable = isset($uDM['password_expiration']['editable']) ? $uDM['password_expiration']['editable'] : null ;
+			$uDM['password_expiration']['editable'] = true;
+			
 			$opts 	= !$this->isLogged() 
 						? array('by' => 'email', 	'values' => $_POST['userEmail']) 
 						: array('by' => 'id', 		'values' => $_SESSION['user_id']);
 			$user 	= $CUsers->retrieve($opts);
 			
+			// User not found
+			if ( !$this->isLogged() && !$user ){ $this->data['errors'][] = 10002; $this->render(); }
+			
 			// If pass does not match the stored one
-			if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10016; $this->render(); }
+			//if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10016; $this->render(); }
+			if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->render(); }
 
 			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
 			if ( defined('_APP_PASSWORD_FORBID_LAST_TWO') && _APP_PASSWORD_FORBID_LAST_TWO 
 				&& !empty($user['password_old_1']) && !empty($user['password_old_2'])
-				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2'])) )
+				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2']))
+			)
 			{ $this->data['errors'][] = 10019; $this->render(); }
 			
 			// If everything is ok, update the user password
 			if ( empty($this->data['errors']) )
 			{
+				if ( !$this->isLogged() )
+				{
+					// Since user passwords are protected against modification (only editable by logged owner)
+					// We have to temporarily log the user, creating a session
+					$curPOST 	= $_POST; 
+					$_POST 		= array(
+						'name' 				=> session_id(), 
+						'user_id' 			=> $user['id'], 
+						'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + (int) _APP_SESSION_DURATION,
+						'ip' 				=> $_SERVER['REMOTE_ADDR'],
+					);
+					$sid 		= CSessions::getInstance()->create(array('isApi' => 1, 'returning' => 'id'));
+					$_POST 		= $curPOST;
+					
+					// Store the session data
+					$_SESSION 	= array_merge((array) $_SESSION, array('id' => session_id(), 'user_id' => $user['id']));
+					
+//var_dump($sid);
+//var_dump($_SESSION);
+//var_dump($this->isLogged());	
+				}
+				
+				// Only then can the password be changed 
 				$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
 				$_POST 		= array(
 					'password' 				=> $_POST['userNewPassword'], 
@@ -242,13 +285,26 @@ class VPassword extends View
 				);
 				$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
 				
+				if ( !$this->isLogged() )
+				{
+					// We can now log the user out
+					$this->application->logged = false;
+					unset($_SESSION);
+					session_destroy();	
+				}
+				
 				// Clean $_POST
 				$_POST 		= array();
 				unset($_POST);
 				
 				$this->data['success'] = $CUsers->success;
 			}
+
+			// We can now return 'password_expiration' editable property to its original value
+			$uDM['password_expiration']['editable'] 	= $curPassExpEditable;
 		}
+
+//die();
 	}
 	
 };
