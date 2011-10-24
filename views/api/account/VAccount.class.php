@@ -34,21 +34,25 @@ class VAccount extends ApiView
 		if ( !empty($_POST) )
 		{
 			// Check for the required params
-			$reqParams = array('email', 'password');
-			foreach ($reqParams as $param)
+			$req = array('email', 'password');
+
+			foreach ($req as $field)
 			{
 				// If the field is found
-				if ( !empty($_POST[$param]) ){ continue; }
+				if ( !empty($_POST[$field]) ){ continue; }
 				
 				// Otherwise, throw an 417 Expectation Failed with missing field detail
-				$this->data['errors'][1003] = $param;
+				$this->data['errors'][1003] = $field;
 				
 				return $this->statusCode(417);
 			}
 			
+			// Get current time
+			$curTime = !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+			
 			// Get the user data
-			$email 		= !empty($_POST['email']) ? filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) : null;
-			$pass 		= !empty($_POST['password']) ? filter_var($_POST['password'], FILTER_SANITIZE_STRING) : null; 
+			$email 		= !empty($_POST['email']) 		? filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) : null;
+			$pass 		= !empty($_POST['password']) 	? filter_var($_POST['password'], FILTER_SANITIZE_STRING) : null; 
 			$user 		= CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email));
 			
 			// If user mail is not found
@@ -58,17 +62,21 @@ class VAccount extends ApiView
 			// If pass does not match the stored one
 			//if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); }
 			if ( empty($pass) || sha1($pass) !== $user['password'] ){ return $this->statusCode(401); }
-			
-			// Check that the passed device id is the same than the user one
-			//$dvcId = filter_var($_POST['device_id'], FILTER_SANITIZE_STRING);
-			//if ( $dvcId !== $user['device_id'] ){ $this->data['users'] = $user; return $this->statusCode(409); }
+
+			// If password is expired
+			if ( defined('_APP_PASSWORDS_EXPIRATION_TIME') 
+				&& _APP_PASSWORDS_EXPIRATION_TIME > 0 
+				//&& ( !$user['password_expiration'] || $user['password_expiration'] < (!empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time()) )
+				&& ( empty($user['password_expiration']) || $user['password_expiration'] < $curTime )
+				//&& ( isset($user['password_expiration']) & $user['password_expiration'] < $curTime )
+			)
+			{ $this->data['errors'][] = 10033; $this->statusCode(412); }
 			
 			// Build session data (after saving current post data)
-			//$savePOST 	= $_POST;
 			$_POST 		= array(
-				'name' 				=> session_id(), 
+				'name' 				=> session_id(),
 				'user_id' 			=> $user['id'], 
-				'expiration_time' 	=> time() + (int) _APP_SESSION_DURATION, 
+				'expiration_time' 	=> $curTime + _APP_SESSION_DURATION,
 				'ip' 				=> $_SERVER['REMOTE_ADDR']
 			);
 						
@@ -78,9 +86,9 @@ class VAccount extends ApiView
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
-			'success' 		=> $this->C->success, 
-			'errors'		=> $this->data['errors'] + (array) $this->C->errors,
-			'warnings' 		=> $this->data['warnings'] + (array) $this->C->warnings,
+			'success' 					=> $this->C->success, 
+			'errors'					=> $this->data['errors'] + (array) $this->C->errors,
+			'warnings' 					=> $this->data['warnings'] + (array) $this->C->warnings,
 		));
 		
 		// If the operation succeed, reset the $_POST

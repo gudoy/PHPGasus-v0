@@ -30,14 +30,9 @@ modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, p
 - edit proper paths (DocumentRoot, Directory, Includes)
 - edit APP_CONTEXT env var with proper value (local/dev/preprod/prod)
 
-************************************
-3) PROJECT
-************************************
-svn co https://svn.yourdomain.com/mynewproject/trunk/
-
 
 ************************************
-4) FOLDER PERMISSIONS
+3) FOLDERS PERMISSIONS
 ************************************
 
 CHMOD tmp/ >755

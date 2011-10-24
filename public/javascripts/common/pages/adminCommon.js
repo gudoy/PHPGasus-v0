@@ -336,8 +336,9 @@ var admin =
 	del: function(jqObj)
 	{
 		var self 		= this
-			multiple 	= jqObj.length >= 1,							// Is there several objects to delete
-			url 		= !multiple ? $(jqObj).attr('href') : null; 	// If not use the object href as url otherwise we will set it later
+			multiple 	= jqObj.length > 1,								// Is there several objects to delete
+			url 		= !multiple ? jqObj.attr('href') : null; 		// If not use the object href as url otherwise we will set it later
+
 			
 		// When handling multiple resources, we need to get all theirs id to be able to build the proper request URL 
 		if ( multiple )
@@ -353,9 +354,9 @@ var admin =
 			// Then set the proper url for the deletion of all the objects
 			url = tmp.find('td.actionsCol a.deleteLink').attr('href').replace(new RegExp('\/' + tmpId + '\\?'), '/' + ids.join(',') + '?');
 		}
-		
+
 		// Ask for confirmation
-		if ( !confirm('Delete resource(s) ' + ((ids || []).join(',') || '') +  '?') ) { return; }
+		if ( !confirm('Delete resource(s) ' + ((ids || []).join(',') || '') +  '?') ) { return; }		
 		
 		// Launch ajax request
 		$.ajax(
@@ -1154,7 +1155,7 @@ var adminIndex =
 	context: 'table.adminTable',
 	
 	init: function()
-	{	    
+	{
 		var self 	= this,
 			support = {
 				detailsSummary: ( 'open' in document.createElement('details') )
@@ -1208,7 +1209,6 @@ var adminIndex =
 			.parent()
 			.click(function(e)
 			{
-
 				var t 			= e.target, 						// Shortcut for event target
 					jt 			= $(t),								// Shortcut for event target jqueryfied
 					tmpA 		= jt.closest('a'),					// Try to get closest anchor tag

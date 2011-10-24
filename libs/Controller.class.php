@@ -209,7 +209,8 @@ var_dump($parts);
 		
 		$resourceData     = $this->filterPostData(array_merge($o,array('method' => 'create')));
 
-		if ( !empty($resourceData) )
+		//if ( !empty($resourceData) )
+		if ( !empty($resourceData) && empty($this->errors) )
 		{
 			// Launch the creation
 			$this->data = $this->model->create($resourceData, $o);
@@ -240,7 +241,8 @@ var_dump($parts);
 		
 		$resourceData     = $this->filterPostData(array_merge($o,array('method' => 'create')));
 
-		if ( !empty($resourceData) )
+		//if ( !empty($resourceData) )
+		if ( !empty($resourceData) && empty($this->errors) )
 		{
 			// Launch the creation
 			$this->data = $this->model->upsert($resourceData, $o);
@@ -299,7 +301,8 @@ var_dump($parts);
     
 		$resourceData     = $this->filterPostData(array_merge($o, array('method' => 'update')));
         
-		if ( !empty($resourceData) )
+		//if ( !empty($resourceData) )
+		if ( !empty($resourceData) && empty($this->errors) )
 		{			
 			// Launch the creation
 			$this->data = $this->model->update($resourceData, $o);
@@ -497,6 +500,14 @@ var_dump($parts);
 				// Case single item
 				else
 				{
+					// If a validation pattern has been defined for this field
+					// Check the passed value against
+					if ( defined('_APP_USE_PATTERN_VALIDATION') && _APP_USE_PATTERN_VALIDATION
+						&& !empty($field['pattern']) && !preg_match('/' . $field['pattern'] . '/', $spGlobaleItems) ) 
+					{
+						$this->errors[1007] = $fieldName;
+					}
+					
 					// Assign it to the field in the $resourceData array
 					$resourceData[0][$fieldName] = $this->filterSingle($field, $spGlobaleItems, $o);
 				}
@@ -510,6 +521,7 @@ var_dump($parts);
 		
 		return $return;
 	}
+
 	
 	// TODO filter on request build for perf issues (merge 2 loop cycles on the same data)???
 	public function filterSingle($fieldModel, $superGlobaleField, $options = array())

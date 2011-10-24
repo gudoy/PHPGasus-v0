@@ -39,7 +39,7 @@ class VAccount extends View
 			'name'           => 'account' . ucfirst(__FUNCTION__),
 			'method'         => __FUNCTION__,
 			'template'       => 'specific/pages/account/' . __FUNCTION__ . '.tpl',
-			'resourceName'   => $this->resourceName,
+			//'resourceName'   => $this->resourceName,
 			'title'          => _APP_TITLE . ' - ' . ucfirst(_('login')),
 			'js'             => 'accountLogin'
 		));
@@ -299,6 +299,22 @@ class VAccount extends View
 
 	public function confirmation()
 	{
+		// Set template data
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			'name' 			=> 'account' . ucfirst(__FUNCTION__),
+			'method' 		=> __FUNCTION__,
+			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
+			//'resourceName' 	=> $this->resourceName,
+			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('Account Confirmation')),
+		));
+		
+		// Send the dataModel to the html templates to be able to add pattern & hints to form elements
+		if ( in_array($this->options['output'], array('html','xhtml')) )
+		{
+			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
+			$this->data['dataModel']['users'] = $dataModel['users'];
+		}
+		
 		// Redirect to home page if the activation_key is not found
 		if ( empty($_GET['key']) ){ return $this->redirect(_URL_HOME); }
 		
@@ -306,23 +322,119 @@ class VAccount extends View
 		$key 	= filter_var($_GET['key'], FILTER_SANITIZE_STRING);
 		
 		// Get user data
-		$uId 	= CUsers::getInstance()->retrieve(array('conditions' => array('activation_key' => $key)));
+		$CUsers = new CUsers();
+		$user 	= $CUsers->retrieve(array('conditions' => array('activation_key' => $key)));
 		
 		// Redirect to home page if the user has not been found (wrong key or already activated account)
-		if ( !$uId ){ return $this->redirect(_URL_HOME); }
+//if ( !$user ){ return $this->redirect(_URL_HOME); }
 		
-		// Set account as 'activated' and remove activation key
-		$_POST 	= array('activated' => true, 'activation_key' => '');
-		CUsers::getInstance()->update(array('isApi' => 1, 'conditions' => array('id' => $uId)));
-		
-		// Set template data
-		$this->data['view'] = array_merge((array) @$this->data['view'], array(
-			'name' 			=> 'account' . ucfirst(__FUNCTION__),
-			'method' 		=> __FUNCTION__,
-			'template' 		=> 'specific/pages/account/' . __FUNCTION__ . '.tpl',
-			'resourceName' 	=> $this->resourceName,
-			'title' 			=> _APP_TITLE . ' - ' . ucfirst(_('Account Confirmation')),
-		));
+		// If the 'define pass on 1st login' feature is activated
+		if ( defined('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN') && _APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN )
+		{
+			// If ther's no POST data, just render directly
+			if ( empty($_POST) ){ $this->render(); }
+			
+			// Otherwise
+			
+			// Required fields
+			$req = array('userNewPassword' => 'password', 'userNewPasswordConfirm' => 'password confirmation');
+			
+			// Loop over the required fields
+			foreach ($req as $k => $v)
+			{
+				// filter it
+				$_POST[$k] = Tools::sanitize($_POST[$k], array('type' => 'password'));
+				
+				// Check if not empty after sanitization
+				if ( empty($_POST[$k]) ){ $this->data['errors'][1003] = $v; $this->render(); }
+			}
+			
+			// Check if password and password confirmation are the same
+			if ( $_POST['userNewPassword'] !== $_POST['userNewPasswordConfirm'] ) { $this->data['errors'][] = '10004'; $this->render(); }
+			
+			// We have to make the 'password_expiration' fields temporarily editable
+			$uDM 		= &$CUsers->application->dataModel['users'];
+			$curPassExpEditable = isset($uDM['password_expiration']['editable']) ? $uDM['password_expiration']['editable'] : null ;
+			$uDM['password_expiration']['editable'] = true;
+			
+			// Get request or current time
+			$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+			
+			// User not found
+			if ( !$this->isLogged() && !$user ){ $this->data['errors'][] = 10002; $this->render(); }
+			
+			// If the feature is activated, check that the minimun required time between 2 password change has passed
+			//if ( defined('_APP_PASS_MIN_TIME_BETWEEN_CHANGES') && _APP_PASS_MIN_TIME_BETWEEN_CHANGES 
+				//	&& !empty($user['password_lastedit_date'])
+				//	&& ($curTime - $user['password_lastedit_date']) < _APP_PASS_MIN_TIME_BETWEEN_CHANGES  
+			//){ $this->data['errors'][] = 10035; $this->render(); }
+
+			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
+			if ( defined('_APP_PASSWORD_FORBID_LAST_TWO') && _APP_PASSWORD_FORBID_LAST_TWO 
+				&& !empty($user['password_old_1']) && !empty($user['password_old_2'])
+				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2']))
+			){ $this->data['errors'][] = 10019; $this->render(); }
+			
+			// If everything is ok, update the user password
+			if ( empty($this->data['errors']) )
+			{				
+				if ( !$this->isLogged() )
+				{
+					// Since user passwords are protected against modification (only editable by logged owner)
+					// We have to temporarily log the user, creating a session
+					$curPOST 	= $_POST; 
+					$_POST 		= array(
+						'name' 				=> session_id(), 
+						'user_id' 			=> $user['id'], 
+						'expiration_time' 	=> ( $curTime ) + (int) _APP_SESSION_DURATION,
+						'ip' 				=> $_SERVER['REMOTE_ADDR'],
+					);
+					$sid 		= CSessions::getInstance()->create(array('isApi' => 1, 'returning' => 'id'));
+					$_POST 		= $curPOST;
+					
+					// Store the session data
+					$_SESSION 	= array_merge((array) $_SESSION, array('id' => session_id(), 'user_id' => $user['id']));
+				}
+				
+				// Only then can the password be changed 
+				$_POST 		= array(
+					'password' 				=> $_POST['userNewPassword'], 
+					'password_reset_key' 	=> '',
+					'password_expiration' 	=> _APP_PASSWORDS_EXPIRATION_TIME > 0 ? $curTime + _APP_PASSWORDS_EXPIRATION_TIME : null,
+					'password_lastedit_date'=> $curTime,
+					
+					'activated' 			=> true,
+					'activation_key' 		=> '',
+				);
+				$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
+				
+				if ( !$this->isLogged() )
+				{
+					// We can now log the user out
+					$this->application->logged = false;
+					unset($_SESSION);
+					session_destroy();	
+				}
+				
+				// Clean $_POST
+				$_POST 		= array();
+				unset($_POST);
+				
+				$this->data['success'] 	= $CUsers->success;
+				$this->data['errors'] 	= $CUsers->errors;
+				$this->data['warnings'] = $CUsers->warnings;
+			}
+
+			// We can now return 'password_expiration' editable property to its original value
+			$uDM['password_expiration']['editable'] 	= $curPassExpEditable;
+		}
+		// Otherwise, directly activate the user account
+		else
+		{
+			// Set account as 'activated' and remove activation key
+			$_POST 	= array('activated' => true, 'activation_key' => '');
+			$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));			
+		}
 		
 		$this->render();
 	}

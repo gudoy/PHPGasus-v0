@@ -48,7 +48,7 @@ for i in $LOCALES/*; do
 			#find $SOURCE/ -iname \*.tpl -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s -j --from-code=UTF-8 {} \;
 			find $SOURCE/ -iname \*.html -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s -j --from-code=UTF-8 {} \;
 			
-			#find $SOURCE -iregex '.*\.\(php\|tpl\|html\)' -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s -j --from-code=UTF-8 {} \;
+			find $SOURCE -iregex '.*\.\(php\|tpl\|html\)' -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s -j --from-code=UTF-8 {} \;
 			
 		else
 			find $SOURCE_PHP -iname \*.php -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s --from-code=UTF-8 {} \;
@@ -57,7 +57,7 @@ for i in $LOCALES/*; do
 			#find $SOURCE/ -iname \*.tpl -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s --from-code=UTF-8 {} \; 
 			find $SOURCE/ -iname \*.html -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s --from-code=UTF-8 {} \;
 			
-			#find $SOURCE -iregex '.*\.\(php\|tpl\|html\)' -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s --from-code=UTF-8 {} \;
+			find $SOURCE -iregex '.*\.\(php\|tpl\|html\)' -exec xgettext -p $i/LC_MESSAGES -L PHP -d ${DOMAIN} --force-po -s --from-code=UTF-8 {} \;
 		fi
 		echo "DONE."
 	fi

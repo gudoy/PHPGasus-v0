@@ -30,7 +30,7 @@
 		<div class="line noLabelBlock buttonsLine">
 			<div class="fieldBlock">
 				<input type="hidden" name="signupForm" id="signupForm" value="1" />
-				{include file='common/blocks/actionBtn.tpl' mode='button' id='validateBtn' type='submit' label='sign up'|gettext}
+				{include file='common/blocks/actionBtn.tpl' mode='button' id='validateBtn' type='submit' label={'sign up'|gettext}}
 			</div>
 		</div>
 

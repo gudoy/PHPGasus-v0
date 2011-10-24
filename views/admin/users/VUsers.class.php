@@ -12,6 +12,11 @@ class VUsers extends AdminView
 		return $this;
 	}
 	
+	public function passwordExpirationsCheck()
+	{
+		$this->C->passwordExpirationsCheck();
+	}
+	
 };
 
 ?>

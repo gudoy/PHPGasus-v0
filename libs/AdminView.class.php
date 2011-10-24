@@ -9,7 +9,7 @@ class AdminView extends View
 		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-        // TODO: used? double bloom with $this->data['_resources'] & $this->data['resourcesFields']?
+        // TODO: used? doubloon with $this->data['_resources'] & $this->data['resourcesFields']?
 		$this->dataModel = array(
 			'resources' 		=> &$resources,
 			'resourcesFields' 	=> &$dataModel,

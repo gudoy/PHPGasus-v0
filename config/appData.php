@@ -5,16 +5,18 @@ define('_PHPGASUS_VERSION', 						'0.7.4.0');
 ### APP META
 define("_APP_VERSION", 								'0.1.0.0');
 define('_APP_NAMESPACE', 							'pgas');
-//define('_APP_TITLE', 								'mynewproject');
 define('_APP_TITLE', 								_APP_NAME); // App displayed name
 define('_APP_BASELINE', 							'');
+define('_APP_META_AUTHOR', 							false);
 define('_APP_AUTHOR_NAME', 							'Clicmobile');
-define('_APP_AUTHOR_MAIL', 							'contact@clicmobile.com');
-define('_APP_AUTHOR_URL', 							'http://www.clicmobile.com');
-define('_APP_OWNER_NAME', 							'Clicmobile');
-define('_APP_OWNER_MAIL', 							'info@clicmobile.com');
-define('_APP_OWNER_CONTACT_MAIL', 					'info@clicmobile.com');
-define('_APP_OWNER_URL', 							'http://www.clicmobile.com');
+define('_APP_AUTHOR_MAIL', 							'');
+define('_APP_AUTHOR_URL', 							'');
+define('_APP_META_OWNER', 							true);
+define('_APP_OWNER_NAME', 							'');
+define('_APP_OWNER_MAIL', 							'');
+define('_APP_META_REPLYTO', 						'');
+define('_APP_OWNER_CONTACT_MAIL', 					'');
+define('_APP_OWNER_URL', 							'');
 define('_APP_OWNER_MAP_URL', 						'');
 
 ### SOME HTML RELATED OPTIONS
@@ -78,6 +80,9 @@ define('_APP_IP_WHITELIST', 						''); 			// CSV list of IP adresses than could 
 define('_APP_PASSWORDS_EXPIRATION_TIME', 			0); 			// In seconds. Use this to make password valid only for a specific duration (0 = no expiration)
 define('_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS', 'gods,superadmins'); // Coma separated group names that won't suffer password expiration. 
 define('_APP_PASSWORD_FORBID_LAST_TWO', 			true); 			// Prevents the user to use one of its previous two passwords when changing it.
+define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES', 		0); 			// In seconds. Min time between 2 password changes for the same user. (0 = no limit)
+define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES_H', 		''); 			// (Humanly readable value for above conf).
+define('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN', 		false); 			//  
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 							'yourAccessKeyHere');
@@ -100,7 +105,8 @@ define('_APP_USE_RESOURCESGROUPS',              	true);          // experimental
 define('_APP_ENABLE_SPLITED_ONE2ONE_COLS',      	true); 			// experimental.
 define('_APP_USE_FIREPHP_LOGGING',      			true); 			// experimental. In local & dev environment, use FirePHP server lib to log data (using $this->dump()) into Firefox console (require related extension).
 define('_APP_USE_CHROMEPHP_LOGGING',      			true); 			// experimental. In local & dev environment, use ChromePHP server lib to log data (using $this->dump()) into Chrome console (require related extension).
-define('_APP_FETCH_RELATED_ONETOMANY', 				false); 		// experimental. Automatically fetch related onetomany items 
+define('_APP_FETCH_RELATED_ONETOMANY', 				false); 		// experimental. Automatically fetch related onetomany items
+define('_APP_USE_PATTERN_VALIDATION',              	true);          // experimental. 
 
 
 ?>

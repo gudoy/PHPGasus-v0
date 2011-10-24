@@ -24,7 +24,7 @@ class Model extends Application
 	);
 	
 	public function __construct(&$application)
-	{		
+	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		//$this->dataModel 	= $dataModel;
@@ -223,10 +223,10 @@ class Model extends Application
 	}
 
 	
+	/* Deprecated */
+	// No longer used
 	private function fixSpecifics($options = null)
 	{
-//$t1 = microtime(true);
-		
 		$o 			= &$options;
 		$fixTypes 	= !defined('_APP_USE_ONFETCH_TYPEFIXING') || !_APP_USE_ONFETCH_TYPEFIXING;
 		
@@ -242,13 +242,12 @@ class Model extends Application
 			foreach($this->data as $index => $itemData) { $this->data[$index] = $this->fixSpecificsSingle($itemData); }
 		}
 		
-//$t2 = microtime(true);
-//$d = $t2-$t1;
-//var_dump($d);
-		
 		return $this;
 	}
 	
+	
+	/* Deprecated */
+	// No longer used
 	private function fixSpecificsSingle($dataRow, $options = array())
 	{
 	    $o = &$options;
@@ -342,7 +341,8 @@ class Model extends Application
 				if ( !empty($curVal) && !empty($field['destBaseURL']) && filter_var($curVal, FILTER_VALIDATE_URL) === false )
 				{
 					//$dataRow[$name] = $field['destBaseURL'] . $curVal;
-					$dataRow[$name] = $field['destBaseURL'] . preg_replace('/^\/(.*)/','$1',$curVal);
+					//$dataRow[$name] = $field['destBaseURL'] . preg_replace('/^\/(.*)/','$1',$curVal);
+					$dataRow[$name] = $field['destBaseURL'] . ltrim($curVal, '/');
 				}
 			}
 			else if ( $type === 'onetomany' )
@@ -466,7 +466,8 @@ class Model extends Application
             foreach ( $data as $k => $v )
             {
                 // Fix each value (using column type)
-                $data[$k] = $this->fixDataValue($v, array('type' => $this->getDataType($k))); 
+                //$data[$k] = $this->fixDataValue($v, array('type' => $this->getDataType($k))); 
+                $data[$k] = $this->fixDataValue($v, array('type' => $this->getDataType($k), 'colName' => !is_numeric($k) ? $k : null));
             }
         }
         // Or if it's a string, directly fix the value
@@ -498,6 +499,8 @@ class Model extends Application
 //var_dump('type: ' . $t);
         
         if ( is_null($value) ){ $v = null; return $v; }
+		
+//var_dump($p);
         
         switch($t)
         {
@@ -507,8 +510,27 @@ class Model extends Application
             
             //case 'timestamp':   $v = is_numeric($v) ? (int) $v : $v; break;
             //case 'timestamp':   $v = is_numeric($v) ? (int) $v : strtotime($v); break;
-            case 'timestamp':   $v = is_numeric($v) ? (int) $v : (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U'); break;
-            
+            //case 'timestamp':   $v = is_numeric($v) ? (int) $v : (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U'); break;
+            case 'timestamp':   
+									if ( version_compare(PHP_VERSION, '5.3.0') >= 0 )
+									{
+	            						$v = is_numeric($v) 
+	            							? (int) $v 
+											: (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U'); break;										
+									}
+										else
+										{
+										if ( is_numeric($v) )
+										{
+											$v = (int) $v;
+										}
+										else
+										{
+											list($d,$m,$Y,$H,$i,$s) = sscanf($v, '%04d-%02d-%02d %02d:%02d:%02d');
+											$datetime 				= new DateTime("$Y-$m-$d $H:$i:$s");
+											$v 						= $datetime->format('U');									
+										}
+									}
             case 'bool':
             case 'boolean':     $v = in_array($v, array(true,1,'1','true','t')) ? true : false; break;
                                 
@@ -518,19 +540,17 @@ class Model extends Application
             case 'primarykey':
             case 'pk':            
             case 'onetoone':
-            case 'int':         $v = (int) $v;  break;
+            case 'int':         $v = (int) $v; break;
 				
 			case 'set':
-								$v = !empty($v) ? explode(',', (string) $v) : array();
+								$v = !empty($v) ? explode(',', (string) $v) : array(); break;
             
             case 'file':
             case 'fileduplicate':
-                /*
-                    $v = !empty($v) && !empty($p[$colProps]['destBaseURL']) && filter_var($v, FILTER_VALIDATE_URL) === false
-                            ? $p[$colProps]['destBaseURL'] . preg_replace('/^\/(.*)/','$1',$v)
-                            : $v;
-                 */
-
+			                    //$v = !empty($v) && !empty($p[$colProps]['destBaseURL']) && filter_var($v, FILTER_VALIDATE_URL) === false
+				 				//$v = !empty($v) && !empty($p[$colProps]['destBaseURL'])
+			                            //? $p[$colProps]['destBaseURL'] . ltrim($v, '/')
+			                            //: $v; break;
             case 'datetime':
             case 'time':
             case 'year':
@@ -548,6 +568,26 @@ class Model extends Application
             case 'url':
             case 'email':
             case 'enum':
+			case 'varchar':
+				// Try to get the subtype
+				$colProps = &$this->application->dataModel[$p['resource']][$p['colName']];
+				if ( isset($colProps['subtype']) && $colProps['subtype'] === 'file' )
+				{
+//var_dump('colName: ' . $p['colName']);
+//var_dump($colProps);
+//var_dump('before: ' . $v);
+			                    //$v = !empty($v) && !empty($colProps['destBaseURL']) && filter_var($v, FILTER_VALIDATE_URL) === false
+				 				$v = !empty($v) && !empty($colProps['destBaseURL'])
+			                            ? $colProps['destBaseURL'] . ltrim($v, '/')
+			                            : $v; 
+//var_dump('after: ' . $v);
+			                            break;
+										
+				}
+				else
+				{
+					$v = $v; break;
+				}
             default:            $v = $v; break;
         }
         
@@ -583,7 +623,7 @@ class Model extends Application
         // several columns, 1 row
         else if ( $o['mode'] === 'onlyOne' && ( count($o['getFields']) > 1 || empty($o['getFields']) ) )
         {
-//var_dump('several columns 1 row');
+//$this->dump('several columns 1 row');
 			$row 		= mysql_fetch_array($queryResult, MYSQL_ASSOC);
             $this->data = $this->fixData($row);
             
@@ -2618,9 +2658,9 @@ class Model extends Application
 		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
 		$o['values'] 	= !empty($o['values']) ? $o['values'] : null;
 		$o['type'] 		= 'delete';
-		
+
 		// Do not continue if no value has been passed
-		if ( empty($o['values']) && empty($o['conditions']) ) { return false; }
+		if ( empty($o['values']) && empty($o['conditions']) && empty($o['manualQuery']) ) { return false; }
 		
 		// Build the proper query
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildDelete($o);

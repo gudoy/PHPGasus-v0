@@ -85,6 +85,10 @@
 	{else}
 		{include file='common/forms/admin/fieldLine/caseVarchar.tpl'}
 	{/if}
+	
+		{if $field.hint}
+		<small class="hint"><span class="key">{t}hint{/t}{t}:{/t}</span><span class="value">{$field.hint}</span></small>
+		{/if}
 	</div>
 	
 </div>

@@ -10,6 +10,11 @@ $errorsAssoc = array(
 					'front' => _('Please fill all the required fields')),
 	'1003' => array('back' => 'Missing required field(s)',
 					'front' => _('Please fill all the required fields: %s')),
+
+	'1007' => array('back' => 'Invalid format for field',
+					'front' => _('The format of the following field is invalid: %s')),					
+	'1008' => array('back' => 'Invalid format for field(s)',
+					'front' => _('The format of the following field(s) are invalid: %s')),
 					
 	'1010' => array('back' => 'Wrong %s value',
 					'front' => _('The passed %s value is not the expected one.')),
@@ -123,8 +128,8 @@ $errorsAssoc = array(
 					'front' => _('Your account has been blocked. Please contact us by email: %')),
 	'10033' => array('back' => 'Password expired',
 					'front' => _('Your password is expired. You have to change it to be able to login again.')),
-	'10040' => array('back' => 'WS Invalid login/password',
-					'front' => _('Invalid login and/or password')),
+	'10035' => array('back' => 'Last password change too recent',
+					'front' => _('Your last password change is too recent. The minimun time between 2 password changes is: ') . _(_APP_PASS_MIN_TIME_BETWEEN_CHANGES_H)),
 	'10050' => array('back' => 'Parental codes not matching',
 					'front' => _('The parental code and it\'s confirmation are not identical')),
 	'10051' => array('back' => 'ParentalCodeOld not correct',

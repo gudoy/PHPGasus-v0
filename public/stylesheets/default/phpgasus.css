@@ -213,6 +213,10 @@ form .labelBlock label + .info.tooltip { margin-left:-10px; margin-right:10px; }
 form .labelBlock .info.tooltip + label { margin-right:0; }
 form .line.legendLine + .buttonsLine { margin-top:-3em; }
 form .captchaHint { margin-left:10px; font-style:italic; }
+form .hint { width:80%; display:block; clear:both; font-size:10px; color:gray; opacity:0.1; }
+form input:focus + .hint,
+form .fieldBlock.focused > .hint { opacity:1; }
+form .hint .key { display:none; }
 
 .buttonsLine .sep.or { margin:0 5px; color:#666; }
 

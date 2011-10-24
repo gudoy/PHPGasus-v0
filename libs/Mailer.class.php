@@ -18,8 +18,9 @@ class Mailer extends View
 	
 	public function fetch($options = array())
 	{
-		$o = $options;
-		$o['data'] = !empty($o['data']) ? $o['data'] : null;
+		//$o = $options;
+		//$o['data'] = !empty($o['data']) ? $o['data'] : null;
+		$o = array_merge(array('data' => null), $options);
 		
 		if ( empty($o['template']) ) { return; }
 
@@ -48,6 +49,7 @@ class Mailer extends View
 		// If no recipient has been passed, do not continue
 		if ( empty($o['to']) || empty($o['subject']) || empty($o['content']) ){ return; }
 		
+		$this->replyTo 		= !empty($o['replyTo']) ? $o['replyTo'] : $this->from;
 		$this->subject 		= !empty($o['subject']) ? $o['subject'] : $this->subject;
 		$this->to 			= !empty($o['to']) ? $o['to'] : $this->to;
 		$this->format 		= !empty($o['format']) ? $o['format'] : 'text';
@@ -60,7 +62,8 @@ class Mailer extends View
 		$headers .= "Delivered-to:" . $this->to . "\n";
 		$headers .= (!empty($o['cc'])) ? "Cc:" . $o['cc'] . "\n" : '';
 		$headers .= (!empty($o['cci'])) ? "Cci:" . $o['cci'] . "\n" : '';
-		$headers .= "Reply-To:" . $this->from . "\n";
+		//$headers .= "Reply-To:" . $this->from . "\n";
+		$headers .= "Reply-To:" . $this->replyTo . "\n";
 		$headers .= "Return-Path:" . $this->from . "\n";
 		//$headers .= "Content-type: text/html; charset=utf-8 MIME-Version: 1.0 \n";
 		//$headers .= "Content-Type: text/plain; charset=UTF-8 MIME-Version: 1.0 \n";

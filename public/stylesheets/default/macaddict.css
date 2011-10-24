@@ -55,6 +55,8 @@ form option { min-height:0; }
 form input[disabled=1],
 form select[disabled=true],
 form button[disabled=disabled] { opacity:0.3; }
+form input:focus { box-shadow:-2px 0 2px rgba(110,160,220,.8), 0 -2px 2px rgba(110,160,220,.8), 2px 0 2px rgba(110,160,220,.8), 0 2px 2px rgba(110,160,220,.8); outline:none; }
+form .hint { padding-top:4px; color:blue; color:rgba(110,160,220,1); opacity:0.1; }
 /*
 form input:required {}
 form input:optional {}
@@ -236,7 +238,7 @@ footer.menu { display:none; }
 /*#adminMainNav { margin:10px; clear:none; }*/
 .js #mainNavBlock > .nav { padding:0 20px; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; border:1px solid #515151; -webkit-box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; box-shadow:0 1px 0 rgba(255,255,255,0.5) inset; }
 #header .nav a { text-decoration:none; letter-spacing:normal; }
-#header .nav .item-lv1 > a { -webkit-tap-highlight-color:rgba(0,0,0,0.5); }
+#header .nav .item-lv1 > a { color:#000; -webkit-tap-highlight-color:rgba(0,0,0,0.5); }
 #header .nav-lv2 { margin:0; padding:0; background:#fefefe; border:1px solid #bebebe; }
 #header .nav .item-lv2 { margin:0; }
 #header .nav .item-lv2 > a { padding:10px 10px; display:block; border-top:1px solid #d7d7d7; color:#000; }
@@ -383,6 +385,8 @@ section .adminBlock { margin:0 0 20px; }
 
 #loginBlock #lostPasswordLink { margin:10px 20% 0; display:block; clear:both; float:right; position:relative; right:-8px; text-align:right; }
 
+#accountConfirmation #definePasswordForm legend { display:none; }
+
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 
 {
@@ -437,19 +441,26 @@ section .adminBlock { margin:0 0 20px; }
 	.lostPasswordForm,
 	.adminCreateBlock form,
 	.adminUpdateBlock form { margin:15px; border:1px solid #999; }
+	#accountConfirmation { border:1px solid #999; }
+	section#accountConfirmation header { min-height:1px; padding-left:10px; padding-right:10px; }
+	#accountConfirmation .content p { padding:0 10px 20px; }
+	#accountConfirmation .actions { padding:0 10px 20px; }
 	#lostPasswordForm p { padding:15px; }
 	
     /* Login */
     .accountLogin #body, 
     .accountPasswordLost #body,
-    .accountPasswordReset #body { -moz-box-pack:center; -webkit-box-pack:center; box-pack:center; -moz-box-align:center; -webkit-box-align:center; box-align:center; }
+    .accountPasswordReset #body,
+    .accountConfirmation #body { -moz-box-pack:center; -webkit-box-pack:center; box-pack:center; -moz-box-align:center; -webkit-box-align:center; box-align:center; }
     
     #loginBlock,
     #lostPasswordBlock,
-    #resetPasswordBlock { max-width:480px; margin:100px auto; -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; }
+    #resetPasswordBlock,
+    #accountConfirmation { max-width:480px; margin:100px auto; -moz-box-flex:1; -webkit-box-flex:1; box-flex:1; }
     #loginBlock form,
     #lostPasswordBlock form,
-    #resetPasswordBlock form { -webkit-box-shadow:0 0 3px #333, 5px 5px 10px #AFAFAF; box-shadow:0 0 3px #333, 5px 5px 10px #AFAFAF; }
+    #resetPasswordBlock form,
+    #accountConfirmation { -webkit-box-shadow:0 0 3px #333, 5px 5px 10px #AFAFAF; box-shadow:0 0 3px #333, 5px 5px 10px #AFAFAF; }
     #loginBlock input { float:none; }
     #loginBlock #lostPasswordLink { display:inline-block; }
 	

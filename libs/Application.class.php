@@ -78,7 +78,7 @@ class Application
 		$accptHeader = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']) : '';
 		
 		// Try to find lang in GET param
-		if ( empty($lang) && isset($_GET['lang']) && in_array(strtolower($_GET['lang']), $known) )		{ $lang = strtolower($_GET['lang']); }
+		if ( empty($lang) && isset($_GET['lang']) && in_array(strtolower($_GET['lang']), $known) )			{ $lang = strtolower($_GET['lang']); }
 		
 		// Try to find lang in POST param
 		if ( empty($lang) && isset($_POST['lang']) && in_array(strtolower($_POST['lang']), $known) )		{ $lang = strtolower($_POST['lang']); }
