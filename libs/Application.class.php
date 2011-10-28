@@ -474,7 +474,7 @@ class Application
 		ini_set('session.cookie_httponly', 	1);
 		
 		// Secure session cookies if login is only activated through https,
-		ini_set('session.cookie_secure', ( _APP_HTTPSONLY_LOGIN && strpos(_APP_PROTOCOL, 'https') !== false ) ? 1 : 0);	
+		ini_set('session.cookie_secure', ( defined('_APP_HTTPSONLY_LOGIN') && _APP_HTTPSONLY_LOGIN && strpos(_APP_PROTOCOL, 'https') !== false ) ? 1 : 0);	
 		
 		// Always disable register globals 
 		ini_set('register_globals', 0);

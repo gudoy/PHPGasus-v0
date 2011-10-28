@@ -149,6 +149,8 @@ $errorsAssoc = array(
 					
 	'10200' => array('back' => 'Unknown user',
 					'front' => _('This user does not seem to be registered')),
+	'10205' => array('back' => 'Unknown email',
+					'front' => _('Unknown email.')),
 					
 	'10310' => array('back' => 'Incorrect creditCardOwnerName format',
 					'front' => _('Credit card owner name not correct. Only letters and spaces (3 to 64 characters).')),

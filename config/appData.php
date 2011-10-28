@@ -68,7 +68,7 @@ define('_SESSION_NAME', 							'token'); 		// Name of the sessions
 define('_APP_ALLOW_GET_SID_FROM_URL', 				false); 		// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
 define('_APP_USE_ACCOUNTS', 						true); 			// Disable this prevent app from trying to update sessions table on each page load
 define('_APP_ALLOW_SIGNUP', 						false); 		// Allow users to sign up by themselves
-define('_APP_SESSION_DURATION', 					900); 			// In seconds. (ex: 900s = 15 minutes)
+define('_APP_SESSION_DURATION', 					60*15); 			// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 			true); 			// 
 define('_APP_HTTPSONLY_LOGIN', 						true); 			// Only allow login on HTTPS (add 'httpOnly' & 'secure' params to session/cookies)
 define('_APP_KEEP_OLD_SESSIONS', 					false); 		// By default, when a user login, its sessions older than 1 day are deleted
@@ -79,10 +79,10 @@ define('_APP_ALLOW_LOST_PASSWORD_RESET', 			true); 			// Allow users to reset th
 define('_APP_IP_WHITELIST', 						''); 			// CSV list of IP adresses than could not be banned. Ex: 127.0.0.1,192.168.0.1
 define('_APP_PASSWORDS_EXPIRATION_TIME', 			0); 			// In seconds. Use this to make password valid only for a specific duration (0 = no expiration)
 define('_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS', 'gods,superadmins'); // Coma separated group names that won't suffer password expiration. 
-define('_APP_PASSWORD_FORBID_LAST_TWO', 			true); 			// Prevents the user to use one of its previous two passwords when changing it.
+define('_APP_PASSWORD_FORBID_LAST_TWO', 			false); 			// Prevents the user to use one of its previous two passwords when changing it.
 define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES', 		0); 			// In seconds. Min time between 2 password changes for the same user. (0 = no limit)
 define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES_H', 		''); 			// (Humanly readable value for above conf).
-define('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN', 		false); 			//  
+define('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN', 		false); 		//  
 
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 							'yourAccessKeyHere');

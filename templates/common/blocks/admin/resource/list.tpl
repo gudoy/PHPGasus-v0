@@ -1,10 +1,12 @@
 {block name='adminIndexBlockHeader'}
 <header class="titleBlock">
+	{block name='adminIndexBlockTitle'}
 	<h2 class="title">
 		<a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$resourceName}
 		</a>
 	</h2>
+	{/block}
 	{if count($data[$resourceName]) || $data.total[$resourceName]}
     <span class="counts countsBlock" id="resourceCountsBlock">
         <span class="key">{t}counts{/t}</span>

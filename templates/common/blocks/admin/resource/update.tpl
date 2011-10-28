@@ -1,14 +1,18 @@
-<header class="header titleBlock">
+{block name='adminUpdateBlockHeader'}
+<header class="titleBlock">
+	{block name='adminUpdateBlockTitle'}
 	<h2 class="title">
         <a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
 			{$resourceName} - {$data[$resourceName].id}
 		</a>
 	</h2>
+	{/block}
 	<span class="actions actionsBlock">
 		{include file='common/blocks/admin/resource/actions/actions.tpl'}
 	</span>
 	{include file='common/blocks/admin/pagination/index.tpl' adminView='update'}
 </header>
+{/block}
 
 <div class="contentBlock">
 

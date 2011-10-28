@@ -34,13 +34,13 @@ class VPassword extends View
 			$email 		= filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL);
 			$user 		= $CUsers->retrieve(array('by' => 'email', 'values' => $email));
 			
-			// If the user has been found, send the reset password link to the user
-			if ( $user )
-			{
-				$CUsers->sendResetPasswordMail($user['id']);
+			// If the user has not been found 
+			if ( !$user ){ $this->data['errors'][10205] = null; $this->render(); }
+			
+			// Send the reset password link to the user
+			$CUsers->sendResetPasswordMail($user['id']);
 				
-				$this->data['success'] = true;
-			}
+			$this->data['success'] = true;
 		}
 
 		return $this->render();
@@ -77,8 +77,13 @@ class VPassword extends View
 		
 		// We have to make the 'password_expiration' fields temporarily editable
 		$uDM 				= &$CUsers->application->dataModel['users'];
-		$curPassExpEditable = isset($uDM['password_expiration']['editable']) ? $uDM['password_expiration']['editable'] : null ;
-		$uDM['password_expiration']['editable'] = true;
+		if ( isset($uDM['password_expiration']) )
+		{
+			$curPassExpEditable =  isset($uDM['password_expiration']['editable']) 
+									? $uDM['password_expiration']['editable'] 
+									: null ;
+			$uDM['password_expiration']['editable'] = true;	
+		}
 		
 		// Get user
 		$user 				= !empty($args[0]) ? $CUsers->retrieve(array('by' => 'id', 'values' => $uId)) : null;
@@ -160,7 +165,7 @@ class VPassword extends View
 		}
 
 		// We can now return 'password_expiration' editable property to its original value
-		$uDM['password_expiration']['editable'] 	= $curPassExpEditable;
+		if ( isset($uDM['password_expiration']) ){ $uDM['password_expiration']['editable'] 	= $curPassExpEditable; }
 		
 		// Send the dataModel to the html templates to be able to add pattern & hints to form elements
 		if ( in_array($this->options['output'], array('html','xhtml')) )
