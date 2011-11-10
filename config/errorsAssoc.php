@@ -107,7 +107,7 @@ $errorsAssoc = array(
 	'10017' => array('back' => 'Missing reset password key in database',
 					'front' => _('You are not allowed reset your password. Please use the \'lost password?\' feature first.')),
 	'10018' => array('back' => 'Wrong security reset password key',
-					'front' => _('The security key you are using is the expected one. Return to the \'lost password?\' page to get a new mail with a new reset password link.')),
+					'front' => _('The security key you are using is not the expected one. Return to the \'lost password?\' page to get a new mail with a new reset password link.')),
 	'10019' => array('back' => 'Last 2 passwords and current one are not allowed.',
 					'front' => _('You are not allowed to use neither one of your 2 previous passwords nor the current one. Please choose another one.')),
 	'10020' => array('back' => 'Login already exists',

@@ -30,6 +30,7 @@ define('_APP_MANIFEST_FILENAME', 					_APP_TITLE . '.manifest'); //
 define('_APP_META_DECRIPTION', 						'');
 define('_APP_META_KEYWORDS', 						'');
 define('_APP_META_ROBOTS_INDEXABLE', 				false);			// Allows/prevents pages to be indexed by Google & Friends?
+define('_APP_META_ROBOTS_FOLLOW', 					false);			// Allows/prevents linked pages to be indexed by Google & Friends?
 define('_APP_META_ROBOTS_ARCHIVABLE', 				false);			// Allows/prevents search engines to display "in cache" links in their search results
 define('_APP_META_ROBOTS_IMAGES_INDEXABLE', 		false);			// Allows/prevents search engines to index your images
 define('_APP_META_GOOGLE_TRANSLATABLE', 			true);			// Allows/prevents Google to offer translation link/feature for your pages

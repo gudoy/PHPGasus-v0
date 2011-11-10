@@ -105,6 +105,7 @@ class Model extends Application
 		
 		// Tell mysql we are sending already utf8 encoded data
 		mysql_query("SET NAMES 'UTF8'");
+		mysql_query("SET group_concat_max_len = 10240");
 		
 		return $this;
 	}
