@@ -510,26 +510,28 @@ class Model extends Application
             //case 'timestamp':   $v = is_numeric($v) ? (int) $v : $v; break;
             //case 'timestamp':   $v = is_numeric($v) ? (int) $v : strtotime($v); break;
             //case 'timestamp':   $v = is_numeric($v) ? (int) $v : (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U'); break;
-            case 'timestamp':   
-									if ( version_compare(PHP_VERSION, '5.3.0') >= 0 )
+            case 'timestamp':  
+				
+								if ( version_compare(PHP_VERSION, '5.3.0') >= 0 )
+								{
+            						$v = is_numeric($v) 
+            							? (int) $v 
+										: (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U');										
+								}
+								else
+								{
+									if ( is_numeric($v) )
 									{
-	            						$v = is_numeric($v) 
-	            							? (int) $v 
-											: (int) DateTime::createFromFormat('Y-m-d H:i:s', $v, new DateTimeZone('UTC'))->format('U'); break;										
+										$v = (int) $v;
 									}
-										else
-										{
-										if ( is_numeric($v) )
-										{
-											$v = (int) $v;
-										}
-										else
-										{
-											list($d,$m,$Y,$H,$i,$s) = sscanf($v, '%04d-%02d-%02d %02d:%02d:%02d');
-											$datetime 				= new DateTime("$Y-$m-$d $H:$i:$s");
-											$v 						= $datetime->format('U');									
-										}
+									else
+									{
+										list($d,$m,$Y,$H,$i,$s) = sscanf($v, '%04d-%02d-%02d %02d:%02d:%02d');
+										$datetime 				= new DateTime("$Y-$m-$d $H:$i:$s");
+										$v 						= $datetime->format('U');									
 									}
+								}
+								break;
             case 'bool':
             case 'boolean':     $v = in_array($v, array(true,1,'1','true','t')) ? true : false; break;
                                 

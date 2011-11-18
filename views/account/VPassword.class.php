@@ -140,7 +140,10 @@ class VPassword extends View
 			);
 			$sid 		= CSessions::getInstance()->create(array('isApi' => 1, 'returning' => 'id'));
 			
-			// Store the session data
+			// Store the current session data
+			$curSESSION = $_SESSION;
+			
+			// Insert logged user data into session
 			$_SESSION 	= array_merge((array) $_SESSION, array('id' => session_id(), 'user_id' => $user['id']));
 			
 			// If everything is ok, reset the user password
@@ -154,10 +157,11 @@ class VPassword extends View
 			// Only then can the password be changed			
 			$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
 			
-			// We can now log the user out
+			// We can now log the user out & restore session to it's previous state
 			$this->application->logged = false;
 			unset($_SESSION);
 			session_destroy();
+			$_SESSION = $curSESSION;
 			
 			$this->data['success'] 	= $CUsers->success;
 			$this->data['errors'] 	= $CUsers->errors;
@@ -309,7 +313,10 @@ class VPassword extends View
 					$sid 		= CSessions::getInstance()->create(array('isApi' => 1, 'returning' => 'id'));
 					$_POST 		= $curPOST;
 					
-					// Store the session data
+					// Store the current session data
+					$curSESSION = $_SESSION;
+					
+					// Insert logged user data into session
 					$_SESSION 	= array_merge((array) $_SESSION, array('id' => session_id(), 'user_id' => $user['id']));
 				}
 				
@@ -326,10 +333,11 @@ class VPassword extends View
 				
 				if ( !$this->isLogged() )
 				{
-					// We can now log the user out
+					// We can now log the user out & restore session to it's previous state
 					$this->application->logged = false;
 					unset($_SESSION);
-					session_destroy();	
+					session_destroy();
+					$_SESSION = $curSESSION;
 				}
 				
 				// Clean $_POST
