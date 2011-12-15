@@ -74,7 +74,7 @@ class VAccount extends View
 		
 		// If data have been posted
 		if ( !empty($_POST) )
-		{			
+		{
 			// If the user login attemps reached the max allowed one
 			// and if its IP it not in the whitelist
 			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') 
@@ -119,8 +119,6 @@ class VAccount extends View
 			// Get the user data
 			$CUsers 		= new CUsers();
 			$user 			= $CUsers->retrieve(array('by' => 'email', 'values' => $email));
-			
-//var_dump($user);
 			
 			// If user mail is not found
 			if ( !$user ){ $this->data['errors'][] = 10002; $this->statusCode(401); return $this->render(); }

@@ -10,10 +10,18 @@ class AdminView extends View
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
         // TODO: used? doubloon with $this->data['_resources'] & $this->data['resourcesFields']?
+        /*
 		$this->dataModel = array(
 			'resources' 		=> &$resources,
 			'resourcesFields' 	=> &$dataModel,
-		);
+		);*/
+		
+		
+		$this->data = array_merge($this->data, array(
+			'dataModel' 		=> &$dataModel, 			// TODO: rename in _columns
+			'_resources' 		=> &$resources,
+			'_resourcesGroups' 	=> &$_resourcesGroups,
+		));
 		
 		parent::__construct($application);
 		
@@ -27,7 +35,8 @@ class AdminView extends View
         {
             // Deprecated
             // Compute the metadata for each of the resources
-            foreach((array) $this->dataModel['resources'] as $key => $val)
+            //foreach((array) $this->dataModel['resources'] as $key => $val)
+            foreach((array) $this->data['_resources'] as $key => $val)
             {
                 $rName                          = is_numeric($key) ? $val : $key;
                 $this->data['metas'][$rName]    = $this->meta($rName);
@@ -35,12 +44,13 @@ class AdminView extends View
         }		
 		
         // TODO: clean this
+        /*
 		$this->data = array_merge($this->data, array(
 			'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
 			//'_dataModel'          	=> &$this->dataModel['resourcesFields'],
 			'_resources'             => &$this->dataModel['resources'],
 			'_resourcesGroups'       => &$_resourcesGroups,
-		));
+		));*/
 		
 		$this->data['search'] 			= array();
         $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
@@ -70,9 +80,8 @@ class AdminView extends View
 		if ( empty($resourceName) ){ return array(); }
 		
 		$r 							= &$resourceName;
-		$dmR 						= &$this->dataModel['resources'];
-		//$dmGp						= &$this->dataModel['resourceGroups'];
-		
+		//$dmR 						= &$this->dataModel['resources'];
+		$dmR 						= &$this->data['_resources'];
 		$m 							= array();
 		$m['name'] 					= $r;
 		$m['displayName'] 			= !empty($dmR[$r]['displayName']) ? $dmR[$r]['displayName'] : $m['name'];
@@ -81,18 +90,14 @@ class AdminView extends View
 		$m['hasChildren'] 			= !empty($dmR[$r]['children']);
 		$m['hasParentGroups'] 		= !empty($dmR[$r]['parentGroups']);
 		$m['mainParentGroup'] 		= $m['hasParentGroups'] ? $dmR[$r]['parentGroups'][0] : '';
-		//$m['parent'] 				= $m['hasAncestors'] ? $dmR[$r]['childOf'][0] : array();
 		$m['parent'] 				= $m['hasAncestors'] ? $dmR[$r]['childOf'][0] : '';
 		$m['parentSingular']		= !empty($m['parent']) ? $dmR[$m['parent']]['singular'] : '';
-		// TODO: get ancestors recursively (parent and parent or parent, ...)
 		$m['ancestors'] 			= $m['hasAncestors'] ? $dmR[$r]['childOf'] : array();
 		$m['children'] 				= $m['hasChildren'] ? $dmR[$r]['children'] : array();
-		// TODO: get clean recursively (remove parent and parent or parent, ...) ???
 		$m['shortname'] 			= $m['hasAncestors'] ? str_replace($m['parentSingular'], '', $r) : $m['name'];
 		$m['ancestorsPath'] 		= $m['hasAncestors'] ? join('/', $m['ancestors']) : '';
 		$m['shortPath'] 			= $m['ancestorsPath'] . (!empty($m['ancestorsPath']) ? '/' : '')  . $m['shortname'];
 		$m['fullAdminPath'] 		= _URL_ADMIN . ( !empty($m['mainParentGroup']) ? $m['mainParentGroup'] . '/' : '' ) . $m['shortPath'] . '/';
-		//$m['breadcrumbs'] 			= array_merge($m['ancestors'], array($m['name']));
 		$m['breadcrumbs'] 			= !empty($this->resourceGroupName) 
 										? array_merge(array($this->resourceGroupName), $m['ancestors'], array($m['name']))
 										: array_merge($m['ancestors'], array($m['name']));
@@ -112,17 +117,11 @@ class AdminView extends View
 		
 		// Shortcut for options
 		$o 						= &$options;
-		
-		// 
-		//$o['authLevel'] 		= !empty($o['authLevel']) ? $o['authLevel'] : ( isset($this->authLevel) ? $this->authLevel : null );
-		//$o['authLevel'] 		= !empty($o['authLevel']) && !is_array($o['authLevel']) ? (array) $o['authLevel'] : $o['authLevel'];
 		$o['failureRedirect'] 	= !empty($o['redirection']) ? $o['redirection'] : ( isset($this->authFailureRedirect) ? $this->authFailureRedirect : _URL_HOME );
-        
-        $knownActions   = array('display','create','retrieve','update','delete','search');    // List of knowns actions
-		
-		$curURL 		= $this->currentURL();
-		$t 				= parse_url($curURL); 
-		$redir 			= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
+        $knownActions   		= array('display','create','retrieve','update','delete','search');    // List of knowns actions
+		$curURL 				= $this->currentURL();
+		$t 						= parse_url($curURL); 
+		$redir 					= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		
 		// Get the user id
 		$uid = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
@@ -157,7 +156,8 @@ class AdminView extends View
             // Gods are allmighty
             if ( $isGod )
             {
-                $resList = array_keys($this->dataModel['resources']);
+                //$resList = array_keys($this->dataModel['resources']);
+                $resList = array_keys($this->data['_resources']);
                 
                 foreach ($knownActions as $action)
                 {
@@ -179,7 +179,8 @@ class AdminView extends View
                     
                     // Special case for search action that should be allowed if retrieve action is allowed
                     // AND if the resource is searchable
-                    if ( $action === 'search' && !empty($this->dataModel['resources'][$rName]['searchable']) )
+					//if ( $action === 'search' && !empty($this->dataModel['resources'][$rName]['searchable']) )
+					if ( $action === 'search' && !empty($this->data['_resources'][$rName]['searchable']) )
                     {
                         $uAuths[$rName][$aN]        = true;
                         $uAuths['__can_search'][]   = $rName;
@@ -209,7 +210,8 @@ class AdminView extends View
                         
                         // Special case for search action that should be allowed if retrieve action is allowed
                         // AND if the resource is searchable                        
-                        if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->dataModel['resources'][$rName]['searchable']) )
+                        //if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->dataModel['resources'][$rName]['searchable']) )
+                        if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->data['_resources'][$rName]['searchable']) )
                         {
                             $uAuths[$rName][$aN]    = true;
                             $uAuths[$cN][]          = $rName;
@@ -380,14 +382,17 @@ class AdminView extends View
         // Second case, global search on every searchable resource on every searchable columns
         else
         {
+        	//$rNb 		= 0; 	// resource count (increased for every searched resource)
+        	//$colsNb 	= 0; 	// columns count (increased for every searched columns)
+			
             // Instanciate searchable resources and get search results for each one of them
             foreach ( array_keys($searchable) as $rName )
             {
-                $cName  = 'C' . ucfirst($rName);            // Build controller name
-                $$cName = new $cName();                     // Instanciate controller
+                $cName  = 'C' . ucfirst($rName); 			// Build controller name
+                $$cName = new $cName(); 					// Instanciate controller
                 
-                $cols   = $searchable[$rName]['columns'];     // Get searchable cols for the current resource
-                $this->options['conditions'] = array();     // Force conditions to be empty (only handle search conditions)
+                $cols   = $searchable[$rName]['columns']; 	// Get searchable cols for the current resource
+                $this->options['conditions'] = array(); 	// Force conditions to be empty (only handle search conditions)
                 
                 $colsCount  = count($cols);
 				
@@ -395,19 +400,28 @@ class AdminView extends View
 				if ( $colsCount === 0 ) { continue; }
 				
                 $i          = 0;
+				
 	            foreach ($cols as $col)
 	            {
 	                //$cond                           = array($col,'contains',$s['query'],'or');
 	                $cond                           = array($col,'contains',$s['query']);
 	                
 	                # Handle parenthesis wrappers for 'OR' conditions
-	                if 		( $i === 0 && $colsCount = 1 ) 	{ $cond[] = ''; }
-					elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
-					else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
+	                //if 		( $i === 0 && $colsCount = 1 ) 	{ $cond[] = ''; }
+					//elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
+					//else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
+					//else                                	{ $cond[] = 'or'; }
+					
+	                if 		( $i === 0 ) 					{ $cond[] = ''; $cond['before'] = '('; }
+					else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond['after'] = ')'; }
 					else                                	{ $cond[] = 'or'; }
+					
+					// 
+					//if 		( $colsNb === 0  ) 	{ $cond['before'] = (isset($cond['before']) ? $cond['before'] : '') . '('; }
 	                
 	                $this->options['conditions'][]  = $cond;
 	                $i++;
+					//$colsNb++;
 	            }
              
                 $this->events->trigger('onBeforeSearch' . ucfirst($rName), array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
@@ -432,7 +446,14 @@ class AdminView extends View
                     // Set output data                         
                     $this->data[$rName] = $results;
                 }
+				
+				//$rNb++;
             }
+
+			// Reset conditions array();
+			$this->options['conditions'] = array();  
+
+$this->dump($this->options['conditions']);
 
             $curURL     = $this->currentURL();
 
@@ -691,7 +712,8 @@ class AdminView extends View
 		if ( !empty($_GET['forceFileDeletion']) && !empty($args[1]) )
 		{
 			$fName 			= $args[1]; 					// Shortcut for file field name
-			$rFields 		= !empty($this->resourceName) ? $this->dataModel['resourcesFields'][$this->resourceName] : null;
+			//$rFields 		= !empty($this->resourceName) ? $this->dataModel['resourcesFields'][$this->resourceName] : null;
+			$rFields 		= !empty($this->resourceName) ? $this->data['dataModel'][$this->resourceName] : null;
 			
 			if ( isset($rFields[$fName]) && $rFields[$fName]['subtype'] === 'file' )
 			{

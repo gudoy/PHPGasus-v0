@@ -13,7 +13,7 @@ $_resourcesGroups = array(
 $resources = array(
 'adminlogs' 		=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs'),
 'apps' 				=> array('singular' => 'app', 'alias' => 'app', 'defaultNameField' => 'admin_title', 'searchable' => 1),
-'bans' 				=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'), 
+'bans' 				=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'),
 'appsplatforms' 	=> array('singular' => 'appsplatform', 'table' => 'apps_platforms', 'alias' => 'appptf', 'defaultNameField' => 'id', 'displayName' => 'apps platforms'),
 'categories'		=> array('singular' => 'category', 'alias' => 'cat', 'defaultNameField' => 'slug', 'searchable' => 1, 'exposed' => 1),
 'clients' 			=> array('singular' => 'client', 'alias' => 'cl', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title', 'searchable' => 1),

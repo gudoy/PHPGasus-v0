@@ -440,7 +440,7 @@ var admin =
 						.find('input.pageNb')
 							.bind('change', function(e)
 							{
-								$.load(relResURL, $dialog);
+								$.load(relResURL, dialogId);
 							})
 						.end()
 						.dialog(
@@ -467,12 +467,13 @@ var admin =
 											id 		= $.trim($slctd.find('td.idCol .dataValue').text()) || null,
 											txtVal 	= $.trim($slctd.find('td.defaultNameField .dataValue').text()) || null;
 											
-//Tools.log(id + ' - ' + txtVal);
 										$input.val(id);
 										
 										$ctnr
-											.find('.idValue').text(id).removeClass('empty')
-											.siblings('.textValue').text(txtVal).removeClass('empty');
+											.find('.idValue')
+												.removeClass('empty').text(id)
+												.siblings('.textValue')
+												.removeClass('empty').text(txtVal);
 										
 										$(this).dialog('close');
 									}
@@ -1147,6 +1148,34 @@ var admin =
 		});
 		
 		return this;
+	},
+	
+	handleRTEFields: function()
+	{
+console.log('handle RTE Fields');
+		$('textarea.rteEditor')
+.css('border','1px solid red')
+			.tinymce(
+		{
+			// Location of TinyMCE script
+			//script_url : '/public/javascripts/common/libs/tiny_mce/tiny_mce.js',
+			script_url : '/public/javascripts/common/libs/tiny_mce/tiny_mce.js',
+
+			// General options
+			theme : 'advanced',
+			
+			theme_advanced_buttons1 :'bold,italic,underline,strikethrough,|,undo,redo,|,bullist,numlist,|,code,',
+			theme_advanced_buttons2 : '',
+			theme_advanced_buttons3 : '',
+			theme_advanced_buttons4 : '',
+			
+			theme_advanced_layout_manager : 'SimpleLayout',
+			theme_advanced_toolbar_location : 'top',
+			theme_advanced_toolbar_align : 'left',
+			theme_advanced_resizing : true,
+		});
+		
+		return this;
 	}
 };
 
@@ -1159,9 +1188,14 @@ var adminIndex =
 		var self 	= this,
 			support = {
 				detailsSummary: ( 'open' in document.createElement('details') )
-			};
+			},
+			$toolbars = $('.adminListToolbar');
+		;
 
 		admin.init();
+		
+		// Hide action buttons (since they only are necessary when items are selected)
+		$toolbars.find('.actionsButtons').hide()
 		
 		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
         $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
@@ -1240,12 +1274,23 @@ var adminIndex =
 				else if ( jt.is(':input') )
 				{	
 					if 		( jt.is('#toggleAll') ){ return self.toggleAll(jt); }
-					//else if ( jt.is(':checkbox') ) { jt.closest('tr').toggleClass('ui-selected'); }
 					else if ( jt.is(':checkbox') )
 					{
 						var jTR = jt.closest('tr');
-						//jt.closest('tr').toggleClass('ui-selected');
-						jt.is(':checked') ? jTR.addClass('ui-selected') : jTR.removeClass('ui-selected ui-selectee') 
+						//jt.is(':checked') ? jTR.addClass('ui-selected') : jTR.removeClass('ui-selected ui-selectee')
+						
+						if ( jt.is(':checked') )
+						{
+							jTR.addClass('ui-selected');
+							
+							$toolbars.find('.actionsButtons').show();
+						}
+						else
+						{
+							jTR.removeClass('ui-selected ui-selectee');
+							
+							if ( !$('.ui-selected', self.context).length ){ $toolbars.find('.actionsButtons').hide(); }
+						}
 					}
 					
 					return true;
@@ -1396,15 +1441,16 @@ var adminIndex =
 	
 	toggleAll: function()
 	{
-		var self 	= this,
-			args 	= arguments,
-			action 	= args[0] && typeof args[0] === 'string' 
-						? (args[0] === 'check' ? 'check' : 'uncheck')
-						: ($(args[0]).is(':checked') ? 'check' : 'uncheck'),
-			all 	= $('input:checkbox:visible', self.context);
+		var self 		= this,
+			args 		= arguments,
+			action 		= args[0] && typeof args[0] === 'string' 
+							? (args[0] === 'check' ? 'check' : 'uncheck')
+							: ($(args[0]).is(':checked') ? 'check' : 'uncheck'),
+			all 		= $('input:checkbox:visible', self.context),
+			$toolbars 	= $('.adminListToolbar');
 		
-		if ( action === 'check' )	{ all.attr('checked','checked').closest('tr').addClass('ui-selected'); }
-		else 						{ all.removeAttr('checked').closest('tr').removeClass('ui-selectee ui-selected'); }
+		if ( action === 'check' )	{ all.attr('checked','checked').closest('tr').addClass('ui-selected'); $toolbars.find('.actionsButtons').show(); }
+		else 						{ all.removeAttr('checked').closest('tr').removeClass('ui-selectee ui-selected'); $toolbars.find('.actionsButtons').hide(); }
 		
 		return this;
 	},
@@ -1846,6 +1892,7 @@ var adminCreate =
 			.handleOneToManyFields()
 			.handleFileFields()
 			.handleSetFields()
+			.handleRTEFields()
 		;
 		
 		return this;
@@ -1868,6 +1915,7 @@ var adminUpdate =
 			.handleOneToManyFields()
 			.handleFileFields()
 			.handleSetFields()
+			.handleRTEFields()
 		;
 		
 		return this;

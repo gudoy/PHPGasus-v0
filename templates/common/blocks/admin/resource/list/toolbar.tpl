@@ -70,4 +70,50 @@
     </div>
     {/if}
     {/block}
+    <div class="group settings">
+    	<span class="title">{t}settings{/t}</span>
+    	<div class="groups">
+	        <div class="group">
+	        	<span class="title">{t}display mode{/t}</span>
+	        	<span class="actions">
+		            <a class="action actionBtn displayMode tableMode" id="tableMode">
+		                <span class="value">{'table'|gettext}</span>
+		            </a>
+		            <a class="action actionBtn displayMode listMode" id="listMode">
+		                <span class="value">{'list'|gettext}</span>
+		            </a>
+		            <a class="action actionBtn displayMode thumbsMode" id="thumbsMode">
+		                <span class="value">{'thumbnails'|gettext}</span>
+		            </a>
+	        	</span>
+	        </div>
+		    <div class="group itemsCounts">
+		        <span class="title">{t}Nb of items displayed{/t}</span>
+		        {$data.current.urlParams.offset = null}
+		        {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
+		        <fieldset>
+		            <select id="itemsPerPage{$position|ucfirst}" class="sized itemPerPage" name="limit" formmethod="get">
+		                {foreach array(25,50,100,200,500) as $nb}
+		                <option value="{$nb}" {if $nb === $nbOfItemsPerPage}selected="selected"{/if}>{$nb}</option>
+		                {/foreach}
+		            </select>
+		            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
+		        </fieldset>
+		    </div>
+	        <div class="group">
+	        	<span class="title">{t}density{/t}</span>
+	        	<span class="actions">
+		            <a class="action actionBtn displayDensity normalDensity" id="normalDensity">
+		                <span class="value">{'normal'|gettext}</span>
+		            </a>
+		            <a class="action actionBtn displayDensity averageDensity" id="averageDensity">
+		                <span class="value">{'average'|gettext}</span>
+		            </a>
+		            <a class="action actionBtn displayDensity highDensity" id="highDensity">
+		                <span class="value">{'high'|gettext}</span>
+		            </a>
+	        	</span>
+	        </div>
+    	</div>
+    </div>
 </div>

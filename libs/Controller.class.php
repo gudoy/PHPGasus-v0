@@ -99,8 +99,6 @@ class Controller extends Application
 		//$parts = preg_split('/(?<!^)(?=[A-Z])/', $foo, -1, PREG_SPLIT_OFFSET_CAPTURE);
 		$parts = preg_split('/(?=[A-Z])/', $method, -1, PREG_SPLIT_NO_EMPTY);
 		
-var_dump($parts);
-		
 		// Loop over the parts
 		$i = 0;
 		foreach($parts as $part)

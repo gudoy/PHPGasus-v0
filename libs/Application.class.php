@@ -551,8 +551,8 @@ class Application
 		$names = is_string($names) ? explode(',',$names) : $names;
 		
 		foreach ( (array) $names as $key => $val )
-		{			
-			$this->requireClass(is_int($key) ? trim($val) : $key, 'controllers', is_int($key) ? '' : $val);
+		{
+			$this->requireClass(is_numeric($key) ? trim($val) : $key, 'controllers', is_numeric($key) ? '' : $val);
 		}
 		
 		return $this;	

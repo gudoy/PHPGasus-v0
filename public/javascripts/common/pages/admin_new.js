@@ -1,9 +1,3 @@
-
-
-
- 
-
-
 var admin =
 {
 	init: function()

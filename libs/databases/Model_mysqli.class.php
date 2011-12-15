@@ -943,7 +943,8 @@ class Model extends Application
 		{	
 			// Get tables to use in the query
 			//$queryTables             	= array();
-			$this->queryData['tables'] 	= array();
+			//$this->queryData['tables'] 	= array();
+			//$queryTables 				= &$this->queryData['tables'];
 			$queryTables 				= &$this->queryData['tables'];
 			$leftJoins               	= array();
 			$alreadyJoinedTables     	= array();
@@ -1172,8 +1173,11 @@ class Model extends Application
 				$i++;
 			}
 			
+			// Remove doubles from queryData tables
+			$this->queryData['tables'] = array_unique($this->queryData['tables']);
+			
 			//$queryTables 	= !empty($getFields) ? '' : join(', ', $queryTables);
-			$queryTables 	= empty($queryTables) ? '' : join(', ', $queryTables);
+			//$queryTables 	= empty($queryTables) ? '' : join(', ', $queryTables);
 			//$leftJoins 		= !empty($getFields) ? '' : join('', $leftJoins);
 			$leftJoins 		= empty($leftJoins) ? '' : join('', $leftJoins);
 			
@@ -2055,54 +2059,52 @@ class Model extends Application
 
 		// Known operators
 		$knownOps         = array(
-			'contains'           => 'LIKE',          // + %value% // TODO
-			'like'               => 'LIKE',          // + %value% // TODO
-			'doesnotcontains'    => 'NOT LIKE',      // + %value% // TODO
-			'notlike'            => 'NOT LIKE',      // + %value% // TODO
-			'startsby'           => 'LIKE',          // + value% // TODO
-			'endsby'             => 'LIKE',          // + %value // TODO
-			'doesnotstartsby'    => 'NOT LIKE',      // + value% // TODO
-			'doesnotendsby'      => 'NOT LIKE',      // + %value // TODO
-			'not'                => '!=',
-			'notin'              => 'NOT IN',
-			'greater'            => '>',
-			'>'                  => '>',
-			'lower'              => '<',
-			'<'                  => '<',
-			'greaterorequal'     => '>=',
-			'>='                 => '>=',
-			'lowerorequal'       => '<=',
-			'<='                 => '<=',
-			'is'                 => '=',
-			'equal'              => '=',
-			'='                  => '=',
-			'in'                 => 'IN',
-			'isnot'              => '!=',
-			'notequal'           => '!=',
-			'!='                 => '!=',
-			'notin'              => 'NOT IN',
-			'between'            => 'BETWEEN',       // TODO
-			'notbetween'         => 'NOT BETWEEN',   // TODO
+			'contains' 			=> 'LIKE',          // + %value% // TODO
+			'like' 				=> 'LIKE',          // + %value% // TODO
+			'doesnotcontains' 	=> 'NOT LIKE',      // + %value% // TODO
+			'notlike' 			=> 'NOT LIKE',      // + %value% // TODO
+			'startsby' 			=> 'LIKE',          // + value% // TODO
+			'endsby' 			=> 'LIKE',          // + %value // TODO
+			'doesnotstartsby' 	=> 'NOT LIKE',      // + value% // TODO
+			'doesnotendsby' 	=> 'NOT LIKE',      // + %value // TODO
+			'not' 				=> '!=',
+			'notin' 			=> 'NOT IN',
+			'greater' 			=> '>',
+			'>' 				=> '>',
+			'lower' 			=> '<',
+			'<' 				=> '<',
+			'greaterorequal' 	=> '>=',
+			'>=' 				=> '>=',
+			'lowerorequal' 		=> '<=',
+			'<=' 				=> '<=',
+			'is' 				=> '=',
+			'equal' 			=> '=',
+			'=' 				=> '=',
+			'in' 				=> 'IN',
+			'isnot' 			=> '!=',
+			'notequal' 			=> '!=',
+			'!=' 				=> '!=',
+			'notin' 			=> 'NOT IN',
+			'between' 			=> 'BETWEEN',       // TODO
+			'notbetween' 		=> 'NOT BETWEEN', 	//
+			'soundslike' 		=> 'SOUNDS LIKE',
+			'match' 			=> 'MATCH', 		// + AGAINST(). Only for MyISAM tables
+			'search' 			=> 'MATCH', 		// + AGAINST(). Only for MyISAM tables
 			// TODO: handle between
 		);
-		$uniques      = array('>','<','>=','<=');             // operator whose value can only by unique
-		$oneAtATime   = array('LIKE','NOT LIKE','=','!='); 	  // operators allowing multiple conditions but with only 1 at a time
+		$uniques      = array('>','<','>=','<=');             				// operator whose value can only by unique
+		$oneAtATime   = array('LIKE','NOT LIKE','=','!=','SOUNDS LIKE'); 	// operators allowing multiple conditions but with only 1 at a time
 		$i            = 0;
-		
-//$this->dump('foreach conditions');
-//$this->dump($o['conditions']);
 		
 		// Loop over the passed conditions
 		foreach ($o['conditions'] as $key => $condition)
-		{			
+		{
+//var_dump($key);
+//var_dump($condition);
 			// If the key is numeric, assume that the conditions array is associative
 			// matching the following pattern array($field1 => $values1, [...])
 			// and then reformat it into array(array($field1,$values1), [...])
 			$condition       = !is_numeric($key) ? array($key,$condition) : $condition;
-			
-//$this->dump('key: ' . $key);
-//$this->dump('condition:');
-//$this->dump($condition);
 			
 			// Do not continue if the current item is not an array, throwing a warning by the way
 			if ( !is_array($condition) ){ $this->warnings[4210] = $condition; continue; } // 'Wrong condition format
@@ -2120,13 +2122,6 @@ class Model extends Application
       
             // Special case when operator is IN/NOT IN and value is single, use =/!= instead
             $usedOperator   = in_array($usedOperator, array('IN','NOT IN')) && !$multiValues ? ( $usedOperator === 'NOT IN' ? '!=' : '=' ) : $usedOperator;
-
-//$this->dump($fields);
-//$this->dump($values);
-//$this->dump(count($values));
-//$this->dump('$usedOperator: ' . $usedOperator);
-//$this->dump('$multiValues: ' . ($multiValues?'true':'false'));
-//$this->dump($values);
 
             // Special case if the operator is = and the passed value is null, we have to use IS/IS NOT operator instead
             $usedOperator   = in_array($usedOperator, array('=','!=')) && 
@@ -2152,13 +2147,20 @@ class Model extends Application
             $oParenthesis   = isset($condition[4]) && strtolower($condition[4]) === 'first' ? '( ' : '';
 			$cParenthesis   = (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
             //$cParenthesis   = !empty($oParenthesis) || (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
+            
+            // Clean 'before' and 'after' to only allow parenthesis
+            $before 		= isset($condition['before']) ? preg_replace('/[^\(\)]/', '', $condition['before']) : '';
+			$after 			= isset($condition['after']) ? preg_replace('/[^\(\)]/', '', $condition['after']) : '';
+			$before .= !empty($before) ? ' ' : '';
+			$after .= !empty($after) ? ' ' : '';
 
 			// Special case when multiple fields are passed
 			// Since we cannot handle more than 1 field at a time,
 			// we need to explode the array of $fields, handling the first one and making new conditions for the other ones
 			if ( $multiFields )
 			{
-				$output .= $condKeyword . $oParenthesis;
+				//$output .= $condKeyword . $oParenthesis;
+				$output .= $condKeyword . $before . $oParenthesis;
 				
 				// Extract the first element from the fields array
 				$tmpFields  = $fields;
@@ -2191,14 +2193,37 @@ class Model extends Application
 				$opts 	+= array('values' => $values); 
 				
 				$fields = Tools::toArray($fields);
-				$output .= $condKeyword . $oParenthesis;
+				//$output .= $condKeyword . $oParenthesis;
+				$output .= $condKeyword . $before . $oParenthesis;
 				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
 				$output .= ' ' . $usedOperator . ' (' . $this->handleConditionsTypes($opts);
+				$output .= ') ';
+			}
+			elseif ( in_array($usedOperator, array('MATCH')) )
+			{
+				
+				$rProps = &$this->resources[$this->resourceName];
+				
+				// Do not continue if the table engine is not MyISAM
+				if ( empty($rProps['engine']) || strtolower($rProps['engine']) !== 'myisam' ){ continue; }
+				
+				// Try to get the queried fields data
+				$qf     = !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
+				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
+				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
+				$opts 	+= array('values' => $values); 
+				
+				$fields = Tools::toArray($fields);
+				$output .= $condKeyword . $before . $oParenthesis . 'MATCH ';
+				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
+				$output .=  ' AGAINST (' . $this->handleConditionsTypes($opts);
 				$output .= ') ';
 			}
 			// Case for single field & single value operators
 			else
 			{
+//$this->dump($this->queryData);
+				
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -2215,6 +2240,7 @@ class Model extends Application
 				                
                 $alias      = !$useAlias 
                                 ? ( isset($this->resources[$colParts[0]]) ? $this->resources[$colParts[0]]['alias'] : $colParts[0] ) 
+                                //? $colParts[0]
                                 : ( !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias );
                 $col        = !$useAlias ? $colParts[1] : $col;
 				
@@ -2226,7 +2252,8 @@ class Model extends Application
                 
                 // TODO: how to handle joined columns????                
 				
-				$output .= $condKeyword . $oParenthesis;
+				//$output .= $condKeyword . $oParenthesis;
+				$output .= $condKeyword . $before . $oParenthesis;
 				$output .= $alias . '.';
                 $output .= $col . ' ' . $usedOperator . ' ';
                 $output .= $isValColname 
@@ -2237,16 +2264,17 @@ class Model extends Application
 			// Get conditions alternatives
 			$output .= !empty($orConditions) ? $orConditions : '';
 			
-			// Get extra conditions is there's
+			// Get extra conditions if there's
 			$output .= !empty($extraOutput) ? $extraOutput : '';
 			
-            $output .= $cParenthesis;
+            //$output .= $cParenthesis;
+            $output .= $cParenthesis . $after;
 			
 			$i++;
 		}
 		
-//$this->dump('output: ' . $output);	
-//die();
+
+
 		
 		return $output;
 	}
@@ -2533,7 +2561,7 @@ class Model extends Application
 	
 	
 	public function search($options = array())
-	{        
+	{
 		return $this->index($options);
 	}
 	

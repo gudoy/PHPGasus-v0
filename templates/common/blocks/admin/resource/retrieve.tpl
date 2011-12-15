@@ -27,5 +27,16 @@
 		
 	</div>
 	{/block}
+	
+	{block name='adminRelatedItems'}
+	<div class="resourcesBlock relatedResourcesBlock {$resourceName}RelatedResourcesBlock" id="{$resourceName}RelatedResourcesBlock">
+		<header class="titleBlock">
+			<h3 class="title">{t}Related items{/t}</h3>	
+		</header>
+		<div class="content">
+			{include file='common/blocks/admin/resource/retrieve/related.tpl'}
+		</div>
+	</div>
+	{/block}
 
 </div>

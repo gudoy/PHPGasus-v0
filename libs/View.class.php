@@ -124,7 +124,7 @@ class View extends Application implements ViewInterface
 		$this->Smarty->cache_dir 			= _PATH_SMARTY . 'cache/';
 		$this->Smarty->config_dir 			= _PATH_SMARTY . 'configs/';
 		$this->Smarty->allow_php_templates 	= true;
-		$this->Smarty->allow_php_tag 		= true;
+		//$this->Smarty->allow_php_tag 		= true;
 		
 		return $this;
 	}
@@ -384,11 +384,11 @@ $this->dump($allowed);
 		// or if it has already been handled (i.e: if a resource relates to another one on several columns)
 		if ( empty($this->resourceName) ){ return $this; }
 		
-		
 		$d 				= &$this->data; 												// Shortcut for data		 
 		$relResources 	= array(); 														// Array of related resource for the current resource
 		//$hr 			= array(); 														// Handled resources
-		$rModel  		= &$this->dataModel['resourcesFields'][$this->resourceName]; 	// Set shortcut to resource columns
+		//$rModel  		= &$this->dataModel['resourcesFields'][$this->resourceName]; 	// Set shortcut to resource columns
+		$rModel  		= &$this->data['dataModel'][$this->resourceName]; 	// Set shortcut to resource columns
 		
 		// Loop over the resource colums
 		//foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
@@ -408,13 +408,19 @@ $this->dump($allowed);
 				
 				// Do not continue if the related resource count has already been gotten 
 				//if ( in_array($this->resourceName, $hr) ){ continue; }
-				if ( in_array($relResources, $relResources) ){ continue; }
+				//if ( in_array($relResources, $relResources) ){ continue; } 
+				
+				// Do not continue if the resource data has already been gotten
+				if ( !empty($d[$relResName]) ) { continue; }
 				
 				$relResources[] = $relResName;												// Add it to the related resources array
 				$ctrlrName 		= 'C' . ucfirst($relResName);								// Build its controller name
 				$ctrlr 			= new $ctrlrName(); 										// Instanciate it
 				$count 			= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
-				$d[$relResName] = $count < 100 ? $ctrlr->index() : null;
+				//$d[$relResName] = $count < 100 ? $ctrlr->index() : null;
+				$d[$relResName] = ( $count < 100 || ( !empty($p['uiWidget']) && in_array($p['uiWidget'], array('select','dataset')) ) )  
+										? $ctrlr->index() 
+										: null;
 				
 				// Store the related resource count
 				$d['total'][$relResName] = $count;
@@ -441,6 +447,7 @@ $this->dump($allowed);
 			'reindexBy','reindexby', 		// TODO: deprecate 
 			'indexBy','indexByUnique',
 			'operation','debug','confirm',
+			'getFields',
 			'success', 'errors','successes','warnings','notifications',
 			'css', 'js', 'minify',
 		);
@@ -1275,7 +1282,9 @@ $this->dump($allowed);
 		$v = &$d['view'];
 				
 		// Get uri parts
-		$uriParts 	= @parse_url(_URL . ltrim($_SERVER['REQUEST_URI'], '/'));
+		//$uriParts = parse_url($_SERVER['REQUEST_URI']);
+		$uriParts = @parse_url(_URL . ltrim($_SERVER['REQUEST_URI'], '/'));
+ 		//$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', $uriParts['path']), '/'));
  		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', strtolower($uriParts['path'])), '/'));
 		
         // Get user groups

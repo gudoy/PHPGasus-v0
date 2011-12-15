@@ -9,7 +9,7 @@
 {$curVal 				= $postedVal|default:$data[$resourceName][$fieldName]}
 
 {/strip}
-{if $data.total[$relResource] <= 25}
+{if $data.total[$relResource] <= 25 || $field.uiWidget === 'select'}
 	<select name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if}>
 		<option>&nbsp;</option>
 		{foreach $data[$relResource] as $item}
@@ -24,7 +24,7 @@
 			<span class="value">{t}add{/t}</span>
 		</a>
 	</nav>
-{elseif $data.total[$relResource] <= 100}
+{elseif $data.total[$relResource] <= 100 || $field.uiWidget === 'datalist'}
 	<input type="search" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} list="{$resourceFieldName}Options" placeholder="id{if $relDisplayField} or {$relDisplayField}{/if}"{if $curVal}value="{$curVal}"{/if} />
 	<datalist id="{$resourceFieldName}Options">
 		{foreach $data[$relResource] as $item}
@@ -56,5 +56,5 @@
 			*}
 		</nav>
 	</div>
-	<input type="hidden" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} data-relresource="{$relResource}" />
+	<input type="hidden" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} data-relresource="{$relResource}" {if isset($curVal)}value="{$curVal}{/if}" />
 {/if}

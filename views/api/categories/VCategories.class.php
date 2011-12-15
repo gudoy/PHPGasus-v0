@@ -122,7 +122,6 @@ class VCategories extends ApiView
 		return $this->render();
 	}	
 	
-	
 };
 
 ?>

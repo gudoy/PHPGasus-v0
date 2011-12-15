@@ -89,7 +89,7 @@ class PHPGasusImage
 		}
 		else
 		{
-			Throw new Exception('Missing image handling extension. Please install ImageMagic or GD extension.');
+			Throw new Exception('Missing image handling extension. Please install ImageMagic or GD extension.' . PHP_EOL);
 		}
 		
 		if ( $src ){ $this->src = $src; }
@@ -141,6 +141,7 @@ class PHPGasusImage
 			catch (Exception $e)
 			{
 				echo 'Error reading image ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+				$this->image = false;
 			}
 		}
 		elseif ( $this->lib === 'gd' )
@@ -346,7 +347,15 @@ class PHPGasusImage
 			//if ( $format === 'png8' ){ $this->image->setImageDepth(4); }
 			if ( $format === 'png8' ){ $this->image->setImageColorSpace(256); }
 			$this->image->setFormat($format);
-			$this->image->setImageFormat($format);
+			
+			try
+			{
+				$this->image->setImageFormat($format);
+			}
+			catch (Exception $e)
+			{
+				echo 'Error setting image format ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+			}
 			
 //var_dump('new depth: ' . $this->image->getImageDepth());
 //var_dump('new format: ' . $this->image->getImageFormat());
@@ -407,8 +416,15 @@ class PHPGasusImage
 		{
 		}
 		elseif ( $this->lib === 'imagick' )
-		{
-			$this->image->resizeImage($p['width'], $p['height'], imagick::FILTER_UNDEFINED, 1);
+		{	
+			try
+			{
+				$this->image->resizeImage($p['width'], $p['height'], imagick::FILTER_UNDEFINED, 1);
+			}
+			catch (Exception $e)
+			{
+				echo 'Error resizing image ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+			}
 		}
 		
 		return $this;

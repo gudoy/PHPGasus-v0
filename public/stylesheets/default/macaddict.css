@@ -111,7 +111,7 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .ui-dialog-buttonset button.cancelBtn,
 .actionBtn.cancelBtn { background:none; border:0; -webkit-box-shadow:none; box-shadow:none; cursor:pointer; }
 
-.toolbar .title { display:block; text-align:center; font-weight:bold; }
+.toolbar .title { display:none; text-align:center; font-weight:bold; }
 .toolbar.bottom .title { display:none; }
 .toolbar .group { vertical-align:bottom; }
 .toolbar .actionBtn button { min-height:24px; padding-top:3px; padding-bottom:3px; font-size:inherit; }
@@ -217,7 +217,7 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 
 
 span.loading { display:inline-block; vertical-align:middle; font-size:133.33%; }
-span.loading:before { width:16px; height:16px; margin-right:5px; display:inline-block; content:' '; background:url(images/throbbers/loader-1E377D.gif) no-repeat 0 0; vertical-align:middle; font-size:1%; }
+span.loading:before { width:16px; height:16px; margin-right:5px; display:inline-block; content:' '; background:url(images/throbbers/ajax-loader-8F98A6.gif) no-repeat 0 0; vertical-align:middle; font-size:1%; }
 .commonTable tr.loading td { text-align:center; vertical-align:center; outline:none; }
 /* End Common Styles */
 
@@ -386,6 +386,10 @@ section .adminBlock { margin:0 0 20px; }
 #loginBlock #lostPasswordLink { margin:10px 20% 0; display:block; clear:both; float:right; position:relative; right:-8px; text-align:right; }
 
 #accountConfirmation #definePasswordForm legend { display:none; }
+
+.relatedResourcesBlock ul.related { margin:10px; border:1px solid #AAA; border-radius:12px; }
+.relatedResourcesBlock .name { padding-top:10px; padding-bottom:10px; }
+.relatedResourcesBlock .counts {  } 
 
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 

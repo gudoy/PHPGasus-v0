@@ -15,10 +15,10 @@ class VAdmin extends AdminView
 	{
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			//'name' 		=> 'admin',
-			'name' 		=> 'adminHome',
-			'js' 		=> 'adminHome',
-			'method' 	=> __FUNCTION__,
-			'template' 	=> 'specific/pages/admin/dashboard/index.tpl',
+			'name' 			=> 'adminHome',
+			'js' 			=> 'adminHome',
+			'method' 		=> __FUNCTION__,
+			'template' 		=> 'specific/pages/admin/dashboard/index.tpl',
 			'errorsBlock' 	=> false,
 		));
 		
