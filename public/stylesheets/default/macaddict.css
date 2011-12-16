@@ -29,7 +29,8 @@ form .buttonsLine:after,
 .adminResourceDetailBlock:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
 input,
 select,
-form input.normal { border-color:#B4B4B4; }
+form input.normal,
+.datalist { border-color:#B4B4B4; }
 input[type=submit] { border-width:1px; border-style:solid; }
 form .labelBlock,
 form .fieldBlock { float:none; clear:none; display:inline-block; vertical-align:middle; letter-spacing:normal; }

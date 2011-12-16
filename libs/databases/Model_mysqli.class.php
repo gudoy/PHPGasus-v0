@@ -133,12 +133,12 @@ class Model extends Application
         {
             // Get number of rows affetected by a insert, update, delete request
             $this->affectedRows = $this->db->affected_rows;
-			
+
 			// Get created resource id, number of retrieved rows & columns
 			$this->insertedId 	= $o['type'] === 'insert' ? $this->db->insert_id : null; 
-            $this->numRows      = is_object($this->queryResult) ? $this->queryResult->num_rows : 0;
+			$this->numRows      = is_object($this->queryResult) ? $this->queryResult->num_rows : 0;
 			$this->numFields 	= is_object($this->queryResult) ? $this->queryResult->field_count : 0;
-			
+
 			// This will contains the ids of all the retrieven rows for each of the query resources 
 			$this->retrievedIds = array();
             
@@ -1193,7 +1193,7 @@ class Model extends Application
 			// Build final query  
 			$query 		= 	"SELECT " . $finalFields . " ";
 			//$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->dbTableName . " AS " . $this->dbTableShortName . " ";
-			$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
+			$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->table . " AS `" . $this->alias . "` ";
 			$query 		.= 	( !empty($leftJoins) ? $leftJoins : " " );
 			$query 		.= 	( !empty($crossJoins) ? $crossJoins : "" );
 			$query 		.= 	$where . $conditions;
@@ -1591,7 +1591,7 @@ class Model extends Application
 		
 		// Start writing request
 		$query 		= "UPDATE ";
-		$query 		.=  _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
+		$query 		.=  _DB_TABLE_PREFIX . $this->table . " AS `" . $this->alias . "` ";
 		$query 		.= "SET ";
 		
 //$this->dump($d);
@@ -2012,7 +2012,7 @@ class Model extends Application
 		// Start writing request
 		// When using "AS", mysql seems to want to have it defined just before the FROM
 		$query 		= "DELETE " . $this->alias . " ";
-		$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS " . $this->alias . " ";
+		$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS `" . $this->alias . "` ";
 		$query 		.= 	$where . $conditions;
 		
 		//$this->launchedQuery = $query;

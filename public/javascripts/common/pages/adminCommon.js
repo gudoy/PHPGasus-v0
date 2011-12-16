@@ -282,7 +282,7 @@ var admin =
 	
 	// TODO: handle multiple duplicate
 	duplicate: function(jqObj)
-	{	
+	{
 		var self = this;
 		
 		// Ask for confirmation
@@ -291,8 +291,8 @@ var admin =
 		// Launch ajax request
 		$.ajax(
 		{
-			url: $(jqObj).attr('href'),
-			data: 'confirm=1&output=json',
+			url: jqObj.attr('href'),
+			data: '&confirm=1',
 			dataType: 'json',
 			type: 'GET',
 			success: function(response)
@@ -300,7 +300,7 @@ var admin =
 				var r 			= response || {}, 					// Shortcut for the response
 					success 	= r.success || false,				// Did the request did what it was expected to?
 					createdId 	= r[self.resourceName].id || '', 	// Get the id of the created item
-					jTR 		= $(jqObj).closest('tr'),
+					jTR 		= jqObj.closest('tr'),
 					cloneId 	= adminIndex.getResourceId(jTR) || '';
 				
 				// If the request did not succeed, we do not continue
@@ -384,7 +384,7 @@ var admin =
 				// Delete the row
 				$(jqObj)
 					.closest('tr')
-					.animate({ opacity:0.2}, 1500, 'swing', function(){ $(this).remove(); } );
+					.animate({ opacity:0.2}, 300, 'swing', function(){ $(this).remove(); } );
 			}
 		});
 		
@@ -411,6 +411,18 @@ var admin =
 	handleOneToOneFields: function()
 	{
 		var self = this;
+
+//Tools.log('handleOneToOneFields');
+//Tools.log(!Modernizr.input.list);
+		
+		yepnope(
+		{
+	      test : (!Modernizr.input.list || (parseInt($.browser.version) > 400)),
+	      yep : [
+	          '/public/javascripts/common/libs/relevantDropdown/jquery.relevant-dropdown.js',
+	          '/public/javascripts/common/libs/relevantDropdown/load-fallbacks.js'
+	      ]
+	    });
 		
 		$('.relItemSearchBtn').live('click', function(e)
 		{
@@ -579,7 +591,7 @@ var admin =
 										if ($field.is('input') && $field.attr('list') != '' ){ $field.val(newId).siblings('datalist').append(newOpt); }
 										
 										// or if the input is a select, add a new option 
-										else if ( $field.is('select') ){ $field.append(newOpt).val(newId).css('border','1px solid green'); }
+										else if ( $field.is('select') ){ $field.append(newOpt).val(newId); }
 										
 										// TODO: case not select nor datalist???
 										else { $field.val(newId); }
@@ -1152,9 +1164,8 @@ var admin =
 	
 	handleRTEFields: function()
 	{
-console.log('handle RTE Fields');
+//Tools.log('handle RTE Fields');
 		$('textarea.rteEditor')
-.css('border','1px solid red')
 			.tinymce(
 		{
 			// Location of TinyMCE script

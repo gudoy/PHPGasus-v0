@@ -734,7 +734,8 @@ $this->dump($this->options['conditions']);
 			'success' 				=> $this->C->success, 
 			'errors'				=> $this->C->errors,
 			'warnings' 				=> $this->C->warnings,
-			$this->resourceName 	=> $this->C->retrieve(array('values' => $this->resourceId)),
+			//$this->resourceName => $this->C->retrieve(array('values' => $this->resourceId)),
+			$this->resourceName 	=> !empty($this->resourceId) ? $this->C->retrieve(array('values' => $this->resourceId)) : null,
 			'resourceId' 			=> $this->resourceId,
 		));
 		
@@ -800,7 +801,8 @@ $this->dump($this->data);
 		// Get to be deleted data
 		$this->data = array_merge($this->data, array(
 			'resourceId' 		=> $this->resourceId,
-			$this->resourceName => $this->C->retrieve(array('values' => $this->resourceId)),
+			//$this->resourceName => $this->C->retrieve(array('values' => $this->resourceId)),
+			$this->resourceName 	=> !empty($this->resourceId) ? $this->C->retrieve(array('values' => $this->resourceId)) : null,
 		));
 		
 		// If the confirmation param has been passed

@@ -126,6 +126,10 @@ class View extends Application implements ViewInterface
 		$this->Smarty->allow_php_templates 	= true;
 		//$this->Smarty->allow_php_tag 		= true;
 		
+		//require('smarty-gettext.php');
+		//require(_PATH_SMARTY . 'libs/plugins/smarty-gettext.php');
+		//$this->Smarty->registerPlugin('block', 't', 'smarty-translate');
+		
 		return $this;
 	}
 	

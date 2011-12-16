@@ -30,7 +30,11 @@
 			</p>
 		</div>
 		{/if}
-		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin' resource=$data.$resourceName}
+		{if $data[$resourceName]}
+		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin' resource=$data[$resourceName]}
+		{else}
+		<p class="nodata">{t}No resource selected{/t}</p>
+		{/if}
 		
 	</div>
 	{/block}

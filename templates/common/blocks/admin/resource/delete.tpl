@@ -33,7 +33,11 @@
 			</div>
 		</div>
 		{else}
-		{include file='common/forms/admin/frmAdminResourceDelete.tpl' viewMode='admin' resource=$data.$resourceName}
+			{if $data[$resourceName]}
+			{include file='common/forms/admin/frmAdminResourceDelete.tpl' viewMode='admin' resource=$data[$resourceName]}
+			{else}
+			<p class="nodata">{t}No resource selected{/t}</p>
+			{/if}
 		{/if}
 		
 	</div>

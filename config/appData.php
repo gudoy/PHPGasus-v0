@@ -9,8 +9,8 @@ define('_APP_TITLE', 								_APP_NAME); // App displayed name
 define('_APP_BASELINE', 							'');
 define('_APP_META_AUTHOR', 							false);
 define('_APP_AUTHOR_NAME', 							'Clicmobile');
-define('_APP_AUTHOR_MAIL', 							'');
-define('_APP_AUTHOR_URL', 							'');
+define('_APP_AUTHOR_MAIL', 							'contact@clicmobile.com');
+define('_APP_AUTHOR_URL', 							'http://www.clicmobile.com');
 define('_APP_META_OWNER', 							true);
 define('_APP_OWNER_NAME', 							'');
 define('_APP_OWNER_MAIL', 							'');
