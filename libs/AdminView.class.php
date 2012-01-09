@@ -321,7 +321,7 @@ class AdminView extends View
         }
         
         $this->events->trigger('onBeforeSearch', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
-        
+		
         // First case, contextual search on a defined resource
         if ( $s['type'] === 'contextual' )
         {
@@ -340,11 +340,11 @@ class AdminView extends View
                 $cond                           = array($col,'contains',$s['query']);
                 
                 # Handle parenthesis wrappers for 'OR' conditions
-                if 		( $i === 0 && $colsCount = 1 ) 	{ $cond[] = ''; }
+                if 		( $i === 0 && $colsCount === 1 ) 	{ $cond[] = ''; }
 				elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
 				else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
 				else                                	{ $cond[] = 'or'; }
-                
+				
                 $this->options['conditions'][]  = $cond;
                 $i++;
             }
@@ -407,7 +407,7 @@ class AdminView extends View
 	                $cond                           = array($col,'contains',$s['query']);
 	                
 	                # Handle parenthesis wrappers for 'OR' conditions
-	                //if 		( $i === 0 && $colsCount = 1 ) 	{ $cond[] = ''; }
+	                //if 		( $i === 0 && $colsCount === 1 ) 	{ $cond[] = ''; }
 					//elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
 					//else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
 					//else                                	{ $cond[] = 'or'; }
@@ -415,6 +415,8 @@ class AdminView extends View
 	                if 		( $i === 0 ) 					{ $cond[] = ''; $cond['before'] = '('; }
 					else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond['after'] = ')'; }
 					else                                	{ $cond[] = 'or'; }
+					
+					if ( $colsCount === 1 ) 				{ $cond['after'] = ')'; }
 					
 					// 
 					//if 		( $colsNb === 0  ) 	{ $cond['before'] = (isset($cond['before']) ? $cond['before'] : '') . '('; }
@@ -453,8 +455,6 @@ class AdminView extends View
 			// Reset conditions array();
 			$this->options['conditions'] = array();  
 
-$this->dump($this->options['conditions']);
-
             $curURL     = $this->currentURL();
 
             /*
@@ -467,8 +467,6 @@ $this->dump($this->options['conditions']);
             ) : $critera;
             */
         }
-        
-//$this->dump($this->data['search']);
         
         $hasRes     = !empty($s['totalResults']);
         $evtName    = 'onSearchReturned' . ($hasRes ? '' : 'no') . 'results'; // onSearchReturned or onSearchReturnedNoResults
