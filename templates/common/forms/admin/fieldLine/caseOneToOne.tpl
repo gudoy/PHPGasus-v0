@@ -25,7 +25,7 @@
 		</a>
 	</nav>
 {elseif $data.total[$relResource] <= 100 || $field.uiWidget === 'datalist'}
-	<input type="search" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} list="{$resourceFieldName}Options" placeholder="id{if $relDisplayField} or {$relDisplayField}{/if}"{if $curVal}value="{$curVal}"{/if} />
+	<input type="search" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} list="{$resourceFieldName}Options" placeholder="id{if $relDisplayField} or {$relDisplayField}{/if}"{if $curVal}value="{$curVal}"{/if} autocomplete="off" />
 	<datalist id="{$resourceFieldName}Options">
 	<!--[if !IE]><!-->
 	<select name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if}>
@@ -33,11 +33,10 @@
 		{foreach $data[$relResource] as $item}
 		{$val 	= $item[$relField]}
 		{$label = $item[$relDisplayField]|default:$item[$relField]}
-		<option value="{$val}">{$val} - {$label}</option>
+		<option value="{$val}">{$val}&nbsp;-&nbsp;{$label}</option>
 		{/foreach}
 	<!--[if !IE]><!-->
-	</select>
-	<!--<![endif]-->
+	</select><!--<![endif]-->
 	</datalist>
 	<nav class="actions">
 		<span class="or">{t}or{/t}</span>

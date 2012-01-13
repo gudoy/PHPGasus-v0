@@ -1055,6 +1055,9 @@ class Model extends Application
 									'relation' 		=> 'onetomany',
 					);
 					
+					$this->queryData['tables'][] 	= _DB_TABLE_PREFIX . $pivotTable;
+					$this->queryData['tables'][] 	= _DB_TABLE_PREFIX . $relTable;
+					
 					// Destroy tmp vars to prevent  name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
 				}
@@ -1182,6 +1185,7 @@ class Model extends Application
 			$leftJoins 		= empty($leftJoins) ? '' : join('', $leftJoins);
 			
 //var_dump($queryTables);
+//$this->dump(__METHOD__);
 //$this->dump($this->queryData);
 			
 			$groupBy = $this->handleGroupBy($o);
@@ -2061,12 +2065,15 @@ class Model extends Application
 		$knownOps         = array(
 			'contains' 			=> 'LIKE',          // + %value% // TODO
 			'like' 				=> 'LIKE',          // + %value% // TODO
-			'doesnotcontains' 	=> 'NOT LIKE',      // + %value% // TODO
+			'doesnotcontains' 	=> 'NOT LIKE',      // Deprecated: typo mistake
+			'doesnotcontain' 	=> 'NOT LIKE',      // + %value% // TODO
 			'notlike' 			=> 'NOT LIKE',      // + %value% // TODO
 			'startsby' 			=> 'LIKE',          // + value% // TODO
 			'endsby' 			=> 'LIKE',          // + %value // TODO
-			'doesnotstartsby' 	=> 'NOT LIKE',      // + value% // TODO
-			'doesnotendsby' 	=> 'NOT LIKE',      // + %value // TODO
+			'doesnotstartsby' 	=> 'NOT LIKE',      // Deprecated: typo mistake
+			'doesnotstartby' 	=> 'NOT LIKE',      // + value% // TODO
+			'doesnotendsby' 	=> 'NOT LIKE',      // Deprecated: typo mistake
+			'doesnotendby' 		=> 'NOT LIKE',      // + %value // TODO
 			'not' 				=> '!=',
 			'notin' 			=> 'NOT IN',
 			'greater' 			=> '>',
@@ -2182,7 +2189,7 @@ class Model extends Application
             if ( isset($condition[4]) && strtolower($condition[4]) === 'first' )
             {
                 
-            }            
+            }
 			
 			if ( in_array($usedOperator, array('IN','NOT IN')) )
 			{
@@ -2190,7 +2197,7 @@ class Model extends Application
 				$qf     = !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
 				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
-				$opts 	+= array('values' => $values); 
+				$opts 	+= array('values' => $values);
 				
 				$fields = Tools::toArray($fields);
 				//$output .= $condKeyword . $oParenthesis;
@@ -2222,8 +2229,6 @@ class Model extends Application
 			// Case for single field & single value operators
 			else
 			{
-//$this->dump($this->queryData);
-				
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -2302,12 +2307,13 @@ class Model extends Application
             $col        = !$useAlias ? $colParts[1] : $col;
             
 			// Do not continue if the field is not an existing one
-			if ( !$qf && !$useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
+			//if ( !$qf && !$useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
+			if ( !$qf && $useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
 			
 			$output .= $j !== 0 ? ', ' : '';
             //$output .= $useAlias ? $alias . '.' : '';
-            $output .= $alias . '.';
-            $output .= $col;
+            $output .= $alias . '.' . $col;
+            
 			$j++;
 		}
 		
@@ -2355,8 +2361,8 @@ class Model extends Application
 		$col          = $o['column'];
 		$colModel     = !empty($res) && !empty($col) && !empty($this->application->dataModel[$res][$col]) ? $this->application->dataModel[$res][$col] : null;
 		$defType      = !empty($colModel['type']) ? $colModel['type'] : null;
-		$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby')) ? '%' : '';
-		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby')) ? '%' : '';
+		$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby','doesnotendby')) ? '%' : '';
+		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby','doesnotstartby')) ? '%' : '';
 		
 		//if ( $defType === 'timestamp' )                           { $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }
 		if 		( $defType === 'timestamp' && !is_null($val) ) 		{ $val = "FROM_UNIXTIME('" . $this->escapeString($val) . "')"; }

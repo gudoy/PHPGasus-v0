@@ -71,6 +71,8 @@ function strarg($str)
  */
 function smarty_translate($params, $text, &$smarty)
 {
+	if (!$text) return;
+
 	$text = stripslashes($text);
 	
 	// set escape mode

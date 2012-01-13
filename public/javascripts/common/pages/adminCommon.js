@@ -1389,62 +1389,88 @@ var adminIndex =
 	
 	handleFilters: function()
 	{
-	    var self   = this,
-	        $tr    = $('tbody tr', self.context);                      // Store a jquery reference containing all the rows
+	    var self   			= this,
+	    	filterTimeout 	= null,
+	    	filterDelay 	= 100,
+	        $tr    			= $('tbody tr', self.context);                      // Store a jquery reference containing all the rows
 	    
 	    // Loop over the filters inputs, listening for keyup events
 	    $('thead tr.filtersRow', self.context)
 	       .bind('keyup change', function(e)
+	       //.bind('change', function(e)
 	    {
+//Tools.log('change');
 	        e.preventDefault();
 	        e.stopPropagation();
 	        
-            var t       = e.target,
-                $t      = $(t);
-                
-            // Does not handle targets that are not inputs
-            if ( !$t.is(':input') ){ return; }
-                
-            var $input  = $t,
-                $td     = $input.closest('td'),
-                val     = $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') ? $input.find(':selected').text().trim() : $input.val(),
-                colName = $td.attr('headers') || '';
-                
-            // Do not continue if no input has been found
-            if ( !$input.length ) { return; }
-            
-//Tools.log('val: ' + val);
-//Tools.log('colName: ' + colName);
-            
-            // Loop over the rows, re-displaying them by the way
-            $tr.each(function()
-            {
-                var $this   = $(this);
-                
-                // If the filter value is empty
-                if ( val === '' )
-                {
-                    // Re-display the previously hidden rows for the current filter
-                    $this.filter('.' + colName + 'Filtered').removeClass(colName + 'Filtered').show();
-                    
-                    return;
-                }
-                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
-                // and that are not filtered by the current column 
-                else if ( !$this.is(':visible') && !$this.hasClass(colName + 'Filtered') ){ return; }
-                
-                var $td     = $this.find('td.' + colName),
-                    match   = $td.find('.value:contains(' + val + ')').length; //
-                    
-                // If the 
-                if ( !match )
-                {
-                    // Hide the row adding a class of the name by which it has been filtered  
-                    $this.hide().addClass(colName + 'Filtered');
-                }
-                else { $this.show(); }
-            });
-
+	        // Clear any previously launched filter operation
+	        if ( filterTimeout ) { clearTimeout(filterTimeout); } 
+//Tools.log('clear timeout');
+	        
+	        // Add a small timeout between the key press and the start of the filtering operation  
+	        delayTimeout = setTimeout(function()
+	        {
+	            var t       = e.target,
+	                $t      = $(t);
+	                
+	            // Does not handle targets that are not inputs
+	            if ( !$t.is(':input') ){ return; }
+	                
+	            var $input  = $t,
+	                $td     = $input.closest('td'),
+	                val     = $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') || $td.hasClass('typeBool') 
+	                			? $input.find(':selected').text().trim() 
+	                			: $input.val(),
+	                colName = $td.attr('headers') || '';
+	                
+//Tools.log('colName:' + colName);
+//Tools.log('val:' + val);
+	                
+	            // Do not continue if no input has been found
+	            if ( !$input.length ) { return; }
+	            
+	            //$tr.detach();
+	            //$tmp = $tr.detach();
+	            
+	            // Loop over the rows, re-displaying them by the way
+	            //$tr = $tr.detach().each(function()
+	            //$tmp.each(function()
+	            $tr.each(function()
+	            {
+	                var $this   = $(this);
+	                
+	                // If the filter value is empty
+	                if ( val === '' )
+	                {
+	                    // Re-display the previously hidden rows for the current filter
+	                    $this.filter('.' + colName + 'Filtered').removeClass(colName + 'Filtered').show();
+	                    
+	                    return;
+	                }
+	                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
+	                // and that are not filtered by the current column 
+	                else if ( !$this.is(':visible') && !$this.hasClass(colName + 'Filtered') ){ return; }
+	                
+	                var $td     = $this.find('td.' + colName),
+	                    match   = $td.find('.value:contains(' + val + ')').length; //
+	                    
+	                // If the 
+	                if ( !match )
+	                {
+	                    // Hide the row adding a class of the name by which it has been filtered  
+	                    $this.hide().addClass(colName + 'Filtered');
+	                }
+	                else { $this.show(); }
+	            });
+	            
+	            //$tmp.appendTo($('tbody', self.context));
+	            //$tmp = null;
+	            
+	            filterTimeout = null;
+//Tools.log('filter done. unset timeout');
+	            
+	        }, filterDelay);
+	        
 	    });
 	    
 	    return this;

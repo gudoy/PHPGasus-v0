@@ -74,7 +74,7 @@ class Application
 						: explode(',', strtolower(_APP_LANGUAGES));
 		
 		// Get  Accept-Language http header 
-		// fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
+		// ex: fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
 		$accptHeader = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']) : '';
 		
 		// Try to find lang in GET param
@@ -100,11 +100,11 @@ class Application
 				$acptLangs[$key] 	= $pos ? substr($lg, $pos + 3) : 1;
 			}
 			
-			// Sort array by value
+			// Sort array by value (priority)
 			arsort($acptLangs);
 			
 			// Check for match between accepted languages and known ones
-			foreach ($acptLangs as $lg) { if ( in_array($lg, $known) ){ $lang = $lg; break; } }
+			foreach ($acptLangs as $lg => $priority){ if ( in_array(strtolower($lg), $known) ){ $lang = $lg; break; } }
 		}
 		
 		// If the lang has still not been found, use the default language

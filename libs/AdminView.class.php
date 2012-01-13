@@ -340,7 +340,7 @@ class AdminView extends View
                 $cond                           = array($col,'contains',$s['query']);
                 
                 # Handle parenthesis wrappers for 'OR' conditions
-                if 		( $i === 0 && $colsCount === 1 ) 	{ $cond[] = ''; }
+                if 		( $i === 0 && $colsCount === 1 ){ $cond[] = ''; }
 				elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
 				else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
 				else                                	{ $cond[] = 'or'; }
@@ -407,16 +407,16 @@ class AdminView extends View
 	                $cond                           = array($col,'contains',$s['query']);
 	                
 	                # Handle parenthesis wrappers for 'OR' conditions
-	                //if 		( $i === 0 && $colsCount === 1 ) 	{ $cond[] = ''; }
+	                //if 		( $i === 0 && $colsCount === 1 ){ $cond[] = ''; }
 					//elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
-					//else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
-					//else                                	{ $cond[] = 'or'; }
+					//else if ( $i === $colsCount-1 )     		{ $cond[] = 'or'; $cond[] = 'last'; }
+					//else                                		{ $cond[] = 'or'; }
 					
-	                if 		( $i === 0 ) 					{ $cond[] = ''; $cond['before'] = '('; }
-					else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond['after'] = ')'; }
-					else                                	{ $cond[] = 'or'; }
+	                if 		( $i === 0 ) 						{ $cond[] = ''; $cond['before'] = '('; }
+					else if ( $i === $colsCount-1 )     		{ $cond[] = 'or'; $cond['after'] = ')'; }
+					else                                		{ $cond[] = 'or'; }
 					
-					if ( $colsCount === 1 ) 				{ $cond['after'] = ')'; }
+					if ( $colsCount === 1 ) 					{ $cond['after'] = ')'; }
 					
 					// 
 					//if 		( $colsNb === 0  ) 	{ $cond['before'] = (isset($cond['before']) ? $cond['before'] : '') . '('; }
