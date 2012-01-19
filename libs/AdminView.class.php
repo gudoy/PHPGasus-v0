@@ -344,7 +344,7 @@ class AdminView extends View
 				elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
 				else if ( $i === $colsCount-1 )     	{ $cond[] = 'or'; $cond[] = 'last'; }
 				else                                	{ $cond[] = 'or'; }
-				
+
                 $this->options['conditions'][]  = $cond;
                 $i++;
             }

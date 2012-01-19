@@ -599,7 +599,7 @@ $this->dump($allowed);
 		$o['output'] 					= !empty($o['output']) ? $o['output'] : $urlExt;
 		$o['outputExtension'] 			= $urlExt;
 		
-		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','qr','plistxml','yamltxt','jsontxt','jsonreport');
+		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','qr','plistxml','yamltxt','jsontxt','jsonreport','jsonp');
 		$this->knownOutputMime            = array(
 			'text/html' 			=> 'html',
 			'application/xhtml+xml' => 'xhtml',
@@ -759,7 +759,22 @@ $this->dump($allowed);
 			$json = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '\\"', "'", '\\"'), $json);
 			exit($json);
 		}
-		if ( $of === 'jsontxt' )
+		else if ( $of === 'jsonp' )
+		{
+			$this->headers[] = 'Content-type: application/json; charset=utf-8;';
+			$this->writeHeaders();
+			$json = json_encode($this->data);
+			//$json = htmlspecialchars_decode($json, ENT_QUOTES); 
+			//$json = html_entity_decode($json, ENT_QUOTES, 'UTF-8');
+			//$json = utf8_encode(str_replace(array('&#39;','&#34;'),array("'", '"'), $json));
+			$json = utf8_encode($json);
+			//$json = str_replace(array('&#39;','&#34;'),array("'", '\\"'), $json);
+			$json = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '\\"', "'", '\\"'), $json);
+			$callback = !empty($_GET['callback']) ? filter_var($_GET['callback'], FILTER_SANITIZE_STRING) : null;
+			$callback = !empty($callback) ? $callback : 'callback';
+			exit( $callback . '(' . $json . ')');
+		}
+		else if( $of === 'jsontxt' )
 		{
 			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
 			$this->writeHeaders();
@@ -772,7 +787,7 @@ $this->dump($allowed);
 			$json = str_replace(array('&#39;','&#34;', '&amp;#39;', '&amp;#34;'), array("'", '\\"', "'", '\\"'), $json);
 			exit($json);
 		}
-		elseif ( $of === 'jsonreport' )
+		else if ( $of === 'jsonreport' )
 		{
 			$this->headers[] = 'Content-type: text/html; charset=utf-8;';
 			$this->writeHeaders();
