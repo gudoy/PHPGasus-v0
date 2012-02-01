@@ -57,8 +57,12 @@ $img->convert(array('to' => 'png', 'quality' => 80)); 	//
 
 class PHPGasusImage
 {
+	public $success = null;
+	public $errors = array();
+	
 	public $src;
 	public $image;
+	public $eol = PHP_EOL;
 	
 	private static $_instance;
 	
@@ -89,7 +93,7 @@ class PHPGasusImage
 		}
 		else
 		{
-			Throw new Exception('Missing image handling extension. Please install ImageMagic or GD extension.' . PHP_EOL);
+			Throw new Exception('Missing image handling extension. Please install ImageMagic or GD extension.' . $this->eol);
 		}
 		
 		if ( $src ){ $this->src = $src; }
@@ -131,7 +135,7 @@ class PHPGasusImage
 			}
 			catch (Exception $e)
 			{
-				echo 'Error loading image ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+				echo 'Error loading image ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
 			}
 
 			try
@@ -140,7 +144,7 @@ class PHPGasusImage
 			}
 			catch (Exception $e)
 			{
-				echo 'Error reading image ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+				echo 'Error reading image ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
 				$this->image = false;
 			}
 		}
@@ -168,6 +172,32 @@ class PHPGasusImage
 		}
 		
 		return $this;
+	}
+
+	public function isValid()
+	{
+		$isValid = false;
+		
+		if ( $this->lib === 'imagick' )
+		{
+			/*
+			try
+			{
+				$this->image->valid();
+				$isValid = true;
+			}
+			catch (Exception $e)
+			{
+			}*/
+			
+			$isValid = $this->image->valid();
+		}
+		elseif ( $this->lib === 'gd' )
+		{
+			// TODO
+		}
+		
+		return $isValid;
 	}
 	
 	// Get image info
@@ -354,7 +384,7 @@ class PHPGasusImage
 			}
 			catch (Exception $e)
 			{
-				echo 'Error setting image format ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+				echo 'Error setting image format ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
 			}
 			
 //var_dump('new depth: ' . $this->image->getImageDepth());
@@ -401,10 +431,10 @@ class PHPGasusImage
 //var_dump($p);
 		
 		// Do not continue if both of the interpreted dimensions are 'auto'
-		if ( $p['width'] === 'auto' && $p['height'] === 'auto' ){ throw new Exception("Invalid dimensions. Please pass at least 1 valid dimension"); }
+		if ( $p['width'] === 'auto' && $p['height'] === 'auto' ){ throw new Exception("Invalid dimensions. Please pass at least 1 valid dimension." . $this->eol); }
 		
 		// Do not continue if resize dimensions are identical to source dimensions
-		if ( $p['width'] === $src['width'] && $p['height'] === $src['height'] ){ throw new Exception("Resize dimensions are identical to source dimensions"); }
+		if ( $p['width'] === $src['width'] && $p['height'] === $src['height'] ){ throw new Exception("Resize dimensions are identical to source dimensions." . $this->eol); }
 		
 		// If only one of the 2 dimensions is passed, calculate the other
 		$p['width'] = round($p['width'] === 'auto' ? $p['ratio'] * $p['height'] : $p['width']);
@@ -423,7 +453,7 @@ class PHPGasusImage
 			}
 			catch (Exception $e)
 			{
-				echo 'Error resizing image ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+				echo 'Error resizing image ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
 			}
 		}
 		
@@ -495,7 +525,7 @@ class PHPGasusImage
 			}
 			catch (Exception $e)
 			{
-				echo 'Error saving image ' . $this->src . PHP_EOL . $e->getMessage() . PHP_EOL;
+				echo 'Error saving image ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
 			}
 			
 		}

@@ -599,7 +599,7 @@ $this->dump($allowed);
 		$o['output'] 					= !empty($o['output']) ? $o['output'] : $urlExt;
 		$o['outputExtension'] 			= $urlExt;
 		
-		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','qr','plistxml','yamltxt','jsontxt','jsonreport','jsonp');
+		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','csvtxt','qr','plistxml','yamltxt','jsontxt','jsonreport');
 		$this->knownOutputMime            = array(
 			'text/html' 			=> 'html',
 			'application/xhtml+xml' => 'xhtml',
@@ -863,10 +863,53 @@ $this->dump($allowed);
 		}
 		else if ( $of === 'csv' )
 		{
+			$output 	= '';
+			$sep 		= ",";
+			$eol 		= PHP_EOL;
+			$comment 	= "#";
+			
+			$buffer = fopen('php://temp', 'r+');
+			
+			// Loop over the data
+			foreach (array_keys($this->data) as $k)
+			{
+				// Skip everything that is not the current resource
+				if ( $k !== $this->data['current']['resource'] ){ continue; }
+				
+				$rows = $this->data[$k];
+				 
+				// Add a 1st line with column names
+				if ( !empty($this->data['dataModel'][$k]) )
+				{
+					$output .= $comment . join($sep, array_keys($this->data['dataModel'][$k])) . $eol;
+				}
+				
+				$buffer = fopen('php://temp', 'r+');
+				
+				// Loop of the the rows
+				foreach (array_keys($rows) as $i)
+				{
+					$row = $rows[$i];
+					
+					//foreach ($row as $col => $value) { $output .= $value . $sep . $eol; }
+					//$output .= join($sep,$row) . $eol;
+					
+					fputcsv($buffer, array_values($row), $sep);
+				}
+				rewind($buffer);
+				$csv = fgets($buffer);
+				fclose($buffer);
+				$output .= $csv;  
+			}
+			
+			$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
+			//$this->headers[] = 'plain/txt; charset=utf-8;';
+			$this->writeHeaders();
+			exit($output);			
+			
 			/*
 			class_exists('php2CSV') || require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
 			
-			// Just keep real data and remove any other elements
 			foreach(array('success','errors','warnings') as $item) { if ( isset($this->data[$item]) ) { unset($this->data[$item]); } }
 			
 			$php2CSV = new php2CSV();
@@ -877,6 +920,51 @@ $this->dump($allowed);
 			//$this->writeHeaders();
 			//exit($output);
 			*/
+		}
+		else if ( $of === 'csvtxt' )
+		{
+			$output 	= '';
+			$sep 		= ",";
+			$eol 		= PHP_EOL;
+			$comment 	= "#";
+			
+			$buffer = fopen('php://temp', 'r+');
+			
+			// Loop over the data
+			foreach (array_keys($this->data) as $k)
+			{
+				// Skip everything that is not the current resource
+				if ( $k !== $this->data['current']['resource'] ){ continue; }
+				
+				$rows = $this->data[$k];
+				 
+				// Add a 1st line with column names
+				if ( !empty($this->data['dataModel'][$k]) )
+				{
+					$output .= $comment . join($sep, array_keys($this->data['dataModel'][$k])) . $eol;
+				}
+				
+				$buffer = fopen('php://temp', 'r+');
+				
+				// Loop of the the rows
+				foreach (array_keys($rows) as $i)
+				{
+					$row = $rows[$i];
+					
+					//foreach ($row as $col => $value) { $output .= $value . $sep . $eol; }
+					//$output .= join($sep,$row) . $eol;
+					
+					fputcsv($buffer, array_values($row), $sep);
+				}
+				rewind($buffer);
+				$csv = fgets($buffer);
+				fclose($buffer);
+				$output .= $csv;  
+			}
+						
+			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
+			$this->writeHeaders();
+			exit($output);
 		}
 		else if ( $of === 'qr' )
 		{
@@ -1361,7 +1449,7 @@ $this->dump($allowed);
 		));
 		
 		// Get user data if logged
-		if ( $this->application->logged && empty($this->data['current']['user']) )
+		if ( $this->application->logged && empty($this->data['current']['user']) && !empty($_SESSION['user_id']) )
 		{
             $user = CUsers::getInstance()->retrieve(array('values' => $_SESSION['user_id']));
 			unset($user['password']);

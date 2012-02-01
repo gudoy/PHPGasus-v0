@@ -2307,8 +2307,12 @@ class Model extends Application
             $col        = !$useAlias ? $colParts[1] : $col;
             
 			// Do not continue if the field is not an existing one
+			// but only when we are handling conditions in a select request 
+			// since there's no queryData for update & insert requests 
 			//if ( !$qf && !$useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
-			if ( !$qf && $useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
+			//if ( !$qf && $useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
+			if ( !$qf && $useAlias && isset($this->queryType) 
+				&& !in_array($this->queryType, array('insert','update')) ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
 			
 			$output .= $j !== 0 ? ', ' : '';
             //$output .= $useAlias ? $alias . '.' : '';
@@ -2545,13 +2549,14 @@ class Model extends Application
 		
 		// Set default params
 		// TODO: use $this->options instead, and use array_merge
-		$o 				= &$options;
-		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
-		$o['sortBy'] 	= !empty($o['sortBy']) ? $o['sortBy'] : 'id';
-		$o['orderBy'] 	= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
-		$o['type'] 		= 'select';
-        $o['mode']      = !empty($o['mode']) ? $o['mode'] : '';         // can be '','count','distinct','onlyOne'
-        $o['getFields'] = !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
+		$o 					= &$options;
+		$o['by'] 			= !empty($o['by']) ? $o['by'] : 'id';
+		$o['sortBy'] 		= !empty($o['sortBy']) ? $o['sortBy'] : 'id';
+		$o['orderBy'] 		= !empty($o['orderBy']) ? $o['orderBy'] : 'ASC';
+		$o['type'] 			= 'select';
+		$this->queryType 	= $o['type'];
+        $o['mode']      	= !empty($o['mode']) ? $o['mode'] : '';         // can be '','count','distinct','onlyOne'
+        $o['getFields'] 	= !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
@@ -2579,8 +2584,9 @@ class Model extends Application
 		// Do not continue if no data has been passed 
 		if ( empty($resourceData) ) { return; }
 		
-		$o 			= &$options;
-		$o['type'] 	= 'insert';
+		$o 					= &$options;
+		$o['type'] 			= 'insert';
+		$this->queryType 	= $o['type'];
 		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildInsert($resourceData, $o);
@@ -2624,15 +2630,16 @@ class Model extends Application
 		$this->data = null;
 		
 		// TODO: use $this->options instead, and use array_merge
-		$o 				= &$options;
-		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
-		$o['mode']		= !empty($o['mode']) ? $o['mode'] : ( empty($o['values']) || count($o['values']) <= 1 ? 'onlyOne' : null );
-        $o['values']    = !empty($o['values']) ? Tools::toArray($o['values']) : null;
+		$o 					= &$options;
+		$o['by'] 			= !empty($o['by']) ? $o['by'] : 'id';
+		$o['mode']			= !empty($o['mode']) ? $o['mode'] : ( empty($o['values']) || count($o['values']) <= 1 ? 'onlyOne' : null );
+        $o['values']    	= !empty($o['values']) ? Tools::toArray($o['values']) : null;
         
 		// Using LIMIT 1 (by default) for perf issues
-		$o['limit'] 	= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;
-		$o['type'] 		= 'select';
-        $o['getFields'] = !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
+		$o['limit'] 		= $o['mode'] !== 'onlyOne' && !empty($o['limit']) ? $o['limit'] : 1;
+		$o['type'] 			= 'select';
+		$this->queryType 	= $o['type'];
+        $o['getFields'] 	= !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
 		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
@@ -2650,11 +2657,12 @@ class Model extends Application
 		$this->data = null;
 		
 		// TODO: use $this->options instead, and use array_merge
-		$o 				= &$options;
-		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
-		$o['values'] 	= !empty($o['values']) ? $o['values'] : null;
-		$o['limit'] 	= !empty($o['limit']) ? $o['limit'] : null;
-		$o['type'] 		= 'update';
+		$o 					= &$options;
+		$o['by'] 			= !empty($o['by']) ? $o['by'] : 'id';
+		$o['values'] 		= !empty($o['values']) ? $o['values'] : null;
+		$o['limit'] 		= !empty($o['limit']) ? $o['limit'] : null;
+		$o['type'] 			= 'update';
+		$this->queryType 	= $o['type'];
 		
 		// Do not continue if no data or no item value has been passed 
 		if ( empty($resourceData) ) { return; }
@@ -2683,10 +2691,11 @@ class Model extends Application
 	{
 		$this->data = null;
 		
-		$o 				= &$options;
-		$o['by'] 		= !empty($o['by']) ? $o['by'] : 'id';
-		$o['values'] 	= !empty($o['values']) ? $o['values'] : null;
-		$o['type'] 		= 'delete';
+		$o 					= &$options;
+		$o['by'] 			= !empty($o['by']) ? $o['by'] : 'id';
+		$o['values'] 		= !empty($o['values']) ? $o['values'] : null;
+		$o['type'] 			= 'delete';
+		$this->queryType 	= $o['type'];
 
 		// Do not continue if no value has been passed
 		if ( empty($o['values']) && empty($o['conditions']) && empty($o['manualQuery']) ) { return false; }

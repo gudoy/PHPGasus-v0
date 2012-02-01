@@ -177,8 +177,14 @@ class Application
 			'limit' 		=> 1, 
 		));
 		
+		// Get user ip & clean it
+		$clientIp = !empty($_SERVER['HTTP_X_FORWARDED_FOR']) 
+						? $_SERVER['HTTP_X_FORWARDED_FOR'] 
+						: ( !empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null );
+		$clientIp = filter_var($clientIp, FILTER_VALIDATE_IP) ? $clientIp : false;
+		
 		// If the client ip match the passed session's one, set it as the current session id
-		if ( empty($session) || !empty($session['ipg']) || $_SERVER['REMOTE_ADDR'] !== $session['ip'] )
+		if ( empty($session) || !empty($session['ipg']) || $clientIp !== $session['ip'] )
 		{
 			$this->logged = false;
 			return $this;
