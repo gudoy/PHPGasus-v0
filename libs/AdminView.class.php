@@ -321,7 +321,7 @@ class AdminView extends View
         }
         
         $this->events->trigger('onBeforeSearch', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
-		
+
         // First case, contextual search on a defined resource
         if ( $s['type'] === 'contextual' )
         {

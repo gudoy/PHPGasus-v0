@@ -599,7 +599,7 @@ $this->dump($allowed);
 		$o['output'] 					= !empty($o['output']) ? $o['output'] : $urlExt;
 		$o['outputExtension'] 			= $urlExt;
 		
-		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','csvtxt','qr','plistxml','yamltxt','jsontxt','jsonreport');
+		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','csvtxt','qr','plistxml','yamltxt','jsontxt','jsonreport','jsonp');
 		$this->knownOutputMime            = array(
 			'text/html' 			=> 'html',
 			'application/xhtml+xml' => 'xhtml',

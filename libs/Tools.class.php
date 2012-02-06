@@ -109,10 +109,11 @@ class Tools
         foreach ( (array) explode('&', $query) as $item)
         {
             $parts              = explode('=', $item);
-            $params[$parts[0]]  = !empty($parts[1]) ? $parts[1] : null; 
+            //$params[$parts[0]]  = !empty($parts[1]) ? $parts[1] : null; 
+            $params[$parts[0]]  = !empty($parts[1]) ? urldecode($parts[1]) : null;
         }
-        
-        return $params;
+
+		return $params;
     }
 
 

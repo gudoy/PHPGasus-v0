@@ -19,6 +19,8 @@ input,
 button { font-family:Arial, Helvetica, sans-serif; font-size:12px; }
 
 a { color:#3c65d7; }
+a.relResourceLink { padding:2px 16px 2px 7px; background-color:#dde7f8; background-repeat:no-repeat; background-position:96% 50%; border-radius:15px; border:1px solid #a3bcea; /*box-shadow:1px 1px 0 rgba(255,255,255,.5) inset;*/ text-decoration:none; color:#000; }
+a.relResourceLink:hover { background:#4e8fff; border-color:#3071e0; color:#fff; }
 .adminTable thead th a,
 #mainCol section .titleBlock .title a { color:#000; }
 
@@ -431,7 +433,7 @@ section .adminBlock { margin:0 0 20px; }
 	section .adminBlock { margin:0 20px 20px; }
 	
 	.toolbar .actions .action,
-	.titleBlock .actions .action { margin:0; padding:4px 8px 4px 28px; background-position:8px 50%; }
+	.titleBlock .actions .action { margin:0; /*padding:4px 8px 4px 28px;*/ padding:4px 8px 4px 8px; background-position:8px 50%; }
 	
 	/* Start Header */
 	#branding { margin:0; margin-bottom:10px; position:absolute; left:50%; top:7px; }
@@ -473,6 +475,20 @@ section .adminBlock { margin:0 0 20px; }
 	#apisBlock .apis { padding-left:20px; padding-right:20px; }
 	#apisBlock .props { margin:20px; }
 	#apisBlock .prop .values { width:450px; }
+	
+	/* Tooltips (start) */
+	/*
+	.actions .action { overflow:visible; padding-left:8px; }
+	.actions .action .value { display:none; }
+	*/
+	.actions .action { overflow:visible; }
+	.actions .action:hover,
+	.actions .action.hover { position:relative; }
+	.actions .action:hover .value:before,
+	.actions .action.hover .value:before { width:6px; height:6px; margin-left:-3px; margin-top:3px; display:block; content:''; position:absolute; z-index:10009; top:-8px; left:50%; background:#DEE4EA; border:1px solid #999; border-width:1px 0 0 1px; -webkit-transform:rotate(45deg); -moz-transform:rotate(45deg); -o-transform:rotate(45deg); -ms-transform:rotate(45deg); font-size:1px; }
+	.actions .action:hover .value,
+	.actions .action.hover .value { margin-left:-50%; margin-top:10px; padding:5px 10px; position:absolute; z-index:10010; top:100%; display:block; clear:both; background:#DEE4EA; border:1px solid #999; color:#000; text-shadow:1px 1px 0 rgba(255,255,255,.75); text-indent:0; font-weight:bold; text-transform:capitalize; }
+	/* Tooltips (end) */
 }
 
 /* 1280 x 1024 */

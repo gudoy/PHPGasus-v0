@@ -1903,6 +1903,8 @@ class Model extends Application
 				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? ( strpos($field['default'], 'now') !== false ? time() : '0' ) : 0);
 				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : (isset($field['default']) ? ( strpos($field['default'], 'now') !== false ? time() : '0' ) : time());
 				//$tmpVal = !empty($d[$fieldName]) 
+				
+				// Get the passed value if present
 				$tmpVal = isset($d[$fieldName])
 							? $d[$fieldName] 
 							: ( isset($field['default']) || is_null($field['default'])
@@ -1914,6 +1916,15 @@ class Model extends Application
                                 //: time() );
                                 : ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) 
                             );
+/*
+$tmpVal = isset($d[$fieldName])
+	? $d[$fieldName] 
+	// Otherwise, try to use default value
+	: ( !isset($field['default']) || strtolower($field['default']) === 'now'
+		? ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() )
+		: ( is_null($field['default']) ? 'NULL' : strtotime($field['default']) )
+	);
+*/					
 				$value 	= is_int($tmpVal) && $tmpVal < 0 
 							? "DATE_ADD(FROM_UNIXTIME(0), INTERVAL " . $this->escapeString($tmpVal) ." SECOND)"
 							//: "FROM_UNIXTIME('" . $this->escapeString($tmpVal) . "')";

@@ -76,6 +76,8 @@
 		{include file='common/forms/admin/fieldLine/caseEnum.tpl'}
 	{elseif $type == 'set'}
 		{include file='common/forms/admin/fieldLine/caseSet.tpl'}
+	{elseif $type === 'varchar' && $field.subtype === 'email'}
+		{include file='common/forms/admin/fieldLine/caseEmail.tpl'}
 	{elseif $type === 'varchar' && $field.subtype === 'password'}
 		{include file='common/forms/admin/fieldLine/casePassword.tpl'}
 	{elseif $type === 'varchar' && ($field.subtype === 'file' || $field.subtype === 'fileDuplicate')}

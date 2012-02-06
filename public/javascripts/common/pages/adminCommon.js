@@ -1010,42 +1010,65 @@ var admin =
 			{
 				e.preventDefault();
 				
-				var input = $(this).closest('.fieldBlock').find('input[type=password]'),
-					curVal = input.val() || ''; 
+				var $this 	= $(this),
+					input 	= $this.closest('.fieldBlock').find('input[type=password]'),
+					curVal 	= input.val() || '';
+				
+				$this.addClass('hidden').prev('.cancelChangePassBtn').removeClass('hidden');
 				
 				//input.removeAttr('disabled').attr({'value':'', 'type':'text'});
 				input.removeAttr('disabled').attr({'value':''});
-			});
+			})
+			.prev('.cancelChangePassBtn')
+			.bind('click', function(e)
+			{
+				e.preventDefault();
+				
+				var $this 	= $(this),
+					input 	= $this.closest('.fieldBlock').find('input[type=password]');
+				
+				input.attr('disabled','disabled');
+				
+				$this.addClass('hidden').next('.changePassBtn').removeClass('hidden');
+			})
+			;
 		
 		return this;
 	},
 	
 	handleDateFields: function()
 	{
-//Tools.log('handleDateFields');
-//Tools.log($.datetimepicker);
+		// Do not continue if the datepicker module is not loaded
+		if ( $.datetimepicker ){ return this; }
 		
-		/*
-		// If the datepicker module is loaded
-		//if ( $.datetimepicker )
-		//{
-			$('input.datetime', 'form')
-				//.datepicker({
-	            .datetimepicker({ 
-					duration: '',  
-					dateFormat: 'yy-mm-dd',
-					//dateFormat: $.datepicker.W3C,
-					timeFormat: 'hh:mm',
-					showTime: true,  
-					constrainInput: false,  
-					stepMinutes: 1,  
-					stepHours: 1,  
-					altTimeField: '',  
-					time24h: true,
-					ampm:false
-			});	
-		//}
-		*/
+		$('input.datetime')
+            .datetimepicker(
+            { 
+				duration: '',
+				dateFormat: 'yy-mm-ddT',
+				timeFormat: 'hh:mm:ss',
+				separator: '',
+				showTime: true,  
+				constrainInput: false,  
+				stepMinutes: 1,  
+				stepHours: 1,  
+				altTimeField: '',  
+				time24h: true,
+				ampm:false
+			})
+			// On value change, add the timezone 
+			.change(function()
+			{
+				var $this 	= $(this)
+					val 	= $this.val();
+				
+				if ( !val || val.match(/\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:d{2}/) ){ return; }
+				
+				$this.val($this.val() + '.0Z');
+			})
+			.prev('.inputIcon')
+			.click(function(){ $(this).next('input').trigger('click'); });	
+
 		return this;
 	},
 	
@@ -1218,6 +1241,8 @@ var adminIndex =
 		    e.preventDefault();
 		    
 		    var destId = $(this).attr('href');
+		    
+		    $(self.context).toggleClass('filterMode');
             
             //$(destId).fadeToggle( function(){} );
             //$(destId).show();
