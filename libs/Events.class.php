@@ -53,7 +53,7 @@ Class Events
 	
 	//public function trigger($eventName, $options = array())
 	public function trigger()
-	{        
+	{
 		// Get passed arguments
 		$args 		= func_get_args();
 		

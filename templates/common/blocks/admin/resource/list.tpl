@@ -7,7 +7,7 @@
 		</a>
 	</h2>
 	{/block}
-	{if count($data[$resourceName]) || $data.total[$resourceName]}
+	{* if count($data[$resourceName]) || $data.total[$resourceName]}
     <span class="counts countsBlock" id="resourceCountsBlock">
         <span class="key">{t}counts{/t}</span>
         {if count($data[$resourceName])}
@@ -23,7 +23,7 @@
         </span>
         {/if}
     </span>
-	{/if}
+	{/if *}
 </header>
 {/block}
 

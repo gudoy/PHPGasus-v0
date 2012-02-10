@@ -8,9 +8,8 @@
     {$data.current.urlParams.offset = 0}
     {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
     href="{$newPageURL}"
-    title="{t}Go to first page{/t}"
     {/if}
-    ><span class="value">&lt;&lt; {t}first{/t}</span></a>
+    ><span class="value">&lt;&lt;&nbsp;{t}first{/t}</span></a>
 <a
     id="{$vPosition}PaginationPrevLink"
     class="action page prev paginationLink prevLink {if $currentPage <= 1}disabled{/if}"
@@ -19,9 +18,8 @@
     {$data.current.urlParams.offset = $newOffset}
     {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
     href="{$newPageURL}"
-    title="{t}Go to first previous page (page {$currentPage-1}){/t}"
     {/if}
-    ><span class="value">&lt; {t}previous{/t}</span></a>
+    ><span class="value">&lt;&nbsp;{t}previous{/t}</span></a>
 {$data.current.urlParams.offset = null}
 {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
     <fieldset>
@@ -38,8 +36,7 @@
     {$data.current.urlParams.offset=$newOffset}
     {$newPageURL={$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
     href="{$newPageURL}"
-    title="{t}Go to next page (page {$currentPage+1}){/t}"
-    {/if}><span class="value">{t}next{/t} &gt;</span></a>
+    {/if}><span class="value">{t}next{/t}&nbsp;&gt;</span></a>
 <a
     id="{$vPosition}PaginationLastLink"
     class="action page last paginationLink lastLink {if $currentPage >= $nbOfPages}disabled{/if}"
@@ -48,5 +45,4 @@
     {$data.current.urlParams.offset=$newOffset}
     {$newPageURL={$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
     href="{$newPageURL}"
-    title="{t}Go to last page{/t}"
-    {/if}><span class="value">{t}last{/t} &gt;&gt;</span></a>
+    {/if}><span class="value">{t}last{/t}&nbsp;&gt;&gt;</span></a>

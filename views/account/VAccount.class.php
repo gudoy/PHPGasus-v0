@@ -28,11 +28,12 @@ class VAccount extends View
 	public function login($options = null)
 	{		
 		// Shortcut for options
-		$o 		= $options;
+		$o 			= $options;
 		
 		// Try to get success redirect URL
-		$sr 	= 'successRedirect';
-		$redir 	= !empty($_POST[$sr]) ? $_POST[$sr] : ( !empty($_GET[$sr]) ? $_GET[$sr] : null );
+		$sr 		= 'successRedirect';
+		$redir 		= !empty($_POST[$sr]) ? $_POST[$sr] : ( !empty($_GET[$sr]) ? $_GET[$sr] : null );
+		$redirURL 	= !empty($redir) ? _URL . $redir : _URL_LOGIN_SUCESS_DEFAULT;
 		
 		// Set template data
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
@@ -48,9 +49,7 @@ class VAccount extends View
 		if ( $this->isLogged() )
 		{
 			$this->data['success'] = true;
-			
-			$url = !empty($redir) ? _URL . $redir : _URL_HOME;
-			$this->redirect($url);
+			$this->redirect($redirURL);
 		}
 		
 		// If max login attemps feature has beend activated
@@ -195,9 +194,11 @@ class VAccount extends View
 			$this->data[$this->resourceSingular] = array('id' => $newPOST['name'], 'user_id' => $newPOST['user_id']);
 			
 			//if ( !empty($redir) ) { $this->redirect($redir); }
-			if ( !empty($redir) ) { $this->redirect(_URL . $redir); }
+			//if ( !empty($redir) ) { $this->redirect(_URL . $redir); }
+			if ( $redirURL ) 	{ $this->redirect($redirURL); } 
 			
-			$this->respondError(201);
+			
+			//$this->respondError(201);
 		}
 		
 		return $this->render();

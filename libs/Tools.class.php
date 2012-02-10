@@ -436,8 +436,9 @@ class Tools
 			case 'float':
 			case 'real':
 			case 'double':
+				//$value = floatval($value); break;
+				$value = is_string($value) && strpos($value,',') !== false ? str_replace(',','.', $value) : $value;
 				$value = floatval($value); break;
-				
 			// Booleans
 			case 'bool':
 			case 'boolean':

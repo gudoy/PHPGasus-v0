@@ -9,14 +9,6 @@ class AdminView extends View
 		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-        // TODO: used? doubloon with $this->data['_resources'] & $this->data['resourcesFields']?
-        /*
-		$this->dataModel = array(
-			'resources' 		=> &$resources,
-			'resourcesFields' 	=> &$dataModel,
-		);*/
-		
-		
 		$this->data = array_merge($this->data, array(
 			'dataModel' 		=> &$dataModel, 			// TODO: rename in _columns
 			'_resources' 		=> &$resources,
@@ -25,8 +17,8 @@ class AdminView extends View
 		
 		parent::__construct($application);
 		
-		$this->requireLogin(); // Require that the user is logged
-		$this->requireAuth(); // and has admin rights for the current view						
+		$this->requireLogin(); 	// Require that the user is logged
+		$this->requireAuth(); 	// and has admin rights for the current view						
 		
 		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
 		
@@ -43,18 +35,11 @@ class AdminView extends View
             }            
         }		
 		
-        // TODO: clean this
-        /*
-		$this->data = array_merge($this->data, array(
-			'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
-			//'_dataModel'          	=> &$this->dataModel['resourcesFields'],
-			'_resources'             => &$this->dataModel['resources'],
-			'_resourcesGroups'       => &$_resourcesGroups,
-		));*/
-		
 		$this->data['search'] 			= array();
         $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
 											? 'contextual' : 'global';
+											
+		$this->events->register('onBeforeDisplay', array('class' => &$this, 'method' => '_onBeforeDisplay'));
 		
 		return $this;
 	}
@@ -890,7 +875,7 @@ $this->dump($this->data);
 	{
         $this->log(__METHOD__);
         
-		if ( !empty($this->resourceName) )
+		if ( !empty($this->resourceName) && !empty($this->data['meta']) )
 		{
             $tmp = preg_replace('/-([a-z]{1})/e', "ucfirst('$1')", join('-', $this->data['meta']['breadcrumbs']));
 		}
@@ -913,21 +898,25 @@ $this->dump($this->data);
 	public function prepareTemplate()
 	{
         $this->log(__METHOD__);
+		
+		//if ( !empty($this->options['dataOnly']) ){ return; }
         
+		$d = &$this->data;
 		$v = !empty($this->data['view']) ? $this->data['view'] : null; 	// Shortcut for view data
 		$m = !empty($v['method']) ? $v['method'] : 'index'; 			// Shortcut for view method
 		
 		if ( !empty($m) )
 		{
-			$this->data['view'] = array_merge(array(
+			$d['view'] = array_merge(array(
 				'name' 					=> 'admin' . ucfirst($m),
 				'template' 				=> 'specific/pages/admin/' . ( !empty($this->resourceName) ? 'resource/' . $m : 'default' ) . '.tpl',
 				'resourceName' 			=> isset($this->resourceName) ? $this->resourceName : '',
-			), ( isset($this->data['view']) ? (array) $this->data['view'] : array()) );
+			), ( isset($d['view']) ? (array) $d['view'] : array()) );
 		}
 								
-        $this->data = array_merge($this->data, array(
-            'current'               => array_merge($this->data['current'], array(
+        $d = array_merge($d, array(
+            //'current'               => array_merge($this->data['current'], array(
+            'current'               => array_merge( (isset($d['current']) ? $d['current'] : array()), array(
                 'offset'                    => $this->options['offset'],
                 'limit'                     => $this->options['limit'],
                 'sortBy'                    => $this->options['sortBy'],
@@ -940,12 +929,19 @@ $this->dump($this->data);
         
 		if ( in_array($m, array('update','delete')) )
 		{
-			$this->data['resourceId'] = $this->resourceId;
+			$d['resourceId'] = $this->resourceId;
 		}
 		
-//$this->dump($this->data);
-		
 		return parent::prepareTemplate();
+	}
+
+	public function _onBeforeDisplay()
+	{	
+		if ( empty($this->options['dataOnly']) 
+			|| empty($this->resourceName) 
+			|| in_array($this->options['output'], array('html','xhtml')) ){ return; }
+		
+		$this->data = $this->data[$this->resourceName];
 	}
 
 

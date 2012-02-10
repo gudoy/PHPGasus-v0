@@ -53,7 +53,7 @@
         </ul>
         *}
         <div class="adminBlock adminListingBlock resultsTableBlock">
-        	<a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a>
+        	{* <a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a> *}
         	{include file='common/blocks/admin/resource/list/table.tpl' rows=$group.results rName=$groupResource rModel=$data.dataModel[$groupResource] options=['addHiddenCols' => false]}
         	<a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a>
         </div>

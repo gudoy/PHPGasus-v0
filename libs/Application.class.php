@@ -41,7 +41,16 @@ class Application
 		$type = isset($known[$first]) && $secondIsUpper ? $known[$first] : 'lib';
 		$path = constant('_PATH_' . strtoupper($type  . 's'));
 		
-		class_exists($className) || (file_exists($path . $className . '.class.php') && require($path . $className . '.class.php'));
+		class_exists($className) 
+			|| ( $type === 'controller' 
+					&& ($cFolder = preg_replace('/^c/', '', strtolower($className))) 
+					&& is_dir($path . $cFolder) 
+					&&  file_exists($path . $cFolder . '/' . $className . '.class.php') 
+					&& require($path . $cFolder . '/' . $className . '.class.php')
+				)
+			|| ( file_exists($path . $className . '.class.php') 
+					&& require($path . $className . '.class.php')
+				);
 	}
     
     

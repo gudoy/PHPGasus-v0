@@ -36,7 +36,7 @@ class VSamples extends ApiView
 			'warnings' 		=> $this->C->warnings,
 		));
 		
-		// If no wishlist has been found
+		// If no resource has been found
 		if ( empty($resources) ) { return $this->statusCode(204); }
 		# listing block end
 			
@@ -89,13 +89,13 @@ class VSamples extends ApiView
 		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
 		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
 		$rid 		= filter_var($rid, constant($filter));										// Filter the value
-		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'slug' ) ) ); 
 		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
 		// If no resource identifier has been found
-		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
+		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or slug'; return $this->statusCode(400); }
 		
-		// Try to get the wishlist
+		// Try to get the resource
 		$resource 	= $this->C->retrieve($opts);
 		
 		// Set output data		
@@ -121,11 +121,11 @@ class VSamples extends ApiView
 		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
 		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
 		$rid 		= filter_var($rid, constant($filter));										// Filter the value
-		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'slug' ) ) ); 
 		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
 		// If no resource identifier has been found
-		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
+		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or slug'; return $this->statusCode(400); }
 		
 		// If POST data have been passed
 		if ( !empty($_POST) )
@@ -165,13 +165,13 @@ class VSamples extends ApiView
 		$rid 		= !empty($args[0]) ? $args[0] : null; 										// Shortcut for resource identifier
 		$filter 	= 'FILTER_SANITIZE_' . (is_numeric($rid) ? 'NUMBER_INT' : 'STRING'); 		// Set the filter to use
 		$rid 		= filter_var($rid, constant($filter));										// Filter the value
-		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'admin_title' ) ) ); 
+		$opts 		= array('by' => ( !empty($o['by']) ? $o['by'] : ( is_numeric($rid) ? 'id' : 'slug' ) ) ); 
 		$opts 		= array_merge($o, $opts, array('values' => $rid));
 		
 		// If no resource identifier has been found
-		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or admin_title'; return $this->statusCode(400); }
+		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or slug'; return $this->statusCode(400); }
 		
-		// Try to get the wishlist
+		// Try to get the resource
 		$this->C->delete($opts);
 		
 		// Set output data		

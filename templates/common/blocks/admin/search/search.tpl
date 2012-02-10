@@ -25,8 +25,8 @@
                         	{$canSearch 	= $data.current.user.auths.__can_search|default:[]}
                         	{$searchableRes = join(', ', $canSearch)}
                         {/if}
-                        {include file='common/formFields/common/search.tpl' name='searchQuery' label={'search for'|gettext} placeholder={$searchableRes} value={$search.query|default:''} inputOnly=true}
                         <input type="submit" id="validateSearchBtn" value="{t}go{/t}" />
+                        {include file='common/formFields/common/search.tpl' name='searchQuery' label={'search for'|gettext} placeholder={$searchableRes} value={$search.query|default:''} inputOnly=true}
                     </div>
                 </div>
                 <input type="hidden" name="method" value="search" />

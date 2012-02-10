@@ -6,14 +6,14 @@ $errorsAssoc = array(
 					'front' => _('Missing required parameter(s).')),
 	'1001' => array('back' => 'Missing required param %s',
 					'front' => _('Missing required parameter: %s.')),
-	'1002' => array('back' => 'Missing required fields',
-					'front' => _('Please fill all the required fields')),
-	'1003' => array('back' => 'Missing required field(s)',
+	'1002' => array('back' => 'Missing required fields: %s',
+					'front' => _('Please fill all the required fields: %s')),
+	'1003' => array('back' => 'Missing required field(s): %s',
 					'front' => _('Please fill all the required fields: %s')),
 
-	'1007' => array('back' => 'Invalid format for field',
+	'1007' => array('back' => 'Invalid format for field: %s',
 					'front' => _('The format of the following field is invalid: %s')),					
-	'1008' => array('back' => 'Invalid format for field(s)',
+	'1008' => array('back' => 'Invalid format for field(s): %s',
 					'front' => _('The format of the following field(s) are invalid: %s')),
 					
 	'1010' => array('back' => 'Wrong %s value',
@@ -265,6 +265,9 @@ $errorsAssoc = array(
 					'front' => _('You cannot use this coupon code more than once for this device.')),
 
 
+	// Products
+	'21001' => array('back' => 'Unknown product %s',
+					'front' => _('The requested product \'%s\' could not be find')),
 
 );
 ?>

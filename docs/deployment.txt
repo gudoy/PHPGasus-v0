@@ -7,19 +7,19 @@
 
 SERVER
 ------
-packages: locales-all
+packages: [locales-all] (required if i18n is used)
 
 -------- 
 Apache
 -------- 
 version : >=2
-modules: [mod_alias], [mod_deflate] (or gzip), mod_env, [mod_expires], [mod_headers], mod_rewrite, mod_vhost_alias
+modules: mod_env, mod_rewrite, [mod_deflate] (or gzip), [mod_expires], [mod_headers]
 
 -------- 
 PHP
 -------- 
 version : >=5.2.6
-modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, php_gettext, php_http (pecl http), [php_xdebug], [php_zip]
+modules: php_curl, php_http (pecl http), [php_gd2], [php_gettext] (required if i18n is used), [php_xdebug], [php_zip]
 
 
 ************************************
@@ -35,7 +35,7 @@ modules: [php_apc], php_curl, php_exif, php_fileinfo (pecl fileinfo), php_gd2, p
 3) FOLDERS PERMISSIONS
 ************************************
 
-CHMOD tmp/ >755
 CHMOD templates/templates_c/ >755
 CHMOD libs/templating/smarty3/cache/ >755
-[CHMOD i18n/ >755] (only if you use i18n)
+[CHMOD i18n/ >755] (required if i18n is used)
+[CHMOD public/logs/chromelogs/ >755] (only if you want to use chromephp logging)

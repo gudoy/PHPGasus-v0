@@ -1,7 +1,7 @@
 {$crudability 		= $data._resources[$resourceName].crudability|default:'CRUD'}
 {$nbOfItemsPerPage	= $data.current.limit|default:$smarty.const._ADMIN_RESOURCES_NB_PER_PAGE}
 {$userResPerms 		= $data.current.user.auths[$resourceName]}
-<div class="menu toolbar adminToolbar adminListToolbar {$position}" id="adminListToolbar{$position|ucfirst}">
+<div class="menu toolbar adminToolbar adminResourcesToolbar adminListToolbar {$position}" id="adminListToolbar{$position|ucfirst}">
 	{block name='adminListToolbarContent'}
     <div class="group createButtons">
     	{if $userResPerms.allow_create}
@@ -48,32 +48,10 @@
             </a>
         </span>
     </div>
-    <div class="group itemsCounts">
-        <span class="title">{t}items{/t}</span>
-        {$data.current.urlParams.offset = null}
-        {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
-        <fieldset>
-            <select id="itemsPerPage{$position|ucfirst}" class="sized itemPerPage" name="limit" formmethod="get">
-                {foreach array(25,50,100,200,500) as $nb}
-                <option value="{$nb}" {if $nb === $nbOfItemsPerPage}selected="selected"{/if}>{$nb}</option>
-                {/foreach}
-            </select>
-            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
-        </fieldset>
-    </div>
-    {if $data.total[$resourceName] > $data.current.limit}
-    <div class="group paginationButtons">
-        <span class="title">{t}pages{/t}</span>
-        <span class="actions">
-        {include file='common/blocks/admin/pagination/index_new.tpl' vPosition=$position}
-        </span>
-    </div>
-    {/if}
-    {/block}
     <div class="group settings">
     	<span class="title">{t}settings{/t}</span>
     	<div class="groups">
-	        <div class="group">
+	        <div class="group displayMode">
 	        	<span class="title">{t}display mode{/t}</span>
 	        	<span class="actions">
 		            <a class="action actionBtn displayMode tableMode" id="tableMode">
@@ -100,20 +78,44 @@
 		            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
 		        </fieldset>
 		    </div>
-	        <div class="group">
+	        <div class="group density">
 	        	<span class="title">{t}density{/t}</span>
 	        	<span class="actions">
-		            <a class="action actionBtn displayDensity normalDensity" id="normalDensity">
-		                <span class="value">{'normal'|gettext}</span>
+	        		{$curDensity = 'high'}
+	        		{$densities = ['normal' => "{'normal'|gettext}", 'average' => {'average'|gettext}, 'high' => "{'high'|gettext}"]}
+	        		{foreach $densities as $item => $translation}
+		            <a class="action actionBtn displayDensity {$item}Density {if $item === $curDensity}current{/if}" id="{$item}Density" data-value="{$item}">
+		                <span class="value">{$translation}</span>
 		            </a>
-		            <a class="action actionBtn displayDensity averageDensity" id="averageDensity">
-		                <span class="value">{'average'|gettext}</span>
-		            </a>
-		            <a class="action actionBtn displayDensity highDensity" id="highDensity">
-		                <span class="value">{'high'|gettext}</span>
-		            </a>
+	        		{/foreach}
 	        	</span>
 	        </div>
     	</div>
     </div>
+    {if $data.total[$resourceName] > $data.current.limit}
+    <div class="group paginationButtons">
+        <span class="title">{t}pages{/t}</span>
+        <span class="actions">
+        {include file='common/blocks/admin/pagination/index_new.tpl' vPosition=$position}
+        </span>
+    </div>
+    {/if}
+    <div class="group itemsCounts resourcesCounts" id="resourcesCounts{$position|ucfirst}">
+        <span class="title">{t}items{/t}</span>
+        {$data.current.urlParams.offset = null}
+        {$newPageURL = {$curURL|regex_replace:'/(.*)\?(.*)/U':'$1'}|cat:'?'|cat:{http_build_query($data.current.urlParams)}}
+        <fieldset class="count" id="displayedResourcesCount{$position|ucfirst}">
+            <select id="itemsPerPage{$position|ucfirst}" class="sized itemPerPage" name="limit" formmethod="get">
+                {foreach array(25,50,100,200,500) as $nb}
+                <option value="{$nb}" {if $nb === $nbOfItemsPerPage}selected="selected"{/if}>{$nb}</option>
+                {/foreach}
+            </select>
+            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
+        </fieldset>
+        <span class="totalCount totalResourcesCount" id="totalResourcesCount{$position|ucfirst}">
+            <span class="key">{t}of{/t}</span>
+            <span class="value">{$data.total[$resourceName]}</span>
+        </span>
+    </div>
+    {/block}
 </div>

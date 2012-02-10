@@ -23,8 +23,6 @@ var admin =
 		}*/
 		
 		//Tools.loadCSS('/public/stylesheets/default/jquery-ui-1.8.9.custom.css');
-        
-	    //adminSearch.init();
 	    
 	    this.search.init();
 	    
@@ -1216,142 +1214,70 @@ var admin =
 var adminIndex =
 {
 	context: 'table.adminTable',
+	toolbarsContext: '#adminListToolbarTop, #adminListToolbarBottom',
 	
 	init: function()
 	{
-		var self 	= this,
+		var that 	= this,
 			support = {
 				detailsSummary: ( 'open' in document.createElement('details') )
 			},
-			$toolbars = $('.adminListToolbar');
+			$toolbars = $(that.toolbarsContext);
 		;
 
 		admin.init();
-		
-		// Hide action buttons (since they only are necessary when items are selected)
-		$toolbars.find('.actionsButtons').hide()
-		
-		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
-        $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
-        $('a.duplicateAllLink').click(function(e) { e.preventDefault(); admin.duplicate($('tbody tr.ui-selected:visible', self.context)); });
-
-		$('.filterLink')
-		.bind('click', function(e)
-		{
-		    e.preventDefault();
-		    
-		    var destId = $(this).attr('href');
-		    
-		    $(self.context).toggleClass('filterMode');
-            
-            //$(destId).fadeToggle( function(){} );
-            //$(destId).show();
-            $(destId).toggleClass('active');
-		});
 
 		// We do not need selectable rows on mobile
 		if ( !app.isMobile )
 		{
-			$(self.context)
-				.find('tbody')
-				.selectable(
-				{
-					filter: 'tr.dataRow',
-					distance: 20,
-					cancel: 'div.value, input',
-					selecting: function(event, ui)
-					{
-						$(ui.selecting)
-							.find('td.colSelectResources input:checkbox')
-							.attr('checked','checked')
-					},
-					unselecting: function()
-					{
-						$(ui.selecting)
-							.find('td.colSelectResources input:checkbox')
-							.removeAttr('checked');
-					}
-				});
-		}
-
-		// Loop over all the delete buttons in the table
-		$(self.context)
-			.parent()
-			.click(function(e)
+			$('tbody', that.context).selectable(
 			{
-				var t 			= e.target, 						// Shortcut for event target
-					jt 			= $(t),								// Shortcut for event target jqueryfied
-					tmpA 		= jt.closest('a'),					// Try to get closest anchor tag
-					a			= tmpA.length > 0 ? tmpA : false, 	// or set if to false
-					href 		= a ? a.attr('href') : false, 			// Try to get the href of the link
-					//intercept 	= a, 							// Do we need to intercept click (no if no an anchor)
-					jCel 		= jt.closest('td');					// jQuery Reference to the closest <td>
-					
-				jt.focus();
-				
-				if ( jt.hasClass('dataValue') || jt.hasClass('validity') )	{ return self.inlineEdit(jCel); }
-				
-				else if ( jt.is('summary') )
-				{
-					if ( support.detailsSummary ){ return; }
-					
-					var $p = jt.parent('details');
-					
-					if 		( $p.attr('open') === 'open' )	{ $p.removeAttr('open'); }
-					else 									{ $p.attr('open','open'); }
-					
-					e.preventDefault();
-					e.stopPropagation();
-					
-					return true;
-				}
-				
-				// If the target is an input, just return
-				else if ( jt.is(':input') )
-				{	
-					if 		( jt.is('#toggleAll') ){ return self.toggleAll(jt); }
-					else if ( jt.is(':checkbox') )
-					{
-						var jTR = jt.closest('tr');
-						//jt.is(':checked') ? jTR.addClass('ui-selected') : jTR.removeClass('ui-selected ui-selectee')
-						
-						if ( jt.is(':checked') )
-						{
-							jTR.addClass('ui-selected');
-							
-							$toolbars.find('.actionsButtons').show();
-						}
-						else
-						{
-							jTR.removeClass('ui-selected ui-selectee');
-							
-							if ( !$('.ui-selected', self.context).length ){ $toolbars.find('.actionsButtons').hide(); }
-						}
-					}
-					
-					return true;
-				}
-				
-				// Prevent default action
-				e.preventDefault();
-					
-				// Just return if we do not need to intercept the click
-				//if ( !cel.hasClass('dataCol') || !intercept  ){ return self; }
-				if ( !a ){ return self; }
-				
-				// Handle specific link types
-				if 		( a.hasClass('deleteLink') )			{ return admin.del(a); }
-				else if ( a.hasClass('duplicateLink') )			{ return admin.duplicate(a); }
-				else if ( a.hasClass('selectAll') ) 			{ return self.toggleAll('check'); }
-				else if ( a.hasClass('selectNone') ) 			{ return self.toggleAll('uncheck'); }
-				//else if ( a.hasClass('relResourceLink') )		{ admin.relatedResource(a, e); }
-				else if ( href )								{ window.location.href = href; }
-				
-				//window.location.href = a.attr('href');
-			})
-			;
+				filter: 'tr.dataRow',
+				distance: 20,
+				cancel: 'div.value, :input',
+				selecting: function(event, ui) 	{ $(':checkbox', ui.selecting).prop('checked',true); },
+				unselecting: function() 		{ $(':checkbox', ui.selecting).prop('checked',true); }
+			});
+		}
 			
-		self
+		$(that.context)
+			.on('click','select',function(e){ return true; })
+			.on('click','summary',function(e)
+			{
+				if ( support.detailsSummary ){ return; }
+				
+				var $detail = $(this).parent('details');
+				
+				$detail.prop('open') ? $detail.removeAttr('open') : $detail.attr('open','open');
+				
+				e.preventDefault();
+				e.stopPropagation();
+				
+				return true;
+			})
+			.on('click','a.deleteLink',function(e){ e.stopPropagation(); e.preventDefault(); admin.del($(this)); })
+			.on('click','a.editLink, a.viewLink',function(e){ e.stopPropagation(); })
+			.on('click','.dataValue',function(e) { e.stopPropagation(); that.inlineEdit($(this).closest('td')); })
+			.on('click','#toggleAll',function(e) { e.stopPropagation(); that.toggleAll($(this)); })
+			.on('click','td :checkbox',function(e){ e.stopPropagation(); })
+			.on('change','td :checkbox',function(e)
+			{
+				e.stopPropagation();
+
+				var $this 	= $(this),
+					$tr 	= $this.closest('tr');
+				
+				if 	( $this.is(':checked') ) { $tr.addClass('ui-selected'); $('.actionsButtons', $toolbars).show(); }
+				else
+				{
+					$tr.removeClass('ui-selected');
+					
+					if ( !$('tr', that.context).filter('.ui-selected').length ){ $('.actionsButtons', $toolbars).hide(); }
+				}
+			})
+			.on('click','tr.dataRow',function(e){ $(this).find('input[type=checkbox]').click(); e.preventDefault(); e.stopPropagation(); })
+			
+		that
 		  .handleToolbars()
 		  .handleFilters()
 		  .handleTableCols();
@@ -1362,14 +1288,14 @@ var adminIndex =
 	
 	handleTableCols: function()
 	{
-		var self      = this,
+		var that      = this,
 		    list      = $('#colsHandlerManagerBlock');
 		    
-		$('#colsManagerLink', self.context).each(function()
+		$('#colsManagerLink', that.context).each(function()
 		{
 		    var $this 		= $(this),
                 $cBlock 	= $this.next('.colsBlock'),   			// jQuery reference to the columns handler block
-		        tbodyH 		= $('tbody', self.context).outerHeight(),
+		        tbodyH 		= $('tbody', that.context).outerHeight(),
 		        vPadding 	= (parseInt($cBlock.css('padding-top')) + parseInt($cBlock.css('padding-bottom'))) || 0,
 		        vBorders 	= (parseInt($cBlock.css('border-top-width')) - parseInt($cBlock.css('border-bottom-width'))) || 0,
 		        newH 		= (tbodyH - vPadding - vBorders) || $cBlock.css('height'),
@@ -1402,7 +1328,7 @@ var adminIndex =
 		        
 		        var $input    = $(t).is('input') ? $t : $t.parent().find('input'),        // jQuery reference to the input
 		            colName   = $input.attr('id').replace(/Display/,'') || '',            // Get the related column name
-		            $cols     = $('th.' + colName + ', td.' + colName, self.context);     // Get the matching cols and store the jQuery reference 
+		            $cols     = $('th.' + colName + ', td.' + colName, that.context);     // Get the matching cols and store the jQuery reference 
 		            
 		        if    ( $input.is(':checked') ){ $cols.removeClass('hidden'); }
 		        else  { $cols.addClass('hidden'); }
@@ -1414,42 +1340,39 @@ var adminIndex =
 	
 	handleFilters: function()
 	{
-	    var self   			= this,
+	    var that   			= this,
 	    	filterTimeout 	= null,
 	    	filterDelay 	= 100,
-	        $tr    			= $('tbody tr', self.context);                      // Store a jquery reference containing all the rows
+	        $tr    			= $('tbody tr', that.context);                      // Store a jquery reference containing all the rows
 	    
 	    // Loop over the filters inputs, listening for keyup events
-	    $('thead tr.filtersRow', self.context)
+	    $('thead tr.filtersRow', that.context)
 	       .bind('keyup change', function(e)
 	       //.bind('change', function(e)
 	    {
-//Tools.log('change');
 	        e.preventDefault();
 	        e.stopPropagation();
 	        
 	        // Clear any previously launched filter operation
 	        if ( filterTimeout ) { clearTimeout(filterTimeout); } 
-//Tools.log('clear timeout');
 	        
 	        // Add a small timeout between the key press and the start of the filtering operation  
 	        delayTimeout = setTimeout(function()
 	        {
-	            var t       = e.target,
-	                $t      = $(t);
+	            var t       	= e.target,
+	                $t      	= $(t);
 	                
 	            // Does not handle targets that are not inputs
 	            if ( !$t.is(':input') ){ return; }
 	                
-	            var $input  = $t,
-	                $td     = $input.closest('td'),
-	                val     = $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') || $td.hasClass('typeBool') 
-	                			? $input.find(':selected').text().trim() 
-	                			: $input.val(),
-	                colName = $td.attr('headers') || '';
-	                
-//Tools.log('colName:' + colName);
-//Tools.log('val:' + val);
+	            var $input  	= $t,
+	                $td     	= $input.closest('td'),
+	                val     	= $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') || $td.hasClass('typeBool') 
+	                				? $input.find(':selected').text().trim() 
+	                				: $input.val(),
+	                colClass 	= $td.attr('headers') || '',
+					colName 	= colClass.replace('Col',''),
+	                conditions 	= [];
 	                
 	            // Do not continue if no input has been found
 	            if ( !$input.length ) { return; }
@@ -1468,27 +1391,77 @@ var adminIndex =
 	                if ( val === '' )
 	                {
 	                    // Re-display the previously hidden rows for the current filter
-	                    $this.filter('.' + colName + 'Filtered').removeClass(colName + 'Filtered').show();
+	                    $this.filter('.' + colClass + 'Filtered').removeClass(colClass + 'Filtered').show();
 	                    
 	                    return;
 	                }
+	                
 	                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
 	                // and that are not filtered by the current column 
-	                else if ( !$this.is(':visible') && !$this.hasClass(colName + 'Filtered') ){ return; }
+	                else if ( !$this.is(':visible') && !$this.hasClass(colClass + 'Filtered') ){ return; }
 	                
-	                var $td     = $this.find('td.' + colName),
+	                var $td     = $this.find('td.' + colClass),
 	                    match   = $td.find('.value:contains(' + val + ')').length; //
 	                    
 	                // If the 
 	                if ( !match )
 	                {
 	                    // Hide the row adding a class of the name by which it has been filtered  
-	                    $this.hide().addClass(colName + 'Filtered');
+	                    $this.hide().addClass(colClass + 'Filtered');
 	                }
 	                else { $this.show(); }
 	            });
 	            
-	            //$tmp.appendTo($('tbody', self.context));
+	            
+condition = colName + '|contains|' + val;
+
+console.log(conditions);
+	            
+	            // If the whole items of the resource are not displayed
+	            //if ( $('.value', '#displayedResourcesCount').text() < $('.value', '#totalResourcesCount').text() )
+	            if ( $(':input', '#displayedResourcesCountTop').val() < $('.value', '#totalResourcesCountTop').text() )
+	            {            	 
+		            // Get the total count of items having matching the provided filters 
+		            $.ajax(
+		            {
+		            	url: location.href.replace(new RegExp('\\?.*','g'), ''),
+		            	data:{'dataOnly':true, 'mode':'count', 'conditions':condition},
+		            	type: 'get',
+		            	dataType: 'json',
+		            	success: function(response)
+		            	{
+console.log(response);
+		            		var count = response || null;
+		            		
+console.log('count: ' + count);
+
+							if ( !count ){ return; }
+							
+							$(that.toolbarsContext).each(function()
+							{
+								var $this 			= $(this),
+									$globalFilter 	= $this.find('a').filter('.globalFilterLink');
+								
+								// Update count
+								if ( $globalFilter.length ) { $globalFilter.find('.count').text(count); }
+								// Or create create the link
+								else
+								{
+									var checkbox = '<input type="checkbox" name="globalFilter" />';
+										$element = $('<a />', 
+									{
+										'class': 'action globalFilterLink', 
+										'href': '#', 
+										'html': checkbox + 'on all pages (<span class="count">' + count + '</span>)'
+									});
+									$(that.toolbarsContext).find('.filterLink').after($element);		
+								}
+							});
+		            	}
+		            });
+	            }
+	            
+	            //$tmp.appendTo($('tbody', that.context));
 	            //$tmp = null;
 	            
 	            filterTimeout = null;
@@ -1512,7 +1485,9 @@ var adminIndex =
 			$toolbars 	= $('.adminListToolbar');
 		
 		if ( action === 'check' )	{ all.attr('checked','checked').closest('tr').addClass('ui-selected'); $toolbars.find('.actionsButtons').show(); }
-		else 						{ all.removeAttr('checked').closest('tr').removeClass('ui-selectee ui-selected'); $toolbars.find('.actionsButtons').hide(); }
+		else 						{ all.removeAttr('checked').closest('tr').removeClass('ui-selected'); $toolbars.find('.actionsButtons').hide(); }
+		
+		$(args[0]).blur();
 		
 		return this;
 	},
@@ -1530,53 +1505,71 @@ var adminIndex =
 	       //toolbarsContext = '.adminListToolbar';
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
 	       
-	    $(toolbarsContext)
-		    .each(function()
-		    {
-		    	var $this = $(this);
-		    	
-		        $this
-		           .find('select')
-		               .bind('change', function(e)
-	                   {
-	                       e.preventDefault();
-	                       
-	                       var $t   = $(this);
-	                           
-	                       if ( $t.is('#itemsPerPageTop') || $t.is('#itemsPerPageBottom') )
-	                       {
-	                            var newLimit   	= $t.val(), 
-	                                curURL      = window.location.href,
-	                                cleaned     = Tools.removeQueryParam(curURL, 'limit'),
-	                                newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'limit=' + newLimit;
-	    
-	                            window.location.href = newURL;
-	                       }
-	                   })
-	               .end()
-	               .find('input.pageNb')
-	               .bind('change', function(e)
-	               {
-	               		e.preventDefault();
-	               		e.stopPropagation();
-	               	
-                        var input 		= $(this);
-                        	newPage   	= input.val(), 
-                            curURL      = window.location.href,
-                            cleaned     = Tools.removeQueryParam(curURL, 'page'),
-                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'page=' + newPage,
-                            form 		= input.closest('form');
-                           
-                        //if ( !Modernizr.input.formaction )
-                        {
-                        	form.attr('action',newURL).append($('<input />', {'type':'hidden','name':'method','value':'index'})).submit();	
-                        }
-                        // Otherwise, the formaction attribute should override the one of the form
-                        // everything should go well
-						
-	               })
-	               //.find('> .paginationButtons').bind('click', function(e){ $(this).toggleClass('expanded'); })
-		    });
+	    $(toolbarsContext).each(function()
+	    {
+	    	var $this = $(this);
+	    	
+	        $this
+				// Hide action buttons (since they only are necessary when items are selected)
+				.find('.actionsButtons').hide()
+				.end()
+				
+				//
+				.find('a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', adminIndex.context)); })
+				.end()
+				
+				.find('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', adminIndex.context)); })		
+				.end()
+				
+				.find('a.filterLink').click(function(e) { e.preventDefault(); $(adminIndex.context).toggleClass('filterMode'); $($(this).attr('href')).toggleClass('active'); })		
+				.end()
+
+				.find('select')
+				.bind('change', function(e)
+				{
+   					e.preventDefault();
+   
+   					var $t  = $(this);
+       
+   					if ( $t.is('#itemsPerPageTop') || $t.is('#itemsPerPageBottom') )
+					{
+    					var newLimit   	= $t.val(), 
+        					curURL      = window.location.href,
+        					cleaned     = Tools.removeQueryParam(curURL, 'limit'),
+							newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'limit=' + newLimit;
+
+						window.location.href = newURL;
+					}
+				})
+               .end()
+               
+               .find('input.pageNb')
+               .bind('change', function(e)
+               {
+               		e.preventDefault();
+               		e.stopPropagation();
+               	
+                    var input 		= $(this);
+                    	newPage   	= input.val(), 
+                        curURL      = window.location.href,
+                        cleaned     = Tools.removeQueryParam(curURL, 'page'),
+                        newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'page=' + newPage,
+                        form 		= input.closest('form');
+                       
+                    //if ( !Modernizr.input.formaction )
+                    {
+                    	form.attr('action',newURL).append($('<input />', {'type':'hidden','name':'method','value':'index'})).submit();	
+                    }
+                    // Otherwise, the formaction attribute should override the one of the form
+                    // everything should go well
+					
+               });
+               //.find('> .paginationButtons').bind('click', function(e){ $(this).toggleClass('expanded'); })
+               //.end();
+               
+			$this	
+               .find('> .group.settings').bind('click', function(e){ $(this).toggleClass('active'); })
+	    });
 	    
 	    return this;  
 	},

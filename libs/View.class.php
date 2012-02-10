@@ -325,6 +325,7 @@ $this->dump($allowed);
 			'Opera' 		=> array('versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
 			'Konqueror' 	=> array('versionPattern' => '/.*(Konqueror)\/([0-9\.]*)\s.*/'),
             'BlackBerry' 	=> array('versionPattern' => '/.*(BlackBerry[a-zA-Z0-9]*)\/([0-9\.]*)\s.*/'),
+            'Dolphin' 		=> array('versionPattern' => '/.*(Dolfin)\/([0-9\.]*)\s.*/'),
 		);
 				
 		// Try to get the browser data using the User Agent
@@ -448,6 +449,7 @@ $this->dump($allowed);
 		// Known options
 		$known    = array(
 			'output','method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
+			'mode', 'dataOnly',
 			'reindexBy','reindexby', 		// TODO: deprecate 
 			'indexBy','indexByUnique',
 			'operation','debug','confirm',
@@ -457,7 +459,7 @@ $this->dump($allowed);
 		);
 		
 		// Specific ones whose default value is 0 (false)
-		$specZero = array('isIphone','iphone','isAndroid','android','offset','limit','debug', 'confirm');
+		$specZero = array('isIphone','iphone','isAndroid','android','offset','limit','debug', 'confirm', 'dataOnly');
         
         // TODO
         $specOne = array('css', 'js', 'minify',);
@@ -868,7 +870,7 @@ $this->dump($allowed);
 			$eol 		= PHP_EOL;
 			$comment 	= "#";
 			
-			$buffer = fopen('php://temp', 'r+');
+			//$buffer = fopen('php://temp', 'r+');
 			
 			// Loop over the data
 			foreach (array_keys($this->data) as $k)
@@ -884,8 +886,6 @@ $this->dump($allowed);
 					$output .= $comment . join($sep, array_keys($this->data['dataModel'][$k])) . $eol;
 				}
 				
-				$buffer = fopen('php://temp', 'r+');
-				
 				// Loop of the the rows
 				foreach (array_keys($rows) as $i)
 				{
@@ -894,12 +894,13 @@ $this->dump($allowed);
 					//foreach ($row as $col => $value) { $output .= $value . $sep . $eol; }
 					//$output .= join($sep,$row) . $eol;
 					
+					$buffer = fopen('php://temp', 'r+');
 					fputcsv($buffer, array_values($row), $sep);
+					rewind($buffer);
+					$csv = fgets($buffer);
+					$output .= $csv;
+					fclose($buffer);
 				}
-				rewind($buffer);
-				$csv = fgets($buffer);
-				fclose($buffer);
-				$output .= $csv;  
 			}
 			
 			$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
@@ -928,7 +929,7 @@ $this->dump($allowed);
 			$eol 		= PHP_EOL;
 			$comment 	= "#";
 			
-			$buffer = fopen('php://temp', 'r+');
+			//$buffer = fopen('php://temp', 'r+');
 			
 			// Loop over the data
 			foreach (array_keys($this->data) as $k)
@@ -944,8 +945,6 @@ $this->dump($allowed);
 					$output .= $comment . join($sep, array_keys($this->data['dataModel'][$k])) . $eol;
 				}
 				
-				$buffer = fopen('php://temp', 'r+');
-				
 				// Loop of the the rows
 				foreach (array_keys($rows) as $i)
 				{
@@ -954,12 +953,13 @@ $this->dump($allowed);
 					//foreach ($row as $col => $value) { $output .= $value . $sep . $eol; }
 					//$output .= join($sep,$row) . $eol;
 					
+					$buffer = fopen('php://temp', 'r+');
 					fputcsv($buffer, array_values($row), $sep);
+					rewind($buffer);
+					$csv = fgets($buffer);
+					$output .= $csv;
+					fclose($buffer);
 				}
-				rewind($buffer);
-				$csv = fgets($buffer);
-				fclose($buffer);
-				$output .= $csv;  
 			}
 						
 			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
@@ -1262,21 +1262,24 @@ $this->dump($allowed);
 	{
         $this->log(__METHOD__);
 		
-		// If there's no warnings, do not continue
-		if ( empty($this->data['warnings']) ) { return $this; }
+		// Store current errors (error codes)
+		$urlWarnings = !empty($this->options['warnings']) ? explode(',',$this->options['warnings']) : array();
+		
+		$tmpWarnings = ( !empty($this->data['warnings']) ? (array) $this->data['warnings'] : array() ) + ( !empty($urlWarnings) ? $urlWarnings : array() );
+		
+		// If there's no errors, do not continue
+		if ( empty($tmpWarnings) ) { return $this; }
 		
 		// Load errors association file
 		isset($errorsAssoc) || require(_PATH_CONFIG . 'errorsAssoc.php');
-		
-		// Store current errors (error codes)
-		$tmpErrors = $this->data['warnings'];
 		
 		// Init the warnings array
 		$this->data['warnings'] = array();
 		
 		// Loop over the error codes
-		foreach ($tmpErrors as $key => $val)
+		foreach ($tmpWarnings as $key => $val)
 		{
+			/*
 			// If the item index is not > 1000, assume that it's not a 'native' array index but a defined error code
 			$hasParams 	= is_int($key) && $key > 1000;
 			$errCode 	= $hasParams ? $key : $val;
@@ -1289,6 +1292,24 @@ $this->dump($allowed);
 				'id' 		=> $errCode, 
 				'log' 		=> sprintf($errorsAssoc[$errCode]['back'], ($hasParams ? $val : null)),
 				'message' 	=> sprintf($errorsAssoc[$errCode]['front'], ($hasParams ? $val : null)),
+			);*/
+			
+			// If the item index is not > 1000, assume that it's not a 'native' array index but a defined error code
+			$hasParams 	= is_numeric($key) && $key > 1000;
+			$errCode 	= $hasParams ? $key : $val;
+			
+			if ( !isset($errorsAssoc[$errCode]) ){ continue; }
+			
+			$err = $errorsAssoc[$errCode];
+			
+			// For each one of them, go get the related error message and reconstruct errors array associating codes to messages 
+			//$this->data['errors'][] = array('id' => $errCode, 'message' => $errorsAssoc[$errCode]);
+			$this->data['warnings'][] = array(
+				'id' 		=> $errCode, 
+				'log' 		=> sprintf($err['back'], ($hasParams ? $val : null)),
+				'message' 	=> sprintf($err['front'], ($hasParams ? $val : null)),
+				// TODO: replace buttons by actions = (label => url)*
+				'buttons' 	=> !empty($err['buttons']) ? $err['buttons'] : null, 
 			);
 		}
 		

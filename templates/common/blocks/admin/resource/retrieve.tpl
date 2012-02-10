@@ -10,7 +10,7 @@
 	<span class="nav actions actionsBlock">
 		{include file='common/blocks/admin/resource/actions/actions.tpl'}
 	</span>
-	{include file='common/blocks/admin/pagination/index.tpl' adminView='retrieve'}
+	{* include file='common/blocks/admin/pagination/index.tpl' adminView='retrieve' *}
 </header>
 {/block}
 
@@ -22,6 +22,9 @@
 		{block name='adminResourceDetail'}
 		<div class="resourceDetailBlock adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">		
 			{include file='common/blocks/admin/resource/resourceDetail.tpl'}
+			<nav class="toolbar adminResourcesToolbar actions">
+				{include file='common/blocks/admin/pagination/index.tpl' adminView='retrieve'}
+			</nav>
 		</div>
 		{/block}
 		

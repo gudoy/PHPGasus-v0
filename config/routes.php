@@ -81,7 +81,7 @@ define("_URL_ADMIN_SETUP", 					_URL_ADMIN . 'setup/');
 define("_URL_ADMIN_SETUP_RESOURCES", 		_URL_ADMIN_SETUP . 'resources/');
 define("_URL_ADMIN_SEARCH",                 _URL_ADMIN . 'search/');
 
-
+define("_URL_LOGIN_SUCESS_DEFAULT", 		_URL_ADMIN); // let empty if you do not want be redirected after login
 
 # APP SPECIFIC URIS
 

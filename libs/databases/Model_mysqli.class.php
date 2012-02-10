@@ -2,7 +2,7 @@
 
 class Model extends Application
 {
-	public $debug         = false;
+	public $debug         = true;
 	public $db            = null;
 	public $success       = false;
 	public $errors        = null;
@@ -1505,8 +1505,15 @@ class Model extends Application
 			//else { $value = $d[$fieldName]; }
 			else if ( $field['type'] === 'float' )
 			{
-				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : 0 );
-				$value = "'" . $this->escapeString(  str_replace(',','.',(string)($tmpVal))) . "'";
+				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : 0 );
+				$tmpVal = !empty($d[$fieldName]) 
+							? $d[$fieldName] 
+							//: ( !empty($field['default']) ? $field['default'] : 0 );
+							: ( isset($field['default']) && !is_null($field['default']) ? $field['default'] : null );
+				//$value = "'" . $this->escapeString(str_replace(',','.',(string)($tmpVal))) . "'";
+				$value = is_float($tmpVal) 
+							? str_replace(',','.',(string) $tmpVal) 
+							: ( is_null($tmpVal) ? "NULL" : 0 );
 			}
 			else if ( $field['type'] === 'date' )
 			{
@@ -1622,7 +1629,7 @@ class Model extends Application
 				
 			if ( isset($field['forceUpdate']) && $field['forceUpdate'] ){ $skip = false; }
             
-            if ( !empty($field['null']) || ( isset($field['default']) && is_null($field['default']) ) ){ $skip = false; }
+            //if ( !empty($field['null']) || ( isset($field['default']) && is_null($field['default']) ) ){ $skip = false; }
 			
 			// except for fields whose subtype is fileMetaData
 			if ( !empty($field['subtype']) && $field['subtype'] === 'fileMetaData' && !empty($d[$field['relatedFile']]) ) { $skip = false; }
@@ -1877,7 +1884,16 @@ class Model extends Application
 			else if ( $field['type'] === 'bool' ) { $value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : 0; }
 			else if ( $field['type'] === 'float' )
 			{
-				$value = "'" . $this->escapeString(  str_replace(',','.',(string)($d[$fieldName]))) . "'";
+				//$value = "'" . $this->escapeString(  str_replace(',','.',(string)($d[$fieldName]))) . "'";
+				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : 0 );
+				$tmpVal = !empty($d[$fieldName]) 
+							? $d[$fieldName] 
+							//: ( !empty($field['default']) ? $field['default'] : 0 );
+							: ( isset($field['default']) && !is_null($field['default']) ? $field['default'] : null );
+				//$value = "'" . $this->escapeString(str_replace(',','.',(string)($tmpVal))) . "'";
+				$value = is_float($tmpVal) 
+							? str_replace(',','.',(string) $tmpVal) 
+							: ( is_null($tmpVal) ? "NULL" : 0 );
 			}
 			/*
 			else if ( $field['type'] === 'timestamp' )
