@@ -27,7 +27,7 @@ a.relResourceLink:hover { background-color:#4e8fff; border-color:#3071e0; color:
 /* Sart Forms */
 .line { width:auto; float:none; clear:none; }
 form .buttonsLine:after,
-.adminListToolbar:after,
+/*.adminListToolbar:after,*/
 .adminResourceDetailBlock:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
 input,
 select,
@@ -129,11 +129,12 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .chrome .toolbar .paginationButtons input { width:0; min-width:3em; padding:2px 3px 1px; }
 */
 .toolbar .paginationButtons fieldset { height:24px; padding:2px; -moz-box-sizing:border-box; box-sizing:border-box; border-left:1px solid #fff; border-right:1px solid #5f5f5f; }
-.toolbar .paginationButtons input { width:0; -moz-box-sizing:border-box; box-sizing:border-box; min-width:3em; padding:2px 3px 1px; } 
-
+.toolbar .paginationButtons input { -moz-box-sizing:border-box; box-sizing:border-box; min-width:3em; padding:2px 3px 1px; }
+.chrome .toolbar .paginationButtons input { width:1px; } 
 .adminResourcesToolbar { padding:5px 5px; background:#e7e7e7; border:1px solid #B4B4B4; }
 .adminResourcesToolbar.top { border-bottom-width:0; border-bottom-left-radius:0; border-bottom-right-radius:0; }
 .adminResourcesToolbar.bottom { border-top:0; -webkit-border-radius:0; -moz-border-radius:0; border-radius:0; }
+.toolbar.adminListToolbar { border:none; }
 
 
 .apisBlock .success { color:#090; background-image:none; }
@@ -209,7 +210,7 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .commonTable tbody tr.ui-selected.hover td a,
 .commonTable tbody tr.ui-selected:hover td a { color:inherit; }
 
-.adminTable { color:#7f7f7f; }
+.adminTable { border-width:1px 0; color:#7f7f7f; }
 .adminTable tbody td.nameField,
 .adminTable tbody td.defaultNameField { color:#000; font-weight:bold; }
 .adminTable thead th { height:30px; padding:0; background:#ddd; background:-webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); background:-webkit-linear-gradient(#fff, #ddd); background:-moz-linear-gradient(#fff, #ddd); background:-o-linear-gradient(#fff, #ddd); background:-ms-linear-gradient(#fff, #ddd); background:linear-gradient(#fff, #ddd);  border-color:#aaa; border-right-color:#aaa; border-left-color:white; border-bottom-width:1px; }
@@ -275,7 +276,7 @@ section h4 a,
 
 /*#mainCol .block .titleBlock,*/
 section header { padding:5px 0; margin-bottom:0; }
-section .adminBlock { margin:0 0 20px; }
+section .adminBlock { /*margin:0 0 20px;*/ }
 #mainCol section header,
 .api aside .titleBlock { background:#cacaca; background:-webkit-gradient(linear, left top, left bottom, from(#d7d7d7), to(#cacaca)); background:-webkit-linear-gradient(#d7d7d7, #cacaca); background:-moz-linear-gradient(#d7d7d7, #cacaca); background:-o-linear-gradient(#d7d7d7, #cacaca); background:-ms-linear-gradient(#d7d7d7, #cacaca); background:linear-gradient(#d7d7d7, #cacaca); border-top:1px solid #acacac; border-bottom:1px solid #b4b4b4; -webkit-box-shadow:0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow:0 1px 0 rgba(255, 255, 255, 0.5) inset; }
 #mainCol section .titleBlock .title,
@@ -456,8 +457,8 @@ section .adminBlock { margin:0 0 20px; }
 	/* End Side Col */
 	
 	#mainCol section header { min-height:27px; padding-top:12px; padding-bottom:11px; }
-	section header { margin-bottom:20px; }
-	section .adminBlock { margin:0 20px 20px; }
+	section header { /*margin-bottom:20px;*/ }
+	section .adminBlock { /*margin:0 20px 20px;*/ }
 	
 	.toolbar .actions .action,
 	.titleBlock .actions .action { margin:0; /*padding:4px 8px 4px 28px;*/ padding:4px 8px 4px 8px; background-position:8px 50%; }
