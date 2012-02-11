@@ -692,6 +692,15 @@ class DataModel
 		return !empty(self::$resources[$string]);
 	}
 	
+	// Search for a mispelled resource
+	static function searchResource(string $name)
+	{
+		// TODO
+		// Compare string with resource name and return if matching is XX%?
+		
+		return $false;
+	}
+	
 	
 	// Checks that a column existing in a given resource
 	static function isColumn($resource, $string)
