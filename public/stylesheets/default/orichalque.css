@@ -73,6 +73,7 @@ form .buttonsLine .action { width:auto; }
 .toolbar .group { display:inline-block; margin-right:10px; vertical-align:middle; }
 .toolbar .group:last-of-type { margin-right:0; }
 .toolbar .itemsCounts fieldset { display:inline-block; vertical-align:middle; }
+.toolbar .itemsCounts select { margin:0; } 
 .toolbar .group.resourcesCounts { margin-right:10px; float:right; }
 .toolbar .group.resourcesCounts .totalCount { vertical-align:middle; }
 .toolbar .group.resourcesCounts .totalCount:before { content:''; }

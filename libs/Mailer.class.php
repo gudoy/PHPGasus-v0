@@ -7,13 +7,63 @@ class Mailer extends View
 	public $success 	= null;
 	public $errors 		= null;
 	
-	public function __construct(&$application)
+	public $headers 	= array();
+	
+	public function __construct(&$application, $options = array())
 	{
+		$o 					= $options;
+		$this->usePEARmail 	= !empty($o['usePEARmail']);
+		
 		parent::__construct($application);
 		
-		$this->configSmarty();
+		if ( $this->usePEARmail ) { $this->initPEAR(); return; }
 		
 		return $this;
+	}
+	
+	public function initPEAR()
+	{
+		# http://pear.php.net/manual/en/package.mail.mail.php
+		
+		// Load PEAR Mail class
+		error_reporting( E_ALL & ~( E_NOTICE | E_STRICT | E_DEPRECATED ) );
+		include('Mail.php');
+		
+		$this->PEARbackend 	= 'smtp';
+		
+		$smtpParams = array(
+			'host' 		=> _SMTP_HOST,
+			'port' 		=> _SMTP_PORT,
+			'auth' 		=> _SMTP_USE_AUTH,
+			'user' 		=> _SMTP_USER,
+			'pass' 		=> _SMTP_PASS,
+			
+			'timeout' 	=> _SMTP_TIMEOUT,
+			
+			'debug' 	=> true,
+		);
+		$this->Mail = &Mail::factory($this->PEARbackend, $smtpParams);
+		
+var_dump(
+$smtpParams
+);
+		
+if ( $this->Mail instanceof ePearError )
+{
+
+var_dump($result->getMessage());
+var_dump($result->getCode());
+var_dump($result->getMode());
+var_dump($result->getCallback());
+var_dump($result->getDebugInfo());
+var_dump($result->getType());
+var_dump($result->getUserInfo());
+var_dump($result);
+
+die();
+} 
+		
+				
 	}
 	
 	public function fetch($options = array())
@@ -23,6 +73,8 @@ class Mailer extends View
 		$o = array_merge(array('data' => null), $options);
 		
 		if ( empty($o['template']) ) { return; }
+		
+		$this->configSmarty();
 
 		//$this->prepare();
 		
@@ -33,42 +85,61 @@ class Mailer extends View
 	}
 	
 	public function render()
-	{
-		
-		
+	{	
 		return $this;
 	}
-
-	public function send($options = array())
+	
+	public function setParams($params = array())
 	{
-		$o 					= $options;
-		$this->success 		= false;
-		$this->errors 		= array();
-		$this->from 		= !empty($o['from']) ? $o['from'] : $this->from;
+		$o = $params;
 		
-		// If no recipient has been passed, do not continue
-		if ( empty($o['to']) || empty($o['subject']) || empty($o['content']) ){ return; }
-		
+		$this->from 		= !empty($o['from']) ? $o['from'] : null;
 		$this->replyTo 		= !empty($o['replyTo']) ? $o['replyTo'] : $this->from;
 		$this->subject 		= !empty($o['subject']) ? $o['subject'] : $this->subject;
+		$this->content 		= !empty($o['content']) ? $o['content'] : null;
 		$this->to 			= !empty($o['to']) ? $o['to'] : $this->to;
+		$this->cc 			= !empty($o['cc']) ? $o['cc'] : null;
+		$this->cci 			= !empty($o['cci']) ? $o['cci'] : null;
 		$this->format 		= !empty($o['format']) ? $o['format'] : 'text';
 		$this->alternative 	= !empty($o['alternative']) ? $o['alternative'] : '';
+	}
+	
+	public function setHeaders()
+	{
+		$this->headers = array(
+			'From' 							=> $this->from,
+			'Delivered-to' 					=> $this->to,
+			'Cc' 							=> $this->cc,
+			'Cci' 							=> $this->cci,
+			'Reply-to' 						=> $this->replyTo,
+			'Return-Path' 					=> $this->from,
+			'Subject' 						=> $this->subject,
+			'MIME-Version' 					=> '1.0',
+			'Content-type' 					=> $this->format === 'html' ? ' text/html; charset=UTF-8' : ' text/plain; charset=UTF-8',
+			//'Content-Transfer-Encoding' 	=> '8bit',
+			'X-Mailer' 						=> 'PHP/' . phpversion()
+		); 
+	}
+	
+	public function writeHeaders()
+	{
 		
-		// Mail headers
 		$eol = "\n";
-		$headers = "From:" . $this->from . "\n";
-		//$headers .= "To:" . $this->to . "\n";
-		$headers .= "Delivered-to:" . $this->to . "\n";
-		$headers .= (!empty($o['cc'])) ? "Cc:" . $o['cc'] . "\n" : '';
-		$headers .= (!empty($o['cci'])) ? "Cci:" . $o['cci'] . "\n" : '';
-		//$headers .= "Reply-To:" . $this->from . "\n";
-		$headers .= "Reply-To:" . $this->replyTo . "\n";
-		$headers .= "Return-Path:" . $this->from . "\n";
-		//$headers .= "Content-type: text/html; charset=utf-8 MIME-Version: 1.0 \n";
-		//$headers .= "Content-Type: text/plain; charset=UTF-8 MIME-Version: 1.0 \n";
-		//$headers .= "Content-Type: text/plain; charset=UTF-8 MIME-Version: 1.0 \n";
+		$headers = '';
 		
+		foreach ( (array) $this->headers as $header => $value )
+		{
+			// TODO: will there be params whose value could be 0
+			// If yes, replace empty with isset($value) && !is_null($value) && $value != ''
+			$headers .= !empty($value) ? $header . ':' . $value . $eol : '';	
+		}
+		
+		return $headers;
+	}
+	
+	
+	public function writeBody()
+	{
 		/*
 		if ( !empty($this->alternative) )
 		{
@@ -95,19 +166,38 @@ class Mailer extends View
 echo $message;
 */		
 		
-		$headers .= $this->format === 'html'
-					? 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/html; charset=UTF-8' . "\r\n"
-					: 'MIME-Version: 1.0' . "\r\n" . 'Content-type: text/plain; charset=UTF-8' . "\r\n";
-
-		//$headers .= "Content-Transfer-Encoding: 8bit" . $eol; 
-		$headers .= "X-Mailer:PHP/" . phpversion() . "\n" ;
-		//$headers .= "Date:" . date();
 	
 //var_dump(mb_detect_encoding($o['content']));
+	}
 	
-		//$this->success = mail($this->to, $this->subject, $o['content'], $headers);
-		$this->success = mail($this->to, '=?UTF-8?B?'.base64_encode($this->subject).'?=', $o['content'], $headers);
-		//$this->success = mail($this->to, '=?UTF-8?B?'.base64_encode($this->subject).'?=', $message, $headers);
+
+	public function send($options = array())
+	{
+		$o 					= $options;
+		$this->success 		= false;
+		$this->errors 		= array();
+		
+		$this->setParams($o);
+		
+		// If no recipient has been passed, do not continue
+		//if ( empty($o['to']) || empty($o['subject']) || empty($o['content']) ){ return; }
+		if ( !$this->to || !$this->subject || !$this->content ){ return; }
+		
+		$this->setHeaders();
+		//$headers = $this->writeHeaders();
+	
+		if ( $this->usePEARmail )
+		{			
+			$result 		= $this->Mail->send($this->to, $headers, $o['content']);
+			$this->success 	= $result === true;
+			$this->errors 	= !$this->success ? $result : array();
+			
+			// TODO: handle PEAR error
+		}
+		else
+		{
+			$this->success = mail($this->to, '=?UTF-8?B?'.base64_encode($this->subject).'?=', $o['content'], $this->writeHeaders());
+		}
 		
 		return $this;
 	}	

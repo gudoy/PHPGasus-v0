@@ -1424,32 +1424,29 @@ var adminIndex =
 	       .bind('keyup change', function(e)
 	       //.bind('change', function(e)
 	    {
-//Tools.log('change');
 	        e.preventDefault();
 	        e.stopPropagation();
 	        
 	        // Clear any previously launched filter operation
 	        if ( filterTimeout ) { clearTimeout(filterTimeout); } 
-//Tools.log('clear timeout');
 	        
 	        // Add a small timeout between the key press and the start of the filtering operation  
 	        delayTimeout = setTimeout(function()
 	        {
-	            var t       = e.target,
-	                $t      = $(t);
+	            var t       	= e.target,
+	                $t      	= $(t);
 	                
 	            // Does not handle targets that are not inputs
 	            if ( !$t.is(':input') ){ return; }
 	                
-	            var $input  = $t,
-	                $td     = $input.closest('td'),
-	                val     = $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') || $td.hasClass('typeBool') 
-	                			? $input.find(':selected').text().trim() 
-	                			: $input.val(),
-	                colName = $td.attr('headers') || '';
-	                
-//Tools.log('colName:' + colName);
-//Tools.log('val:' + val);
+	            var $input  	= $t,
+	                $td     	= $input.closest('td'),
+	                val     	= $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') || $td.hasClass('typeBool') 
+	                				? $input.find(':selected').text().trim() 
+	                				: $input.val(),
+	                colClass 	= $td.attr('headers') || '',
+					colName 	= colClass.replace('Col',''),
+	                conditions 	= [];
 	                
 	            // Do not continue if no input has been found
 	            if ( !$input.length ) { return; }
@@ -1468,25 +1465,47 @@ var adminIndex =
 	                if ( val === '' )
 	                {
 	                    // Re-display the previously hidden rows for the current filter
-	                    $this.filter('.' + colName + 'Filtered').removeClass(colName + 'Filtered').show();
+	                    $this.filter('.' + colClass + 'Filtered').removeClass(colClass + 'Filtered').show();
 	                    
 	                    return;
 	                }
+	                
 	                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
 	                // and that are not filtered by the current column 
-	                else if ( !$this.is(':visible') && !$this.hasClass(colName + 'Filtered') ){ return; }
+	                else if ( !$this.is(':visible') && !$this.hasClass(colClass + 'Filtered') ){ return; }
 	                
-	                var $td     = $this.find('td.' + colName),
+	                var $td     = $this.find('td.' + colClass),
 	                    match   = $td.find('.value:contains(' + val + ')').length; //
 	                    
 	                // If the 
 	                if ( !match )
 	                {
 	                    // Hide the row adding a class of the name by which it has been filtered  
-	                    $this.hide().addClass(colName + 'Filtered');
+	                    $this.hide().addClass(colClass + 'Filtered');
 	                }
 	                else { $this.show(); }
 	            });
+	            
+	            
+//conditions = colName + '|contains|' + val;
+	            
+	            // If the whole items of the resource are not displayed
+	            if ( $('.value', '#displayedResourcesCount').text() < $('.value', '#totalResourcesCount').text() )
+	            {            	 
+/*	
+		            // Get the total count of items having matching the provided filters 
+		            $.ajax(
+		            {
+		            	url: location.href.replace(new Regex('\?.*'), ''),
+		            	data:{'mode':'count', 'conditions':conditions},
+		            	type: 'get',
+		            	dataType: 'json',
+		            	success: function(response)
+		            	{
+		            	}
+		            });	
+*/
+	            }
 	            
 	            //$tmp.appendTo($('tbody', self.context));
 	            //$tmp = null;
