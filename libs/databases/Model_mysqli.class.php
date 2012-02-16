@@ -758,7 +758,7 @@ class Model extends Application
 	{
 		$fields = Tools::toArray($fieldsStringOrArray);
 		
-		foreach ( $fields as $key => $item )
+		foreach ( (array) $fields as $key => $item )
 		{			
 			$k = is_array($item) ? $key : $item;
 			
@@ -914,7 +914,8 @@ class Model extends Application
         if ( $o['mode'] === 'count')
 		{
 			// Set the field used to do the count. Try the 'id' field if it exists, otherwise use the first one defined in the datamodel
-			$usedfield = isset($rModel['id']) ? 'id' : key($rModel);
+			//$usedfield = isset($rModel['id']) ? 'id' : key($rModel);
+			$usedfield = ( !is_array($rModel) || isset($rModel['id']) ) ? 'id' : key($rModel);
 			
 			$where 		= $this->handleOperations($o);
 			$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
@@ -953,7 +954,7 @@ class Model extends Application
 			
 //$this->dump($this->queryData['fields']);
 			
-			foreach ($rModel as $fieldName => $field)
+			foreach ( (array) $rModel as $fieldName => $field)
 			{
 				$type = $field['type'];
 

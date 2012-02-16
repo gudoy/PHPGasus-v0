@@ -24,7 +24,7 @@
 	{include file='common/config/js/googleChromeFrameLoad.tpl'}
 	{include file='common/config/js/googleChromeFrameInit.tpl'}
 
-	<div class="container_16" id="layout">
+	<div id="layout">
 	{block name='layout'}{/block}
 	</div>
 	

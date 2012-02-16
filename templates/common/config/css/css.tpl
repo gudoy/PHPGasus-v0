@@ -15,9 +15,11 @@
 {else}
 {foreach $data.css as $item}
 {strip}
-{if strpos($item, 'http://') !== false || strpos($item, 'https://') !== false}{$basePath=''}{else}{$basePath=$cssBasePath}{/if}
-{if strpos($item, 'http://') !== false || strpos($item, 'https://') !== false}{$version=''}{else}{$version='?'|cat:$version}{/if}
-	<link href="{$basePath}{$item}" media="screen" rel="stylesheet" />
+{$isExternal 	= ( strpos($item, 'http://') !== false || strpos($item, 'https://') ) ? true : false}
+{$hasQuery 		= ( strpos($item, '?') ) ? true : false}
+{$basePath 		= ( $isExternal ) ? '' : $cssBasePath}
+{$itemVersion 	= ( $isExternal ) ? '' : "{if $hasQuery}&{else}?{/if}{$version}"}
+	<link href="{$basePath}{$item}{$itemVersion}" media="screen" rel="stylesheet" />
 {/strip}
 {/foreach}
 {/if}

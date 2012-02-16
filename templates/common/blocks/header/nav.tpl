@@ -1,4 +1,3 @@
-{nocache}
 <nav class="navBlock mainNavBlock" id="mainNavBlock">
 	
 	<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
@@ -31,4 +30,3 @@
 	{/block}
 	
 </nav>
-{/nocache}

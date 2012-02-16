@@ -31,25 +31,25 @@ class Mailer extends View
 		
 		$this->PEARbackend 	= 'smtp';
 		
-		$smtpParams = array(
-			'host' 		=> _SMTP_HOST,
-			'port' 		=> _SMTP_PORT,
-			'auth' 		=> _SMTP_USE_AUTH,
-			'user' 		=> _SMTP_USER,
-			'pass' 		=> _SMTP_PASS,
-			
-			'timeout' 	=> _SMTP_TIMEOUT,
-			
-			'debug' 	=> true,
+		$this->smtpParams = array(
+			'host' 			=> _SMTP_HOST,
+			'port' 			=> _SMTP_PORT,
+			'auth' 			=> true,
+			'username' 		=> _SMTP_USER,
+			'password' 		=> _SMTP_PASS,
+			'localhost' 	=> _SMTP_USER,
+			'timeout' 		=> _SMTP_TIMEOUT,
+			'persist' 		=> _SMTP_PERSIST_CONNEXION,
+			'pipelining' 	=> _SMTP_PIPELINING,
+			'debug' 		=> _SMTP_DEBUG,
 		);
-		$this->Mail = &Mail::factory($this->PEARbackend, $smtpParams);
-		
-var_dump(
-$smtpParams
-);
-		
-if ( $this->Mail instanceof ePearError )
+		$this->Mail = &Mail::factory($this->PEARbackend, $this->smtpParams);
+				
+/*				
+if ( PEAR::isError($this->Mail) )
 {
+
+var_dump($this->smtpParams);
 
 var_dump($result->getMessage());
 var_dump($result->getCode());
@@ -59,11 +59,8 @@ var_dump($result->getDebugInfo());
 var_dump($result->getType());
 var_dump($result->getUserInfo());
 var_dump($result);
+}*/
 
-die();
-} 
-		
-				
 	}
 	
 	public function fetch($options = array())
@@ -99,7 +96,8 @@ die();
 		$this->content 		= !empty($o['content']) ? $o['content'] : null;
 		$this->to 			= !empty($o['to']) ? $o['to'] : $this->to;
 		$this->cc 			= !empty($o['cc']) ? $o['cc'] : null;
-		$this->cci 			= !empty($o['cci']) ? $o['cci'] : null;
+		$this->bcc 			= !empty($o['bcc']) ? $o['bcc'] : null;
+		//$this->cci 			= !empty($o['cci']) ? $o['cci'] : null;
 		$this->format 		= !empty($o['format']) ? $o['format'] : 'text';
 		$this->alternative 	= !empty($o['alternative']) ? $o['alternative'] : '';
 	}
@@ -110,7 +108,8 @@ die();
 			'From' 							=> $this->from,
 			'Delivered-to' 					=> $this->to,
 			'Cc' 							=> $this->cc,
-			'Cci' 							=> $this->cci,
+			'Bcc' 							=> $this->bcc,
+			//'Cci' 							=> $this->cci,
 			'Reply-to' 						=> $this->replyTo,
 			'Return-Path' 					=> $this->from,
 			'Subject' 						=> $this->subject,
@@ -188,11 +187,28 @@ echo $message;
 	
 		if ( $this->usePEARmail )
 		{			
-			$result 		= $this->Mail->send($this->to, $headers, $o['content']);
+			$result 		= $this->Mail->send($this->to, $this->headers, $o['content']);
 			$this->success 	= $result === true;
 			$this->errors 	= !$this->success ? $result : array();
 			
+var_dump($this->headers);
+			
 			// TODO: handle PEAR error
+/*				
+if ( PEAR::isError($result) )
+{
+
+var_dump($this->smtpParams);
+
+var_dump($result->getMessage());
+var_dump($result->getCode());
+var_dump($result->getMode());
+var_dump($result->getCallback());
+var_dump($result->getDebugInfo());
+var_dump($result->getType());
+var_dump($result->getUserInfo());
+var_dump($result);
+}*/
 		}
 		else
 		{

@@ -7,6 +7,9 @@
 		</a>
 	</h2>
 	{/block}
+	<nav class="actions resourceActions">
+		<a class="action primary edit" href="#editMode" id="editModeBtn"><span class="value">{t}edit{/t}</span></a>
+	</nav>
 	{* if count($data[$resourceName]) || $data.total[$resourceName]}
     <span class="counts countsBlock" id="resourceCountsBlock">
         <span class="key">{t}counts{/t}</span>

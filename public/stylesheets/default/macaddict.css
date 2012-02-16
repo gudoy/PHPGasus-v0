@@ -10,6 +10,8 @@
 #8f8f8f grey (icons inactive)
 */
 
+h3 { margin-bottom:10px; color:#728293; text-shadow:0 1px 0 rgba(255,255,255,.75); text-transform:uppercase; }
+
 #header { min-height:32px; position:relative; }
 footer.menu { display:none; }
 
@@ -22,7 +24,7 @@ a { color:#3c65d7; }
 a.relResourceLink { padding:2px 16px 2px 7px; background-color:#dde7f8; background-repeat:no-repeat; background-position:96% 50%; border-radius:15px; border:1px solid #a3bcea; /*box-shadow:1px 1px 0 rgba(255,255,255,.5) inset;*/ text-decoration:none; color:#000; }
 a.relResourceLink:hover { background-color:#4e8fff; border-color:#3071e0; color:#fff; }
 .adminTable thead th a,
-#mainCol section .titleBlock .title a { color:#000; }
+#mainCol section .titleBlock .title a { color:#000; text-decoration:none; }
 
 /* Sart Forms */
 .line { width:auto; float:none; clear:none; }
@@ -194,10 +196,14 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 
 /* Start Tables */
 .commonTable thead .title { text-shadow:1px 1px 0 rgba(255,255,255,0.8); }
-.commonTable thead .title .infos .detail { background:#ffc; border:1px solid black; /*color:#000;*/ }
+.commonTable thead .title .infos .detail { background:#ffc; border:1px solid black; }
+.commonTable tbody { background:white; }
+.commonTable tbody th,
+.commonTable tbody td { border:1px solid #bbb; border-width:0 1px 1px; vertical-align:middle; }
 .commonTable tbody td { border-left:none; border-right:none; }
-.commonTable tbody tr:nth-child(2n),
-.commonTable tbody tr:nth-child(2n) { background-color:#edf3fe; }
+/*.commonTable tbody tr.even,
+.commonTable tbody tr:nth-child(2n) { background-color:#fff; }*/
+.commonTable tbody tr.odd { background-color:#edf3fe; }
 .commonTable tbody tr.ui-selected th,
 .commonTable tbody tr.ui-selected td { background:#3875d7; color:#fff; }
 .commonTable tbody tr.ui-selected th a,
@@ -210,6 +216,7 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .commonTable tbody tr.ui-selected:hover th a,
 .commonTable tbody tr.ui-selected.hover td a,
 .commonTable tbody tr.ui-selected:hover td a { color:inherit; }
+
 
 .adminTable { border-width:1px 0; color:#7f7f7f; }
 .adminTable tbody td.nameField,
@@ -243,7 +250,7 @@ span.loading:before { width:16px; height:16px; margin-right:5px; display:inline-
 #header,
 .js #mainNavBlock > .nav { min-width:200px; background:#a7a7a7; border:1px solid #515151; border-width:1px 0; border-top-color:#e2e2e2; background:-webkit-gradient(linear, left top, left bottom, from(#d0d0d0), to(#a7a7a7)); background:-webkit-linear-gradient(#d0d0d0, #a7a7a7); background:-moz-linear-gradient(#d0d0d0, #a7a7a7); background:-o-linear-gradient(#d0d0d0, #a7a7a7); background:-ms-linear-gradient(#d0d0d0, #a7a7a7); background:linear-gradient(#d0d0d0, #a7a7a7); text-align:center; }
 #sideCol { background:#dee4ea; }
-#mainCol { background:#fff; }
+#mainCol { background:#B9BDC5; }
 
 footer.menu { display:none; }
 /* End Layout/* */
@@ -314,19 +321,10 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 #adminSearchResultsBlock > header { margin-bottom:0; }
 .resultsGroup .adminBlock { margin-top:20px; display:none; }
 .resultsGroup.expanded .adminBlock { display:block; }
-#adminSearchResultsBlock header .actions { margin-left:20px; margin-right:10px; float:right; }
+#adminSearchResultsBlock header .actions { /*margin-left:20px; margin-right:10px; float:right;*/ }
 #adminSearchResultsBlock .resultsGroup { clear:both; } 
 #adminSearchResultsBlock .allResultsLink { margin:10px 10px 20px; display:inline-block; float:right; clear:both; font-size:14px; }
 
-
-/*
-.resourceDetailBlock { border:1px solid #AAAAAA; }
-.resourceDetailBlock dt { text-align:right; }
-.resourceDetailBlock dt.odd,
-.resourceDetailBlock dd.odd { background-color:#EDF3FE; }
-.resourceDetailBlock dt .key { margin:5px; }
-.resourceDetailBlock dd .value { margin:5px; }
-*/
 .resourceDetailBlock { border:none; }
 .resourceDetailBlock dl { background:#EDF3FE; border:1px solid #aaa; letter-spacing:-4px; }
 .resourceDetailBlock dt,
@@ -352,47 +350,6 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 #adminDataModelCodeBlock textarea:target { display:block; }
 /* End TMP */
 
-
-/* Start API */
-#apisBlock .api .prop:nth-of-type(2n+1),
-#apisBlock .api .prop:nth-of-type(2n+1),
-.activityBlock .item:nth-of-type(2n+1) { background-color:#EDF3FE; }
-
-.api aside .apiParamsBlock .title { margin:5px; }
-.api aside .apiParamsBlock { margin-bottom:20px; }
-.api aside .apiParamsBlock:last-of-type { margin-bottom:0; }
-.api aside .apiParamsBlock .paramsList { padding:0 10px; }
-.api .paramsList .details { margin:0 20px 10px; }
-.js.api .paramsList .details { display:none; }
-.js.api .paramsList .details.expanded { padding-top:10px; display:block; }
-.api .paramsList .details .acceptedValues { margin-top:5px; margin-bottom:10px; display:block; }
-.api aside .paramsList .name { margin-top:15px; padding-left:15px; background-position:0 50%; background-repeat:no-repeat; background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAoUlEQVQY02OYt2QDz+v3nxjwYYYFyzYtAyqcA8RyOBVt2n7wHlDBfyD+BcSTgVgUm6L7UEUw/AWIu4BYCJ8iGP4IxHUgN+NT9H/Fup0PV2/YbYtV0ZpNe/5fvXX/P9Cqw0BsjKJo1fpd/y9evQ2SPA/EHihuWrZm+/8zF2/8f/Xu4w2gYDiG7y7fuLfzxZv3T4GcNCBmxhpOQMISiDnxhTgApM0cgWTlijgAAAAASUVORK5CYII="); }
-.api aside .paramsList .name.expanded { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAKCAYAAABmBXS+AAAAq0lEQVQY02OYt2TDHCD+jwfPZ7j/+PmyBcs2YVUAEr/76NkqhtfvP0kfOHr2DzZF+w6f/gOUlwMpYnj07NXURSs2oygA8e8/eTEXJA9WBMRCh09c+Ims6MCxcz+B4hLIihievHjTvnjlVrCCxSu2/AeaPgkmB1cExDzHz1z+ClJ05OSF7yDTsSlieP76femaTXv+A01tQRZHUQTEbM9ev7sIMhWfIgZ0BSAMALMxCJgNICGxAAAAAElFTkSuQmCC"); }
-.api aside .paramsList .operators { margin-left:20px; }
-
-#apiParamsSection { padding-bottom:20px; }
-#apisBlock > header { display:none; }
-#apisBlock .apis { padding:20px 10px; }
-#apisBlock .method { min-width:40px; margin-right:20px; display:inline-block; font-size:20px; font-weight:normal; }
-#apisBlock .uri { font-size:20px; font-weight:bold; text-transform:lowercase; }
-#apisBlock .mandatory { color:#aaa; } 
-#apisBlock .props { margin:20px 0; }
-#apisBlock .prop { padding:10px 0; }
-#apisBlock .prop .key { width:100px; display:inline-block; text-transform:capitalize; color:#A7A7A7; vertical-align:top; }
-#apisBlock .prop .values { width:100%; display:inline-block; vertical-align:top; word-wrap:break-word; }
-#apisBlock .prop .samples { display:block; }
-#apisBlock .samplesURI a { display:block; }
-#apisBlock .expectedInputData dt,
-#apisBlock .possibleErrors dt { width:40%; display:inline-block; }
-#apisBlock .expectedInputData dd,
-#apisBlock .possibleErrors dd { width:59%; display:inline-block; vertical-align:top; }
-#apisBlock .title { display:inline-block; padding-right:20px; background-repeat:no-repeat; background-position:100% 50%; }
-
-.api .ui-accordion-header { border-radius:inherit; }
-.api .ui-accordion-header .ui-icon { display:none; }
-.api .ui-accordion-content { border:inherit; border-radius:inherit; }
-
-/* End API */
 
 .js .translationsNav.expanded .lang:hover > a { color:#fff; }
 .js .translationsNav.expanded .languages { background:#fff; }
@@ -427,12 +384,12 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 @media handheld, only screen and (min-width:980px) 
 {
 	.ui-dialog { max-width:640px; }
+
+	.adminTable thead .title { margin-left:5px; margin-right:5px; }
 	
 	#header { min-height:40px; text-align:left; }
     #sideCol,
 	#sideCol.expanded { width:239px; border:1px solid #b4b4b4; border-width:0 1px 0 0; -webkit-box-shadow:-1px 0 0 rgba(255,255,255,0.8) inset; box-shadow:-1px 0 0 rgba(255,255,255,0.8) inset; -moz-transition:all .3s ease-in-out; -webkit-transition:all .3s ease-in-out; -o-transition:all .3s ease-in-out; -ms-transition:all .3s ease-in-out; }
-	.api #body { -moz-box-direction:reverse; -webkit-box-direction:reverse; box-direction:reverse; }
-	.api #sideCol { border-right:0; border-width:0 0 0 1px; -webkitbox-shadow:1px 0 0 rgba(255,255,255,0.8) inset; box-shadow:1px 0 0 rgba(255,255,255,0.8) inset; }
 
 	/* Start Side Col */
 	#mainCol.collapsed,
@@ -443,11 +400,11 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 	#sideCol.collapsed footer li { display:none; }
 	#mainCol.collapsed footer li.toggler,
 	#sideCol.collapsed footer li.toggler { display:block; border-right:none; }	
-	footer.menu { max-height:24px; display:block; clear:both; }
-	footer.menu ul { height:24px; display:block; }
-	footer.menu li { width:auto; height:24px; display:block; float:left; border:1px solid; border-color:#B4B4B4; border-width:0 1px 0 0; -webkit-box-shadow:1px 0 0 rgba(255,255,255, 0.5); box-shadow:1px 0 0 rgba(255,255,255, 0.5); background-position:50% 50%; background-repeat:no-repeat; cursor:pointer; }
+	footer.menu { /*max-height:24px;*/ display:block; clear:both; }
+	footer.menu ul { min-height:32px; display:block; }
+	footer.menu li { width:auto; /*height:24px;*/ height:100%; display:block; float:left; border:1px solid; border-color:#B4B4B4; border-width:0 1px 0 0; -webkit-box-shadow:1px 0 0 rgba(255,255,255, 0.5); box-shadow:1px 0 0 rgba(255,255,255, 0.5); background-position:50% 50%; background-repeat:no-repeat; cursor:pointer; }
 	footer.menu li.active { background-color:rgba(0, 0, 0, 0.1); }
-	footer.menu li a { width:12px; height:24px; overflow:hidden; padding:0 5px; display:block; float;left; background-position:50% 50%; background-repeat:no-repeat; }
+	footer.menu li a { width:12px; height:32px; overflow:hidden; padding:0 5px; display:block; float;left; background-position:50% 50%; background-repeat:no-repeat; }
 	footer.menu li a .value { display:block; text-indent:-9999em; }
 	footer.menu li:last-child { border-right:none; -webkit-box-shadow:-1px 0 0 rgba(255, 255, 255, 0.8) inset; box-shadow:-1px 0 0 rgba(255, 255, 255, 0.8) inset; }
 	footer.menu { background:#ebebeb; background:-webkit-gradient(linear, left top, left bottom, from(#fdfdfd) to(#ebebeb), color-stop(50%, #f6f6f6), color-stop(50%, #ebebeb)); background:-webkit-linear-gradient(#fdfdfd 0, #f6f6f6 50%, #ebebeb 50%, #ebebeb 100%); background:-moz-linear-gradient(#fdfdfd 0, #f6f6f6 50%, #ebebeb 50%, #ebebeb 100%); background:-o-linear-gradient(#fdfdfd 0, #f6f6f6 50%, #ebebeb 50%, #ebebeb 100%); background:-ms-linear-gradient(#fdfdfd 0, #f6f6f6 50%, #ebebeb 50%, #ebebeb 100%); background:linear-gradient(#fdfdfd 0, #f6f6f6 50%, #ebebeb 50%, #ebebeb 100%); border:1px solid; border-color:#B4B4B4; border-width:1px 0 0; }
@@ -500,11 +457,6 @@ section .adminBlock { /*margin:0 0 20px;*/ }
     #loginBlock input { float:none; }
     #loginBlock #lostPasswordLink { display:inline-block; }
 	
-	/* Api */
-	#apisBlock .apis { padding-left:20px; padding-right:20px; }
-	#apisBlock .props { margin:20px; }
-	#apisBlock .prop .values { width:450px; }
-	
 	/* Tooltips (start) */
 	/*
 	.actions .action { overflow:visible; padding-left:8px; }
@@ -530,8 +482,6 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 	
 	#adminLogsBlock { width:100%; max-width:600px; float:left; }
 	#adminActiveUsersBlock { width:100%; max-width:240px; float:left; }
-	
-	#apisBlock .prop .values { width:640px; }
 }
 
 /* 1600 x 1200 */

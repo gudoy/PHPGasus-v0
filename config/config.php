@@ -88,6 +88,20 @@ define("_FTP_USER_PASSWORD",    		'F4K3paSSw0rD');
 define("_FTP_PORT",    					21);
 define("_FTP_ROOT",    					'/');
 
+
+# MAIL PARAMETERS
+define("_SMTP_HOST",    				'smtp.example.com');
+define("_SMTP_PORT",    				25);
+define("_SMTP_USE_AUTH",    			true);
+define("_SMTP_USER",    				'email@example.org');
+define("_SMTP_PASS",    				'F4K3paSSw0rD');
+define("_SMTP_TIMEOUT",    				10);
+define("_SMTP_SENDER_MAIL",    			'email@example.org');
+define("_SMTP_PERSIST_CONNEXION",    	false);
+define("_SMTP_PIPELINING",    			false);
+define("_SMTP_DEBUG",    				false);
+
+
 # SMARTY CONF VARIABLES (for optimization and development purpose)
 // Start deprecated
 define("_SMARTY_COMPILE_CHECK", 		false);

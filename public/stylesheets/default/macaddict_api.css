@@ -1,0 +1,58 @@
+/* Start API */
+#apisBlock .api .prop:nth-of-type(2n+1),
+#apisBlock .api .prop:nth-of-type(2n+1),
+.activityBlock .item:nth-of-type(2n+1) { background-color:#EDF3FE; }
+
+.api aside .apiParamsBlock .title { margin:5px; }
+.api aside .apiParamsBlock { margin-bottom:20px; }
+.api aside .apiParamsBlock:last-of-type { margin-bottom:0; }
+.api aside .apiParamsBlock .paramsList { padding:0 10px; }
+.api .paramsList .details { margin:0 20px 10px; }
+.js.api .paramsList .details { display:none; }
+.js.api .paramsList .details.expanded { padding-top:10px; display:block; }
+.api .paramsList .details .acceptedValues { margin-top:5px; margin-bottom:10px; display:block; }
+.api aside .paramsList .name { margin-top:15px; padding-left:15px; background-position:0 50%; background-repeat:no-repeat; background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAoUlEQVQY02OYt2QDz+v3nxjwYYYFyzYtAyqcA8RyOBVt2n7wHlDBfyD+BcSTgVgUm6L7UEUw/AWIu4BYCJ8iGP4IxHUgN+NT9H/Fup0PV2/YbYtV0ZpNe/5fvXX/P9Cqw0BsjKJo1fpd/y9evQ2SPA/EHihuWrZm+/8zF2/8f/Xu4w2gYDiG7y7fuLfzxZv3T4GcNCBmxhpOQMISiDnxhTgApM0cgWTlijgAAAAASUVORK5CYII="); }
+.api aside .paramsList .name.expanded { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAKCAYAAABmBXS+AAAAq0lEQVQY02OYt2TDHCD+jwfPZ7j/+PmyBcs2YVUAEr/76NkqhtfvP0kfOHr2DzZF+w6f/gOUlwMpYnj07NXURSs2oygA8e8/eTEXJA9WBMRCh09c+Ims6MCxcz+B4hLIihievHjTvnjlVrCCxSu2/AeaPgkmB1cExDzHz1z+ClJ05OSF7yDTsSlieP76femaTXv+A01tQRZHUQTEbM9ev7sIMhWfIgZ0BSAMALMxCJgNICGxAAAAAElFTkSuQmCC"); }
+.api aside .paramsList .operators { margin-left:20px; }
+
+#apiParamsSection { padding-bottom:20px; }
+#apisBlock > header { display:none; }
+#apisBlock .apis { padding:20px 10px; }
+#apisBlock .method { min-width:40px; margin-right:20px; display:inline-block; font-size:20px; font-weight:normal; }
+#apisBlock .uri { font-size:20px; font-weight:bold; text-transform:lowercase; }
+#apisBlock .mandatory { color:#aaa; } 
+#apisBlock .props { margin:20px 0; }
+#apisBlock .prop { padding:10px 0; }
+#apisBlock .prop .key { width:100px; display:inline-block; text-transform:capitalize; color:#A7A7A7; vertical-align:top; }
+#apisBlock .prop .values { width:100%; display:inline-block; vertical-align:top; word-wrap:break-word; }
+#apisBlock .prop .samples { display:block; }
+#apisBlock .samplesURI a { display:block; }
+#apisBlock .expectedInputData dt,
+#apisBlock .possibleErrors dt { width:40%; display:inline-block; }
+#apisBlock .expectedInputData dd,
+#apisBlock .possibleErrors dd { width:59%; display:inline-block; vertical-align:top; }
+#apisBlock .title { display:inline-block; padding-right:20px; background-repeat:no-repeat; background-position:100% 50%; }
+
+.api .ui-accordion-header { border-radius:inherit; }
+.api .ui-accordion-header .ui-icon { display:none; }
+.api .ui-accordion-content { border:inherit; border-radius:inherit; }
+/* End API */
+
+
+/* 1024 x 768 */
+@media handheld, only screen and (min-width:980px) 
+{
+	.api #body { -moz-box-direction:reverse; -webkit-box-direction:reverse; box-direction:reverse; }
+	.api #sideCol { border-right:0; border-width:0 0 0 1px; -webkitbox-shadow:1px 0 0 rgba(255,255,255,0.8) inset; box-shadow:1px 0 0 rgba(255,255,255,0.8) inset; }
+	
+	/* Api */
+	#apisBlock .apis { padding-left:20px; padding-right:20px; }
+	#apisBlock .props { margin:20px; }
+	#apisBlock .prop .values { width:450px; }
+}
+
+/* 1280 x 1024 */
+@media screen and (min-width:1240px) 
+{	
+	#apisBlock .prop .values { width:640px; }
+}

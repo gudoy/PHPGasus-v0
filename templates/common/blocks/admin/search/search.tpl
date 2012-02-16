@@ -1,3 +1,4 @@
+{block name='adminSearch'}
 {$search		= $data.search}
 {$current		= $data.current}
 {$type 			= $search.type|default:'contextual'}
@@ -33,12 +34,13 @@
             </fieldset>
         </form>
         
-        {*if $search.type === 'contextual'}
+        {* if $search.type === 'contextual'}
         {block name='contextualSearchResults'}
         {include file='specific/blocks/admin/search/results.tpl'}
         {/block}
-        {/if*}
+        {/if *}
     
     </div>
     
 </section>
+{/block}

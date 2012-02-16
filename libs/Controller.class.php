@@ -449,7 +449,7 @@ class Controller extends Application
 		$isApi            = ( !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ) || ( isset($o['isApi']) && $o['isApi'] );
 		
 		// Loop over the data model of the resource
-		foreach ($rName as $fieldName => $field)
+		foreach ((array) $rName as $fieldName => $field)
 		{
 			// Shortcut for the field name
 			// For the api, we use 'normal' forms fieldnames/$resource fields whitout prefix

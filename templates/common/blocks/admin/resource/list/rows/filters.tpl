@@ -11,14 +11,13 @@
 	{if ($lightVersion && $column.list == 3) || (!$lightVersion && $column.list >= 1)}{$displayed = true}{/if}
 	{if $smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && ($type === 'onetoone' || $column.fk)}
 	{$column.fk = false}
-	<td class="col {$colName}Col typeInt fk{if $isSorted} activeSort{/if}{if !$displayed} hidden{/if}" id="{$colName}FilterCol" scope="col" headers="{$colName}Col">{include file='common/blocks/admin/resource/list/colFilter.tpl' type='int'}</td>
-	<td class="col {$column.relGetAs}Col typeVarchar fk{if $isSorted} activeSort{/if}{if !$displayed} hidden{/if}" id="{$column.relGetAs}FilterCol" scope="col" headers="{$column.relGetAs}Col">{include file='common/blocks/admin/resource/list/colFilter.tpl' type='varchar' colName=$column.relGetAs}</td>
+	<td class="col {$colName}Col typeInt fk{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$colName}FilterCol" scope="col" headers="{$colName}Col"  data-importance="{$column.list|default:0}">{include file='common/blocks/admin/resource/list/colFilter.tpl' type='int'}</td>
+	<td class="col {$column.relGetAs}Col typeVarchar fk{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$column.relGetAs}FilterCol" scope="col" headers="{$column.relGetAs}Col"  data-importance="{$column.list|default:0}">{include file='common/blocks/admin/resource/list/colFilter.tpl' type='varchar' colName=$column.relGetAs}</td>
 	{$column.fk = true}
 	{/if}
 	{if !$smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS || ($smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && $type !== 'onetoone' && !$column.fk)}
-    <td class="col {$colName}Col type{$type|ucfirst}{if $subtype} subtype{$subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if} {if $column.relResource} typeRel{/if}{if !$displayed} hidden{/if}" id="{$colName}FilterCol" scope="col" headers="{$colName}Col">{include file='common/blocks/admin/resource/list/colFilter.tpl'}</td>
+    <td class="col {$colName}Col type{$type|ucfirst}{if $subtype} subtype{$subtype|ucfirst}{/if}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if} {if $column.relResource} typeRel{/if}{* if !$displayed} hidden{/if *}" id="{$colName}FilterCol" scope="col" headers="{$colName}Col" data-importance="{$column.list|default:0}">{include file='common/blocks/admin/resource/list/colFilter.tpl'}</td>
     {/if}
     {/foreach}
-    <td class="col goToCol last">&nbsp;</td>
-    {*<td class="col colsHandlerCol last">&nbsp;</td>*}
+    <td class="col goToCol last lastCol">&nbsp;</td>
 </tr>

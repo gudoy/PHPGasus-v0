@@ -43,17 +43,7 @@
             {/if}
         </header>
         {if $group.results}
-        {*
-        <ul class="results">
-            {foreach $group.results as $result}
-            <li>
-                <a href="{$smarty.const._URL_ADMIN}{$groupResource}/{$result.id}">{$result[$displayField]|default:$result.admin_title|default:$result.id}</a>
-            </li>
-            {/foreach}
-        </ul>
-        *}
         <div class="adminBlock adminListingBlock resultsTableBlock">
-        	{* <a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a> *}
         	{include file='common/blocks/admin/resource/list/table.tpl' rows=$group.results rName=$groupResource rModel=$data.dataModel[$groupResource] options=['addHiddenCols' => false]}
         	<a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a>
         </div>

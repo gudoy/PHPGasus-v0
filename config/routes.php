@@ -83,6 +83,7 @@ define("_URL_ADMIN_SEARCH",                 _URL_ADMIN . 'search/');
 
 define("_URL_LOGIN_SUCESS_DEFAULT", 		_URL_ADMIN); // let empty if you do not want be redirected after login
 
+
 # APP SPECIFIC URIS
 
 

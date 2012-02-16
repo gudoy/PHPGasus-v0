@@ -85,9 +85,9 @@ class View extends Application implements ViewInterface
 		
 		$this->getPlatformData();
 		//$this->configSmarty();
-		$this->getPlatformData();
-        $this->getDeviceData();
+		//$this->getPlatformData();
         $this->getBrowserData();
+        $this->getDeviceData();
 		$this->handleOptions();
 		$this->handleRequest();
 		$this->outputFormat();
@@ -123,7 +123,7 @@ class View extends Application implements ViewInterface
 		$this->Smarty->compile_dir 			= _PATH_TEMPLATES . 'templates_c/';
 		$this->Smarty->cache_dir 			= _PATH_SMARTY . 'cache/';
 		$this->Smarty->config_dir 			= _PATH_SMARTY . 'configs/';
-		$this->Smarty->allow_php_templates 	= true;
+		//$this->Smarty->allow_php_templates 	= true;
 		//$this->Smarty->allow_php_tag 		= true;
 		
 		//require('smarty-gettext.php');
@@ -259,7 +259,7 @@ $this->dump($allowed);
     public function getDeviceData()
     {
         $this->log(__METHOD__);
-        
+		
         $this->device   = array();
         $d              = &$this->device;
         
@@ -267,17 +267,19 @@ $this->dump($allowed);
         $resol          = !empty($_SESSION['resolution']) ? explode('x', strtolower($_SESSION['resolution'])) : array();
         $w              = !empty($resol[0]) ? (int) $resol[0] : null;
         $h              = !empty($resol[1]) ? (int) $resol[1] : null;
-        
+		
         // Default values
         $d  = array(
-            'resolution'    => array('width' => $w, 'height' => $h),
-            'isMobile'      => isset($_GET['isMobile']) 
-                                ? in_array($_GET['isMobile'], array('1', 'true',1,true))
-                                : ( !empty($w) ? ($w < 800) : null ),
-            'orientation' => !empty($_SESSION['orientation']) 
-                                ? $_SESSION['orientation'] 
-                                : ( $w && $h ? ( $w > $h ? 'landscape' : 'portrait') : null),
+            'resolution'    	=> array('width' => $w, 'height' => $h),
+            'isMobile' 			=> isset($_GET['isMobile']) ? in_array($_GET['isMobile'], array('1', 'true',1,true)) : ( !empty($w) ? ($w < 800) : null ),
+            'orientation' 		=> !empty($_SESSION['orientation']) ? $_SESSION['orientation'] : ( $w && $h ? ( $w > $h ? 'landscape' : 'portrait') : null),
+            'hasLowCapacity' 	=> false, 
         );
+		
+		if ( $d['isMobile'] && $this->platform['name'] === 'blackberry' && $this->browser['engine'] === "mango" )
+		{
+			$d['hasLowCapacity'] = true;
+		} 
         
         return $this;
     }
@@ -397,7 +399,7 @@ $this->dump($allowed);
 		
 		// Loop over the resource colums
 		//foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
-		foreach ( array_keys($rModel) as $colName )
+		foreach ( array_keys((array) $rModel) as $colName )
 		{
 			// Get col properties
 			$p = &$rModel[$colName];

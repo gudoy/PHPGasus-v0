@@ -10,9 +10,11 @@
 {include file='common/config/js/minification.tpl'}
 {else}
 {foreach $data.js as $item}
-{if strpos($item, 'http://') !== false || strpos($item, 'http://') !== false}{$basePath=''}{else}{$basePath=$jsBasePath}{/if}
-{if strpos($item, '?') !== false}{$querySep='&amp;'}{else}{$querySep='?'}{/if}
-<script src="{$basePath}{$item}{$querySep}{$version}"{if !$html5} charset="utf-8"{/if}{if $useDefer} defer="defer"{/if}></script>
+{$isExternal 	= ( strpos($item, 'http://') !== false || strpos($item, 'https://') ) ? true : false}
+{$hasQuery 		= ( strpos($item, '?') ) ? true : false}
+{$basePath 		= ( $isExternal ) ? '' : $cssBasePath}
+{$itemVersion 	= ( $isExternal ) ? '' : "{if $hasQuery}&{else}?{/if}{$version}"}
+<script src="{$basePath}{$item}{$querySep}{$itemVersion}"{if !$html5} charset="utf-8"{/if}{if $useDefer} defer="defer"{/if}></script>
 {/foreach}
 {/if}
 {if $view.name}

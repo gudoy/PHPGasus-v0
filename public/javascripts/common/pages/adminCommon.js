@@ -1365,10 +1365,10 @@ var adminIndex =
 		var self      = this,
 		    list      = $('#colsHandlerManagerBlock');
 		    
-		$('#colsManagerLink', self.context).each(function()
+		$('#colsManagerLink', self.context).closest('th').each(function()
 		{
 		    var $this 		= $(this),
-                $cBlock 	= $this.next('.colsBlock'),   			// jQuery reference to the columns handler block
+                $cBlock 	= $this.find('.colsBlock'),   			// jQuery reference to the columns handler block
 		        tbodyH 		= $('tbody', self.context).outerHeight(),
 		        vPadding 	= (parseInt($cBlock.css('padding-top')) + parseInt($cBlock.css('padding-bottom'))) || 0,
 		        vBorders 	= (parseInt($cBlock.css('border-top-width')) - parseInt($cBlock.css('border-bottom-width'))) || 0,
@@ -1381,8 +1381,18 @@ var adminIndex =
 		        				+ vPadding + vBorders; 
 		    ;
 		    
+		    // Check currently displayed cols
+		    $(':checkbox', $this).each(function()
+		    {		    	
+				var $this 	= $(this),
+					colName = $this.attr('id').replace(/Display/,'') || '';            // Get the related column name
+				
+				$this.prop('checked', $('th#' + colName).is(':visible'));
+		    }); 
+		    
 		    // Display the block
-		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); $this.parent().toggleClass('active') });
+		    //$this.click(function(e){ e.preventDefault(); e.stopPropagation(); $this.parent().toggleClass('active') });
+		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); $this.find('#colsManagerBlock').toggleClass('active') });
 		    
 		    $cBlock
 		      // TODO: open a dialog instead of handling height dynamically 
@@ -1404,8 +1414,8 @@ var adminIndex =
 		            colName   = $input.attr('id').replace(/Display/,'') || '',            // Get the related column name
 		            $cols     = $('th.' + colName + ', td.' + colName, self.context);     // Get the matching cols and store the jQuery reference 
 		            
-		        if    ( $input.is(':checked') ){ $cols.removeClass('hidden'); }
-		        else  { $cols.addClass('hidden'); }
+		        if    ( $input.is(':checked') ){ $cols.removeClass('hidden').addClass('displayed'); }
+		        else  { $cols.addClass('hidden').removeClass('displayed'); }
 		    });
 		});
 		
@@ -1548,6 +1558,8 @@ var adminIndex =
 	    var self           = this;
 	       //toolbarsContext = '.adminListToolbar';
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
+	       
+		$('#editModeBtn').live('click', function(e){ e.preventDefault(); e.stopPropagation(); $(this).closest('section').toggleClass('editMode'); })
 	       
 	    $(toolbarsContext)
 		    .each(function()
