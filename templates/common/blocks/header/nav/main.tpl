@@ -1,9 +1,10 @@
+{block name='mainNav'}
 {$current = $view.current.menu|default:'home'}
 <ul class="nav main" id="mainNav">
 	{if $mainNavItems}
 	{foreach $mainNavItems as $label => $url}{strip}
 	<li id="{$label}NavItem" class="item item-lv1{if $url@first} first{/if}{if $url@last} last{/if}{if $current === $label} current{/if}">
-		<a href="{$url}"><span class="value">{$label|gettext}</span></a>
+		<a href="{$url}"><span class="value">{t}{$label}{/t}</span></a>
 	</li>
 	{/strip}{/foreach}
 	{else}
@@ -16,3 +17,4 @@
 	</li>
 	{/if}
 </ul>
+{/block}

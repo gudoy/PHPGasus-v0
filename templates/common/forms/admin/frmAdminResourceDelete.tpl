@@ -17,9 +17,9 @@
 				<input type="hidden" name="method" id="method" value="delete" />
 				<input type="hidden" name="csrftoken" id="csrftoken" value="{$smarty.session.csrftoken}" />
 				{$parentResURI = $smarty.const._URL_ADMIN|cat:$resourceName}
-				{include file='common/blocks/actionBtn.tpl' href=$parentResURI class='cancelBtn' id='cancelBtn' label='cancel'|gettext}
+				{include file='common/blocks/actionBtn.tpl' href=$parentResURI class='cancelBtn' id='cancelBtn' label="{t}cancel{/t}"}
 				<span class="sep or">{t}or{/t}</span>
-				{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' name='confirm' id='validateBtn' type='submit' value='1' label='delete'|gettext}
+				{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' name='confirm' id='validateBtn' type='submit' value='1' label="{t}delete{/t}"}
 			</div>
 		</div>
 	</fieldset>

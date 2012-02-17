@@ -29,7 +29,7 @@
 		<div class="line noLabelBlock buttonsLine">
 			<div class="fieldBlock">
 				<input type="hidden" name="userCreate" id="userCreate" value="1" />
-				{include file='common/blocks/common/actionBtn.tpl' mode='button' id='validateBtn' type='submit' label='create'|gettext}
+				{include file='common/blocks/common/actionBtn.tpl' mode='button' id='validateBtn' type='submit' label="{t}created{/t}"}
 			</div>
 		</div>
 

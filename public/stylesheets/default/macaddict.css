@@ -26,11 +26,18 @@ a.relResourceLink:hover { background-color:#4e8fff; border-color:#3071e0; color:
 .adminTable thead th a,
 #mainCol section .titleBlock .title a { color:#000; text-decoration:none; }
 
-/* Sart Forms */
-.line { width:auto; float:none; clear:none; }
+
+/* Layout (start) */
 form .buttonsLine:after,
-/*.adminListToolbar:after,*/
 .adminResourceDetailBlock:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
+/* Layout (end) */
+
+
+
+/* Sart Forms */
+
+
+.line { width:auto; float:none; clear:none; }
 input,
 select,
 form input.normal,

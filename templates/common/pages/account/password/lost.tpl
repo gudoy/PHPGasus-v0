@@ -17,10 +17,10 @@
 			<div class="line">
 				<p>{t}We'll send you an email with a link to reset your password.{/t}</p>
 			</div>
-			{include file='common/formFields/user/email.tpl' name='userEmail' label={'email'|gettext} placeholder={'enter your email'|gettext}}
+			{include file='common/formFields/user/email.tpl' name='userEmail' label="{t}email{/t}" placeholder="{t}enter your email{/t}"}
 			<div class="line buttons noLabelBlock buttonsLine">
 				<div class="fieldBlock">
-					{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' label={'ok'|gettext}}	
+					{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' label="{t}ok{/t}"}	
 				</div>
 			</div>
 		</fieldset>

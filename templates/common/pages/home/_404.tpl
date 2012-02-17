@@ -23,9 +23,9 @@
 			</li>
 		</ul>
 		<nav class="actions">
-			{include file='common/blocks/actionBtn.tpl' href=$smarty.const._URL label={'get back to home'|gettext}}
+			{include file='common/blocks/actionBtn.tpl' href=$smarty.const._URL label="{t}get back to home{/t}"}
 			<span class="or">
-			{include file='common/blocks/actionBtn.tpl' href="mailto:{$smarty.const._APP}" label={'contact us'|gettext}}
+			{include file='common/blocks/actionBtn.tpl' href="mailto:{$smarty.const._APP}" label="{t}contact us{/t}"}
 		</nav>
 	</div>
 </section>

@@ -29,7 +29,7 @@
 				{t}The resource has been successfully deleted!{/t}
 			</p>
 			<div class="buttonsLine">
-				{include file='common/blocks/actionBtn.tpl' id='continueBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label='continue'|gettext}	
+				{include file='common/blocks/actionBtn.tpl' id='continueBtn' href=$smarty.const._URL_ADMIN|cat:$resourceName label="{t}continue{/t}"}	
 			</div>
 		</div>
 		{else}

@@ -8,7 +8,7 @@
         <span class="actions">
             {$disabled = (strpos($crudability, 'C')!== false)?0:1}
             <a class="action actionBtn add addLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}?method=create{else}#{/if}">
-                <span class="value">{'new'|gettext}</span>
+                <span class="value">{t}new{/t}</span>
             </a>
         </span>
         {/if}
@@ -22,19 +22,19 @@
             {$crudability = $data._resources[$resourceName].crudability|default:'CRUD'}
             {$disabled=(strpos($crudability, 'U')!== false)?0:1}
             <a class="action actionBtn edit editLink editAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
-                <span class="value">{'edit'|gettext}</span>
+                <span class="value">{t}edit{/t}</span>
             </a>
             {/if}
             {if $userResPerms.allow_create && $userResPerms.allow_update}
             {$disabled = (strpos($crudability, 'C')!== false && strpos($crudability, 'U')>-1)?0:1}
             <a class="action actionBtn duplicate duplicateLink duplicateAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=duplicate{else}#{/if}">
-                <span class="value">{'duplicate'|gettext}</span>
+                <span class="value">{t}duplicate{/t}</span>
             </a>
             {/if}
             {if $userResPerms.allow_delete}
             {$disabled = (strpos($crudability, 'D')!== false)?0:1}
             <a class="action actionBtn delete deleteLink deleteAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=delete{else}#{/if}">
-                <span class="value">{'delete'|gettext}</span>
+                <span class="value">{t}delete{/t}</span>
             </a>
             {/if}
         {/strip}
@@ -44,7 +44,7 @@
     <div class="group filterButtons">
         <span class="actions">
             <a class="action actionBtn filter filterLink" href="#{$resourceName}FiltersRow">
-                <span class="value">{'filter'|gettext}</span>
+                <span class="value">{t}filter{/t}</span>
             </a>
         </span>
     </div>
@@ -55,13 +55,13 @@
 	        	<span class="title">{t}display mode{/t}</span>
 	        	<span class="actions">
 		            <a class="action actionBtn displayMode tableMode" id="tableMode">
-		                <span class="value">{'table'|gettext}</span>
+		                <span class="value">{t}table{/t}</span>
 		            </a>
 		            <a class="action actionBtn displayMode listMode" id="listMode">
-		                <span class="value">{'list'|gettext}</span>
+		                <span class="value">{t}list{/t}</span>
 		            </a>
 		            <a class="action actionBtn displayMode thumbsMode" id="thumbsMode">
-		                <span class="value">{'thumbnails'|gettext}</span>
+		                <span class="value">{t}thumbnails{/t}</span>
 		            </a>
 	        	</span>
 	        </div>
@@ -75,14 +75,14 @@
 		                <option value="{$nb}" {if $nb === $nbOfItemsPerPage}selected="selected"{/if}>{$nb}</option>
 		                {/foreach}
 		            </select>
-		            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
+		            {* include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label="{t}ok{t}" *}
 		        </fieldset>
 		    </div>
 	        <div class="group density">
 	        	<span class="title">{t}density{/t}</span>
 	        	<span class="actions">
 	        		{$curDensity = 'high'}
-	        		{$densities = ['normal' => "{'normal'|gettext}", 'average' => {'average'|gettext}, 'high' => "{'high'|gettext}"]}
+	        		{$densities = ['normal' => "{t}normal{/t}", 'average' => "{t}average{/t}", 'high' => "{t}high{/t}"]}
 	        		{foreach $densities as $item => $translation}
 		            <a class="action actionBtn displayDensity {$item}Density {if $item === $curDensity}current{/if}" id="{$item}Density" data-value="{$item}">
 		                <span class="value">{$translation}</span>
@@ -96,7 +96,7 @@
     <div class="group paginationButtons">
         <span class="title">{t}pages{/t}</span>
         <span class="actions">
-        {include file='common/blocks/admin/pagination/index_new.tpl' vPosition=$position}
+        {include file='common/blocks/admin/pagination/pagination.tpl' vPosition='top'}
         </span>
     </div>
     {/if}
@@ -110,7 +110,7 @@
                 <option value="{$nb}" {if $nb === $nbOfItemsPerPage}selected="selected"{/if}>{$nb}</option>
                 {/foreach}
             </select>
-            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label='Ok'|gettext}
+            {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn' id='validateBtn' type='submit' label="{t}ok{/t}"}
         </fieldset>
         <span class="totalCount totalResourcesCount" id="totalResourcesCount{$position|ucfirst}">
             <span class="key">{t}of{/t}</span>

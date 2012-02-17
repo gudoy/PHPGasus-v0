@@ -17,7 +17,7 @@
                 </legend>
                 <div class="line">
                     <div class="labelBlock">
-                        <label class="span">{'search'|gettext}</label>
+                        <label class="span">{t}search{/t}</label>
                     </div>
                     <div class="fieldBlock" id="searchQueryFieldBlock">
                     	{if $type === 'contextual'}
@@ -27,7 +27,7 @@
                         	{$searchableRes = join(', ', $canSearch)}
                         {/if}
                         <input type="submit" id="validateSearchBtn" value="{t}go{/t}" />
-                        {include file='common/formFields/common/search.tpl' name='searchQuery' label={'search for'|gettext} placeholder={$searchableRes} value={$search.query|default:''} inputOnly=true}
+                        {include file='common/formFields/common/search.tpl' name='searchQuery' label="{t}search for{/t}" placeholder={$searchableRes} value={$search.query|default:''} inputOnly=true}
                     </div>
                 </div>
                 <input type="hidden" name="method" value="search" />

@@ -1,7 +1,7 @@
 <form action="{$data.current.url}" id="frmSignup" class="commonForm signupForm" method="post" enctype="multipart/form-data">
 	
 	<fieldset>
-		<legend><span class="value">{$legend|default:{'personal data'|gettext}}</span></legend>
+		<legend><span class="value">{$legend|default:"{t}your information{/t}"</span></legend>
 		
 		{include file='common/formFields/user/email.tpl'}
 		
@@ -30,7 +30,7 @@
 		<div class="line noLabelBlock buttonsLine">
 			<div class="fieldBlock">
 				<input type="hidden" name="signupForm" id="signupForm" value="1" />
-				{include file='common/blocks/actionBtn.tpl' mode='button' id='validateBtn' type='submit' label={'sign up'|gettext}}
+				{include file='common/blocks/actionBtn.tpl' mode='button' id='validateBtn' type='submit' label="{t}sign up{/t}"}
 			</div>
 		</div>
 

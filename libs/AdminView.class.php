@@ -661,7 +661,7 @@ class AdminView extends View
 			$this->resourceName  => $this->C->retrieve(array('by' => 'id', 'values' => $this->resourceId)),
 			'resourceId' 			=> $this->resourceId,
 		));
-		
+
 		$this
 			->paginate()
 			->beforeRender(array('function' => __FUNCTION__));

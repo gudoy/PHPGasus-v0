@@ -22,11 +22,11 @@
 				<input type="hidden" name="csrftoken" id="csrftoken" value="{$smarty.session.csrftoken}" />
 				{$parentResURI = $smarty.const._URL_ADMIN|cat:$resourceName}
 				{$backURI = $smarty.server.HTTP_REFERER|replace:'&':'&amp;'|default:$parentResURI}
-				{include file='common/blocks/actionBtn.tpl' href=$parentResURI class='cancelBtn' id='cancelBtn' label='cancel'|gettext}
+				{include file='common/blocks/actionBtn.tpl' href=$parentResURI class='cancelBtn' id='cancelBtn' label="{t}cancel{/t}"}
 				<span class="sep or">{t}or{/t}</span>
-				{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' id='validateBtn' type='submit' label='update'|gettext}
+				{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' id='validateBtn' type='submit' label="{t}update{/t}"}
 				{if $viewMode === 'admin'}
-				{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value=$parentResURI class='validateAndBackBtn' id='validateAndBackBtn' label='update & back to list'|gettext}
+				{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value=$parentResURI class='validateAndBackBtn' id='validateAndBackBtn' label="{t}update & back to list{/t}"}
 				{/if}
 			</div>
 		</div>

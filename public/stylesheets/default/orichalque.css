@@ -469,6 +469,10 @@ header .paginationBlock { float:right; }
     
     #sideCol,
     #sideCol.expanded { width:240px; }
+
+	#mainCol:before,
+	#mainCol:after { content:""; display:table; }
+	#mainCol:after { clear:both; }
     
     /* Buttons */
 	.toolbar .action,

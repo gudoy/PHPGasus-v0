@@ -28,7 +28,7 @@
 	<div class="line noLabelBlock buttonsLine">
 		<div class="fieldBlock">
 			<input type="hidden" name="subscribeNewsletterForm" id="subscribeNewsletterForm" value="1" />
-			{include file='common/blocks/common/actionBtnInput.tpl' id='validateBtn' label='validate'|gettext}
+			{include file='common/blocks/common/actionBtnInput.tpl' id='validateBtn' label="{t}validate{/t}"}
 		</div>
 	</div>
 	

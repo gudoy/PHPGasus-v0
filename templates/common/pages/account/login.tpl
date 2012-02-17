@@ -9,7 +9,7 @@
 	<p class="notification success">{t}You are now logged in!{/t}</p>
 {else}
     {block name='loginForm'}
-	{include file='common/forms/account/login.tpl' legend='log in'|gettext}
+	{include file='common/forms/account/login.tpl' legend="{t}log in{/t}"}
 	{/block}
 {/if}
 </div>

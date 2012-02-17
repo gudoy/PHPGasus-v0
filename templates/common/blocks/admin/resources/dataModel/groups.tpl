@@ -5,8 +5,8 @@
 			<span>dataModel groups</span>	
 		</h3>
 		<nav class="toolbar actions">
-			{include file='common/blocks/actionBtn.tpl' id="dataModelGroupsFileLink" class="action file zip" href="{$smarty.const._URL_ADMIN}groups/file" label='file'|gettext}
-			{include file='common/blocks/actionBtn.tpl' id="dataModelGroupsCodeLink" class="action code" href="{$smarty.const._URL_ADMIN}groups/code" label='code'|gettext}
+			{include file='common/blocks/actionBtn.tpl' id="dataModelGroupsFileLink" class="action file zip" href="{$smarty.const._URL_ADMIN}groups/file" label="{t}file{/t}"}
+			{include file='common/blocks/actionBtn.tpl' id="dataModelGroupsCodeLink" class="action code" href="{$smarty.const._URL_ADMIN}groups/code" label="{t}code{/t}"}
 		</nav>
 	</header>
 	<div class="content"></div>

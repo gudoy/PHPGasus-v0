@@ -47,12 +47,12 @@
 {else}
 	<div class="current">
 		<span class="idValue{if !$curVal} empty{/if}">{$data[$resourceName][$fieldName]}</span>
-		<span class="textValue{if !$curVal} empty{/if}">{if $curVal}{$data[$resourceName][$relGetAs]|default:"{'[untitled]'|gettext}"}{/if}</span>
+		<span class="textValue{if !$curVal} empty{/if}">{if $curVal}{$data[$resourceName][$relGetAs]|default:"{t}[untitled]{/t}"}{/if}</span>
 		<nav class="actions">
 			{if $curVal}
-			{include file='common/blocks/actionBtn.tpl' id="edit{$fieldName|ucfirst}Btn" class="action edit relItemSearchBtn" label={'edit'|gettext} title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
+			{include file='common/blocks/actionBtn.tpl' id="edit{$fieldName|ucfirst}Btn" class="action edit relItemSearchBtn" label="{t}edit{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
 			{else}
-			{include file='common/blocks/actionBtn.tpl' id="search{$fieldName|ucfirst}Btn" class="action search relItemSearchBtn" label={'search'|gettext} title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
+			{include file='common/blocks/actionBtn.tpl' id="search{$fieldName|ucfirst}Btn" class="action search relItemSearchBtn" label="{t}search{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
 			{/if}
 			{*
 			<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}" title="{t 1=$relResourceSingular}add a new %1{/t}">

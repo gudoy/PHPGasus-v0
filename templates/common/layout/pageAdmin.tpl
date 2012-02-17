@@ -19,9 +19,7 @@
 {block name='asideContent'}
 	
 	<div class="colContent asideContent" id="asideContent">
-		{block name='adminSearch'}
 		{include file='common/blocks/admin/search/search.tpl'}
-		{/block}
 	</div>
 		
 {/block}

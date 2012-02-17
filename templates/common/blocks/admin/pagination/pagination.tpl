@@ -26,7 +26,7 @@
         <label class="accessib" for="pageOffset{$position|ucfirst}">{t}page #{/t}</label>
         <input id="pageNumber{$position|ucfirst}" name="page" type="number" class="sized pageNb" size="4" min="1" step="1" value="{$currentPage|default:1}" formmethod="get" />
         <span class="value">/ {$nbOfPages}</span>
-        {* include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn goToPageBtn' id='goToPageBtn' type='submit' label='Ok'|gettext *}
+        {include file='common/blocks/actionBtn.tpl' mode='button' class='action validateBtn goToPageBtn' id='goToPageBtn' type='submit' label='{t}ok{/t}'}
     </fieldset>
 <a
     id="{$vPosition}PaginationNextLink"

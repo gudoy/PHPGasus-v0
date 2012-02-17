@@ -14,29 +14,6 @@ a img { border:none; }
 
 .chrome datalist { display: inline-block; }
 
-/*
-a.file { margin-left:19px; vertical-align:middle; }
-a.file:before { width:16px; height:16px; margin-left:-19px; overflow:hidden; display:inline-block; position:relative; content:' '; background:url(images/commonIconsSprites.png) no-repeat -32px -96px; vertical-align:middle; text-decoration:none; font-size:1%; }
-a.file[href$='.jpg']:before { background-position:-32px -112px; }
-a.file[href$='.png']:before { background-position:-32px -112px; }
-a.file[href$='.gif']:before { background-position:-32px -112px; }
-a.file[href$='.doc']:before { background-position:0 -128px; }
-a.file[href$='.pdf']:before { background-position:-16px -128px; }
-a.file[href$='.xls']:before { background-position:-32px -128px; }
-a.file[href$='.zip']:before { background-position:-48px -128px; }
-a.file[href$='.avi']:before,
-a.file[href$='.mpeg']:before,
-a.file[href$='.mpg']:before,
-a.file[href$='.3gp']:before,
-a.file[href$='.mov']:before,
-a.file[href$='.m4v']:before,
-a.file[href$='.flv']:before,
-a.file[href$='.asf']:before,
-a.file[href$='.qt']:before,
-a.file[href$='.wmv']:before,
-a.file[href$='.mpv']:before { background-position:-176px -96px; }
-*/
-
 
 .accessib { width:0!important; height:0!important; margin:0!important; padding:0!important; overflow:hidden!important; position:absolute!important; top:-9999em!important; left:-9999em!important; border:none!important; font-size:0!important; }
 .accessib.anchor { position:static!important; visibility:hidden; }

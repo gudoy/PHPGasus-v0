@@ -8,7 +8,7 @@
 {/if}
 <div class="line">
 	<div class="labelBlock">
-		<label class="span" for="{$postValName}">{$label|gettext}{if $required}<span class="required">*</span>{/if}</label>
+		<label class="span" for="{$postValName}">{$label}{if $required}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
 		<textarea class="normal {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" {if $required}required="required"{/if} cols="{$cols|default:80}" rows="{$rows|default:4}">{$smarty.post[$postValName]|stripslashes|trim}</textarea>

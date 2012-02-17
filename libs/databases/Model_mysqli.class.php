@@ -947,7 +947,8 @@ class Model extends Application
 			
 			foreach ( (array) $rModel as $fieldName => $field)
 			{
-				$type = $field['type'];
+				//$type = $field['type'];
+				$type = isset($field['type']) ? $field['type'] : null;
 
 				// Do not process relation fields
 				if ( $type === 'onetomany' && ( empty($o['getFields']) || (!empty($o['getFields']) && in_array($fieldName, $o['getFields'])) ))

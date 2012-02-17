@@ -2,9 +2,7 @@
 	
 	<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
 	
-	{block name='mainNav'}
-	{include file='common/blocks/header/nav/mainNav.tpl'}
-	{/block}
+	{include file='common/blocks/header/nav/main.tpl'}
 	
 	{block name='accountNav'}
 	{if $smarty.const._APP_USE_ACCOUNTS && _APP_ALLOW_SIGNUP}
@@ -21,7 +19,7 @@
 		</li>
 		{if $smarty.const._APP_ALLOW_SIGNUP}
 		<li class="item item-lv1 last">
-			<a class="signupLink" href="{$smarty.const._URL_SIGNUP}"><span class="value">{t}register{/t}</span></a>
+			<a class="signupLink" href="{$smarty.const._URL_SIGNUP}"><span class="value">{t}sign up{/t}</span></a>
 		</li>
 		{/if}
 	{/if}

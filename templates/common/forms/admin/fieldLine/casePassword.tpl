@@ -16,6 +16,6 @@
 {/if}
 <span class="icon inputIcon"></span><input type="password" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" class="sized" value="" {if $mode !== 'create'}disabled="disabled"{/if}{if $isRequired} required="required"{/if} autocomplete="off" />
 {if $allowEdit && $mode !== 'create'}
-{include file='common/blocks/actionBtn.tpl' mode='button' class="cancelValBtn cancelChangePassBtn hidden" id={'cancelChange'|cat:{$resourceFieldName|ucfirst}} label='cancel'|gettext}
-{include file='common/blocks/actionBtn.tpl' mode='button' class="changeValBtn changePassBtn" id={'change'|cat:{$resourceFieldName|ucfirst}} label='change'|gettext}
+{include file='common/blocks/actionBtn.tpl' mode='button' class="cancelValBtn cancelChangePassBtn hidden" id={'cancelChange'|cat:{$resourceFieldName|ucfirst}} label="{t}cancel{/t}"}
+{include file='common/blocks/actionBtn.tpl' mode='button' class="changeValBtn changePassBtn" id={'change'|cat:{$resourceFieldName|ucfirst}} label="{t}change{/t}"}
 {/if}

@@ -12,8 +12,8 @@
 			{t escape=no}Thanks! Your account is activated. Your are now able to login.{/t}
 		</p>
 		<nav class="actions">
-			{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_HOME} id='goToHomeBtn' class='action goToHomeBtn' label='back to home'|gettext}<span class="or">{t}or{/t}</span>
-			{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_LOGIN} id='goToLoginBtn' class='action goToLoginBtn' label='login'|gettext}
+			{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_HOME} id='goToHomeBtn' class='action goToHomeBtn' label="{t}back to home{/t}"}<span class="or">{t}or{/t}</span>
+			{include file='common/blocks/actionBtn.tpl' href={$smarty.const._URL_LOGIN} id='goToLoginBtn' class='action goToLoginBtn' label="{t}login{/t}"}
 		</nav>
 	</div>
 	{elseif $smarty.const._APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN}

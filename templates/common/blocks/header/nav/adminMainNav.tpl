@@ -5,7 +5,7 @@
 <ul class="nav section main nav-lv1" id="adminMainNav">
     {block name='adminMainNavItems'}
     <li id="dashboardNavItem" class="item item-lv1{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
-        <a href="{$smarty.const._URL_ADMIN}"><span class="value">{'dashboard'|gettext}</span></a>
+        <a href="{$smarty.const._URL_ADMIN}"><span class="value">{t}dashboard{/t}</span></a>
     </li>
     {foreach $resourcesGroups as $gpName => $gpProps}
     {$gpDisplayName     = $gpProps.displayName|default:$gpName}
@@ -41,7 +41,7 @@
 <ul class="nav section main level1" id="adminMainNav">{strip}
     {block name='adminMainNavItems'}
     <li class="item item-lv1 {if empty($data.current.menu) || $data.current.menu === 'dashboard'}current{/if}">
-        <a href="{$smarty.const._URL_ADMIN}">{'admin home'|gettext|ucfirst|escape:'html'}</a>
+        <a href="{$smarty.const._URL_ADMIN}">{t}admin home{/t}</a>
     </li>
     {foreach $resources as $k => $v}
     {if is_numeric($k) && isset($v['name'])}{$k=$v.name}{/if}
