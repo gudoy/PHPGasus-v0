@@ -2,7 +2,7 @@
 
 class Model extends Application
 {
-	public $debug         = true;
+	public $debug         = false;
 	public $db            = null;
 	public $success       = false;
 	public $errors        = null;
@@ -27,7 +27,6 @@ class Model extends Application
 	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-		//$this->dataModel 	= $dataModel;
 		$this->application    = &$application;
 		$this->resources      = &$resources;
 		$rProps               = &$this->resources[$this->resourceName];
@@ -57,14 +56,6 @@ class Model extends Application
 		
 		return $this->connect();
 	}
-
-
-    /*
-    public function log($data = null, $options = array())
-    {
-        return $this->debug ? $this->dump($data, $options): $this;
-    }*/
-
     
     public function dump($data = null, $options = array())
 	{

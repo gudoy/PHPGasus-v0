@@ -592,18 +592,6 @@ $this->dump($allowed);
 		// TODO: check why and fix?
 		if ( !empty($this->outputHandled) ){ return $this; }
 		
-		$this->outputHandled              = true;
-        
-		// Shortcut for options
-		$o                                = &$this->options;
-
-		// Try to get the output format extension on the last resource in path
-		$uriParts 						= @parse_url($_SERVER['REQUEST_URI']); 
-        $urlExt 						= strpos($uriParts['path'], '.') !== false ? preg_replace('/(.*)\.(.*)/', '$2', $uriParts['path']) : null;
-		$o['output'] 					= !empty($o['output']) ? $o['output'] : $urlExt;
-		$o['outputExtension'] 			= $urlExt;
-		
-		$this->availableOutputFormats     = array('html','xhtml','json','xml','plist','yaml','csv','csvtxt','qr','plistxml','yamltxt','jsontxt','jsonreport','jsonp');
 		$this->knownOutputMime            = array(
 			'text/html' 			=> 'html',
 			'application/xhtml+xml' => 'xhtml',
@@ -619,6 +607,17 @@ $this->dump($allowed);
 			// TODO: RDF
 			// TODO: ZIP
 		);
+		
+		$this->outputHandled              = true;
+        
+		// Shortcut for options
+		$o                                = &$this->options;
+
+		// Try to get the output format extension on the last resource in path
+		$uriParts 						= @parse_url($_SERVER['REQUEST_URI']); 
+        $urlExt 						= strpos($uriParts['path'], '.') !== false ? preg_replace('/(.*)\.(.*)/', '$2', $uriParts['path']) : null;
+		$o['output'] 					= !empty($o['output']) ? $o['output'] : $urlExt;
+		$o['outputExtension'] 			= $urlExt;
 		
 		// If no 'output' param has been passed or if the passed one is not part of the available formats
 		//if ( empty($o['output']) && !in_array($o['output'], $this->knownOutputMime) )

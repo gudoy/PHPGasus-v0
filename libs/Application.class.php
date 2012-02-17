@@ -8,6 +8,9 @@ class Application
 	public $logged 	= false;
 	public $inited 	= false;
 	
+	// TODO: move to Request class
+	public $availableOutputFormats = array('html','xhtml','json','xml','plist','yaml','csv','csvtxt','qr','plistxml','yamltxt','jsontxt','jsonreport','jsonp');
+	
 	public function __construct()
 	{
 		return $this->init();
@@ -295,6 +298,7 @@ class Application
 	 * @return {String|Boolean} The value if found, otherwise false
 	 */
 	// TODO: refactor using parse_str() ???
+	// TODO: move to Request class
 	public function getURLParamValue($url, $param)
 	{
         $this->log(__METHOD__);
@@ -322,6 +326,7 @@ class Application
 	}
 	
 	
+	// TODO: move to Request class
 	public function dispatch($uri = '')
 	{
         $this->log(__METHOD__);
@@ -334,8 +339,12 @@ class Application
 		// View class handling
 		$view 			= array('folders' => array(), 'path' => '', 'name' => 'home');
 
-		// Remove extension from path resource name, if present
-		foreach($s as &$item) { $item = preg_replace('/(.*)\.(.*)/', '$1', $item); }
+		// Remove extension from last path item, if present
+		//foreach($s as &$item) { $item = preg_replace('/(.*)\.(.*)/', '$1', $item); }
+		if ( ($count = count($s)) && ($last = &$s[$count-1]) && strpos($last, '.') )
+		{
+			$last = preg_replace('/\.(' . join('|',$this->availableOutputFormats) . ')$/', '', $last);
+		}
 		
 		// Loop over segments parts (URI parts) to find the deeper existing view folder
 		// and then set the proper view to use
@@ -412,16 +421,13 @@ class Application
 		// Get user agent
 		$ua = !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
 		
-//var_dump($ua);
-//var_dump(strpos($ua, 'Chrome'));
-		
 		if ( _APP_USE_CHROMEPHP_LOGGING && strpos($ua, 'Chrome') !== false )
 		{
 	        class_exists('ChromePhp') || require(_PATH_LIBS . 'tools/ChromePHP/ChromePhp.php');
 	        
 			//ChromePhp::useFile(_PATH . 'tmp/', 'chromelogs/');
 			ChromePhp::useFile(_PATH_PUBLIC . 'logs/chromelogs', '/public/logs/chromelogs/');
-			ChromePhp::log($data);	
+			ChromePhp::log($data);
 		}
 		elseif ( _APP_USE_FIREPHP_LOGGING && strpos($ua, 'Gecko') !== false )
 		{
@@ -508,6 +514,7 @@ class Application
 	}
 	
 	
+	// TODO: move to Request class
 	public function currentURL()
 	{
         $this->log(__METHOD__);
@@ -616,6 +623,8 @@ class Application
 		return $this;	
 	}
 
+	// TODO: rename to send()????
+	// TODO: move to Request class
 	public function request($url, $params = array())
 	{
 		$p = &$params;

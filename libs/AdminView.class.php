@@ -756,8 +756,6 @@ class AdminView extends View
 		$this
 			->paginate()
 			->beforeRender(array('function' => __FUNCTION__));
-			
-$this->dump($this->data);
 		
 		return $this->render();
 	}
