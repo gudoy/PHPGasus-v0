@@ -358,7 +358,7 @@ table thead .sort:before { width:8px; height:5px; display:inline-block; content:
 
 .adminTable th[data-importance="3"],
 .adminTable td[data-importance="3"],
-section.editMode .adminTable .colSelectResources,
+.editMode .adminTable .colSelectResources,
 .adminTable.filterMode th.typeInt.fk,
 .adminTable.filterMode td.typeInt.fk { display:table-cell; }
 .adminTable th.displayed,

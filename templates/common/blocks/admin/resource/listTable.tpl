@@ -20,4 +20,3 @@
 		</tbody>
 	</table>
 </div>
-{include file='common/blocks/admin/resource/list/toolbar.tpl' position='bottom'}

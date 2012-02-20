@@ -24,6 +24,7 @@ a { color:#3c65d7; }
 a.relResourceLink { padding:2px 16px 2px 7px; background-color:#dde7f8; background-repeat:no-repeat; background-position:96% 50%; border-radius:15px; border:1px solid #a3bcea; /*box-shadow:1px 1px 0 rgba(255,255,255,.5) inset;*/ text-decoration:none; color:#000; }
 a.relResourceLink:hover { background-color:#4e8fff; border-color:#3071e0; color:#fff; }
 .adminTable thead th a,
+#mainColHeader .title a,
 #mainCol section .titleBlock .title a { color:#000; text-decoration:none; }
 
 
@@ -215,6 +216,8 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 .commonTable tbody tr.ui-selected td { background:#3875d7; color:#fff; }
 .commonTable tbody tr.ui-selected th a,
 .commonTable tbody tr.ui-selected td a { color:#fff; }
+.commonTable tbody tr.ui-selected th a.relResourceLink,
+.commonTable tbody tr.ui-selected td a.relResourceLink { color:#000; }
 .commonTable tbody tr.ui-selected.hover th,
 .commonTable tbody tr.ui-selected:hover th,
 .commonTable tbody tr.ui-selected.hover td,
@@ -287,17 +290,37 @@ footer.menu { display:none; }
 
 section h4,
 section h4 a,
-.api .paramsList .name { color:#728293; /*text-transform:uppercase;*/ text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); }
+.api .paramsList .name { color:#728293; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); }
 
+
+
+/* Sections Headers (start) */
 /*#mainCol .block .titleBlock,*/
 section header { padding:5px 0; margin-bottom:0; }
-section .adminBlock { /*margin:0 0 20px;*/ }
 #mainCol section header,
+#mainColHeader,
 .api aside .titleBlock { background:#cacaca; background:-webkit-gradient(linear, left top, left bottom, from(#d7d7d7), to(#cacaca)); background:-webkit-linear-gradient(#d7d7d7, #cacaca); background:-moz-linear-gradient(#d7d7d7, #cacaca); background:-o-linear-gradient(#d7d7d7, #cacaca); background:-ms-linear-gradient(#d7d7d7, #cacaca); background:linear-gradient(#d7d7d7, #cacaca); border-top:1px solid #acacac; border-bottom:1px solid #b4b4b4; -webkit-box-shadow:0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow:0 1px 0 rgba(255, 255, 255, 0.5) inset; }
 #mainCol section .titleBlock .title,
+#mainColHeader .title,
 .api aside .titleBlock .title { margin:10px; text-shadow:0 1px 0 rgba(255, 255, 255, 0.6); text-transform:uppercase; }
+#mainColHeader .title,
 #mainCol section .titleBlock .title { margin:5px 10px; }
 #mainCol .titleBlock .paginationBlock { margin-right:10px; }
+#mainColHeader,
+#mainCol section header { min-height:27px; padding-top:12px; padding-bottom:11px; }
+
+/*#mainColHeader { min-height:49px; }*/
+#mainColHeader .actions { margin-left:10px; margin-right:10px; float:right; }
+#mainColHeader .action:hover,
+#mainColHeader .action.hover { position:static; }
+#mainColHeader .action .value,
+#mainColHeader .action:hover .value,
+#mainColHeader .action.hover .value { display:inline-block; position:static; font-weight:bold; text-transform:capitalize; background:none; border:none; }
+#mainColHeader .action:hover .value,
+#mainColHeader .action.hover .value { margin:0; padding:0; }
+.admin.index #mainColHeaderPrimaryActions .action { background-image:none; }
+/* Sections Headers (end) */
+
 
 
 /* Start Dashboard */
@@ -328,7 +351,6 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 #adminSearchResultsBlock > header { margin-bottom:0; }
 .resultsGroup .adminBlock { margin-top:20px; display:none; }
 .resultsGroup.expanded .adminBlock { display:block; }
-#adminSearchResultsBlock header .actions { /*margin-left:20px; margin-right:10px; float:right;*/ }
 #adminSearchResultsBlock .resultsGroup { clear:both; } 
 #adminSearchResultsBlock .allResultsLink { margin:10px 10px 20px; display:inline-block; float:right; clear:both; font-size:14px; }
 
@@ -338,7 +360,6 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 .resourceDetailBlock dd { display:inline-block; float:none; clear:none; -moz-box-sizing:border-box; box-sizing:border-box; letter-spacing:normal; } 
 .resourceDetailBlock dt { width:36%; padding:.3em 1em; color:#898989; text-align:right; font-weight:bold; text-shadow:1px 1px 0 rgba(255,255,255,.75); }
 .resourceDetailBlock dd { width:64%; padding:.3em 1em; background:#fff; border-left:1px solid #aaa; color:#7f7f7f; }
-/*.resourceDetailBlock dt:after { width:320px; content:'.'; display:table-row; clear:both; height:10px; background:red; }*/
 .resourceDetailBlock dt:first-of-type,
 .resourceDetailBlock dd:first-of-type { padding-top:1em; }
 .resourceDetailBlock dt:last-of-type,
@@ -398,6 +419,12 @@ section .adminBlock { /*margin:0 0 20px;*/ }
     #sideCol,
 	#sideCol.expanded { width:239px; border:1px solid #b4b4b4; border-width:0 1px 0 0; -webkit-box-shadow:-1px 0 0 rgba(255,255,255,0.8) inset; box-shadow:-1px 0 0 rgba(255,255,255,0.8) inset; -moz-transition:all .3s ease-in-out; -webkit-transition:all .3s ease-in-out; -o-transition:all .3s ease-in-out; -ms-transition:all .3s ease-in-out; }
 
+	
+	.adminTable { border-width:0; }
+	#adminListToolbarTop { display:none; }
+	#adminListToolbarBottom { margin:5px 10px 0 0; }
+
+
 	/* Start Side Col */
 	#mainCol.collapsed,
 	#sideCol.collapsed { width:22px; overflow:hidden; -moz-box-flex:0; -webkit-box-flex:0; -o-box-flex:0; -ms-box-flex:0; box-flex:0; -moz-transition:all .3s ease-in-out; -webkit-transition:all .3s ease-in-out; -o-transition:all .3s ease-in-out; -ms-transition:all .3s ease-in-out; }
@@ -407,7 +434,7 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 	#sideCol.collapsed footer li { display:none; }
 	#mainCol.collapsed footer li.toggler,
 	#sideCol.collapsed footer li.toggler { display:block; border-right:none; }	
-	footer.menu { /*max-height:24px;*/ display:block; clear:both; }
+	footer.menu { min-height:36px; /*max-height:24px;*/ display:block; clear:both; }
 	footer.menu ul { min-height:32px; display:block; }
 	footer.menu li { width:auto; /*height:24px;*/ height:100%; display:block; float:left; border:1px solid; border-color:#B4B4B4; border-width:0 1px 0 0; -webkit-box-shadow:1px 0 0 rgba(255,255,255, 0.5); box-shadow:1px 0 0 rgba(255,255,255, 0.5); background-position:50% 50%; background-repeat:no-repeat; cursor:pointer; }
 	footer.menu li.active { background-color:rgba(0, 0, 0, 0.1); }
@@ -421,12 +448,8 @@ section .adminBlock { /*margin:0 0 20px;*/ }
 	#mainColColToggler { display:none; }
 	/* End Side Col */
 	
-	#mainCol section header { min-height:27px; padding-top:12px; padding-bottom:11px; }
-	section header { /*margin-bottom:20px;*/ }
-	section .adminBlock { /*margin:0 20px 20px;*/ }
-	
 	.toolbar .actions .action,
-	.titleBlock .actions .action { margin:0; /*padding:4px 8px 4px 28px;*/ padding:4px 8px 4px 8px; background-position:8px 50%; }
+	.titleBlock .actions .action { margin:0; padding:4px 8px 4px 8px; background-position:8px 50%; }
 	
 	/* Start Header */
 	#branding { margin:0; margin-bottom:10px; position:absolute; left:50%; top:7px; }

@@ -40,19 +40,7 @@
 
 {block name='mainColFooter'}
 	<footer class="menu" id="mainColFooter">
-		{block name='poweredBy'}
-		<div class="block poweredByBlock" id="poweredByBlock">{t escape=no}powered by <a href="http://www.phpgasus.com">PHPGasus</a>{/t}</div>
-		{/block}
-		<ul>
-			{*
-			<li class="resize"  id="asideResizer">
-				<a id="asideResizeLink"><span class="value">{t}resize{/t}</span></a>
-			</li>
-			*}
-			<li class="more" id="mainColMoreOptions">
-				<a id="mainColMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
-			</li>
-		</ul>
+		{block name="mainColFooterContent"}{/block}
 	</footer>
 {/block}
 

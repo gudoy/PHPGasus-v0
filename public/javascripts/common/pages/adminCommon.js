@@ -1228,6 +1228,9 @@ var adminIndex =
 
 		admin.init();
 		
+		// Handle Mode switching
+		$('#editModeBtn').live('click', function(e){ e.preventDefault(); e.stopPropagation(); $(this).closest('header').parent().toggleClass('editMode'); })
+		
 		// Hide action buttons (since they only are necessary when items are selected)
 		$toolbars.find('.actionsButtons').hide()
 		
@@ -1558,8 +1561,6 @@ var adminIndex =
 	    var self           = this;
 	       //toolbarsContext = '.adminListToolbar';
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
-	       
-		$('#editModeBtn').live('click', function(e){ e.preventDefault(); e.stopPropagation(); $(this).closest('section').toggleClass('editMode'); })
 	       
 	    $(toolbarsContext)
 		    .each(function()

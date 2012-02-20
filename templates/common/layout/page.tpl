@@ -14,6 +14,7 @@
     	
     	{block name='aside'}
     	<aside class="aside col expanded" id="sideCol" role="complementary">
+    		{block name='asideHeader'}{/block}
     		{block name='asideContent'}{/block}
     		{block name='asideFooter'}{/block}
     	</aside>
@@ -21,9 +22,10 @@
     	
     	{block name='mainCol'}
     	<div class="col" id="mainCol" role="main">
+    		{block name='mainColHeader'}{/block}
     		<div class="colContent mainColContent" id="mainColContent">
 				{block name='mainContent'}{/block}
-			</div>	
+			</div>
     		{block name='mainColFooter'}{/block}
     	</div>
     	{/block}
