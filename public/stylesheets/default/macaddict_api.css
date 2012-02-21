@@ -1,7 +1,6 @@
 /* Start API */
 #apisBlock .api .prop:nth-of-type(2n+1),
-#apisBlock .api .prop:nth-of-type(2n+1),
-.activityBlock .item:nth-of-type(2n+1) { background-color:#EDF3FE; }
+#apisBlock .api .prop:nth-of-type(2n+1) { background-color:#EDF3FE; }
 
 .api aside .apiParamsBlock .title { margin:5px; }
 .api aside .apiParamsBlock { margin-bottom:20px; }
@@ -16,6 +15,7 @@
 .api aside .paramsList .operators { margin-left:20px; }
 
 #apiParamsSection { padding-bottom:20px; }
+#apisBlock .api.secured { background-repeat:no-repeat; background-image:none; } 
 #apisBlock > header { display:none; }
 #apisBlock .apis { padding:20px 10px; }
 #apisBlock .method { min-width:40px; margin-right:20px; display:inline-block; font-size:20px; font-weight:normal; }
@@ -32,6 +32,7 @@
 #apisBlock .expectedInputData dd,
 #apisBlock .possibleErrors dd { width:59%; display:inline-block; vertical-align:top; }
 #apisBlock .title { display:inline-block; padding-right:20px; background-repeat:no-repeat; background-position:100% 50%; }
+#apisBlock header .title { margin-top:10px; color:#fff; text-shadow:1px 1px 0 rgba(0, 0, 0, .5); font-size:14px; text-transform:uppercase; }
 
 .api .ui-accordion-header { border-radius:inherit; }
 .api .ui-accordion-header .ui-icon { display:none; }
@@ -44,6 +45,8 @@
 {
 	.api #body { -moz-box-direction:reverse; -webkit-box-direction:reverse; box-direction:reverse; }
 	.api #sideCol { border-right:0; border-width:0 0 0 1px; -webkitbox-shadow:1px 0 0 rgba(255,255,255,0.8) inset; box-shadow:1px 0 0 rgba(255,255,255,0.8) inset; }
+	
+	.api #sideCol { position:relative; z-index:100; box-shadow:-3px 0 6px rgba(0,0, 0,0.2); }
 	
 	/* Api */
 	#apisBlock .apis { padding-left:20px; padding-right:20px; }

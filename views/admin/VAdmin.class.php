@@ -17,6 +17,7 @@ class VAdmin extends AdminView
 			//'name' 		=> 'admin',
 			'name' 			=> 'adminHome',
 			'js' 			=> 'adminHome',
+			'cssid' 		=> 'adminHome',
 			'method' 		=> __FUNCTION__,
 			'template' 		=> 'specific/pages/admin/dashboard/index.tpl',
 			'errorsBlock' 	=> false,

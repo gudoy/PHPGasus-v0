@@ -842,8 +842,9 @@ class Model extends Application
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		
 		$this->queryData 	= array(
-			'fields' => array(),
-			'tables' => array(),
+			'fields' 		=> array(),
+			'tables' 		=> array(),
+			'tableAliases' 	=> array(),
 		);
 		
 		$this->fetchRelated = array();
@@ -1050,6 +1051,9 @@ class Model extends Application
 					
 					$this->queryData['tables'][] 	= _DB_TABLE_PREFIX . $pivotTable;
 					$this->queryData['tables'][] 	= _DB_TABLE_PREFIX . $relTable;
+					
+					//$this->queryData['tableAliases'][] 	= array($pivotAlias => $pivotTable);
+					//$this->queryData['tableAliases'][] 	= array($relResourceAlias => $relTable);
 					
 					// Destroy tmp vars to prevent  name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
@@ -1371,11 +1375,25 @@ class Model extends Application
 							}
 						}
 					}
+					elseif ( isset($field['upload']) && $field['upload'] === 'http' )
+					{
+						// Launch the file upload
+						class_exists('FileManager') || require(_PATH_LIBS . 'storage/FileManager.class.php');
+						
+						$FileUpload = FileManager::getInstance()->uploadByHttp($d[$fieldName], array(
+							'destFolder' 	=> $destRoot . $destFolder,
+							'destName' 		=> $destName,
+							//'destRoot' 		=> $destRoot,
+							'filePath' 		=> $d[$fieldName]['tmp_name'],
+							'allowedTypes' 	=> $field['allowedTypes'],
+						));
+					}
 					// Default upload by ftp
 					else
 					{
 						// Launch the file upload
 						class_exists('FileManager') || require(_PATH_LIBS . 'storage/FileManager.class.php');
+						
 						$FileUpload = FileManager::getInstance()->uploadByFtp($d[$fieldName], array(
 							'destFolder' 	=> $destRoot . $destFolder,
 							'destName' 		=> $destName,
@@ -1794,6 +1812,19 @@ class Model extends Application
 							}
 						}
 					}
+					elseif ( isset($field['upload']) && $field['upload'] === 'http' )
+					{
+						// Launch the file upload
+						class_exists('FileManager') || require(_PATH_LIBS . 'storage/FileManager.class.php');
+						
+						$FileUpload = FileManager::getInstance()->uploadByHttp($d[$fieldName], array(
+							'destFolder' 	=> $destRoot . $destFolder,
+							'destName' 		=> $destName,
+							//'destRoot' 		=> $destRoot,
+							'filePath' 		=> $d[$fieldName]['tmp_name'],
+							'allowedTypes' 	=> $field['allowedTypes'],
+						));
+					}
 					// Default upload by ftp
 					else
 					{
@@ -2126,8 +2157,6 @@ $tmpVal = isset($d[$fieldName])
 		// Loop over the passed conditions
 		foreach ($o['conditions'] as $key => $condition)
 		{
-//var_dump($key);
-//var_dump($condition);
 			// If the key is numeric, assume that the conditions array is associative
 			// matching the following pattern array($field1 => $values1, [...])
 			// and then reformat it into array(array($field1,$values1), [...])
@@ -2228,7 +2257,6 @@ $tmpVal = isset($d[$fieldName])
 			}
 			elseif ( in_array($usedOperator, array('MATCH')) )
 			{
-				
 				$rProps = &$this->resources[$this->resourceName];
 				
 				// Do not continue if the table engine is not MyISAM
@@ -2315,6 +2343,7 @@ $tmpVal = isset($d[$fieldName])
 		$j = 0;
 		foreach( $o['columns'] as $col )
 		{
+			/*
 			$qf = !empty($this->queryData['fields'][$col]) ? $this->queryData['fields'][$col] : null;
 			
             // TODO: handle this properly (require queryFields to contains joined fields)
@@ -2332,7 +2361,44 @@ $tmpVal = isset($d[$fieldName])
 			//if ( !$qf && !$useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
 			//if ( !$qf && $useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
 			if ( !$qf && $useAlias && isset($this->queryType) 
-				&& !in_array($this->queryType, array('insert','update')) ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
+				&& !in_array($this->queryType, array('insert','update')) ) { $this->warnings[4213] = $col; continue; } 
+			*/
+			
+			
+
+            // If the column name contains a "., assume that it is like 'table'.'column', matching db real structure
+            $hasDot   		= strpos($col, '.') !== false;
+            $colParts   	= $hasDot ? explode('.',$col) : null;
+
+			// Try to get the related resource for the current field/column, otherwise assume its the current one
+			// If resource passed
+			// Possible cases:
+			// {column}
+			// {table}.{column}
+			// {table alias}.{column}
+			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
+			$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) ); 
+			$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
+			// TODO: check alias against datamodel
+			$aliasExists 	= $alias && isset($alias, $this->queryData['tableAliases']);
+							
+			// Check if the column exists
+			$column 		= $hasDot ? $colParts[1] : $col;
+			$columnExists 	= isset($this->application->dataModel[$res][$column]) || isset($this->queryData['fields'][$column]);
+			
+//$this->dump($qf);
+$this->dump('res: ' . $res);
+$this->dump('is res: ' . (int) $resExists);
+$this->dump('alias: ' . $alias);
+$this->dump('is alias: ' . (int) $aliasExists);
+$this->dump('col: ' . $column);
+$this->dump('is col: ' . (int) $columnExists);
+
+			// Skip the condition and raise a warning if the resource either the resource & the columns are unknown
+			// but only when we are handling conditions in a select request 
+			// since there's no queryData for update & insert requests 
+			if ( !in_array($this->queryType, array('insert','update')) 
+				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknow field/column	
 			
 			$output .= $j !== 0 ? ', ' : '';
             //$output .= $useAlias ? $alias . '.' : '';

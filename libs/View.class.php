@@ -158,9 +158,10 @@ class View extends Application implements ViewInterface
 
 		$id 		= !empty($args[0]) ? $args[0] : null;														// Shortcut for resource identifier(s)
 		$p 			= &$params; 																				// Shortcut for params
-		$allowed 	= !empty($p['allowed']) 
-						? ( is_array($p['allowed']) ? $p['allowed'] : explode(',', $p['allowed']) ) 
-						: array(); 																				// Get the allowed methods
+		//$allowed 	= !empty($p['allowed']) 
+		//				? ( is_array($p['allowed']) ? $p['allowed'] : explode(',', $p['allowed']) ) 
+		//				: array(); 																				// Get the allowed methods
+		$allowed 	= Tools::toArray($p['allowed']);
 		$gM 		= isset($this->options['method']) ? strtolower($this->options['method']) : null; 			// Shortcut for GET "method" param
 		$pM 		= !empty($_POST['method']) 
 						? strtolower(filter_var($_POST['method'], FILTER_SANITIZE_STRING)) 
@@ -168,20 +169,6 @@ class View extends Application implements ViewInterface
 		$srM 		= isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : null; 		// Shortcut for request method
 		$foundM 	= !empty($pM) ? $pM : ( !empty($gM) ? $gM : ( !empty($srM) ? $srM : null )); 				// 
 		$m 			= !empty($foundM) && isset($known[$foundM]) ? $known[$foundM] : 'index';
-
-
-/*
-$this->dump('gM: ' . $gM);
-$this->dump('pM: ' . $pM);
-$this->dump('srM: ' . $srM);		
-$this->dump('found: ' . $foundM);
-$this->dump('m: ' . $m);
-$this->dump('id: ' . $id);
-$this->dump($allowed);
-*/
-
-//var_dump($id);
-//die($m);
 
 		// In APIs, to protect against CRSF, do not allow delete method to be called in overloaded GET
 		if ( !empty($params['isApi']) && $m === 'delete' && strtolower($_SERVER['REQUEST_METHOD']) !== 'delete' ){ return $this->statusCode(405); }
@@ -557,11 +544,12 @@ $this->dump($allowed);
 		
 		// Prevent redirection loop
 		//if ($_SERVER['HTTP_REFERER'] === $url)
-		if ($this->currentURL() === $url)
+		if ( $this->currentURL() === $url)
 		{
 			// TODO : make specific error page ?
-			$url = _URL_HOME;
-			$url .= ( strpos($url, '?') !== false ? '&' : '?' ) . 'errors=9000';
+			//$url = _URL_HOME;
+			//$url .= ( strpos($url, '?') !== false ? '&' : '?' ) . 'errors=9000';
+			$url = _URL_401;
 		}
 		
 		if ( $this->isAjaxRequest )

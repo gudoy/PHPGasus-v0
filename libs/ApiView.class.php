@@ -27,7 +27,7 @@ class ApiView extends View
 		
 		// Get logged user data
 		$u 			= CUsers::getInstance()->retrieve(array('values' => $uid));
-		$gpNames 	= !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array(); 
+		$gpNames 	= !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
 		
 		// Look for allowed group names
 		$intersect = array_intersect($gpNames, array('gods','superadmins','admins','apiclients'));
@@ -37,7 +37,7 @@ class ApiView extends View
 	
 	public function requireAuth()
 	{
-		if ( !$this->hasAuth() ){ $this->redirect(_URL_HOME); } 
+		if ( !$this->hasAuth() ){ $this->redirect(_URL_401); } 
 	}
 	
 	public function validateRequest()

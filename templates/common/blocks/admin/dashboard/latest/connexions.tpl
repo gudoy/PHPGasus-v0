@@ -1,6 +1,6 @@
 {$sessions 			= $data.activeUsers}
 <div class="block adminBlock activityBlock usersBlock adminActiveUsersBlock" id="adminActiveUsersBlock">
-	<h4 class="title titleBlock"><span class="value">{t}Active users{/t}</span></h4>
+	<h3 class="title titleBlock"><span class="value">{t}Active users{/t}</span></h3>
 	<div class="content">
 		<ol class="logs items activeUsers" id="activeUsers">
 			{foreach $sessions as $session}

@@ -3,9 +3,9 @@
 {$today = $smarty.now|date_format:'%B %d'}
 {$yesterday = {$smarty.now-3600*24}|date_format:'%B %d'}
 <div class="block adminBlock activityBlock logsBlock adminLogsBlock" id="adminLogsBlock">
-	<h4 class="title titleBlock">
-		<span class="value">{t}actions{/t}</span>
-	</h4>
+	<h3 class="title titleBlock">
+		<span class="value">{t}latest actions{/t}</span>
+	</h3>
 	<div class="content">
 		{if $logs}
 		<ol class="logs items adminLogs" id="adminLogs">
@@ -19,9 +19,11 @@
 			</li>
 			{/if}
 			<li class="group">
+				<h4>
 				<time class="title date">
 					<span class="day">{if $logDay === $today}{t}today{/t}{elseif $logDay === $yesterday}{t}yesterday{/t}{else}{$logDay}{/if}</span>
 				</time>
+				</h4>
 				{$curDay = $logDay}
 			{/if}
 			<article class="item log {$log.action}">

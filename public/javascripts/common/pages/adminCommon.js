@@ -1229,7 +1229,17 @@ var adminIndex =
 		admin.init();
 		
 		// Handle Mode switching
-		$('#editModeBtn').live('click', function(e){ e.preventDefault(); e.stopPropagation(); $(this).closest('header').parent().toggleClass('editMode'); })
+		$('#editModeBtn')
+			.live('click', function(e)
+			{
+				e.preventDefault(); 
+				e.stopPropagation();
+				
+				var $this = $(this);
+				 
+				$this.closest('header').parent().toggleClass('editMode');
+				$this.find('.value').text(function(i,val){ var $this = $(this), txt = $this.data('revert-label'); $this.data('revert-label',val); console.log(txt); return txt;  })
+			})
 		
 		// Hide action buttons (since they only are necessary when items are selected)
 		$toolbars.find('.actionsButtons').hide()

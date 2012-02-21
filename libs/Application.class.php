@@ -273,9 +273,11 @@ class Application
 		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
 		
 		$redir = ltrim(rtrim($t['path'], '/') . '/' . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : ''), '/');
+
+		$isLogged = $this->isLogged();
 		
 		// TODO: add proper error. Require data/success/errors/warnings to be shared accross app
-		if ( !$this->isLogged() )
+		if ( !$isLogged )
 		{
 			$this->data['errors'][] = 10100;
 			

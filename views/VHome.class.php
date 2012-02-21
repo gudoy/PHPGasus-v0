@@ -12,6 +12,7 @@ class VHome extends View
 	
 	public function index($options = null)
 	{
+		/*
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name' 			=> 'home',
 			'method' 		=> __FUNCTION__,
@@ -20,6 +21,8 @@ class VHome extends View
 
 		// Then, render page
 		return $this->render();
+		 */
+		$this->redirect(_URL_ADMIN);
 	}
 	
 
@@ -52,6 +55,18 @@ class VHome extends View
 	 
 	 
 	 public function down()
+	 {
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			'name' 			=> __FUNCTION__,
+			'method' 		=> __FUNCTION__,
+			'template'		=> 'specific/pages/home/' . __FUNCTION__ . '.tpl',
+		));
+		
+		// Then, render page
+		return $this->render();
+	 }
+	 
+	 public function unauthorized()
 	 {
 		$this->data['view'] = array_merge((array) @$this->data['view'], array(
 			'name' 			=> __FUNCTION__,

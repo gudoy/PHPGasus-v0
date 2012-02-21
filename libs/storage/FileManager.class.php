@@ -108,6 +108,44 @@ class FileManager extends Application
 	}
 	
 	
+	public function uploadByHttp($file, $options = array())
+	{
+		// Shortcut for options
+		$o = $options;
+		
+var_dump($o);
+		// Check if the file already exists
+		$relFolder 	= ltrim($o['destFolder'], '/');
+		$fileExists = file_exists($relFolder . $o['destName']);
+		$dirExists 	= is_dir($relFolder);
+		
+var_dump($dirExists);
+
+		// Create destination directory if it does not exists
+		if ( !$dirExists ){ mkdir($relFolder, 0777, true); }
+		
+		// If the file already exists, rename the current one
+		if ( $fileExists )
+		{
+			$suffix = date('Ymd_His');
+			rename($relFolder . $o['destName'], $relFolder . $o['destName'] . '_old_' . $suffix);
+		}
+
+		$this->success = move_uploaded_file($o['filePath'], $relFolder . $o['destName']); 
+		
+		if ( $this->success )
+		{
+		}
+		else
+		{
+			// TODO: handle errors ???
+			//$this->errors[] = '?????';
+		}
+		
+		return $this;
+	}
+	
+	
 	public function uploadByFtp($file, $options = array())
 	{
 		// Shortcut for options

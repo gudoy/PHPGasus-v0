@@ -572,7 +572,9 @@ class Controller extends Application
 						
 				class_exists('FileManager') || require(_PATH_LIBS . 'storage/FileManager.class.php');
 				
-				$fileExtension = FileManager::getInstance()->checkFileType($f, array('allowedTypes' => $field['allowedTypes']));
+				$fileExtension = FileManager::getInstance()->checkFileType($f, array(
+					'allowedTypes' => !empty($field['allowedTypes']) ? $field['allowedTypes'] : array(),
+				));
 				
 				//if ( !isset($_FILES[$f]) || $_FILES[$f]['error'] === 4 )
 				if ( $fileExtension === false )

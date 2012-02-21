@@ -9,7 +9,7 @@
 	{block name='adminIndexBlockTitle'}
 	<h2 class="title">
 		<a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data._resources[$resourceName].singular}">
-			{$resourceName}
+			<span class="value">{$resourceName}</span>
 		</a>
 	</h2>
 	{/block}
@@ -47,7 +47,9 @@
 
 
 {block name='mainColFooterContent'}
-{$position = 'bottom'}
+{$position 		= 'bottom'}
+{$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
+{$userResPerms 	= $data.current.user.auths[$resourceName]}
 <nav class="actions toolbar adminToolbar adminListToolbar {$position}" id="adminListToolbar{$position|ucfirst}">
 {include file='common/blocks/admin/resource/list/toolbar/actions.tpl'}
 </nav>

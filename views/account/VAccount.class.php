@@ -47,9 +47,9 @@ class VAccount extends View
 		
 		// If the user is already logged, do not continue & redirect him to the hub
 		if ( $this->isLogged() )
-		{
+		{			
 			$this->data['success'] = true;
-			$this->redirect($redirURL);
+			return $this->redirect($redirURL);
 		}
 		
 		// If max login attemps feature has beend activated
@@ -196,7 +196,6 @@ class VAccount extends View
 			//if ( !empty($redir) ) { $this->redirect($redir); }
 			//if ( !empty($redir) ) { $this->redirect(_URL . $redir); }
 			if ( $redirURL ) 	{ $this->redirect($redirURL); } 
-			
 			
 			//$this->respondError(201);
 		}

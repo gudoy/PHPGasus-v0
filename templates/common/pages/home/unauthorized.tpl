@@ -4,26 +4,25 @@
 <section id="_404Block">
 	<header>
 		<h2>
-			{t}Whoooops, 404 Page not found{/t}
+			{t}401 Unauthorized{/t}
 		</h2>
 	</header>
 	<div class="content">
 		<p>
-			{t}Sorry but the page you are looking for could not be found.{/t}
+			{t}Sorry but the page you requested has restricted access.{/t}
 		</p>
 		<p>
 			{t}Maybe:{/t}
 		</p>
 		<ul>
 			<li>
-				{t}this page has moved or no longer exist{/t}
+				{t}you can contact us if you think you should have access to it{/t}
 			</li>
 			<li>
 				{t}you misspelled the address if you typed it{/t}
 			</li>
 		</ul>
 		<nav class="actions">
-			{include file='common/blocks/actionBtn.tpl' href=$smarty.const._URL label="{t}get back to home{/t}"}
 			<span class="or">
 			{include file='common/blocks/actionBtn.tpl' href="mailto:{$smarty.const._APP_OWNER_CONTACT_MAIL}" label="{t}contact us{/t}"}
 		</nav>
