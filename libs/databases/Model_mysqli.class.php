@@ -1052,8 +1052,8 @@ class Model extends Application
 					$this->queryData['tables'][] 	= _DB_TABLE_PREFIX . $pivotTable;
 					$this->queryData['tables'][] 	= _DB_TABLE_PREFIX . $relTable;
 					
-					//$this->queryData['tableAliases'][] 	= array($pivotAlias => $pivotTable);
-					//$this->queryData['tableAliases'][] 	= array($relResourceAlias => $relTable);
+					$this->queryData['tableAliases'][$pivotAlias] 		= $pivotTable;
+					$this->queryData['tableAliases'][$relResourceAlias] = $relTable;
 					
 					// Destroy tmp vars to prevent  name conflicts
 					unset($relType, $relResource, $relTable, $relResourceAlias, $relField, $pivotResource, $pivotTable, $pivotLeftField, $pivotRightField, $pivotAlias, $getFields);
@@ -1105,6 +1105,7 @@ class Model extends Application
 											'tableAlias' 	=> $tmpTableAlias,
 											'count' 		=> isset($this->queryData['fields'][$storingName]['count']) ? $this->queryData['fields'][$storingName]['count'] : false,
 							);
+							$this->queryData['tableAliases'][$tmpTableAlias] = $field['relTable'];
 						}
 
 						//$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relResource']) . "." . $field['relField'];
@@ -2157,6 +2158,7 @@ $tmpVal = isset($d[$fieldName])
 		// Loop over the passed conditions
 		foreach ($o['conditions'] as $key => $condition)
 		{
+//var_dump($condition);
 			// If the key is numeric, assume that the conditions array is associative
 			// matching the following pattern array($field1 => $values1, [...])
 			// and then reformat it into array(array($field1,$values1), [...])
@@ -2242,18 +2244,39 @@ $tmpVal = isset($d[$fieldName])
 			
 			if ( in_array($usedOperator, array('IN','NOT IN')) )
 			{
+//var_dump('case 1.7');
+
+//var_dump($fields);
+//$this->dump($values);
+//var_dump($values);
+				
 				// Try to get the queried fields data
 				$qf     = !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
 				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
 				$opts 	+= array('values' => $values);
 				
+//var_dump($fields);
+//var_dump(Tools::toArray($fields));
+//if ( $fields === 'groups.admin_title' ){ var_dump($condition); die(); }
+				
 				$fields = Tools::toArray($fields);
+
+//var_dump($fields);
+//var_dump($values);
+//var_dump($output);
+
+
 				//$output .= $condKeyword . $oParenthesis;
 				$output .= $condKeyword . $before . $oParenthesis;
+
 				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
 				$output .= ' ' . $usedOperator . ' (' . $this->handleConditionsTypes($opts);
 				$output .= ') ';
+				
+				
+//var_dump($output);
+//if ( $condition[0] === 'groups.admin_title' ){ var_dump($condition); die(); }
 			}
 			elseif ( in_array($usedOperator, array('MATCH')) )
 			{
@@ -2277,6 +2300,8 @@ $tmpVal = isset($d[$fieldName])
 			// Case for single field & single value operators
 			else
 			{
+//var_dump('case 3');
+//if ( $fields === 'groups.admin_title' ){ var_dump($condition); die(); }
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -2312,6 +2337,9 @@ $tmpVal = isset($d[$fieldName])
                 $output .= $isValColname 
                 	? $values
                 	: $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col, 'operator' => $operator)) . ' ';
+					
+//var_dump($output);
+
 			}
 			
 			// Get conditions alternatives
@@ -2322,6 +2350,10 @@ $tmpVal = isset($d[$fieldName])
 			
             //$output .= $cParenthesis;
             $output .= $cParenthesis . $after;
+			
+$this->dump($output);
+//if ( $condition[0] === 'groups.admin_title' ){ $this->dump($condition); die(); }
+if ( $condition[0] === 'groups.admin_title' ){ $this->dump($condition); $this->dump($this->queryData); }
 			
 			$i++;
 		}
@@ -2334,8 +2366,9 @@ $tmpVal = isset($d[$fieldName])
 	
 	public function handleConditionsColumns($options = array())
 	{
-		$o      = &$options;
-		$output = '';
+		$o      	= &$options;
+		$output 	= '';
+		
 		
 		// Do not continue if there's no columns passed
 		if ( empty($o['columns']) ) { return $output; }
@@ -2378,7 +2411,11 @@ $tmpVal = isset($d[$fieldName])
 			// {table alias}.{column}
 			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
 			$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) ); 
-			$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
+			//$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
+			$alias 			= !$hasDot 
+								? $this->alias 
+								// Search the queryData for the resource'alias if any
+								: ( in_array($res, (array) $this->queryData['tableAliases']) ? array_search($res, $this->queryData['tableAliases']) : null );
 			// TODO: check alias against datamodel
 			$aliasExists 	= $alias && isset($alias, $this->queryData['tableAliases']);
 							
@@ -2387,12 +2424,12 @@ $tmpVal = isset($d[$fieldName])
 			$columnExists 	= isset($this->application->dataModel[$res][$column]) || isset($this->queryData['fields'][$column]);
 			
 //$this->dump($qf);
-$this->dump('res: ' . $res);
-$this->dump('is res: ' . (int) $resExists);
-$this->dump('alias: ' . $alias);
-$this->dump('is alias: ' . (int) $aliasExists);
-$this->dump('col: ' . $column);
-$this->dump('is col: ' . (int) $columnExists);
+//$this->dump('res: ' . $res);
+//$this->dump('is res: ' . (int) $resExists);
+//$this->dump('alias: ' . $alias);
+//$this->dump('is alias: ' . (int) $aliasExists);
+//$this->dump('col: ' . $column);
+//$this->dump('is col: ' . (int) $columnExists);
 
 			// Skip the condition and raise a warning if the resource either the resource & the columns are unknown
 			// but only when we are handling conditions in a select request 
@@ -2402,7 +2439,11 @@ $this->dump('is col: ' . (int) $columnExists);
 			
 			$output .= $j !== 0 ? ', ' : '';
             //$output .= $useAlias ? $alias . '.' : '';
-            $output .= $alias . '.' . $col;
+            //$output .= $alias . '.' . $col;
+            //$output .= ( !$hasDot ? $alias . '.' : '' ) . $col;
+            $output .= $alias ? $alias . '.' . $column : $col;
+			
+//$this->dump('output: ' . $output);
             
 			$j++;
 		}

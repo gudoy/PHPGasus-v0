@@ -1,7 +1,7 @@
 {$mode='update'}
 <form action="{$data.current.url}" id="frmAdminUpdate{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
 	
-	<fieldset>
+	<fieldset class="body">
 		<legend><span class="value">{t}Edit resource data{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
@@ -26,7 +26,7 @@
 				<span class="sep or">{t}or{/t}</span>
 				{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' id='validateBtn' type='submit' label="{t}update{/t}"}
 				{if $viewMode === 'admin'}
-				{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value=$parentResURI class='validateAndBackBtn' id='validateAndBackBtn' label="{t}update & back to list{/t}"}
+				{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value=$parentResURI class='validateAndBackBtn' id='validateAndBackBtn' label="{t escape=no}update & back to list{/t}"}
 				{/if}
 			</div>
 		</div>

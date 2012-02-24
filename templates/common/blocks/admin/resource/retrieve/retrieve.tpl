@@ -1,9 +1,10 @@
 {$resourceSingular = $data._resources[$resourceName].singular|default:$resourceName}
 <dl>
-	{foreach name='tableFields' from=$data.dataModel[$resourceName] key='fieldName' item='field'}
+	{foreach array_keys($data.dataModel[$resourceName]) as $fieldName}
+	{$field 				= $data.dataModel[$resourceName][$fieldName]}
 	{$type 					= $field.type}
 	{$value 				= $resource[$fieldName]}
-	{$isDefaultNamefield 	= ($data.meta.defaultNameField === $fieldName)}
+	{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $fieldName)}
 	<dt class="{cycle values='odd,odd,even,even'} type{$field.type|ucfirst} {$resourceSingular}{$fieldName|ucfirst}{if $isDefaultNamefield} defaultNameField{/if}" id="{$resourceSingular}{$fieldName|ucfirst}Label">
 		<span class="key">
 			{$fieldName|replace:'_':' '}{*t}:{/t*}

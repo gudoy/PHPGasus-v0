@@ -2,15 +2,14 @@
 <header class="titleBlock">
 	{block name='adminUpdateBlockTitle'}
 	<h2 class="title">
-        <a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data.meta.singular}">
-			{$resourceName} - {$data[$resourceName].id}
+        <a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data._resources[$resourceName].singular}">
+			{$resourceName} - {$resource.id}
 		</a>
 	</h2>
 	{/block}
-	<span class="actions actionsBlock">
+	<span class="nav actions actionsBlock">
 		{include file='common/blocks/admin/resource/actions/actions.tpl'}
 	</span>
-	{include file='common/blocks/admin/pagination/index.tpl' adminView='update'}
 </header>
 {/block}
 
@@ -31,7 +30,7 @@
 		</div>
 		{/if}
 		{if $data[$resourceName]}
-		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin' resource=$data[$resourceName]}
+		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin'}
 		{else}
 		<p class="nodata">{t}No resource selected{/t}</p>
 		{/if}

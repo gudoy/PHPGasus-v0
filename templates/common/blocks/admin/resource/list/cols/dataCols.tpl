@@ -1,6 +1,6 @@
 {foreach $rModel as $fieldName => $field}
 {$isSorted 				= ($sortBy === $fieldName)}
-{$isDefaultNamefield 	= ($data.meta.defaultNameField === $fieldName)}
+{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $fieldName)}
 {$value                 = $resource[$fieldName]}
 {$displayed 			= false}
 {if ($lightVersion && $field.list == 3) || (!$lightVersion && $field.list >= 1)}{$displayed = true}{/if}

@@ -97,7 +97,6 @@ define('_APP_USE_SQL_TYPEFIXING',              		false);         // experimental
 define('_APP_USE_ONFETCH_TYPEFIXING', 				true);          // experimental.
 define('_APP_TYPEFIX_ONETOONE_GETFIELDS',       	true);          // experimental.
 define('_APP_TYPEFIX_MANYTOMANY_GETFIELDS',     	true);          // experimental.
-define('_APP_USE_ADMIN_METAS',                  	false);         // experimental.
 define('_APP_SEARCH_ALWAYS_GLOBAL',             	true); 			// experimental.
 define('_APP_USE_DEFERED_JS',                   	false);         // experimental.
 define('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES',  	true);          // experimental.

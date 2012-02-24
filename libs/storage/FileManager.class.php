@@ -87,14 +87,6 @@ class FileManager extends Application
 			//'video/x-mpeg' 						=> 'mpv',
 			'video/mpv' 						=> 'mpv',
 		);
-				
-		/*
-		$tmpTypes = is_array($o['allowedTypes']) ? $o['allowedTypes'] : (array) explode(',', str_replace('.', '', trim($o['allowedTypes'])));
-	
-		return !empty($knownTypes[$file['type']]) ? $knownTypes[$file['type']] : false;
-		
-		return $return;
-		*/
 		
 		// Try to get the extension of the uploaded file type, using know mime types
 		$uploadedFileExt = !empty($knownTypes[$file['type']]) ? $knownTypes[$file['type']] : null;
@@ -113,13 +105,13 @@ class FileManager extends Application
 		// Shortcut for options
 		$o = $options;
 		
-var_dump($o);
+//var_dump($o);
 		// Check if the file already exists
 		$relFolder 	= ltrim($o['destFolder'], '/');
 		$fileExists = file_exists($relFolder . $o['destName']);
 		$dirExists 	= is_dir($relFolder);
 		
-var_dump($dirExists);
+//var_dump($dirExists);
 
 		// Create destination directory if it does not exists
 		if ( !$dirExists ){ mkdir($relFolder, 0777, true); }

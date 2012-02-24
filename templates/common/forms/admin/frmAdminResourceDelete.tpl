@@ -1,7 +1,7 @@
 {$mode='delete'}
 <form action="{$data.current.url}" id="frmAdminDelete{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
 
-	<fieldset>
+	<fieldset class="body">
 		
 		<legend><span class="value">{t}Delete resource{/t}</span></legend>
 		

@@ -2,7 +2,7 @@
 <form action="{$data.current.url}" id="frmAdminCreate{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
 	
 	{block name='resourceColumnsFieldset'}
-	<fieldset>
+	<fieldset class="body">
 		<legend><span class="value">{t 1=$data._resources[$resourceName].singular|default:$resourceName}create new %1{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
@@ -28,7 +28,7 @@
 			<span class="sep or">{t}or{/t}</span>
 			{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' id='validateBtn' type='submit' label="{t}create{/t}"}
 			{if $viewMode === 'admin'}
-			{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value=$parentResURI class='validateAndBackBtn' id='validateAndBackBtn' label="{t}create & back{/t}"}
+			{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value=$parentResURI class='validateAndBackBtn' id='validateAndBackBtn' label="{t escape=no}create & back{/t}"}
 			{/if}
 			</div>
 		</div>

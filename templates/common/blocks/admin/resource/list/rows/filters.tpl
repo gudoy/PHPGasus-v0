@@ -6,7 +6,7 @@
     {$type               	= $column.type}
     {$subtype            	= $column.subtype}
 	{$isSorted 				= ($sortBy === $fieldName)}
-	{$isDefaultNamefield 	= ($data.meta.defaultNameField === $colName)}
+	{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $colName)}
 	{$displayed 			= false}
 	{if ($lightVersion && $column.list == 3) || (!$lightVersion && $column.list >= 1)}{$displayed = true}{/if}
 	{if $smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && ($type === 'onetoone' || $column.fk)}

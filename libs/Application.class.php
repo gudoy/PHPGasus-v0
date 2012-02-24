@@ -428,7 +428,7 @@ class Application
 	        class_exists('ChromePhp') || require(_PATH_LIBS . 'tools/ChromePHP/ChromePhp.php');
 	        
 			//ChromePhp::useFile(_PATH . 'tmp/', 'chromelogs/');
-			ChromePhp::useFile(_PATH_PUBLIC . 'logs/chromelogs', '/public/logs/chromelogs/');
+			//ChromePhp::useFile(_PATH_PUBLIC . 'logs/chromelogs', '/public/logs/chromelogs/');
 			ChromePhp::log($data);
 		}
 		elseif ( _APP_USE_FIREPHP_LOGGING && strpos($ua, 'Gecko') !== false )
@@ -491,7 +491,6 @@ class Application
 			// Report simple running errors
 			error_reporting(E_ERROR | E_PARSE);
 		}
-
 
 		// Prevent cookie manipulation via javascript
 		ini_set('session.cookie_httponly', 	1);

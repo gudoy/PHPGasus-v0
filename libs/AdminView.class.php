@@ -20,20 +20,7 @@ class AdminView extends View
 		$this->requireLogin(); 	// Require that the user is logged
 		$this->requireAuth(); 	// and has admin rights for the current view						
 		
-		$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;
-		
-		// TODO: remove when no longer needed for backward compat
-		if ( !defined('_APP_USE_ADMIN_METAS') || _APP_USE_ADMIN_METAS )
-        {
-            // Deprecated
-            // Compute the metadata for each of the resources
-            //foreach((array) $this->dataModel['resources'] as $key => $val)
-            foreach((array) $this->data['_resources'] as $key => $val)
-            {
-                $rName                          = is_numeric($key) ? $val : $key;
-                $this->data['metas'][$rName]    = $this->meta($rName);
-            }            
-        }		
+		//$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;	
 		
 		$this->data['search'] 			= array();
         $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
@@ -57,7 +44,7 @@ class AdminView extends View
 		return $this;
 	}
 	
-	
+	// deprecated
 	public function meta($resourceName = null)
 	{
         $this->log(__METHOD__);
@@ -234,6 +221,32 @@ class AdminView extends View
 		//return true;
 	}
 	
+	
+	/*
+	public function _isCreatable()		{ return $this->_isCRUDable('C'); }
+	public function _isRetrievable()	{ return $this->_isCRUDable('R'); }
+	public function _isUpdateable()		{ return $this->_isCRUDable('U'); }
+	public function _isDeletable()		{ return $this->_isCRUDable('D'); }
+	*/
+	public function _isCRUDable($letters)
+	{
+		$d 				= $this->data;
+		$r 				= $this->resourceName;
+		$letters 		= Tools::toArray($letters);
+		$crudability 	= !empty($d['_resources'][$r]['crudability']) ? $d['_resources'][$r]['crudability'] : 'CRUD';
+		$result 		= true;
+		
+		// Loop over passed letter
+		foreach ( $letters as $letter )
+		{
+			// As soon as 1 letter is not found in resource crudability
+			// set the final result as not valid and stop here
+			if ( strpos($crudability, $letter) === false ) { $result = false; break; }
+		}
+		
+		return $result;
+	}
+	
     
     public function handleSearch()
     {
@@ -243,18 +256,6 @@ class AdminView extends View
         $criteria       = array();                                                  // Initialise search criteria array
         $searchable     = array();                                                  // Initialise searchable resources array
         $s              = &$this->data['search'];                                   // Shortcut for search data
-        //$s['type']      = isset($this->resourceName) 
-        //                    && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
-        //                  ? 'contextual' : 'global';
-        //$s['type']      = $sType;
-
-        // $criteria = array(
-        //      'type'          => passed type || 'or',
-        //      'resource'      => passed resource || current resource,
-        //      'columns'       => passed columns || resource.searchableColumns,
-        //      'operator'      => '=',
-        //      'values'        => array(),
-        //);
         
         // Allow to force local context (search on current resource) even if app search behavior is set to 'global' 
         $s['type'] = isset($_GET['searchContext']) && $_GET['searchContext'] === 'local' ? 'contextual' : 'global';
@@ -268,25 +269,19 @@ class AdminView extends View
         
         // Do not continue if no search query has been found
         if ( empty($sQuery) ){ return $this; }
-        //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->index($args) : $this; }
-        //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->index(array('dispatch' => false)) : $this; }
-        //if ( empty($sQuery) ){ return $s['type'] === 'contextual' ? $this->C->index($this->options) : $this; }
         
         // If the search is contextual, just use the current resource
         // Otherwise, use the resources that the current user is allowed to display 
-        //$rList          = $s['type'] === 'contextual' ? array($this->resourceName) : array_keys($this->data['_resources']);
         $rList          = $s['type'] === 'contextual' 
                             ? array($this->resourceName) 
                             : !empty($this->data['current']['user']['auths']['__can_display'])
-                                ? $this->data['current']['user']['auths']['__can_display'] 
-                                //? array_intersect(array_keys($this->data['_resources']), $this->data['current']['user']['auths']['__can_display']) 
+                                ? $this->data['current']['user']['auths']['__can_display']  
                                 : array();
         
         // Get searchable resources and searchable colums for each one of them
         foreach ( $rList as $resource )
         {
             // For contextual search
-            //if ( empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
             if ( $s['type'] === 'global' && empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
             
             $r              = &$resource;                       // Shortcut for the current resource name
@@ -357,19 +352,13 @@ class AdminView extends View
                 ),
                 'search' => array_merge($s, array(
                     'allowed'       => !empty($cols),
-                    //'criteria'  => array(), // TODO
                     'totalResults'  => count($results),
                 )),
             ));
-            
-//var_dump($results);
         }
         // Second case, global search on every searchable resource on every searchable columns
         else
         {
-        	//$rNb 		= 0; 	// resource count (increased for every searched resource)
-        	//$colsNb 	= 0; 	// columns count (increased for every searched columns)
-			
             // Instanciate searchable resources and get search results for each one of them
             foreach ( array_keys($searchable) as $rName )
             {
@@ -388,37 +377,22 @@ class AdminView extends View
 				
 	            foreach ($cols as $col)
 	            {
-	                //$cond                           = array($col,'contains',$s['query'],'or');
-	                $cond                           = array($col,'contains',$s['query']);
-	                
-	                # Handle parenthesis wrappers for 'OR' conditions
-	                //if 		( $i === 0 && $colsCount === 1 ){ $cond[] = ''; }
-					//elseif 	( $i === 0 && $colsCount > 1 )  { $cond[] = ''; $cond[] = 'first'; }
-					//else if ( $i === $colsCount-1 )     		{ $cond[] = 'or'; $cond[] = 'last'; }
-					//else                                		{ $cond[] = 'or'; }
+	                $cond = array($col,'contains',$s['query']);
 					
 	                if 		( $i === 0 ) 						{ $cond[] = ''; $cond['before'] = '('; }
 					else if ( $i === $colsCount-1 )     		{ $cond[] = 'or'; $cond['after'] = ')'; }
 					else                                		{ $cond[] = 'or'; }
 					
 					if ( $colsCount === 1 ) 					{ $cond['after'] = ')'; }
-					
-					// 
-					//if 		( $colsNb === 0  ) 	{ $cond['before'] = (isset($cond['before']) ? $cond['before'] : '') . '('; }
 	                
 	                $this->options['conditions'][]  = $cond;
 	                $i++;
-					//$colsNb++;
 	            }
              
                 $this->events->trigger('onBeforeSearch' . ucfirst($rName), array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 
                 $count      = $$cName->index(array_merge($this->options, array('mode' => 'count')));
-                //$results    = $$cName->search(array_merge($this->options, array('limit' => '-1')));
                 $results    = $$cName->search(array_merge($this->options, array('limit' => 25)));
-                //$count      = count($results);
-                
-//var_dump($rName . ' count: ' . $count);
                 
                 $s['groups'][$rName] = array(
                     'results'   => $results,
@@ -441,16 +415,6 @@ class AdminView extends View
 			$this->options['conditions'] = array();  
 
             $curURL     = $this->currentURL();
-
-            /*
-            // TODO: handle search query properly
-            $tmpCriteria    = explode(',', $sQuery);
-            $criteria       = !empty($sQuery) ? $criteria + array(
-                array('type' => 'or', 'resources' => 'machines', 'columns' => array('code', 'number', 'model'), 'operator' => '=', 'values' => $values),
-                array('type' => 'or', 'resources' => 'technicians', 'columns' => array('firstname','lastname','email'), 'operator' => '=', 'values' => $values),
-                array('type' => 'or', 'resources' => 'commercials', 'columns' => array('firstname','lastname','email'), 'operator' => '=', 'values' => $values),
-            ) : $critera;
-            */
         }
         
         $hasRes     = !empty($s['totalResults']);
@@ -466,10 +430,9 @@ class AdminView extends View
     public function search()
     {
         $this->log(__METHOD__);
-        
+		
         $this->handleSearch();
         
-        //if ( $this->data['search']['type'] === 'contextual' ){ $this->data['view']['template'] = 'specific/pages/admin/resource/search.tpl'; }
 		$this->data['view']['template'] = 'specific/pages/admin/resource/search.tpl';
         
         $this->handleRelations();
@@ -494,8 +457,6 @@ class AdminView extends View
         {
             $this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));    
         }
-		
-		$this->log(__METHOD__);
         
         $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
@@ -582,9 +543,7 @@ class AdminView extends View
 		
 		$this->events->trigger('onAfterCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
-		$this
-			//->paginate()
-			->beforeRender(array('function' => __FUNCTION__));
+		$this->beforeRender(array('function' => __FUNCTION__));
 		
 		return $this->render();
 	}
@@ -594,14 +553,10 @@ class AdminView extends View
 	{
         $this->log(__METHOD__);
         
-		$args 				= func_get_args(); 						// Get the passed arguments
-        //$this->resourceId     = !empty($args[0]) ? $args[0] : null;   // Assume that the first argument passed if the resource identifier
-        $this->resourceId     = !empty($args[0]) 
-                                  ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
-                                  : null;           // Assume that the first argument passed if the resource identifier
-		
-		// Log current method
-		$this->log(__METHOD__);
+		$args 				= func_get_args(); 						// Get the passed arguments 
+		$this->resourceId 	= !empty($args[0]) 
+								? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] ) 
+								: null;           					// Assume that the first argument passed if the resource identifier
 		
 		$data = $this->C->retrieve(array('values' => $this->resourceId));
 		
@@ -614,7 +569,6 @@ class AdminView extends View
 			foreach ($data as $key => $val){ $_POST[$this->resourceSingular . ucfirst($key)] = $val; }
 
 			// Create the duplicata from POST data and get returned id
-			//$this->resourceId = $this->C->create(array('returning' => 'id'))->data;
 			$this->resourceId = $this->C->create(array('returning' => 'id'));
 		}
 		
@@ -624,12 +578,8 @@ class AdminView extends View
 			'errors'				=> $this->C->errors,
 			'warnings' 				=> $this->C->warnings,
 		));
-		
-//var_dump($this->data);
 
-		$this
-			//->paginate()
-			->beforeRender(array('function' => __FUNCTION__));
+		$this->beforeRender(array('function' => __FUNCTION__));
 			
 		return $this->render();
 	}
@@ -640,36 +590,39 @@ class AdminView extends View
 	{
         $this->log(__METHOD__);
         
-		$args 				= func_get_args(); 						// Get the passed arguments
-        //$this->resourceId     = !empty($args[0]) ? $args[0] : null;   // Assume that the first argument passed if the resource identifier
-        $this->resourceId     = !empty($args[0]) 
-                                  ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
-                                  : null;           // Assume that the first argument passed if the resource identifier
+		$args 				= func_get_args(); 										// Get the passed arguments 
+		$rIds 				= !empty($args[0]) ? Tools::toArray($args[0]) : null;   //
+		$d 					= &$this->data; 										// Shortcut to data
+		$rName 				= $this->resourceName; 									// Shortcut to current resource name
+		$evt 				= array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__));
 		
-		// Log current method
-		$this->log(__METHOD__);
+		$this->resourceId 	= $rIds;
+		
+$this->dump($rIds);
         
-        $this->events->trigger('onBeforeRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+        $this->events->trigger('onBeforeRetrieve', $evt);
 		
 		// Check for crudability
-		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
-		if ( !empty($meta) && strpos($meta['crudability'], 'R') === false ){ $this->redirect($meta['fullAdminPath']); }
+		$this->_isCRUDable('R') || $this->redirect(_URL_ADMIN . $rName . '/');
 		
 		// Set output data		
-		$this->data = array_merge($this->data, array(
-			//$this->resourceName 	=> $this->C->retrieve(array('values' => $this->resourceId)),
-			$this->resourceName  => $this->C->retrieve(array('by' => 'id', 'values' => $this->resourceId)),
-			'resourceId' 			=> $this->resourceId,
+		$d = array_merge($d, array(
+			//$rName  		=> $this->C->retrieve(array('by' => 'id', 'values' => $rIds)),
+			$rName  		=> $this->C->index(array('by' => 'id', 'values' => $rIds, 'limit' => count($rIds))),
+			'resourceId' 	=> $rIds,
 		));
+		$d['total'][$rName] = count($d[$rName]);
 
-		$this
-			->paginate()
-			->beforeRender(array('function' => __FUNCTION__));
+$this->dump('here1');
+$this->dump($d[$rName]);
 		
-//$this->dump($this->data);
+		if ( count($d[$rName]) === 1 ) { $this->paginate(); }
+
+		$this->beforeRender(array('function' => __FUNCTION__));
 		
 		return $this->render();
 	}
+	
 	
 	
 	//public function update($resourceId = null, $options = null)
@@ -677,17 +630,18 @@ class AdminView extends View
 	{
         $this->log(__METHOD__);
         
-		$args 				= func_get_args(); 						// Get the passed arguments
-		//$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	        // Assume that the first argument passed if the resource identifier 
-		$this->resourceId     = !empty($args[0]) 
-		                          ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
-                                  : null;           // Assume that the first argument passed if the resource identifier
+		$args 				= func_get_args(); 										// Get the passed arguments 
+		$rIds 				= !empty($args[0]) ? Tools::toArray($args[0]) : null;   //
+		$d 					= &$this->data; 										// Shortcut to data
+		$rName 				= $this->resourceName; 									// Shortcut to current resource name
+		$evt 				= array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__));
 		
-		$this->events->trigger('onBeforeUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->resourceId 	= $rIds;
+		
+		$this->events->trigger('onBeforeUpdate', $evt);
 		
 		// Check for crudability
-		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
-		if ( !empty($meta) && strpos($meta['crudability'], 'U') === false ){ $this->redirect($meta['fullAdminPath']); }
+		$this->_isCRUDable('U') || $this->redirect(_URL_ADMIN . $rName . '/');
 		
 		$this->handleRelations();
 		
@@ -695,8 +649,8 @@ class AdminView extends View
 		if ( !empty($_GET['forceFileDeletion']) && !empty($args[1]) )
 		{
 			$fName 			= $args[1]; 					// Shortcut for file field name
-			//$rFields 		= !empty($this->resourceName) ? $this->dataModel['resourcesFields'][$this->resourceName] : null;
-			$rFields 		= !empty($this->resourceName) ? $this->data['dataModel'][$this->resourceName] : null;
+			//$rFields 		= !empty($rName) ? $this->dataModel['resourcesFields'][$rName] : null;
+			$rFields 		= !empty($rName) ? $this->data['dataModel'][$rName] : null;
 			
 			if ( isset($rFields[$fName]) && $rFields[$fName]['subtype'] === 'file' )
 			{
@@ -710,17 +664,18 @@ class AdminView extends View
 		// If the resource update form has been posted
 		if ( !empty($_POST) )
 		{			
-			$this->C->update(array('values' => $this->resourceId));
+			$this->C->update(array('values' => $rIds));
 		}
 
 		$this->data = array_merge($this->data, array(
-			'success' 				=> $this->C->success, 
-			'errors'				=> $this->C->errors,
-			'warnings' 				=> $this->C->warnings,
-			//$this->resourceName => $this->C->retrieve(array('values' => $this->resourceId)),
-			$this->resourceName 	=> !empty($this->resourceId) ? $this->C->retrieve(array('values' => $this->resourceId)) : null,
-			'resourceId' 			=> $this->resourceId,
+			'success' 		=> $this->C->success, 
+			'errors'		=> $this->C->errors,
+			'warnings' 		=> $this->C->warnings,
+			//$rName 			=> !empty($rIds) ? $this->C->retrieve(array('values' => $rIds)) : null,
+			$rName  		=> $this->C->index(array('by' => 'id', 'values' => $rIds, 'limit' => count($rIds))),
 		));
+		
+		$d['total'][$rName] = count($d[$rName]);
 		
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
@@ -731,12 +686,11 @@ class AdminView extends View
 			$successRedir = !empty($_POST['successRedirect']) ? $_POST['successRedirect'] : false;
 			
 			// Trigger proper events
-			$this->events->trigger('onUpdateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->events->trigger('onUpdateSuccess', $evt);
 			
 			if ( !empty($_GET['forceFileDeletion']) )
 			{
 				$curURL 	= $this->currentURL();
-				//$cleanURL 	= $this->removeQueryParams('forceFileDeletion', $curURL);
 				$cleanURL   = Tools::removeQueryParams('forceFileDeletion', $curURL);
 				
 				$this->redirect($cleanURL);
@@ -748,14 +702,14 @@ class AdminView extends View
 		}
 		else
 		{
-			$this->events->trigger('onUpdateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->events->trigger('onUpdateError', $evt);
 		}
 		
-		$this->events->trigger('onAfterUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->events->trigger('onAfterUpdate', $evt);
 
-		$this
-			->paginate()
-			->beforeRender(array('function' => __FUNCTION__));
+		$this->paginate();
+		
+		$this->beforeRender(array('function' => __FUNCTION__));
 		
 		return $this->render();
 	}
@@ -767,22 +721,18 @@ class AdminView extends View
         $this->log(__METHOD__);
         
 		$args 				= func_get_args(); 						// Get the passed arguments
-		//$this->resourceId 	= !empty($args[0]) ? $args[0] : null; 	// Assume that the first argument passed if the resource identifier
-        $this->resourceId     = !empty($args[0]) 
+        $this->resourceId 	= !empty($args[0]) 
                                   ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
                                   : null;           // Assume that the first argument passed if the resource identifier
 		
 		$this->events->trigger('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Check for crudability
-		$meta = !empty($this->data['meta']) ? $this->data['meta'] : null;
-		if ( !empty($meta) && strpos($meta['crudability'], 'D') === false ){ $this->redirect($meta['fullAdminPath']); }		
-
+		$this->_isCRUDable('D') || $this->redirect(_URL_ADMIN . $rName . '/');		
 
 		// Get to be deleted data
 		$this->data = array_merge($this->data, array(
-			'resourceId' 		=> $this->resourceId,
-			//$this->resourceName => $this->C->retrieve(array('values' => $this->resourceId)),
+			'resourceId' 			=> $this->resourceId,
 			$this->resourceName 	=> !empty($this->resourceId) ? $this->C->retrieve(array('values' => $this->resourceId)) : null,
 		));
 		
@@ -879,7 +829,6 @@ class AdminView extends View
 		}
 		else { $tmp = ''; }
 		
-		//$method = !empty($this->data['current']['method']) ? $this->data['current']['method'] : 'index';
 		$method = !empty($this->data['view']['method']) ? $this->data['view']['method'] : 'index';
 		
 		return 'admin' . ucfirst($tmp) . ucfirst($method);
@@ -889,6 +838,8 @@ class AdminView extends View
 	public function render()
 	{		
 		$this->log(__METHOD__);
+
+$this->dump($this->data);
 				
 		return parent::render();
 	}
@@ -896,8 +847,6 @@ class AdminView extends View
 	public function prepareTemplate()
 	{
         $this->log(__METHOD__);
-		
-		//if ( !empty($this->options['dataOnly']) ){ return; }
         
 		$d = &$this->data;
 		$v = !empty($this->data['view']) ? $this->data['view'] : null; 	// Shortcut for view data
@@ -913,7 +862,6 @@ class AdminView extends View
 		}
 								
         $d = array_merge($d, array(
-            //'current'               => array_merge($this->data['current'], array(
             'current'               => array_merge( (isset($d['current']) ? $d['current'] : array()), array(
                 'offset'                    => $this->options['offset'],
                 'limit'                     => $this->options['limit'],

@@ -390,8 +390,11 @@ class Controller extends Application
 		$isIndex 	= $o['reindexBy'] === 'id' || ( !empty($rModel[$o['reindexBy']]['fk']) && $rModel[$o['reindexBy']]['fk']);
 		$isUnique 	= isset($o['isUnique']) ? $o['isUnique'] : ( $isIndex ? true : false );	// Will the new indexes containes unique values or arrays?
 		
-		foreach ($this->data as $item)
+		//foreach ($this->data as $item)
+		foreach ( array_key($this->data) as $key)
 		{
+			$item = $this->data[$key];
+			
 			// Set index key/name
 			if 			( $o['indexModifier'] === 'lower' )	{ $k = strtolower($item[$o['reindexBy']]); }
 			else if 	( $o['indexModifier'] === 'upper' )	{ $k = strtoupper($item[$o['reindexBy']]); }
@@ -568,7 +571,19 @@ class Controller extends Application
 			}
 			else
 			{
-				if ( !isset($f) || (isset($f['error']) && $f['error'] === 4) ) { return; }
+				//if ( !isset($f) || (isset($f['error']) && $f['error'] === 4) ) { return; }
+				if ( !isset($f) ) { return; }
+				
+				switch($f['error'])
+				{
+					case 0: break; // ok 
+					case 1: return; // file exceed upoad_max_filesize
+					case 3: break; // file partially uploaded
+					case 4: return; // no file uploaded
+					case 6: return; // Missing temp folder
+					case 7: return; // failed to write file
+					case 8: return; // a php extension stopped file upload
+				}
 						
 				class_exists('FileManager') || require(_PATH_LIBS . 'storage/FileManager.class.php');
 				

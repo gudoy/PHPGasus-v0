@@ -5,9 +5,11 @@
 {/if}
 <section id="adminSearchResultsBlock" class="section searchResultsBlock adminSearchResultsBlock">
 {if $search.totalResults && $search.type === 'global'}
+	{*
     <header class="titleBlock">
         <h3 class="title">{t}results{/t}</h3>
     </header>
+    *}
     {$currentDefined    = false}
     {foreach $search.groups as $groupName => $group}
     {$groupResource     = $group.resource}
@@ -16,15 +18,14 @@
     {$displayedCount    = count($group.results)}
     <div class="resultsGroup{if $group@first} first{/if}{if ($group@first && $group.results) || ($group.results && !$currentDefined)} expanded{$currentDefined=true}{/if}{if $group@last} last{/if}">
         <header class="groupTitle">
-            <h4 class="title">
+            <h3 class="title">
                 <a href="{$resultsURL}" class="value">{$groupName}</a>
-            </h4>
+            </h3>
             <nav class="actions">
                 {* if $group.results && ($displayedCount != $group.count) *}
                 {include file='common/blocks/actionBtn.tpl' class="action go" href=$resultsURL label={'all'}}
                 {* /if *}
             </nav>
-            {if $displayedCount || $group.count}
             <span class="counts countsBlock">                
                 <span class="key">{t}counts{/t}</span>
                 {if $displayedCount}
@@ -33,14 +34,11 @@
                     <span class="value">{$displayedCount}</span>
                 </span>
                 {/if}
-                {if $group.count}
                 <span class="totalCount">
                     <span class="key">{t}total{/t}</span>
                     <span class="value">{$group.count|default:0}</span>
                 </span>
-                {/if}
             </span>
-            {/if}
         </header>
         {if $group.results}
         <div class="adminBlock adminListingBlock resultsTableBlock">

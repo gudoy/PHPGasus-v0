@@ -28,6 +28,11 @@ class VAdmin extends AdminView
 		$this->render();
 	}
 	
+	public function search()
+	{
+		parent::search();
+	}
+	
 	
     public function dashboard()
     {

@@ -41,7 +41,7 @@
 					count:{$data[$relResource]|@count}<br/>
 					*}
 {*
-						{$relPostFieldName=$data.meta.singular|cat:{$pivotRightField|ucfirst}}
+						{$relPostFieldName = $data._resources[$resourceName].singular|cat:{$pivotRightField|ucfirst}}
 						<input type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggest{$resourceFieldName}"{/if} class="normal search" />
 						<input type="hidden" name="{$relPostFieldName}" id="{$relPostFieldName}" />
 						{$labelField=$resources[$relResource].defaultNameField}

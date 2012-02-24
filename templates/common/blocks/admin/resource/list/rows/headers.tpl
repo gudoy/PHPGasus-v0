@@ -3,7 +3,7 @@
 	<th class="col actionsCol"><span class="title">{t}Actions{/t}</span></th>
 	{foreach $rModel as $fieldName => $field}
 	{$isSorted 				= ($data.current.urlParams.sortBy === $fieldName)}
-	{$isDefaultNamefield 	= ($data.meta.defaultNameField === $fieldName)}
+	{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $fieldName)}
 	{$orderBy 				= "{if $data.current.urlParams.orderBy === 'asc'}desc{else}asc{/if}"}
 	{$queryParams 			= array_merge($data.current.urlParams, ['sortBy' => null, 'orderBy' => null])}
     {$newPageURL 			= {$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($queryParams)}}

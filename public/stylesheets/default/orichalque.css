@@ -75,7 +75,7 @@ thead .sort.asc:before,
 .action .value { display:block; text-indent:-9999em; }
 form .buttonsLine .action { width:auto; }
 
-.toolbar .group { display:inline-block; margin-right:10px; vertical-align:middle; }
+.toolbar .group { display:inline-block; margin-left:10px; margin-right:10px; vertical-align:middle; }
 .toolbar .group:last-of-type { margin-right:0; }
 .toolbar .itemsCounts fieldset { display:inline-block; vertical-align:middle; }
 .toolbar .itemsCounts select { margin:0; } 
@@ -112,6 +112,10 @@ form .buttonsLine .action { width:auto; }
 .toolbar .settings .group .action .value { display:inline-block; }
 
 .toolbar .settings .groups { background-color:#DEE4EA; border:1px solid #999; }
+
+.adminIndex .actions .createButtons, 
+.adminIndex .editMode .toolbar .filterButtons { display:none; }
+.adminIndex .editMode .createButtons { display:inline-block; }
 
 
 .lang > a { padding-left:20px; }
@@ -323,7 +327,7 @@ table thead .sort:before { width:8px; height:5px; display:inline-block; content:
 .adminTable td.goToCol .value { text-align:left; }
 .adminTable tbody td:hover .dataValue { /*width:100%;*/ min-width:50%; }
 .adminTable td.actionsCol .action,
-.adminTable td.colSelectResources input { opacity:.1; }
+.adminTable td.colSelectResources input { opacity:.3; }
 .adminTable tr:hover td.actionsCol .action,
 .adminTable tr:hover td.colSelectResources input,
 .adminTable tr.ui-selected td.colSelectResources input { opacity:1; }
@@ -475,9 +479,9 @@ header .paginationBlock { float:right; }
 	#mainCol:after { clear:both; }
     
     /* Buttons */
-	.toolbar .action,
+	/*.toolbar .action,
 	.titleBlock .action,
-	.actionsCol .action { min-width:16px; }
+	.actionsCol .action { min-width:16px; }*/
 	/*.toolbar .paginationButtons .actions .action { width:16px; padding:0 0 0 16px; }*/
 
 	.adminTable th[data-importance="1"],
@@ -508,7 +512,7 @@ header .paginationBlock { float:right; }
 	.adminCreateBlock form,
 	.adminUpdateBlock form { margin:10px; max-width:640px; }
 	
-	/* Experimental layout */
+	/* Flexbox layout (start) */
     /* Opera does not support flex box module (04/11, current version 11.50): fallback to displays table/table-cell */
     /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
 	/* IE < 9 does not support table-cell: NO fallback, go hell */
@@ -517,24 +521,44 @@ header .paginationBlock { float:right; }
 	html.api body,
 	html.admin body { overflow:hidden; overflow-x:hidden; overflow-y:hidden; }
 	.api #layout,
-	.admin #layout { max-height:100%; display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	.admin #layout,
 	.api #body,
-	.admin #body { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
+	.admin #body,
+	.api #sideCol,
+	.admin #sideCol,
 	.api #mainCol,
-    .admin #mainCol { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
-    .api #sideCol,
-	.admin #sideCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
-	.api #sideCol #asideContent,
-	.admin #sideCol #asideContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+	.admin #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; }
+	
+	.api #layout,
+	.admin #layout,
+	.api #sideCol,
+	.admin #sideCol,
 	.api #mainCol,
-	.admin #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
-	.api #mainCol #mainColContent,
-	.admin #mainCol #mainColContent { overflow:hidden; overflow-y:auto; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
+	.admin #mainCol { -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	
+	.api #body,
+	.admin #body { -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
+	
+	.api #body,
+	.admin #body,
+	.api #mainCol,
+    .admin #mainCol,
+    .api #sideCol #asideContent,
+	.admin #sideCol #asideContent,
+	#mainColContent { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
 
 	html.api.no-flexbox,
 	html.admin.no-flexbox,
 	html.api.no-flexbox body,
-	html.admin.no-flexbox body { overflow:auto; overflow-y:auto; }
+	html.admin.no-flexbox body,
+	.api #sideCol #asideContent,
+	.admin #sideCol #asideContent { overflow:auto; overflow-y:auto; }
+	
+	.api #layout,
+	.admin #layout { max-height:100%; }
+	.api #mainCol #mainColContent,
+	.admin #mainCol #mainColContent { /*overflow:hidden;*/ overflow-x:auto; overflow-y:auto; }
+
 	.api.no-flexbox #layout,
 	.admin.no-flexbox #layout { max-height:auto; }
 	.no-flexbox #body { width:100%; min-height:90%; display:table; }
@@ -542,8 +566,8 @@ header .paginationBlock { float:right; }
 	.no-flexbox #mainCol { margin-left:0; display:table-cell; position:relative; vertical-align:top; }
 	.no-flexbox footer.menu { position:absolute; left:0; right:0; bottom:0; }
 	
-	/* Fix for gecko to force it to size the box correctly */
-	.flexbox.gecko #mainColContent { min-height:1px; }
+	.flexbox.gecko #mainColContent { min-height:1px; } /* Fix for gecko to force it to size the box correctly */
+	/* Flexbox layout (start) */
 }
 
 /* 1280 x 1024 */
@@ -552,10 +576,12 @@ header .paginationBlock { float:right; }
     #sideCol,
     #sideCol.expanded { width:320px; }
     
+    /*
     .toolbar .settings .group .action:hover .value,
 	.toolbar .settings .group .action.hover .value { margin:0; padding:0; position:static; background:none; border:none; font-weight:normal; text-transform:none; }
 	.toolbar .settings .group .action:hover .value:before,
 	.toolbar .settings .group .action.hover .value:before { display:none; }
+	*/
 }
 
 /* 1600 x 1200 */

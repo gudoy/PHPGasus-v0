@@ -1466,7 +1466,7 @@ class View extends Application implements ViewInterface
 			$this->data['current']['user'] = $user;
 		}
 		
-$this->dump($this->data);
+//$this->dump($this->data);
 		
 		if ( isset($v['cache']) && !$v['cache'] ){ $this->Smarty->caching = 0; }  
 

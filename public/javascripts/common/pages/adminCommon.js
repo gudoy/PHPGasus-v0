@@ -223,9 +223,12 @@ var admin =
 	                            rule            = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }",
 	                            $resultsCtnr    = $('#adminSearchResultsBlock'), 
 	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
-	                            $dest           = $resultsCtnr.length ? $resultsCtnr : ( $('#mainColContent').length ? $('#mainColContent') : $('#mainCol') );
+	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : ( $('#mainColContent').length ? $('#mainColContent') : $('#mainCol') );
+	                            $dest 			= $('#mainColContent');
 	                        
 	                        // Insert updated content
+	                        //$dest.html($(r));
+	                        $('#mainColHeader').replaceWith($(r).find('#mainColHeader'));
 	                        $dest.html($(r));
 	                        
 	                        // Remove Loading Indicators
