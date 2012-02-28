@@ -1,18 +1,3 @@
-{block name='adminUpdateBlockHeader'}
-<header class="titleBlock">
-	{block name='adminUpdateBlockTitle'}
-	<h2 class="title">
-        <a href="{$smarty.const._URL_ADMIN}{$resourceName}" class="{$resourceName}" id="resourceName" data-singular="{$data._resources[$resourceName].singular}">
-			{$resourceName} - {$resource.id}
-		</a>
-	</h2>
-	{/block}
-	<span class="nav actions actionsBlock">
-		{include file='common/blocks/admin/resource/actions/actions.tpl'}
-	</span>
-</header>
-{/block}
-
 <div class="contentBlock">
 
 	{block name='adminUpdateContent'}

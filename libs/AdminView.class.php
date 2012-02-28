@@ -720,12 +720,15 @@ $this->dump($d[$rName]);
 	{
         $this->log(__METHOD__);
         
-		$args 				= func_get_args(); 						// Get the passed arguments
-        $this->resourceId 	= !empty($args[0]) 
-                                  ? ( is_array($args[0]) && count($args[0]) === 1 ? $args[0][0] : $args[0] )
-                                  : null;           // Assume that the first argument passed if the resource identifier
+		$args 				= func_get_args(); 										// Get the passed arguments 
+		$rIds 				= !empty($args[0]) ? Tools::toArray($args[0]) : null;   //
+		$d 					= &$this->data; 										// Shortcut to data
+		$rName 				= $this->resourceName; 									// Shortcut to current resource name
+		$evt 				= array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__));
 		
-		$this->events->trigger('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		$this->resourceId 	= $rIds;
+		
+		$this->events->trigger('onBeforeDelete', $evt);
 		
 		// Check for crudability
 		$this->_isCRUDable('D') || $this->redirect(_URL_ADMIN . $rName . '/');		
@@ -733,8 +736,11 @@ $this->dump($d[$rName]);
 		// Get to be deleted data
 		$this->data = array_merge($this->data, array(
 			'resourceId' 			=> $this->resourceId,
-			$this->resourceName 	=> !empty($this->resourceId) ? $this->C->retrieve(array('values' => $this->resourceId)) : null,
+			//$rName 				=> !empty($rIds) ? $this->C->retrieve(array('values' => $rIds)) : null,
+			$rName  				=> $this->C->index(array('by' => 'id', 'values' => $rIds, 'limit' => count($rIds))),
 		));
+		
+		$d['total'][$rName] = count($d[$rName]);
 		
 		// If the confirmation param has been passed
 		//if ( $_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['confirm']) && $_GET['confirm']) )
@@ -743,7 +749,8 @@ $this->dump($d[$rName]);
 			|| ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST['confirm'] && $this->isCSRFTokenValid()) )
 		{
 			// Launch the deletion
-			$this->C->delete(array('values' => $this->resourceId));
+			//$this->C->delete(array('values' => $this->resourceId));
+			$this->C->delete(array('by' => 'id', 'values' => $rIds, 'limit' => count($rIds)));
 			
 			// Set output data		
 			$this->data = array_merge($this->data, array(
@@ -902,7 +909,7 @@ $this->dump($this->data);
 		// Log the performed action
 		$oldPOST = $_POST;
 		$log = array(
-			//'slug' 			=> '',
+			'slug' 				=> $p['action'] . ucfirst($p['resource_name']) . $p['resource_id'],
 			'action' 			=> $p['action'],
 			'resource_name' 	=> $p['resource_name'],
 			'resource_id' 		=> $p['resource_id'],

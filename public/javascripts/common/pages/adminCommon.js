@@ -1575,6 +1575,16 @@ var adminIndex =
 	       //toolbarsContext = '.adminListToolbar';
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
 	       
+	    $('nav').filter('.actions ').find('.settings').click(function(e)
+	    {
+	    	e.preventDefault();
+	    	e.stopPropagation();
+			
+			var $t 	= $(e.target); 
+
+	    	if ( $t.hasClass('settings') || $t.is('.settings > .title')  ) { console.log('click settings'); $(this).toggleClass('active'); }
+	    })
+	       
 	    $(toolbarsContext)
 		    .each(function()
 		    {

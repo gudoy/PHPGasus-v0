@@ -33,6 +33,19 @@
 		{/foreach}
 	</ul>
 	{/if}
+{elseif $field.type === 'set'}
+	{if strlen(join(',',$value)) > 40}
+	<details>
+		<summary>({count($value)} {t}items{/t})</summary>
+		{foreach $value as $item}
+		<span class="item">{$item}</span>
+		{/foreach}
+	</details>
+	{else}
+		{foreach $value as $item}
+		<span class="item">{$item}</span>
+		{/foreach}
+	{/if}
 {else}
 	{$value|default:'&nbsp;'}
 {/if}

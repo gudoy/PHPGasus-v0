@@ -11,7 +11,7 @@
 		</span><span class="breadcrumb item" itemprop="child" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
 			<a rel="up" href="{$smarty.const._URL_ADMIN}" itemprop="url"><span class="value" itemprop="title">{t}admin{/t}</span></a>
 		</span><span class="breadcrumb item" itemprop="child" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
-			<a rel="" href="{$smarty.const._URL_ADMIN}{$resourceName}" itemprop="url"><span class="value" itemprop="title">{$resourceName}</span></a>
+			<a rel="" href="{$smarty.const._URL_ADMIN}{$resourceName}" itemprop="url"><span class="value" itemprop="title">{$data._resources[$resourceName].displayName|default:$resourceName}</span></a>
 		</span>
 	</nav>
 	{/block}
@@ -38,7 +38,7 @@
 <section class="adminSection adminIndexSection admin{$resourceName|ucfirst}IndexSection">
 
 	<form class="adminForm adminIndexForm" id="frmAdmin{$resourceName|capitalize}" action="{$smarty.const._URL_ADMIN}{$resourceName}?method=index" class="commonForm" method="post" enctype="multipart/form-data">
-	{include file='common/blocks/admin/resource/list.tpl'}
+	{include file='common/blocks/admin/resource/list/list.tpl'}
 	</form>
 	
 </section>

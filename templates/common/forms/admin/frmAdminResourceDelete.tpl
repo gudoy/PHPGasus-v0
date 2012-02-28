@@ -6,7 +6,7 @@
 		<legend><span class="value">{t}Delete resource{/t}</span></legend>
 		
 		<p class="notification warning">
-			{t}Are you sure you want to delete the following resource(s){/t}{t}:{/t} {$data.resourceId}
+			{t}Are you sure you want to delete the following resource(s){/t}{t}:{/t} {join(',', (array)$data.resourceId)}
 		</p>
 	</fieldset>
 	

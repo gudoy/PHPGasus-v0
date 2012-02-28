@@ -71,7 +71,6 @@ thead .sort.asc:before,
 .toolbar .actions,
 .titleBlock .actions { display:inline-block; letter-spacing:-3px; }
 .actions .action { letter-spacing:normal; }
-/*.toolbar .paginationButtons .actions .action .value,*/
 .action .value { display:block; text-indent:-9999em; }
 form .buttonsLine .action { width:auto; }
 
@@ -88,22 +87,23 @@ form .buttonsLine .action { width:auto; }
 .toolbar .paginationButtons fieldset,
 .toolbar .paginationButtons .value { display:inline-block; letter-spacing:normal; vertical-align:middle; }
 .toolbar .paginationButtons .firstLink,
-.toolbar .paginationButtons fieldset,
 .toolbar .paginationButtons .lastLink { display:none; }
-.toolbar .paginationButtons .action.paginationLink.nextLink { border-right-width:0; } 
-.toolbar .paginationButtons:hover .firstLink,
-.toolbar .paginationButtons:hover fieldset,
-.toolbar .paginationButtons:hover .lastLink { display:inline-block; }
-.toolbar .paginationButtons:hover .action.paginationLink.nextLink { border-right-width:1px; }
+.toolbar .paginationButtons .action.paginationLink.nextLink { border-right-width:0; }
+
 .js .adminToolbar .itemsCounts .validateBtn { display:none; }
+
 .toolbar .settings { padding:4px 8px 4px 8px; display:none; background-size:auto; }
 .toolbar .settings > .title { width:16px; height:16px; display:inline-block; text-indent:-9999em; background-repeat:no-repeat; cursor:pointer; }
-.toolbar .settings .groups { min-width:240px; margin:0; position:absolute; display:none; right:0; top:100%; z-index:1000; }
+.toolbar .settings .groups { min-width:300px; margin:0; position:absolute; display:none; float:none; left:0; bottom:100%; z-index:1000; }
 .toolbar .settings.active { position:relative;  }
 .toolbar .settings.active .groups { display:block; }
+.adminListToolbar.bottom { text-align:center; }
+.adminListToolbar.bottom > .group { float:left; }
+.adminListToolbar.bottom .group.paginationButtons { float:right; }
+.adminListToolbar.bottom > .group.itemsCounts { display:none; }
 
-.toolbar .settings .groups { padding:10px; background:#E7E7E7; }
-.toolbar .settings .group { overflow:hidden; margin:0; padding:8px 0; display:block; clear:both; border-bottom:1px solid #5F5F5F; box-shadow:0 1px 1px rgba(255,255,255,0.6); }
+.toolbar .settings .groups { margin-bottom:10px; padding:0 20px 0; background:#fff; box-shadow:1px 1px 5px rgba(0,0,0,0.5); border-radius:5px; }
+.toolbar .settings .group { overflow:hidden; margin:0; padding:20px 0; display:block; clear:both; border-bottom:1px solid #5F5F5F; box-shadow:0 1px 1px rgba(255,255,255,0.6); }
 .toolbar .settings .group:last-of-type { border-bottom:none; box-shadow:none; }
 .toolbar .settings .group > .title { display:inline-block; float:left; text-transform:capitalize; }
 .toolbar .settings .group > .actions { float:right; }
@@ -113,9 +113,8 @@ form .buttonsLine .action { width:auto; }
 
 .toolbar .settings .groups { background-color:#DEE4EA; border:1px solid #999; }
 
-.adminIndex .actions .createButtons, 
+
 .adminIndex .editMode .toolbar .filterButtons { display:none; }
-.adminIndex .editMode .createButtons { display:inline-block; }
 
 
 .lang > a { padding-left:20px; }
@@ -191,10 +190,6 @@ form .buttonsLine .action { width:auto; }
 */
 
 a.relResourceLink 		{ background-size:6px; }
-
-/*
-.itemsCounts 			{ background-image:url("data:image/png;base64,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"); background-repeat:no-repeat; }
-*/
 
 .infos,
 .valid,
@@ -479,10 +474,11 @@ header .paginationBlock { float:right; }
 	#mainCol:after { clear:both; }
     
     /* Buttons */
-	/*.toolbar .action,
-	.titleBlock .action,
-	.actionsCol .action { min-width:16px; }*/
-	/*.toolbar .paginationButtons .actions .action { width:16px; padding:0 0 0 16px; }*/
+	.toolbar .paginationButtons .firstLink,
+	.toolbar .paginationButtons fieldset,
+	.toolbar .paginationButtons .lastLink { display:inline-block; }
+	.toolbar .paginationButtons .action.paginationLink.nextLink { border-right-width:1px; }
+	.toolbar .settings { display:inline-block; }
 
 	.adminTable th[data-importance="1"],
 	.adminTable td[data-importance="1"] { display:table-cell; }
