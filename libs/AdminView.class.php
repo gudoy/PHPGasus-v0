@@ -598,7 +598,8 @@ class AdminView extends View
 		
 		$this->resourceId 	= $rIds;
 		
-$this->dump($rIds);
+//$this->dump($rIds);
+//var_dump($args);
         
         $this->events->trigger('onBeforeRetrieve', $evt);
 		
@@ -613,8 +614,8 @@ $this->dump($rIds);
 		));
 		$d['total'][$rName] = count($d[$rName]);
 
-$this->dump('here1');
-$this->dump($d[$rName]);
+//$this->dump('here1');
+//$this->dump($d[$rName]);
 		
 		if ( count($d[$rName]) === 1 ) { $this->paginate(); }
 
@@ -846,7 +847,7 @@ $this->dump($d[$rName]);
 	{		
 		$this->log(__METHOD__);
 
-$this->dump($this->data);
+//$this->dump($this->data);
 				
 		return parent::render();
 	}

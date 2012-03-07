@@ -106,15 +106,15 @@ var_dump($result);
 	{
 		$this->headers = array(
 			'From' 							=> $this->from,
-			'Delivered-to' 					=> $this->to,
+			'Delivered-To' 					=> $this->to,
 			'Cc' 							=> $this->cc,
 			'Bcc' 							=> $this->bcc,
 			//'Cci' 							=> $this->cci,
-			'Reply-to' 						=> $this->replyTo,
+			'Reply-To' 						=> $this->replyTo,
 			'Return-Path' 					=> $this->from,
 			'Subject' 						=> $this->subject,
 			'MIME-Version' 					=> '1.0',
-			'Content-type' 					=> $this->format === 'html' ? ' text/html; charset=UTF-8' : ' text/plain; charset=UTF-8',
+			'Content-Type' 					=> $this->format === 'html' ? ' text/html; charset=UTF-8' : ' text/plain; charset=UTF-8',
 			//'Content-Transfer-Encoding' 	=> '8bit',
 			'X-Mailer' 						=> 'PHP/' . phpversion()
 		); 
@@ -190,8 +190,6 @@ echo $message;
 			$result 		= $this->Mail->send($this->to, $this->headers, $o['content']);
 			$this->success 	= $result === true;
 			$this->errors 	= !$this->success ? $result : array();
-			
-var_dump($this->headers);
 			
 			// TODO: handle PEAR error
 /*				

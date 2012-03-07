@@ -47,7 +47,7 @@ class VAccount extends View
 		
 		// If the user is already logged, do not continue & redirect him to the hub
 		if ( $this->isLogged() )
-		{			
+		{
 			$this->data['success'] = true;
 			return $this->redirect($redirURL);
 		}

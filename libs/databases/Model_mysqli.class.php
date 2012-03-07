@@ -1394,7 +1394,7 @@ class Model extends Application
 					{
 						// Launch the file upload
 						class_exists('FileManager') || require(_PATH_LIBS . 'storage/FileManager.class.php');
-						
+
 						$FileUpload = FileManager::getInstance()->uploadByFtp($d[$fieldName], array(
 							'destFolder' 	=> $destRoot . $destFolder,
 							'destName' 		=> $destName,
@@ -1518,7 +1518,8 @@ class Model extends Application
 			else if ( $field['type'] === 'float' )
 			{
 				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : 0 );
-				$tmpVal = !empty($d[$fieldName]) 
+				//$tmpVal = !empty($d[$fieldName]) 
+				$tmpVal = isset($d[$fieldName])
 							? $d[$fieldName] 
 							//: ( !empty($field['default']) ? $field['default'] : 0 );
 							: ( isset($field['default']) && !is_null($field['default']) ? $field['default'] : null );
@@ -1911,7 +1912,8 @@ class Model extends Application
 			{
 				//$value = "'" . $this->escapeString(  str_replace(',','.',(string)($d[$fieldName]))) . "'";
 				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : 0 );
-				$tmpVal = !empty($d[$fieldName]) 
+				//$tmpVal = !empty($d[$fieldName]) 
+				$tmpVal = isset($d[$fieldName])
 							? $d[$fieldName] 
 							//: ( !empty($field['default']) ? $field['default'] : 0 );
 							: ( isset($field['default']) && !is_null($field['default']) ? $field['default'] : null );
@@ -2158,6 +2160,7 @@ $tmpVal = isset($d[$fieldName])
 		// Loop over the passed conditions
 		foreach ($o['conditions'] as $key => $condition)
 		{
+//var_dump($key);
 //var_dump($condition);
 			// If the key is numeric, assume that the conditions array is associative
 			// matching the following pattern array($field1 => $values1, [...])
@@ -2244,39 +2247,18 @@ $tmpVal = isset($d[$fieldName])
 			
 			if ( in_array($usedOperator, array('IN','NOT IN')) )
 			{
-//var_dump('case 1.7');
-
-//var_dump($fields);
-//$this->dump($values);
-//var_dump($values);
-				
 				// Try to get the queried fields data
 				$qf     = !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
 				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
 				$opts 	+= array('values' => $values);
 				
-//var_dump($fields);
-//var_dump(Tools::toArray($fields));
-//if ( $fields === 'groups.admin_title' ){ var_dump($condition); die(); }
-				
 				$fields = Tools::toArray($fields);
-
-//var_dump($fields);
-//var_dump($values);
-//var_dump($output);
-
-
 				//$output .= $condKeyword . $oParenthesis;
 				$output .= $condKeyword . $before . $oParenthesis;
-
 				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
 				$output .= ' ' . $usedOperator . ' (' . $this->handleConditionsTypes($opts);
 				$output .= ') ';
-				
-				
-//var_dump($output);
-//if ( $condition[0] === 'groups.admin_title' ){ var_dump($condition); die(); }
 			}
 			elseif ( in_array($usedOperator, array('MATCH')) )
 			{
@@ -2300,8 +2282,6 @@ $tmpVal = isset($d[$fieldName])
 			// Case for single field & single value operators
 			else
 			{
-//var_dump('case 3');
-//if ( $fields === 'groups.admin_title' ){ var_dump($condition); die(); }
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -2337,9 +2317,6 @@ $tmpVal = isset($d[$fieldName])
                 $output .= $isValColname 
                 	? $values
                 	: $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col, 'operator' => $operator)) . ' ';
-					
-//var_dump($output);
-
 			}
 			
 			// Get conditions alternatives
@@ -2350,10 +2327,6 @@ $tmpVal = isset($d[$fieldName])
 			
             //$output .= $cParenthesis;
             $output .= $cParenthesis . $after;
-			
-$this->dump($output);
-//if ( $condition[0] === 'groups.admin_title' ){ $this->dump($condition); die(); }
-if ( $condition[0] === 'groups.admin_title' ){ $this->dump($condition); $this->dump($this->queryData); }
 			
 			$i++;
 		}
@@ -2465,7 +2438,7 @@ if ( $condition[0] === 'groups.admin_title' ){ $this->dump($condition); $this->d
 			$j = 0; 
 			foreach ( $o['values'] as $val )
 			{
-				$output .= ($j !== 0 ? ',' : '') . $this->handleTypes($val, $o);
+				$output .= ($j !== 0 ? ', ' : '') . $this->handleTypes($val, $o);
 				$j++;
 			}
 		}

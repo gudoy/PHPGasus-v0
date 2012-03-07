@@ -391,7 +391,7 @@ class Controller extends Application
 		$isUnique 	= isset($o['isUnique']) ? $o['isUnique'] : ( $isIndex ? true : false );	// Will the new indexes containes unique values or arrays?
 		
 		//foreach ($this->data as $item)
-		foreach ( array_key($this->data) as $key)
+		foreach ( array_keys($this->data) as $key)
 		{
 			$item = $this->data[$key];
 			

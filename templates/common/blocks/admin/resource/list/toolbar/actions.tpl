@@ -10,9 +10,9 @@
     {/if}
 </div>
 <div class="group actionsButtons">
-    <span class="title">{t}selection{/t}</span>
+    <span class="title">{t}actions{/t}</span>
     {if $userResPerms.allow_update || $userResPerms.allow_delete}
-    <span class="actions">
+    <span class="actions primary">
     {strip}
     	{if $userResPerms.allow_update}
         {$crudability = $data._resources[$resourceName].crudability|default:'CRUD'}
@@ -50,7 +50,7 @@
         <div class="group displayMode">
         	<span class="title">{t}display mode{/t}</span>
         	<span class="actions">
-	            <a class="action actionBtn displayMode tableMode" id="tableMode">
+	            <a class="action actionBtn displayMode tableMode current" id="tableMode">
 	                <span class="value">{t}table{/t}</span>
 	            </a>
 	            <a class="action actionBtn displayMode listMode" id="listMode">

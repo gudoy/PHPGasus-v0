@@ -6,7 +6,7 @@
 {$relField 				= $field.relField}
 {$relDisplayField 		= $field.relGetFields|default:$data._resources[$relResource].defaultNameField}
 {$relGetAs 				= $field.relGetAs|default:$relDisplayField}
-{$curVal 				= $postedVal|default:$data[$resourceName][$fieldName]}
+{$curVal 				= $postedVal|default:$resource[$fieldName]}
 
 {/strip}
 {if $data.total[$relResource] <= 25 || $field.uiWidget === 'select'}

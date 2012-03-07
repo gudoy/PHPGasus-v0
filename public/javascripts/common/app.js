@@ -38,28 +38,34 @@ var ui =
 		
 		$('#mainNavTitle').click(function(e){ e.preventDefault(); e.stopPropagation(); $(mainNavSel).toggleClass('expanded'); });
 		
-        $('#goToMyAccountDetailsLink').bind('click', function(e)
-        {
-            e.stopPropagation();
-            e.preventDefault();
-            
-            var $dtl = $(detailSel); 			// Shortcut for my account nav block detail 
-            
-            // If the detail is collapsed
-            if ( !$dtl.hasClass('expanded') )
-            {
-            	// Make any click outside of the block to collapse it
-				$('body').one('click', function(e)
-				{
-					var $t = $(e.target); 		// Shortcut for target 
-					
-					if ( !$t.closest(detailSel).length ){ $dtl.removeClass('expanded'); }
-				});
-            }
-           
-           // Otherwise, just expand it 
-			$dtl.addClass('expanded');
-        });
+		$('#header').find('#accountActions')
+        	//$('#accountActions')
+        	.bind('click', function(e)
+	        {
+	            e.stopPropagation();
+	            e.preventDefault();
+	            
+	            var $dtl = $(detailSel); 			// Shortcut for my account nav block detail 
+	            
+	            // If the detail is collapsed
+	            if ( !$dtl.hasClass('active') )
+	            {
+	            	// Make any click outside of the block to collapse it
+					$('body').one('click', function(e)
+					{
+						var $t = $(e.target); 		// Shortcut for target 
+						
+						if ( !$t.closest(detailSel).length ){ $dtl.removeClass('active'); }
+					});
+	            }
+	           
+	           // Otherwise, just expand it 
+				$dtl.addClass('active');
+	        });
+       
+       $('footer').find('#accountActions')
+       //$('#accountActions')
+       	.on('click', function(){ $(this).toggleClass('active'); });
         
         // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
         if ( $('html').hasClass('ff') ){ self.fixFirefoxFlexbox(); }
@@ -68,6 +74,7 @@ var ui =
 	},
 	
 	
+	/*
 	// Fix wrong flexbox layouting in Firefox when browser window does not use fullscreen
 	fixFirefoxFlexbox: function()
 	{
@@ -87,7 +94,7 @@ var ui =
         });
         
         return this;
-	},
+	},*/
 	
 	langChooser: function()
 	{

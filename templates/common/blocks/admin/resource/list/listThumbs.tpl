@@ -9,7 +9,7 @@
 <article class="resource" id="{$resourceName}{$resource.id}" data-id="{$resource.id}">
 	<figure>
 		{$src = $resource[$imageField]|default:$rProps.icon}
-		<img class="cover{if !$src || !file_exists($src)} default{/if}" src="{$src|default:"{$smarty.const._URL_STYLESHEETS}images/pix.png"}" />
+		<img class="cover{if !$src} default{/if}" src="{$src|default:"{$smarty.const._URL_STYLESHEETS}images/pix.png"}" />
 		<figcaption>
 			{$isReadable = (strpos($crudability, 'R')>-1)?1:0}
 			{if $isReadable}<a class="action primary goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{/if}<span class="title">{$resource[$nameField]|default:$resource.id}</span>{if $isReadable}</a>{/if}

@@ -34,6 +34,16 @@ class VAdmin extends AdminView
 	}
 	
 	
+	public function fixadminlogs()
+	{
+		//foreach (CAdminlogs::getInstance()->index(array('conditions' => array('slug' => ''))) as $item)
+		foreach (CAdminlogs::getInstance()->index() as $item)
+		{
+			$_POST = array('slug' => $item['action'] . ' ' . $item['resource_name'] . ' ' . @$item['resource_id']);
+			CAdminlogs::getInstance()->update(array('isApi' => 1, 'conditions' => array('id' => $item['id']))); 
+		}
+	}
+	
     public function dashboard()
     {
         $this->activity();

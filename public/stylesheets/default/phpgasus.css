@@ -171,11 +171,11 @@ form .hint .key { display:none; }
 .ui-inlineedit-form input { font-size:100%; font-family:inherit; color:inherit; vertical-align:middle; }
 .ui-inlineedit-form label { font-size:100%; line-height:inherit; }
 .ui-inlineedit-form input:focus { outline:none; }
-.ui-inlineedit-form .actionsBlock { margin-left:10px; display:inline-block; vertical-align:middle; }
-.ui-inlineedit-form.loading .actionsBlock { background:url(images/throbbers/ajax-loader-000000.gif) no-repeat 0 1px; }
-.ui-inlineedit-form.loading .actionsBlock > * { visibility:hidden; }
-.ui-inlineedit-form.status .actionsBlock { width:16px; height:16px; overflow:hidden; }
-.ui-inlineedit-form.status .actionsBlock > * { visibility:hidden; }
+.ui-inlineedit-form .actions { margin-left:10px; display:inline-block; vertical-align:middle; }
+.ui-inlineedit-form.loading .actions { background:url(images/throbbers/ajax-loader-000000.gif) no-repeat 0 1px; }
+.ui-inlineedit-form.loading .actions > * { visibility:hidden; }
+.ui-inlineedit-form.status .actions { width:16px; height:16px; overflow:hidden; }
+.ui-inlineedit-form.status .actions > * { visibility:hidden; }
 .commonTable tbody td.ui-inlineedit-active.success { background-color:#696; }
 .commonTable tbody td.ui-inlineedit-active.error { background-color:#C30; }
 .commonTable tbody td.ui-inlineedit-active.warning { background-color:#FC3; }

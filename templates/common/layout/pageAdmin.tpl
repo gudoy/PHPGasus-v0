@@ -19,7 +19,14 @@
 {block name='asideContent'}
 	
 	<div class="colContent asideContent" id="asideContent">
+		
 		{include file='common/blocks/admin/search/search.tpl'}
+		
+		<nav class="main mainNav" id="mainNav">
+			<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
+			{include file='common/blocks/header/nav/adminMainNav.tpl'}
+		</nav>
+		
 	</div>
 		
 {/block}
@@ -33,6 +40,12 @@
 			</li>
 			<li class="more" id="asideMoreOptions">
 				<a id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
+			</li>
+			<li class="group account accountActions myAccountNav" id="accountActions">
+				<span class="title">{t}account{/t}</span>
+				<div class="groups">
+				{include file='common/blocks/header/account/detail.tpl' user=$data.current.user}
+				</div>
 			</li>
 		</ul>
 	</footer>

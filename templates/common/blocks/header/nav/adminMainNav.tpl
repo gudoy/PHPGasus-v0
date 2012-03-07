@@ -2,19 +2,19 @@
 {$resources         = $data._resources}
 {$resourcesGroups   = $data._resourcesGroups}
 {if $useGroups && $resourcesGroups}
-<ul class="nav section main nav-lv1" id="adminMainNav">
+<ul class="nav main nav-lv1 resourceGroups" id="adminMainNav">
     {block name='adminMainNavItems'}
-    <li id="dashboardNavItem" class="item item-lv1{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
-        <a href="{$smarty.const._URL_ADMIN}"><span class="value">{t}dashboard{/t}</span></a>
+    <li id="dashboardNavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
+        <a href="{$smarty.const._URL_ADMIN}"><span class="value name">{t}dashboard{/t}</span></a>
     </li>
     {foreach $resourcesGroups as $gpName => $gpProps}
     {$gpDisplayName     = $gpProps.displayName|default:$gpName}
     {$gpAuthResources   = array_intersect((array) $gpProps.resources, (array) $data.current.user.auths.__can_display)}
     {if $gpProps.resources && !empty($gpAuthResources)}
-    <li id="{$gpName}NavItem" class="item item-lv1 resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
-        <a class="resourcesGroup" id="{$gpName}ResourcesGroupLink"><span class="value">{$gpDisplayName}</span></a>
+    <li id="{$gpName}NavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
+        <a id="{$gpName}ResourcesGroupLink"><span class="value name">{$gpDisplayName}</span></a>
         {if $gpProps.resources}
-        <ul class="nav nav-lv2 resourcesGroupList" id="{$gpName}ResourcesList">
+        <ul class="nav nav-lv2 resources resourcesGroupList" id="{$gpName}ResourcesList">
         {foreach $gpProps.resources as $k => $v}
         {strip}
         
@@ -26,7 +26,7 @@
             {$rUsed         = "{if $rType === 'filter' && $rProps.extends}$rProps.extends{else}$rName{/if}"}
             
             {if in_array($rUsed, $data.current.user.auths.__can_display)}
-            <li class="item item-lv2 resourceItem {if $rName === $data.current.resource}current{/if}"><a href="{$rAdminURL}"><span class="value">{$rDisplayName}</span></a></li>
+            <li class="item item-lv2 resource resourceItem {if $rName === $data.current.resource}current{/if}"><a class="action view" href="{$rAdminURL}"><span class="value name">{$rDisplayName}</span></a></li>
             {/if}
         {/strip}
         {/foreach}
@@ -38,18 +38,18 @@
     {/block}
 </ul>
 {else}
-<ul class="nav section main level1" id="adminMainNav">{strip}
+<ul class="nav main level1" id="adminMainNav">{strip}
     {block name='adminMainNavItems'}
     <li class="item item-lv1 {if empty($data.current.menu) || $data.current.menu === 'dashboard'}current{/if}">
-        <a href="{$smarty.const._URL_ADMIN}">{t}admin home{/t}</a>
+        <a href="{$smarty.const._URL_ADMIN}">{t}dashboard{/t}</a>
     </li>
     {foreach $resources as $k => $v}
     {if is_numeric($k) && isset($v['name'])}{$k=$v.name}{/if}
-    {$type =$v.type|default:'native'}
+    {$type = $v.type|default:'native'}
     {*if $type === 'filter'}{$usedResource=$v.extends}{else}{$usedResource=$k}{/if*}
-    {$usedResource=$k}
+    {$usedResource = $k}
     {if in_array($usedResource, $data.current.user.auths.__can_display)}
-    <li class="item item-lv1 {if $k === $data.current.resource}current{/if}"><a href="{$smarty.const._URL_ADMIN}{$k}/"><span class="value">{$v.displayName|default:$k}</span></a></li>
+    <li class="item item-lv1 resource {if $k === $data.current.resource}current{/if}"><a href="{$smarty.const._URL_ADMIN}{$k}/"><span class="value">{$v.displayName|default:$k}</span></a></li>
     {/if}
     {/foreach}
     {/block}

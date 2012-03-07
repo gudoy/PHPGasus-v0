@@ -1245,7 +1245,7 @@ var adminIndex =
 			})
 		
 		// Hide action buttons (since they only are necessary when items are selected)
-		$toolbars.find('.actionsButtons').hide()
+		//$toolbars.find('.actionsButtons').hide()
 		
 		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
         $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
@@ -1572,18 +1572,28 @@ var adminIndex =
 	handleToolbars: function()
 	{
 	    var self           = this;
-	       //toolbarsContext = '.adminListToolbar';
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
 	       
-	    $('nav').filter('.actions ').find('.settings').click(function(e)
-	    {
-	    	e.preventDefault();
-	    	e.stopPropagation();
-			
-			var $t 	= $(e.target); 
-
-	    	if ( $t.hasClass('settings') || $t.is('.settings > .title')  ) { console.log('click settings'); $(this).toggleClass('active'); }
-	    })
+	    $('nav').filter('.actions ')
+	    	.on('click', '.settings', function(e)
+		    {
+		    	var $t = $(e.target);
+		    	
+		    	e.stopPropagation();
+		    	
+		    	if ( $(e.target).is('select') ){ return; }
+		    	
+		    	if ( $t.hasClass('settings') || $t.is('.settings > .title')  ) { $(this).toggleClass('active'); }
+		    })
+		    .on('click', '.displayDensity', function(e)
+		    {
+		    	var $this = $(this);
+		    		
+		    	$this.addClass('current').siblings('.displayDensity').removeClass('current');
+				$('section').filter('.adminIndexSection').attr('data-density',$this.data('value'));
+				
+				//$this.closest('.settings').filter('.active').removeClass('active');
+		    })
 	       
 	    $(toolbarsContext)
 		    .each(function()
@@ -1709,7 +1719,7 @@ var adminIndex =
 					break;
 			}
 
-			this.buttonsHTML 	= '<div class="actions actionsBlock">'
+			this.buttonsHTML 	= '<div class="actions">'
 									+ '<button class="action save adminLink saveLink" type="submit" id="saveLink' + this.resId +'">save</button>'
 									+ '<button class="action cancel adminLink cancelLink" type="cancel" id="cancelLink' + this.resId +'">cencel</button>'
 								+ '</div>';
@@ -1765,7 +1775,7 @@ var adminIndex =
 					})
 					.focus()
 				.end()
-				.siblings('.actionsBlock')
+				.siblings('.actions')
 					.find('.saveLink')
 					.bind('click', function(e){ e.preventDefault(); e.stopPropagation(); self.save(); })
 					.siblings('.cancelLink')

@@ -29,7 +29,7 @@
 	<input type="file" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" class="sized file" {if !$editable || ($mode === 'create' && $field.computed)}disabled="disabled"{/if} />
 	<span class="or">{t}or{/t}</span>
 	<input type="text" class="normal" {if !$editable || ($mode === 'create' && $field.computed)}disabled="disabled"{/if} value="{$resource[$fieldName]}" />
-	<div class="nav actions actionsBlock buttonsBlock">
+	<div class="nav actions buttonsBlock">
 		{$repBntId='replace'|cat:{$resourceFieldName|ucfirst}|cat:'FileLink'}
 		{include file='common/blocks/actionBtn.tpl' mode='button' class='replace replaceFileLink' id=$repBntId label="{t}replace{/t}"}
 		<span class="or">{t}or{/t}</span>
