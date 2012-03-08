@@ -117,7 +117,28 @@ var admin =
             $LIlv1
                 .toggleClass('expanded')
                 .siblings().removeClass('expanded');
-		}); 
+		});
+		
+		$menu
+			.on('click', '.resourceGroup', function(e)
+			{
+				var $this 	= $(this),
+					$ul 	= $this.find('> ul').filter('.resources');
+				
+				if ( !$ul.length ) { return; }
+				
+				$this.attr('aria-expanded', !($this.attr('aria-expanded') == 'true') + '');
+			})
+			.find('.resourceGroup').each(function()
+			{
+				var $this 	= $(this);
+					$ul 	= $this.find('> ul'),
+					visible = $ul.is(':visible');
+
+				if ( !$ul.length ) { return; }
+				
+				$this.attr('aria-expanded', visible);
+			})
 		
 		return this;
 	},

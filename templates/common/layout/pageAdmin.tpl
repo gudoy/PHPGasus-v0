@@ -6,9 +6,11 @@
 
 {block name='accountNavLogoutLink'}{/block}
 
-{block name='mainNav'}
-{include file='common/blocks/header/nav/adminMainNav.tpl'}
-{/block}
+{block name='header'}{/block}
+
+{* block name='mainNav'}
+{include file='common/blocks/header/nav/adminMainNav.tpl' *}
+{/block *}
 
 {block name='accountNav'}{/block}
 
@@ -22,10 +24,13 @@
 		
 		{include file='common/blocks/admin/search/search.tpl'}
 		
+		{block name='mainNav'}
 		<nav class="main mainNav" id="mainNav">
 			<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
 			{include file='common/blocks/header/nav/adminMainNav.tpl'}
 		</nav>
+		{/block}
+		
 		
 	</div>
 		

@@ -196,7 +196,7 @@ html.delete,
 html.update { background:none; }
 
 
-/* Start Forms */
+/* Forms (start) */
 form .line.subtypeFile .actionBtn { margin-right:10px; text-transform:capitalize; }
 form .line.subtypeFile .or { display:none; }
 form .line.subtypeFile .actions { display:inline-block; }
@@ -222,7 +222,7 @@ form .line.subtypeFile .emptyValueMode.editFileUrlMode input.file { display:none
 .filtersRow select { min-width:1em; background-image:none; }
 .fieldBlock .current .empty { display:none; }
 .fieldBlock .actions { display:inline-block; } 
-/* End Form */
+/* Forms (end) */
 
 
 

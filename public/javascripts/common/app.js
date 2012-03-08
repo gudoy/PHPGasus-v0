@@ -1,9 +1,3 @@
-/** 
- * @projectDescription	This files defines the global app object
- *
- * @author Guyllaume Doyer guyllaume@clicmobile.com
- * @version 	0.1 
- */
 var ua 	= navigator.userAgent || null;
 var app = 
 {
@@ -70,11 +64,10 @@ var ui =
         // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
         if ( $('html').hasClass('ff') ){ self.fixFirefoxFlexbox(); }
 		
-		return this.langChooser().handleIphone().handleOrientation();
+		return this.langChooser().handleIos().handleOrientation();
 	},
 	
 	
-	/*
 	// Fix wrong flexbox layouting in Firefox when browser window does not use fullscreen
 	fixFirefoxFlexbox: function()
 	{
@@ -94,7 +87,7 @@ var ui =
         });
         
         return this;
-	},*/
+	},
 	
 	langChooser: function()
 	{
@@ -154,7 +147,7 @@ var ui =
 		return this;
 	},
 	
-	handleIphone: function()
+	handleIos: function()
 	{
 		// Hide the url bar
 		if ( app.isIphone || app.isIpad )
