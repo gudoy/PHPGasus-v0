@@ -1,6 +1,6 @@
 <nav class="mainNavBlock" id="mainNavBlock">
 	
-	<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
+	<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
 	
 	{include file='common/blocks/header/nav/main.tpl'}
 	

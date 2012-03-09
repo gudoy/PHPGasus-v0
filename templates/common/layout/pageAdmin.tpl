@@ -26,7 +26,7 @@
 		
 		{block name='mainNav'}
 		<nav class="main mainNav" id="mainNav">
-			<h2 class="title" id="mainNavTitle">{t}Menu{/t}</h2>
+			<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
 			{include file='common/blocks/header/nav/adminMainNav.tpl'}
 		</nav>
 		{/block}

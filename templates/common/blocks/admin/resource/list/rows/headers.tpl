@@ -10,13 +10,20 @@
 	{$displayed 			= ($lowCapDevice)?false:true}
 	{if $displayed}
 	{if $smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && ($field.type === 'onetoone' || $field.fk)}
-	<th class="col {$fieldName}Col typeInt fk{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$fieldName}Col" scope="col" data-importance="{$field.list|default:0}"><a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relField}</a></th>
-	<th class="col {$field.relGetAs}Col typeVarchar fk{if $isSorted}{if $isDefaultNamefield} defaultNameField{/if}  activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$field.relGetAs}Col" scope="col" data-importance="{$field.list|default:0}"><a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$field.relGetAs}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$field.relGetAs} {$orderBy}cending">{$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relGetFields}</a></th>
+	<th class="col {$fieldName}Col typeInt fk{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$fieldName}Col" scope="col" data-importance="{$field.list|default:0}">
+		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relField}</a>
+		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
+	</th>
+	<th class="col {$field.relGetAs}Col typeVarchar fk{if $isSorted}{if $isDefaultNamefield} defaultNameField{/if}  activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$field.relGetAs}Col" scope="col" data-importance="{$field.list|default:0}">
+		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$field.relGetAs}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$field.relGetAs} {$orderBy}cending">{$field.displayName|default:$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relGetFields}</a>
+		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
+	</th>
 	{$displayedFieldsNb = $displayedFieldsNb+1}
 	{/if}
 	{if !$smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS || ($smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && $field.type !== 'onetoone' && !$field.fk)}
 	<th class="col {$fieldName}Col type{$field.type|ucfirst}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$fieldName}Col" scope="col" data-importance="{$field.list|default:0}">
 		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{if $field.fk}{$field.displayName|default:$data._resources[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail value">{$field.comment}</span></span>{/if}</a>
+		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
 	</th>
 	{/if}
 	{/if}

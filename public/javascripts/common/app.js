@@ -30,7 +30,13 @@ var ui =
 			detailSel 	= '#myAccountNavBlock',
 			mainNavSel 	= '#mainNavBlock';
 		
-		$('#mainNavTitle').click(function(e){ e.preventDefault(); e.stopPropagation(); $(mainNavSel).toggleClass('expanded'); });
+		//$('#mainNavTitle').click(function(e){ e.preventDefault(); e.stopPropagation(); $(mainNavSel).toggleClass('expanded'); });
+		$('#mainNavTitle').click(function(e)
+		{
+			e.preventDefault(); e.stopPropagation(); 
+			
+			$(this).closest('nav').toggleClass('active');
+		});
 		
 		$('#header').find('#accountActions')
         	//$('#accountActions')
@@ -62,7 +68,7 @@ var ui =
        	.on('click', function(){ $(this).toggleClass('active'); });
         
         // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
-        if ( $('html').hasClass('ff') ){ self.fixFirefoxFlexbox(); }
+        if ( $('html').hasClass('gecko') ){ self.fixFirefoxFlexbox(); }
 		
 		return this.langChooser().handleIos().handleOrientation();
 	},
@@ -77,8 +83,9 @@ var ui =
 		
         $(window).bind('resize load',function(e)
         {
-        	var windowW = $(window).width(),
-        		maxH 	= $(window).height() - $('#header').height() - $('#asideFooter').height();
+        	var $window = $(window),
+        		windowW = $window.width(),
+        		maxH 	= $window.height() - $('#header').height() - $('#asideFooter').height();
         		
 			if ( windowW < 980 ){ return; }
         	

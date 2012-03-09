@@ -687,6 +687,7 @@ class View extends Application implements ViewInterface
 		$this->events->trigger('onBeforeDisplay', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		if ( !empty($this->options['output']) ){ $this->outputFormat(); }
+		
 		$of = &$this->options['output']; // Shortcut for the ouptput format
 
 		$this->getSuccess();
@@ -862,10 +863,10 @@ class View extends Application implements ViewInterface
 			//$buffer = fopen('php://temp', 'r+');
 			
 			// Loop over the data
-			foreach (array_keys($this->data) as $k)
+			foreach (array_keys((array) $this->data) as $k)
 			{
 				// Skip everything that is not the current resource
-				if ( $k !== $this->data['current']['resource'] ){ continue; }
+				if ( !empty($this->data['current']['resource']) && $k !== $this->data['current']['resource'] ){ continue; }
 				
 				$rows = $this->data[$k];
 				 
@@ -876,7 +877,7 @@ class View extends Application implements ViewInterface
 				}
 				
 				// Loop of the the rows
-				foreach (array_keys($rows) as $i)
+				foreach (array_keys((array) $rows) as $i)
 				{
 					$row = $rows[$i];
 					
@@ -884,7 +885,7 @@ class View extends Application implements ViewInterface
 					//$output .= join($sep,$row) . $eol;
 					
 					$buffer = fopen('php://temp', 'r+');
-					fputcsv($buffer, array_values($row), $sep);
+					fputcsv($buffer, array_values((array) $row), $sep);
 					rewind($buffer);
 					$csv = fgets($buffer);
 					$output .= $csv;
@@ -1010,6 +1011,7 @@ class View extends Application implements ViewInterface
 
 		// Load css associations file
 		isset($cssAssoc) || require(_PATH_CONFIG . 'cssAssoc.php');
+		$this->cssAssoc = $cssAssoc;
 		
 		// Get specific css if defined
 		$specCss 		= !empty($v['css']) 
@@ -1038,8 +1040,7 @@ class View extends Application implements ViewInterface
 				if 		( empty($val) )													{ continue; }
 				
 				// If the value does not contains .css, assume it's a css group name
-				//else if ( strpos($val, '.css') === false && !empty($cssAssoc[$val]) ) 	{ $this->css += $cssAssoc[$val]; }
-				else if ( strpos($val, '.css') === false && !empty($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
+				else if ( strpos($val, '.css') === false && !empty($this->cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
 				
 				// If the value is prefixed by '--', remove the css from the list
 				else if ( strpos($val, '--') !== false )
@@ -1059,7 +1060,7 @@ class View extends Application implements ViewInterface
 		}
 		
 		// Specific case
-		if ( _SUBDOMAIN === 'iphone' || $this->platform['name'] === 'iphone' ){ $this->getCSSgroup('iphone'); }
+		if 		( _SUBDOMAIN === 'iphone' || $this->platform['name'] === 'iphone' ){ $this->getCSSgroup('iphone'); }
 		else if ( _SUBDOMAIN === 'ipad' || $this->platform['name'] === 'ipad' ){ $this->getCSSgroup('ipad'); }
 		else if ( _SUBDOMAIN === 'android' || $this->platform['name'] === 'android' ){ $this->getCSSgroup('android'); }
 		
@@ -1071,20 +1072,20 @@ class View extends Application implements ViewInterface
         $this->log(__METHOD__);
         
 		// Load css associations file
-		isset($cssAssoc) || require(_PATH_CONFIG . 'cssAssoc.php');
+		//isset($cssAssoc) || require(_PATH_CONFIG . 'cssAssoc.php');
 		
 		// Do not continue if the group name does not exists or is empty
-		if ( empty($groupeName) || empty($cssAssoc[$groupeName]) ) { return $this->css; }
+		if ( empty($groupeName) || empty($this->cssAssoc[$groupeName]) ) { return $this->css; }
 		
 		// Loop over the group items
-		foreach ( $cssAssoc[$groupeName] as $val )
+		foreach ( $this->cssAssoc[$groupeName] as $val )
 		{
 			// Skip the item if it is empty ()
 			if ( empty($val) ){ continue; }
 			
 			// If the value does not contains .css, assume it's a css group name
 			//if ( strpos($val, '.css') === false && !empty($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
-			if ( strpos($val, '.css') === false && isset($cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
+			if ( strpos($val, '.css') === false && isset($this->cssAssoc[$val]) ) 	{ $this->getCSSgroup($val); }
 			
 			// If the value is prefixed by '--', remove the css from the list
 			else if ( strpos($val, '--') !== false )
@@ -1117,6 +1118,7 @@ class View extends Application implements ViewInterface
 
 		// Load js associations file
 		isset($jsAssoc) || require(_PATH_CONFIG . 'jsAssoc.php');
+		$this->jsAssoc = $jsAssoc;
 		
 		// Get specific js if defined
 		$specJs 		= !empty($v['js']) 
@@ -1132,7 +1134,7 @@ class View extends Application implements ViewInterface
 		while ($i--)
 		{
 			// Only process existing js groups 
-			if ( empty($smartGroups[$i]) || empty($jsAssoc[$smartGroups[$i]]) ){ continue; }
+			if ( empty($smartGroups[$i]) || empty($this->jsAssoc[$smartGroups[$i]]) ){ continue; }
 			else { $defJsGroup = $smartGroups[$i]; break; }
 		}
 		
@@ -1142,10 +1144,10 @@ class View extends Application implements ViewInterface
 			foreach ( $specJs as $val )
 			{
 				// Do not process empty values
-				if 		( empty($val) )													{ continue; }
+				if 		( empty($val) )														{ continue; }
 				
 				// If the value does not contains .js, assume it's a js group name
-				else if ( strpos($val, '.js') === false && isset($jsAssoc[$val]) ) 	{ $this->getJSgroup($val); }
+				else if ( strpos($val, '.js') === false && isset($this->jsAssoc[$val]) ) 	{ $this->getJSgroup($val); }
 				
 				// If the value is prefixed by '--', remove the js from the list
 				else if ( strpos($val, '--') !== false )
@@ -1155,7 +1157,7 @@ class View extends Application implements ViewInterface
 				}
 				
 				// Otherwise, and if not already present, add it to the js array
-				else if ( empty($this->js[$val]) )										{ $this->js[] = $val; }
+				else if ( empty($this->js[$val]) )											{ $this->js[] = $val; }
 			}	
 		}
 		// Otherwise, use js group
@@ -1169,19 +1171,19 @@ class View extends Application implements ViewInterface
         $this->log(__METHOD__);
         
 		// Load js associations file
-		isset($jsAssoc) || require(_PATH_CONFIG . 'jsAssoc.php');
+		//isset($jsAssoc) || require(_PATH_CONFIG . 'jsAssoc.php');
 		
 		// Do not continue if the group name does not exists or is empty
-		if ( empty($groupeName) || empty($jsAssoc[$groupeName]) ) { return $this->js; }
+		if ( empty($groupeName) || empty($this->jsAssoc[$groupeName]) ) { return $this->js; }
 		
 		// Loop over the group items
-		foreach ( $jsAssoc[$groupeName] as $val )
+		foreach ( $this->jsAssoc[$groupeName] as $val )
 		{
 			// Skip the item if it is empty ()
 			if ( empty($val) ){ continue; }
 			
 			// If the value does not contains .js, assume it's a js group name (we then have to loop over this group name)
-			if ( strpos($val, '.js') === false && isset($jsAssoc[$val]) ) 		{ $this->getJSgroup($val); }
+			if ( strpos($val, '.js') === false && isset($this->jsAssoc[$val]) ) { $this->getJSgroup($val); }
 		
 			// Otherwise, and if not already present, add it to the js array
 			else if ( empty($this->js[$val]) )									{ $this->js[] = $val; }
@@ -1467,6 +1469,7 @@ class View extends Application implements ViewInterface
 		}
 		
 //$this->dump($this->data);
+//$this->dump($this->data['_resources']);
 		
 		if ( isset($v['cache']) && !$v['cache'] ){ $this->Smarty->caching = 0; }  
 

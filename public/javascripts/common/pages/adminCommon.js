@@ -95,6 +95,7 @@ var admin =
 	{
 		var $menu = $('#adminMainNav');
 		
+		/*
 		$menu.bind('click',function(e)
 		{
 			e.stopPropagation();
@@ -117,11 +118,21 @@ var admin =
             $LIlv1
                 .toggleClass('expanded')
                 .siblings().removeClass('expanded');
-		});
+		});*/
 		
 		$menu
+			.on('click', '.resource', function(e)
+			{
+				//e.preventDefault()
+				e.stopPropagation();
+								
+				//$(this).find('a').click(); 
+			})
 			.on('click', '.resourceGroup', function(e)
 			{
+				e.preventDefault();
+				e.stopPropagation();
+								
 				var $this 	= $(this),
 					$ul 	= $this.find('> ul').filter('.resources');
 				
@@ -1272,20 +1283,6 @@ var adminIndex =
         $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
         $('a.duplicateAllLink').click(function(e) { e.preventDefault(); admin.duplicate($('tbody tr.ui-selected:visible', self.context)); });
 
-		$('.filterLink')
-		.bind('click', function(e)
-		{
-		    e.preventDefault();
-		    
-		    var destId = $(this).attr('href');
-		    
-		    $(self.context).toggleClass('filterMode');
-            
-            //$(destId).fadeToggle( function(){} );
-            //$(destId).show();
-            $(destId).toggleClass('active');
-		});
-
 		// We do not need selectable rows on mobile
 		if ( !app.isMobile )
 		{
@@ -1462,107 +1459,125 @@ var adminIndex =
 	handleFilters: function()
 	{
 	    var self   			= this,
-	    	filterTimeout 	= null,
-	    	filterDelay 	= 100,
-	        $tr    			= $('tbody tr', self.context);                      // Store a jquery reference containing all the rows
-	    
-	    // Loop over the filters inputs, listening for keyup events
-	    $('thead tr.filtersRow', self.context)
-	       .bind('keyup change', function(e)
-	       //.bind('change', function(e)
-	    {
-	        e.preventDefault();
-	        e.stopPropagation();
-	        
-	        // Clear any previously launched filter operation
-	        if ( filterTimeout ) { clearTimeout(filterTimeout); } 
-	        
-	        // Add a small timeout between the key press and the start of the filtering operation  
-	        delayTimeout = setTimeout(function()
+	        $tr    			= null, 			// Store a jquery reference containing all the rows
+	        $clone 			= null; 			// Clone it so that we can manipulate it in bg (prevent multiple repaint/reflows)
+	        conditions 		= {},
+	        filterCallback  = function($input)
 	        {
-	            var t       	= e.target,
-	                $t      	= $(t);
-	                
-	            // Does not handle targets that are not inputs
-	            if ( !$t.is(':input') ){ return; }
-	                
-	            var $input  	= $t,
-	                $td     	= $input.closest('td'),
-	                val     	= $td.hasClass('typeRel') || $td.hasClass('typeFk') || $td.hasClass('typeOneToOne') || $td.hasClass('typeBool') 
-	                				? $input.find(':selected').text().trim() 
-	                				: $input.val(),
-	                colClass 	= $td.attr('headers') || '',
+	            var $this 		= $input,
+	                val 		= $this.val(),
+	                colClass 	= ($this.attr('id') || '').replace('FilterCondition', '') + 'Col',
 					colName 	= colClass.replace('Col',''),
-	                conditions 	= [];
-	                
-	            // Do not continue if no input has been found
-	            if ( !$input.length ) { return; }
-	            
-	            //$tr.detach();
-	            //$tmp = $tr.detach();
+	                reg 		= (new RegExp(val, 'i')),
+	                rFltClass 	= colClass + 'Filtered'; // row filter class
+				
+                // If the filter value is empty
+                if ( val === '' )
+                {
+                    // Re-display the previously hidden rows for the current filter
+                    $clone.filter('.' + rFltClass).removeClass(rFltClass).show();
+                    
+                    // 
+                    delete conditions[colName];
+                    
+                    return;
+                }
+                
+                // Add current condition to conditions table 
+                conditions[colName] = ['contains',val];
 	            
 	            // Loop over the rows, re-displaying them by the way
-	            //$tr = $tr.detach().each(function()
-	            //$tmp.each(function()
-	            $tr.each(function()
-	            {
-	                var $this   = $(this);
-	                
-	                // If the filter value is empty
-	                if ( val === '' )
-	                {
-	                    // Re-display the previously hidden rows for the current filter
-	                    $this.filter('.' + colClass + 'Filtered').removeClass(colClass + 'Filtered').show();
-	                    
-	                    return;
-	                }
-	                
-	                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
-	                // and that are not filtered by the current column 
-	                else if ( !$this.is(':visible') && !$this.hasClass(colClass + 'Filtered') ){ return; }
-	                
-	                var $td     = $this.find('td.' + colClass),
-	                    match   = $td.find('.value:contains(' + val + ')').length; //
-	                    
-	                // If the 
-	                if ( !match )
-	                {
-	                    // Hide the row adding a class of the name by which it has been filtered  
-	                    $this.hide().addClass(colClass + 'Filtered');
-	                }
-	                else { $this.show(); }
-	            });
+	            //$tr.each(function()
+	            $clone.find('> .' + colClass)
+	            	.each(function()
+		            {
+						var $this 		= $(this),
+							rId 		= ($this.attr('id') || '').replace(colClass, ''),
+							$row 		= $this.parent(),
+							$dispRow 	= $('#row' + rId);
+
+						/*		                
+		                // If the filter value is empty
+		                if ( val === '' )
+		                {
+		                    // Re-display the previously hidden rows for the current filter
+		                    $clone.filter('.' + rFltClass).removeClass(rFltClass).show();
+		                    
+		                    return;
+		                }
+		                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
+		                // and that are not filtered by the current column 
+		                else*/ if (  !$dispRow.is(':visible') && !$dispRow.hasClass(rFltClass) ){ return; }
+		                
+		                var match   = reg.test($this.find('> .value').text());
+							                
+		                // If the 
+		                if ( !match )
+		                {
+		                    // Hide the row adding a class of the name by which it has been filtered  
+		                    $row.hide().addClass(rFltClass);
+		                }
+		                else { $row.show(); }
+		            });
 	            
+	            $tr.replaceWith($clone);
 	            
-//conditions = colName + '|contains|' + val;
+Tools.log(conditions);
+
+Tools.log('showedCnt: ' + $showedCnt);
+Tools.log('totalCnt: ' + $totalCnt);
 	            
 	            // If the whole items of the resource are not displayed
-	            if ( $('.value', '#displayedResourcesCount').text() < $('.value', '#totalResourcesCount').text() )
+	            var $showedCnt 	= $('.value', '#displayedResourcesCountBottom'),
+	            	$totalCnt 	= $('.value', '#totalResourcesCountBottom');
+	            	
+	            if ( $showedCnt.text() < $totalCnt.text() )
 	            {            	 
-/*	
 		            // Get the total count of items having matching the provided filters 
 		            $.ajax(
 		            {
 		            	url: location.href.replace(new Regex('\?.*'), ''),
-		            	data:{'mode':'count', 'conditions':conditions},
+		            	//data:{'mode':'count', 'conditions':conditions},
+		            	data:{'mode':'count', 'conditions':colName + '|contains|' + val},
 		            	type: 'get',
 		            	dataType: 'json',
 		            	success: function(response)
 		            	{
 		            	}
 		            });	
-*/
 	            }
+	    };
+	    
+		$('a').filter('.filter')
+			.on('click', function(e)
+			{
+			    e.preventDefault();
+			    e.stopPropagation();
+			    
+			    var destId = $(this).attr('href');
+			    
+	        	$tr    = $('tbody tr', self.context); 	// Store a jquery reference containing all the rows
+	        	$clone = $tr.clone(true); 				// And store a copy that will use in bg
+			    
+			    $(adminIndex.context).toggleClass('filterMode');
 	            
-	            //$tmp.appendTo($('tbody', self.context));
-	            //$tmp = null;
-	            
-	            filterTimeout = null;
-//Tools.log('filter done. unset timeout');
-	            
-	        }, filterDelay);
-	        
-	    });
+	            $(destId).toggleClass('active');
+			});
+	    
+	    // Loop over the filters inputs, listening for keyup events
+	    $(':input', 'thead').filter('.filter')
+			.on('keyup', function(e)
+			{
+	        	//e.preventDefault();
+				e.stopPropagation();
+	        	filterCallback($(this));
+	    	})
+	    	.filter('select')
+			.on('change', function(e)
+			{
+				e.stopPropagation();
+	        	filterCallback($(this));
+			});
 	    
 	    return this;
 	},
