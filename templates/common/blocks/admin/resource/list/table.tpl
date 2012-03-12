@@ -23,7 +23,7 @@
 {$lowCapDevice 	= $data.device.hasLowCapacity|default:false}
 
 {/strip}
-<table id="{$rName}Table" class="commonTable adminTable {$rName}Table {if $lowCapDevice}lowCap{/if}">
+<table id="{$rName}Table" class="commonTable adminTable {$rName}Table {if $lowCapDevice}lowCap{/if}" data-resource="{$resourceName}">
     <thead>
         <tr>
             {if ($userResPerms.allow_create && in_array('create',$o.showActions)) || ($userResPerms.allow_update && in_array('update',$o.showActions)) || ($userResPerms.allow_delete && in_array('delete',$o.showActions))}

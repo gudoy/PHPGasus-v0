@@ -1,4 +1,4 @@
-<span>
+<span class="filterCtnr">
 {$filterName 	= "filterCondition[{$colName}]"}
 {$filterId 		= "{$colName}FilterCondition"}
 {if ($type === 'onetonone' || $column.fk) && $data[$column.relResource]}

@@ -89,6 +89,7 @@ form .buttonsLine .action { width:auto; }
 .adminListToolbar > .paginationButtons { margin-left:0; margin-right:0; float:none; }
 .adminListToolbar > .resourcesCounts { display:none; }
 .adminListToolbar > .actionsButtons { float:right; }
+.adminListToolbar > .createButtons { float:right; }
 
 .toolbar .settings .groups { margin-bottom:10px; padding:0 20px 0; background:#fff; box-shadow:1px 1px 5px rgba(0,0,0,0.5); border-radius:5px; }
 .toolbar .settings .group { overflow:hidden; margin:0; padding:20px 0; display:block; clear:both; border-bottom:1px solid #5F5F5F; box-shadow:0 1px 1px rgba(255,255,255,0.6); }
@@ -294,16 +295,25 @@ table thead .sort:before { width:8px; height:5px; display:inline-block; content:
 .adminTable tr.filtersRow td.goToCol { padding:0; }
 .adminTable tr.filtersRow td input,
 .adminTable tr.filtersRow td select { min-height:0; -moz-box-sizing:border-box; box-sizing:border-box; border-width:0; padding-top:0; padding-bottom:0; }
-.adminTable tr.filtersRow td span { width:100%; height:0; max-width:100%; overflow:hidden; display:block; display:-moz-box; display:-webkit-box; display:box; }
+.adminTable tr.filtersRow td span.filterCtnr { width:100%; height:0; max-width:100%; overflow:hidden; display:block; display:-moz-box; display:-webkit-box; display:box; }
+.adminTable tr.filtersRow:target,
 .adminTable tr.filtersRow.active { height:auto; font-size:inherit; display:table-row; visibility:visible; }
-.adminTable tr.filtersRow.active td span { height:auto; }
+.adminTable tr.filtersRow:target td span.filterCtnr,
+.adminTable tr.filtersRow.active td span.filterCtnr { height:auto; }
+.adminTable tr.filtersRow:target td input,
 .adminTable tr.filtersRow.active td input { min-height:24px; padding-top:2px; padding-bottom:2px; margin:2px; border:1px solid #ABADB3; background-position-x:2px; background-color:#fff; }
+.adminTable tr.filtersRow:target td select,
 .adminTable tr.filtersRow.active td select { height:24px; border-width:1px; }
+.adminTable tr.filtersRow:target td option,
 .adminTable tr.filtersRow.active td option { /*min-height:20px;*/ }
 .adminTable tr.filtersRow td.actionsCol { font-size:0; }
+.adminTable tr.filtersRow:target td.typeInt input,
 .adminTable tr.filtersRow.active td.typeInt input { min-width:3em; background:none; }
+.chrome .adminTable tr.filtersRow:target td select,
 .chrome .adminTable tr.filtersRow.active td select { height:24px; }
+.gecko .adminTable tr.filtersRow:target td option,
 .gecko .adminTable tr.filtersRow.active td option { height:20px; -moz-box-sizing:border-box; }
+.chrome .adminTable tr.filtersRow:target td.typeInt input
 .chrome .adminTable tr.filtersRow.active td.typeInt input { padding:0 0 0 2px; box-sizing:border-box; background-image:none;  }
 .adminTable .goToCol { width:16px; text-align:right; }
 .adminTable.lowDensity .goToCol { padding:0; }

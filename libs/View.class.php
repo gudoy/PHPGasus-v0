@@ -377,6 +377,10 @@ class View extends Application implements ViewInterface
 		// Do not continue if the resource is not defined
 		// or if it has already been handled (i.e: if a resource relates to another one on several columns)
 		if ( empty($this->resourceName) ){ return $this; }
+
+		// We do not need quickfilters data in 'count' mode 
+		// (ie: when trying to use filters through the whole pages)		
+		if ( $this->options['mode'] === 'count' ){ return $this; }
 		
 		$d 				= &$this->data; 												// Shortcut for data		 
 		$relResources 	= array(); 														// Array of related resource for the current resource

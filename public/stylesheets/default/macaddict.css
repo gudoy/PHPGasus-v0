@@ -147,8 +147,28 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .ui-dialog-buttonset button.cancelBtn,
 .actionBtn.cancelBtn { background:none; border:0; -webkit-box-shadow:none; box-shadow:none; cursor:pointer; }
 
+.action.active,
+.action.hover,
+.action:hover,
+.actions > .group:hover,
+.actions > .group.hover,
+.actions > .group.active { box-shadow:0 -12px 12px rgba(0, 0, 0, .15) inset, -1px -1px 0 rgba(255, 255, 255, .75) inset; }
+.toolbar .group.others:hover,
+.toolbar .group.others.hover,
+.toolbar .group.others.active { box-shadow:0 12px 12px rgba(0, 0, 0, .15) inset, 1px 1px 0 rgba(255, 255, 255, .75) inset; }
+.action.view { box-shadow:none; }
+
+.toolbar .group.others:after,
+.toolbar .groups.others:after,
+nav.main .resourceGroup[aria-expanded="true"] > a:before { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAo0lEQVR42lXMAQbCABiG4X9bsCqjFCBZdoYIRJJ0ixUGgJBSTCRGOkm6QhBFiRihRIcItLcys+UD74NP0J2jTXLOAV0orUf/vBlSFAy602eM7oMOhqBh7ZYR9oK9h4UmCDnas1vIiyutb8uPVaqneS+w6b8vLiZqyEKWpufbrM40yCARq1T8ifO6DyijxCykqW/H1NCRJCsUMMmjxBwdpVCj+gC7jI3hIJxPgQAAAABJRU5ErkJggg=="); }
+nav.main .resourceGroup[aria-expanded="false"] > a:before { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAlElEQVR42mP4z5l2utb1P/N/BmTI8F8+6X/S/+z9jRb/mZCFdUHCIJi7rkXrPyNM2AAmnPQ/+Xfeol5ZkBSKMAimfGxx/M+EJtx9/WLRf6X/LEjCnU+uL/mf9d/qvzBcdePLC6v+5/13/q/wnwtitm7Z45Mb/hf9dwdq5oE5Euju//7/vf6r/udFdTfnf7H//Oi+BABk3oxnBUxsOgAAAABJRU5ErkJggg=="); }
+
 .toolbar .title { display:none; text-align:center; font-weight:bold; }
 .toolbar .group { vertical-align:bottom; }
+.toolbar .group.others,
+.toolbar .groups.others { margin:0; }
+.toolbar .group.others:after,
+.toolbar .groups.others:after { width:11px; height:14px; content:''; display:inline-block; margin:5px; background-position:50% 4px; background-repeat:no-repeat; vertical-align:middle; }
 .toolbar .actionBtn button { min-height:24px; padding-top:3px; padding-bottom:3px; font-size:inherit; }
 .toolbar .paginationButtons input { margin:0; padding:0 2px; height:auto; float:none; font-size:12px; letter-spacing:normal; }
 .toolbar .paginationButtons fieldset .value { letter-spacing:normal; }
@@ -160,7 +180,14 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 */
 .toolbar .settings .action.current .value,
 .toolbar.bottom .settings .action.current.hover .value,
-.toolbar.bottom .settings .action.current:hover .value { font-weight:bold; } 
+.toolbar.bottom .settings .action.current:hover .value { font-weight:bold; }
+
+.toolbar .filterButtons.active { position:relative; }
+.toolbar .filterButtons.active .group.others { position:absolute; bottom:100%; background:#DEE4EA; }
+
+.toolbar .globalFilterCtnr { margin:0 10px; letter-spacing:normal; }
+.toolbar .globalFilterCtnr input { margin:0 5px 0 0; }
+.toolbar .globalFilterCtnr label { display:inline-block; vertical-align:middle; } 
 
 .adminResourcesToolbar { padding:5px 5px; background:#e7e7e7; border:1px solid #B4B4B4; }
 .adminResourcesToolbar.top { border-bottom-width:0; border-bottom-left-radius:0; border-bottom-right-radius:0; }
@@ -248,7 +275,9 @@ header.groupTitle .counts { margin-top:0; margin-right:0; -webkit-box-shadow:ins
 
 
 .adminTable { border-width:1px 0; color:#7f7f7f; }
+.adminTable thead tr.filtersRow:target td.col input,
 .adminTable thead tr.filtersRow.active td.col input,
+.adminTable thead tr.filtersRow:target td.col select,
 .adminTable thead tr.filtersRow.active td.col select { background-color:#fff; }
 .adminTable thead tr.filtersRow input[type=number]::-webkit-inner-spin-button,
 .adminTable thead tr.filtersRow input[type=number]::-webkit-outer-spin-button { margin:0; -webkit-appearance:none; }
@@ -348,8 +377,6 @@ nav.main .resourceGroup > a .name { text-transform:uppercase; color:#4c566c; fon
 nav.main .resourceGroup:target .resource { display:none; }
 nav.main .resourceGroup > a:before { width:12px; height:12px; margin-right:28px; content:''; display:inline-block; background-repeat:no-repeat; background-position:0 50%; vertical-align:middle; }
 nav.main .resourceGroup > a:before { background-image:none; }
-nav.main .resourceGroup[aria-expanded="true"] > a:before { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAo0lEQVR42lXMAQbCABiG4X9bsCqjFCBZdoYIRJJ0ixUGgJBSTCRGOkm6QhBFiRihRIcItLcys+UD74NP0J2jTXLOAV0orUf/vBlSFAy602eM7oMOhqBh7ZYR9oK9h4UmCDnas1vIiyutb8uPVaqneS+w6b8vLiZqyEKWpufbrM40yCARq1T8ifO6DyijxCykqW/H1NCRJCsUMMmjxBwdpVCj+gC7jI3hIJxPgQAAAABJRU5ErkJggg=="); }
-nav.main .resourceGroup[aria-expanded="false"] > a:before { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAlElEQVR42mP4z5l2utb1P/N/BmTI8F8+6X/S/+z9jRb/mZCFdUHCIJi7rkXrPyNM2AAmnPQ/+Xfeol5ZkBSKMAimfGxx/M+EJtx9/WLRf6X/LEjCnU+uL/mf9d/qvzBcdePLC6v+5/13/q/wnwtitm7Z45Mb/hf9dwdq5oE5Euju//7/vf6r/udFdTfnf7H//Oi+BABk3oxnBUxsOgAAAABJRU5ErkJggg=="); }
 nav.main .resourceGroup[aria-expanded="true"] .resources { display:block; }
 nav.main .resourceGroup[aria-expanded="false"] .resources { display:none; }
 nav.main .resources { margin:0 10px 25px 10px; display:block; background:#f7f7f7; background-clip:padding-box; border-radius:10px; box-shadow:0 1px 0 rgba(255,255,255,.75); }

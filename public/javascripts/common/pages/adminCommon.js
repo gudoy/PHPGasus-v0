@@ -1459,9 +1459,11 @@ var adminIndex =
 	handleFilters: function()
 	{
 	    var self   			= this,
+	        $tbody 			= null,
 	        $tr    			= null, 			// Store a jquery reference containing all the rows
-	        $clone 			= null; 			// Clone it so that we can manipulate it in bg (prevent multiple repaint/reflows)
+	        //$clone 			= null, 			// Clone it so that we can manipulate it in bg (prevent multiple repaint/reflows)
 	        conditions 		= {},
+	        timeout 		= null,
 	        filterCallback  = function($input)
 	        {
 	            var $this 		= $input,
@@ -1471,81 +1473,132 @@ var adminIndex =
 	                reg 		= (new RegExp(val, 'i')),
 	                rFltClass 	= colClass + 'Filtered'; // row filter class
 				
+	            // Detach the <tbody> for bg process (prevent blocking ui due to multiple repaints/reflows)
+	            $tbody = $tbody.detach();
+				
                 // If the filter value is empty
                 if ( val === '' )
                 {
-                    // Re-display the previously hidden rows for the current filter
-                    $clone.filter('.' + rFltClass).removeClass(rFltClass).show();
+                	// Loop over rows filtered by the current column
+                    // remove the filter class
+                    $tbody.find('tr').filter('.' + rFltClass).removeClass(rFltClass)
+                    	.each(function()
+                    	{
+                    		var $this = $(this);
+                    		
+                    		// Remove the current column from current filters list
+                    		delete $this.data('filters')[rFltClass];
+                    		
+                    		// If no filter remains, we can re-display the row
+                    		if ( !$this.data('filters').length ){ $this.show(); }
+                    	})
                     
-                    // 
+					// Reattach the updated <tbody>
+                    $tbody.appendTo(self.context);
+                    
+                    // Delete current filter condition
                     delete conditions[colName];
                     
                     return;
                 }
                 
-                // Add current condition to conditions table 
+                // Add current condition to filter conditions table 
                 conditions[colName] = ['contains',val];
 	            
-	            // Loop over the rows, re-displaying them by the way
-	            //$tr.each(function()
-	            $clone.find('> .' + colClass)
+	            // Loop over the rows
+	            $tbody.find('td').filter('.' + colClass)
 	            	.each(function()
 		            {
 						var $this 		= $(this),
-							rId 		= ($this.attr('id') || '').replace(colClass, ''),
-							$row 		= $this.parent(),
-							$dispRow 	= $('#row' + rId);
+							$row 		= $this.parent();
 
-						/*		                
-		                // If the filter value is empty
-		                if ( val === '' )
-		                {
-		                    // Re-display the previously hidden rows for the current filter
-		                    $clone.filter('.' + rFltClass).removeClass(rFltClass).show();
-		                    
-		                    return;
-		                }
-		                // Otherwise, only handle rows that were not already hidden (assuming they have already been filtered)
-		                // and that are not filtered by the current column 
-		                else*/ if (  !$dispRow.is(':visible') && !$dispRow.hasClass(rFltClass) ){ return; }
+		                // Skip columns that are already hidden by another filter
+		                if (  $row.css('display') === 'none' && !$row.hasClass(rFltClass) ){ return; }
 		                
-		                var match   = reg.test($this.find('> .value').text());
+		                var match = reg.test($this.find('> .value').text());
 							                
 		                // If the 
 		                if ( !match )
 		                {
+		                	//var curFilters = $row.data('filters') || {};
+		                	if ( !$row.data('filters') ){ $row.data('filters', {}); }		                	
+		                	
+		                	$row.data('filters')[rFltClass] = true;
+		                	
 		                    // Hide the row adding a class of the name by which it has been filtered  
 		                    $row.hide().addClass(rFltClass);
 		                }
 		                else { $row.show(); }
 		            });
 	            
-	            $tr.replaceWith($clone);
+				// Reattach the updated <tbody>
+	            //$tbody.css('visibility','visible');
+	            $tbody.appendTo(self.context);
 	            
 Tools.log(conditions);
-
-Tools.log('showedCnt: ' + $showedCnt);
-Tools.log('totalCnt: ' + $totalCnt);
 	            
 	            // If the whole items of the resource are not displayed
-	            var $showedCnt 	= $('.value', '#displayedResourcesCountBottom'),
-	            	$totalCnt 	= $('.value', '#totalResourcesCountBottom');
+	            var showedCnt 	= $(':input', '#displayedResourcesCountBottom').val(),
+	            	totalCnt 	= $('.value', '#totalResourcesCountBottom').text();
 	            	
-	            if ( $showedCnt.text() < $totalCnt.text() )
-	            {            	 
-		            // Get the total count of items having matching the provided filters 
-		            $.ajax(
-		            {
-		            	url: location.href.replace(new Regex('\?.*'), ''),
-		            	//data:{'mode':'count', 'conditions':conditions},
-		            	data:{'mode':'count', 'conditions':colName + '|contains|' + val},
-		            	type: 'get',
-		            	dataType: 'json',
-		            	success: function(response)
-		            	{
-		            	}
-		            });	
-	            }
+Tools.log('showedCnt: ' + showedCnt);
+Tools.log('totalCnt: ' + totalCnt);
+Tools.log('url: ' + location.href.replace(new RegExp("(\\?.*)?",''), ''));
+
+	            	
+	            if ( !showedCnt || !(showedCnt < totalCnt) ){ return }
+	            
+            	// Get current url conditions (if any)
+            	var reqURL 			= location.href,
+            		urlConditions 	= unescape(decodeURI(Tools.getURLParamValue(reqURL, 'conditions'))) || '';
+            		newConds 		= '';
+            		
+            	// Build new conditions
+            	for (colName in conditions){ newConds += colName + '|' + conditions[colName][0] + '|' + conditions[colName][1]; }
+	            		
+Tools.log('urlConditions: ' + urlConditions);
+Tools.log('newConds: ' + newConds);
+
+				var reqData 		= {'mode':'count', 'conditions':newConds, 'limit':-1},
+					$globalFilter 	= $('#globalFilter').length
+										? $('#globalFilter')
+										: $('nav').find('a[href="#' + $(self.context).data('resource') + 'FiltersRow"]')
+											.after($('<span />',
+										{
+											'class': 'globalFilterCtnr',
+											html:'<input class="globalFilter" type="checkbox" id="globalFilter" /><label for="globalFilter">on all pages <span class="value"></span></label>',
+											click: function()
+											{
+												if ( !$(this).find(':checked').length ){ return; }
+												
+									            // Get the total count of items having matching the provided filters 
+									            $.ajax(
+									            {
+									            	url: reqURL,
+									            	data: $.extend(reqData, {'mode':'', 'getFields':'id'}),
+									            	type: 'get',
+									            	dataType: 'json',
+									            	success: function(response)
+									            	{
+									            		
+									            	}
+									            });													
+											}
+										}));
+            	   
+	            // Get the total count of items having matching the provided filters 
+	            $.ajax(
+	            {
+	            	url: reqURL,
+	            	data:reqData,
+	            	type: 'get',
+	            	dataType: 'json',
+	            	success: function(response)
+	            	{
+	            		var count = response[$(self.context).data('resource')] || 0;
+						$('label[for=globalFilter]').find('.value').text('(' + count + ')');
+	            	}
+	            });
 	    };
 	    
 		$('a').filter('.filter')
@@ -1554,14 +1607,24 @@ Tools.log('totalCnt: ' + $totalCnt);
 			    e.preventDefault();
 			    e.stopPropagation();
 			    
-			    var destId = $(this).attr('href');
+			    var $this 	= $(this),	
+			    	destId 	= $this.attr('href');
 			    
-	        	$tr    = $('tbody tr', self.context); 	// Store a jquery reference containing all the rows
-	        	$clone = $tr.clone(true); 				// And store a copy that will use in bg
+			    $tbody = $('tbody', self.context);
+	        	$tr    = $tbody.find('tr'); 		// Store a jquery reference containing all the rows
 			    
 			    $(adminIndex.context).toggleClass('filterMode');
 	            
 	            $(destId).toggleClass('active');
+	            
+	            // If the filters are activated via a column header, put focus on the matching filter input 
+	            if ( $this.parent().is('th') )
+	            {
+	            	var colClass = $this.parent().attr('id'),
+	            		filterId = colClass.replace('Col','FilterCondition');
+	            		
+	            	$('#' + filterId).focus();
+	            }
 			});
 	    
 	    // Loop over the filters inputs, listening for keyup events
@@ -1570,13 +1633,19 @@ Tools.log('totalCnt: ' + $totalCnt);
 			{
 	        	//e.preventDefault();
 				e.stopPropagation();
-	        	filterCallback($(this));
+	        	//setTimeout,(filterCallback($(this));
+	        	var $input = $(this);
+	        	
+	        	clearTimeout(timeout);
+	        	timeout = setTimeout(function(){ filterCallback($input); }, 1);
 	    	})
 	    	.filter('select')
 			.on('change', function(e)
 			{
 				e.stopPropagation();
-	        	filterCallback($(this));
+	        	//filterCallback($(this));
+	        	clearTimeout(timeout);
+	        	timeout = setTimeout(function(){ filterCallback($input); }, 1);
 			});
 	    
 	    return this;

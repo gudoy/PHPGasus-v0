@@ -10,7 +10,7 @@
 {/strip}
 {include file='common/blocks/admin/resource/list/toolbar.tpl' position='top'}
 <div class="tableWrapperBlock" id="{$resourceName}TableWrapperBlock">
-	<table class="commonTable adminTable {$resourceName}Table {if $lowCapDevice}lowCap{/if}" id="{$resourceName}Table">
+	<table class="commonTable adminTable {$resourceName}Table {if $lowCapDevice}lowCap{/if}" id="{$resourceName}Table" data-resource="{$resourceName}">
 		<caption>{$resourceName}</caption>
 		<thead class="titleRow sortables">
 			{include file='common/blocks/admin/resource/list/rows/headers.tpl'}
