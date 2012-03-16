@@ -1,24 +1,50 @@
 var Tools = 
 {
+	// TODO: merge loadCSS & loadJS => load
+	// loadCSS: function(){ return this.load(arguments, {type:'css'}) }
+	// loadJS: function(){ return this.load(arguments, {type:'js'}) }
+	
     /*
      * This function dynamically loads a css file in the page
      * @author Guyllaume Doyer guyllaume@clicmobile.com
      * @return {Object} this object
      */
-    loadCSS: function(cssFile)
+    // TODO: multi usage patterns
+    // @src: url of the file to load  
+    // 		'/path/to/file.css'
+    // @options: global options 
+    // 		{media:screen, insertAfter:'link[rel="stylesheet"]:last', before:function, success:function(), error:function()}
+    // @item: hashmap of item options (only src is required)  
+    // 		{id:id, src:src, media:screen, insertAfter:'link[rel="stylesheet"]:last', before:function(), success:function(), error:function()}
+    // src
+    // src, options
+    // [src1, src2, ...]
+    // [src1, src2, ...], options
+    // {item}
+    // {item}, options
+    // [{item1}, {item2}, ...]
+    // [{item1}, {item2}, ...], options
+    loadCSS: function()
     {
+    	var args 	= arguments,
+    		src 	= args[0] || null,
+    		o 		= args[1] || {id:null};
+
+		// Do not continue without a valid src
+		if ( !src ){ return false; }
+    	
         // If the css already exists we do not continue
-        if ( $('link[href*="' + cssFile + '"]', 'head').length ) { return this; }
+        if ( (o.id && $('#' + o.id).length) || $('link[href*="' + src + '"]', 'head').length ) { return false; }
         
-        var src = cssFile,
-        
-            h = '<link href="' + src + '" media="all" rel="stylesheet" type="text/css" />';
+        //var h = '<link href="' + src + '" media="all" rel="stylesheet" type="text/css" ' + (o.id ? 'id="' + o.id + '" ' : '') + ' />';
+        var h = '<link href="' + src + '" media="screen" rel="stylesheet" ' + (o.id ? 'id="' + o.id + '" ' : '') + ' />';
         
         // For IE, we have to add the new css file Before the IE specifics css files
-        //app.isIE ? $j('head link[href*="Site-ie"]').before(h) : $j('head link[type="text/css"]:last').after(h);
-        $('link[type="text/css"]:last', 'head').after(h);
+        //$('link[type="text/css"]:last', 'head').after(h);
+        $('link[rel="stylesheet"]:last', 'head').after(h);
         
-        return this;
+        
+        return true;
     },
     
 	/** 
@@ -58,7 +84,7 @@ var Tools =
 			if (file.url === null) { return; }
 
 			// If the script already exists in the page, breaks and launch the callback
-			if ( $('script[src*="' + file.url + '"]').length > 0 )
+			if ( $('script[src*="' + file.url + '"]').length )
 			{
 				nb++;
 				
@@ -69,8 +95,8 @@ var Tools =
 				return;
 			}
 			
-            var script = document.createElement('script'),
-				head = document.getElementsByTagName('head')[0];
+            var script 	= document.createElement('script'),
+				head 	= document.getElementsByTagName('head')[0];
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', file.url);
 

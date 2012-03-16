@@ -100,7 +100,7 @@ form .buttonsLine .action { width:auto; }
 .toolbar .settings .group .action,
 .toolbar .settings .group .action .value { display:inline-block; }
 
-.toolbar .settings .groups { background-color:#DEE4EA; border:1px solid #999; }
+.toolbar .groups.others { background-color:#DEE4EA; border:1px solid #999; }
 
 .adminListToolbar > .createButtons,
 .adminListToolbar > .actionsButtons { display:none; }

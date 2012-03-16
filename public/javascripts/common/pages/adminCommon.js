@@ -8,24 +8,6 @@ var admin =
 	
 	init: function()
 	{
-//Tools.log('isMobile: ' + app.isMobile);
-		
-		// We do not need selectable rows on mobile
-		/*
-		if ( !app.isMobile )
-		{
-		    Tools.loadJS([
-	            {url:'/public/javascripts/common/libs/jquery-ui-1.8.9.custom.min.js'},
-	            {url:'/public/javascripts/common/libs/jquery-ui-timepicker-addon.js'},
-	        ], function()
-	        {
-	        });
-		}*/
-		
-		//Tools.loadCSS('/public/stylesheets/default/jquery-ui-1.8.9.custom.css');
-        
-	    //adminSearch.init();
-	    
 	    this.search.init();
 	    
 	    this
@@ -33,23 +15,26 @@ var admin =
 	    	.aside()
 	    	.menu()
 	    	.handleMultiLangFields();
-	    
+
 		return this;
 	},
 	
 	footer: function()
 	{
-		$('footer.menu .toggler').click(function(e)
-		{
-			e.preventDefault;
-			e.stopPropagation();
-			
-			var $this 	= $(this),
-				$col 	= $this.closest('.col');
-			
-			$this.toggleClass('active');
-			$col.toggleClass('collapsed expanded'); 
-		});
+		// TODO: remove col togglers from templates and create them in javascript
+		// only for desktop/screen view
+		$('footer').filter('.menu').find('.toggler')
+			.click(function(e)
+			{
+				e.preventDefault;
+				e.stopPropagation();
+				
+				var $this 	= $(this),
+					$col 	= $this.closest('.col');
+				
+				$this.toggleClass('active');
+				$col.toggleClass('collapsed expanded'); 
+			});
 		
 		return this;
 	},
@@ -59,35 +44,6 @@ var admin =
 		var self 	= this
 			context = '#sideCol';
 		
-		//$(context).resizable();
-		//$('footer', context).resizable({alsoResize:context});
-		//$('#asideResizer').bind('drag', function(e,ui){ $(context).resize(e,ui); })
-		
-		/*
-		var curW = null;
-		
-		$('#asideResizer').draggable(
-		{
-			axis: 'x',
-			opacity:0,
-			cursor: 'col-resize',
-			helper: 'clone',
-			drag:function(e,ui)
-			{
-//Tools.log(ui.offset);
-//Tools.log(ui.position);
-
-//Tools.log(Math.abs(ui.offset.left));
-				var newW = Math.abs(ui.offset.left);
-
-				if ( !curW || newW != curW )
-				{
-					$(context).css({width:newW});
-					curW = newW;	
-				}
-			}
-		});*/
-		
 		return this;
 	},
 	
@@ -95,48 +51,18 @@ var admin =
 	{
 		var $menu = $('#adminMainNav');
 		
-		/*
-		$menu.bind('click',function(e)
-		{
-			e.stopPropagation();
-			
-		    var $this     = $(this),
-		        t         = e.target,
-		        $t        = $(t),
-		        $LIlv1    = $t.closest('li.item-lv1', $this);
-		      
-            if ( !$LIlv1.hasClass('expanded') )
-            {	
-				$('body').one('click', function(e)
-				{
-					e.preventDefault();
-					
-					if ( !$(e.target).closest('#adminMainNav').length ){ $LIlv1.removeClass('expanded'); }
-				});            	
-            }
-		        
-            $LIlv1
-                .toggleClass('expanded')
-                .siblings().removeClass('expanded');
-		});*/
-		
 		$menu
-			.on('click', '.resource', function(e)
-			{
-				//e.preventDefault()
-				e.stopPropagation();
-								
-				//$(this).find('a').click(); 
-			})
+			.on('click', '.action', function(e){ e.stopPropagation(); })
 			.on('click', '.resourceGroup', function(e)
 			{
-				e.preventDefault();
 				e.stopPropagation();
 								
 				var $this 	= $(this),
 					$ul 	= $this.find('> ul').filter('.resources');
 				
 				if ( !$ul.length ) { return; }
+				
+				e.preventDefault();
 				
 				$this.attr('aria-expanded', !($this.attr('aria-expanded') == 'true') + '');
 			})
@@ -278,43 +204,6 @@ var admin =
 	    }
 	},
 	
-	subResources: function()
-	{
-		return this;
-	},
-	
-	relatedResource: function(jqObj, e)
-	{
-		var self 		= this, 
-			objBubble 	= jqObj.siblings('.adminRelResBubble');		
-		
-		if ( objBubble.length > 0 ) { return objBubble.removeClass('ninja'); }
-
-		// Launch ajax request
-		$.ajax(
-		{
-			url: jqObj.attr('href'),
-			data: 'tplSelf=1&viewType=bubble',
-			dataType: 'html',
-			type: 'GET',
-			success: function(response)
-			{
-				var r = response || {};
-				
-				$(r)
-					.addClass('bubble adminBubble adminRelResBubble')
-					//.css({left:jqObj.width()+20})
-					.hover(function(e){ clearTimeout(self.relResHideTimeout); $(this).removeClass('ninja'); }, function(e)
-					{
-						$(this).addClass('ninja');
-					})
-					.appendTo(jqObj.parent().css('position','relative'));
-			}
-		});
-		
-		return this;
-	},
-	
 	// TODO: handle multiple duplicate
 	duplicate: function(jqObj)
 	{
@@ -446,9 +335,6 @@ var admin =
 	handleOneToOneFields: function()
 	{
 		var self = this;
-
-//Tools.log('handleOneToOneFields');
-//Tools.log(!Modernizr.input.list);
 		
 		yepnope(
 		{
@@ -986,7 +872,11 @@ var admin =
 	
 	handleMultiLangFields: function()
 	{
-		$('nav.translationsNav')
+		$translNav = $('nav').filter('.translationsNav'); 
+		
+		if ( !$translNav.length ){ return this; }
+		
+		$translNav
 			.each(function()
 			{
 				var $nav = $(this);
@@ -1037,9 +927,6 @@ var admin =
 	
 	handlePasswordFields: function()
 	{
-//Tools.log('handlePasswordFields');
-		
-		//$('button.changePassBtn', 'form')
 		$('.changePassBtn', 'form')
 			.click(function(e)
 			{
@@ -1051,7 +938,6 @@ var admin =
 				
 				$this.addClass('hidden').prev('.cancelChangePassBtn').removeClass('hidden');
 				
-				//input.removeAttr('disabled').attr({'value':'', 'type':'text'});
 				input.removeAttr('disabled').attr({'value':''});
 			})
 			.prev('.cancelChangePassBtn')
@@ -1222,7 +1108,6 @@ var admin =
 	
 	handleRTEFields: function()
 	{
-//Tools.log('handle RTE Fields');
 		$('textarea.rteEditor')
 			.tinymce(
 		{
@@ -1241,7 +1126,7 @@ var admin =
 			theme_advanced_layout_manager : 'SimpleLayout',
 			theme_advanced_toolbar_location : 'top',
 			theme_advanced_toolbar_align : 'left',
-			theme_advanced_resizing : true,
+			theme_advanced_resizing : true
 		});
 		
 		return this;
@@ -1273,7 +1158,7 @@ var adminIndex =
 				var $this = $(this);
 				 
 				$this.closest('header').parent().toggleClass('editMode');
-				$this.find('.value').text(function(i,val){ var $this = $(this), txt = $this.data('revert-label'); $this.data('revert-label',val); console.log(txt); return txt;  })
+				$this.find('.value').text(function(i,val){ var $this = $(this), txt = $this.data('revert-label'); $this.data('revert-label',val);  return txt;  })
 			})
 		
 		// Hide action buttons (since they only are necessary when items are selected)
@@ -1378,7 +1263,6 @@ var adminIndex =
 				else if ( a.hasClass('duplicateLink') )			{ return admin.duplicate(a); }
 				else if ( a.hasClass('selectAll') ) 			{ return self.toggleAll('check'); }
 				else if ( a.hasClass('selectNone') ) 			{ return self.toggleAll('uncheck'); }
-				//else if ( a.hasClass('relResourceLink') )		{ admin.relatedResource(a, e); }
 				else if ( href )								{ window.location.href = href; }
 				
 				//window.location.href = a.attr('href');
@@ -1464,6 +1348,8 @@ var adminIndex =
 	        //$clone 			= null, 			// Clone it so that we can manipulate it in bg (prevent multiple repaint/reflows)
 	        conditions 		= {},
 	        timeout 		= null,
+	        
+	        // Called when a filter input change
 	        filterCallback  = function($input)
 	        {
 	            var $this 		= $input,
@@ -1472,6 +1358,9 @@ var adminIndex =
 					colName 	= colClass.replace('Col',''),
 	                reg 		= (new RegExp(val, 'i')),
 	                rFltClass 	= colClass + 'Filtered'; // row filter class
+	                
+				// Load the notifier plugin if not already
+				if ( !app.plugins.notifier || !app.plugins.notifier.status ){ app.require('notifier'); }
 				
 	            // Detach the <tbody> for bg process (prevent blocking ui due to multiple repaints/reflows)
 	            $tbody = $tbody.detach();
@@ -1541,66 +1430,90 @@ Tools.log(conditions);
 	            var showedCnt 	= $(':input', '#displayedResourcesCountBottom').val(),
 	            	totalCnt 	= $('.value', '#totalResourcesCountBottom').text();
 	            	
-Tools.log('showedCnt: ' + showedCnt);
-Tools.log('totalCnt: ' + totalCnt);
-Tools.log('url: ' + location.href.replace(new RegExp("(\\?.*)?",''), ''));
+//Tools.log('showedCnt: ' + showedCnt);
+//Tools.log('totalCnt: ' + totalCnt);
+//Tools.log('url: ' + location.href.replace(new RegExp("(\\?.*)?",''), ''));
 
 	            	
 	            if ( !showedCnt || !(showedCnt < totalCnt) ){ return }
 	            
             	// Get current url conditions (if any)
-            	var reqURL 			= location.href,
-            		urlConditions 	= unescape(decodeURI(Tools.getURLParamValue(reqURL, 'conditions'))) || '';
-            		newConds 		= '';
+            	var reqURL 				= location.href,
+            		urlConditions 		= unescape(decodeURI(Tools.getURLParamValue(reqURL, 'conditions'))) || '';
+            		filterConditions 	= '';
             		
             	// Build new conditions
-            	for (colName in conditions){ newConds += colName + '|' + conditions[colName][0] + '|' + conditions[colName][1]; }
+            	for (colName in conditions){ filterConditions += colName + '|' + conditions[colName][0] + '|' + conditions[colName][1]; }
 	            		
-Tools.log('urlConditions: ' + urlConditions);
-Tools.log('newConds: ' + newConds);
+//Tools.log('urlConditions: ' + urlConditions);
+//Tools.log('filterConditions: ' + filterConditions);
 
-				var reqData 		= {'mode':'count', 'conditions':newConds, 'limit':-1},
-					$globalFilter 	= $('#globalFilter').length
-										? $('#globalFilter')
-										: $('nav').find('a[href="#' + $(self.context).data('resource') + 'FiltersRow"]')
-											.after($('<span />',
-										{
-											'class': 'globalFilterCtnr',
-											html:'<input class="globalFilter" type="checkbox" id="globalFilter" /><label for="globalFilter">on all pages <span class="value"></span></label>',
-											click: function()
-											{
-												if ( !$(this).find(':checked').length ){ return; }
-												
-									            // Get the total count of items having matching the provided filters 
-									            $.ajax(
-									            {
-									            	url: reqURL,
-									            	data: $.extend(reqData, {'mode':'', 'getFields':'id'}),
-									            	type: 'get',
-									            	dataType: 'json',
-									            	success: function(response)
-									            	{
-									            		
-									            	}
-									            });													
-											}
-										}));
+				var reqData 		= {'conditions':filterConditions};
             	   
 	            // Get the total count of items having matching the provided filters 
-	            $.ajax(
+	            var globalFilterCountReq = $.ajax(
 	            {
 	            	url: reqURL,
-	            	data:reqData,
+	            	data:$.extend({}, reqData, {'mode':'count', 'limit':-1}),
 	            	type: 'get',
 	            	dataType: 'json',
+	            	//cache: false,
 	            	success: function(response)
-	            	{
-	            		var count = response[$(self.context).data('resource')] || 0;
-						$('label[for=globalFilter]').find('.value').text('(' + count + ')');
-	            	}
+					{
+//Tools.log('global filter count success');
+//Tools.log('global filter count: ' + response[$(self.context).data('resource')]);
+					
+						var count 			= response[$(self.context).data('resource')] || 0,
+							urlQuery 		= $.param($.extend({}, reqData)) || '',
+							globalFilterUrl = reqURL + ( urlQuery ? '?' + urlQuery : '');
+							
+//Tools.log('globalFilterUrl: ' + globalFilterUrl);
+					   
+						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.';
+						$('#globalFilterNotification').remove(); 
+						noty(
+						{
+							'id': 'globalFilterNotification',
+							'class': 'globalFilterNotification',
+							layout: 'topRight',
+							type: 'alert',
+							text: txt,
+							timeout: false,
+							buttons: [
+								{type: 'view', text: 'view' + (count ? ' (' + count + ')' : ''), click: function()
+								{
+									location.href = globalFilterUrl;
+								}},
+								{type: 'select', text: 'select' + (count ? ' (' +  count + ')' : ''), click: function()
+								{
+						            // Get the total count of items having matching the provided filters 
+						            $.ajax(
+						            {
+						            	url: reqURL,
+						            	data: $.extend({}, reqData, {'getFields':'id', 'limit':-1}),
+						            	type: 'get',
+						            	//dataType: 'html',
+						            	dataType: 'json',
+		            					//cache: false,
+						            	success: function(response)
+						            	{
+											var selectedIds = $('#resourceIds').val(),
+												ids 		= response[$(self.context).data('resource')] || []
+//Tools.log(ids);
+											$('#resourceIds').val((selectedIds ? selectedIds + ',' : '') + ids.join());
+
+//Tools.log($('#resourceIds').length);											
+//Tools.log($('#resourceIds').val());
+						            	}
+						            });
+								}}
+							]
+						});
+					}
 	            });
-	    };
+	    	};
 	    
+	    // Handle filter mode activation links
 		$('a').filter('.filter')
 			.on('click', function(e)
 			{
@@ -1680,6 +1593,13 @@ Tools.log('newConds: ' + newConds);
 	       toolbarsContext = '#adminListToolbarTop, #adminListToolbarBottom';
 	       
 	    $('nav').filter('.actions ')
+	    	.on('click', '.group.others', function(e)
+	    	{
+	    		e.preventDefault();
+	    		e.stopPropagation();
+	    		
+	    		$(this).toggleClass('active');
+	    	})
 	    	.on('click', '.settings', function(e)
 		    {
 		    	var $t = $(e.target);
@@ -1698,7 +1618,7 @@ Tools.log('newConds: ' + newConds);
 				$('section').filter('.adminIndexSection').attr('data-density',$this.data('value'));
 				
 				//$this.closest('.settings').filter('.active').removeClass('active');
-		    })
+		    });
 	       
 	    $(toolbarsContext)
 		    .each(function()
@@ -1745,7 +1665,6 @@ Tools.log('newConds: ' + newConds);
                         // everything should go well
 						
 	               })
-	               //.find('> .paginationButtons').bind('click', function(e){ $(this).toggleClass('expanded'); })
 		    });
 	    
 	    return this;  
@@ -1777,10 +1696,6 @@ Tools.log('newConds: ' + newConds);
 			this.saving 		= false;
 			this.inputType 		= 'text';
 
-//Tools.log(this.classes);
-//Tools.log(this.typeClass);
-//Tools.log(this.type);
-
 			if ( !this.url ){ return this; }
 			
 			if 		( this.type === 'email' )									{ this.inputType = 'email'; }
@@ -1796,7 +1711,6 @@ Tools.log('newConds: ' + newConds);
 									+ '<input type="radio" class="multi" name="' + this.colName + '" id="' + this.colName + 'N' + this.resId + '" value="0" ' + (!this.boolVal ? 'checked="checked"' : '') + '/>';
 					break;
 				case 'enum':
-//Tools.log(this.context.attr('id').replace(/Col$/, 'FilterCol') || '');
 					this.fieldHTML = $('#' + (this.context.attr('id').replace(/Col[\d]+$/, 'FilterCol') || ''))
 										.find('select')
 										.parent()
@@ -1807,8 +1721,6 @@ Tools.log('newConds: ' + newConds);
 										.end()
 										.end()
 										.html()
-
-//Tools.log(this.exactVal);
 					break;
 				case 'email':
 				case 'tel':
@@ -1829,8 +1741,6 @@ Tools.log('newConds: ' + newConds);
 									+ '<button class="action cancel adminLink cancelLink" type="cancel" id="cancelLink' + this.resId +'">cencel</button>'
 								+ '</div>';
 			this.HTML 			= '<div class="ui-inlineedit-form"><form>' + this.fieldHTML + this.buttonsHTML + '</form></div>';
-
-//Tools.log(this.HTML)
 
 			// Do not continue if the data type is not a varchar
 			if ( !this.fieldHTML ) { return this; }
@@ -2072,38 +1982,7 @@ var adminRetrieve =
 {
 	init: function()
 	{
-		var subResContext 	= '#adminSubResourcesBlock',
-			context 		= 'table.adminTable',
-			self 			= this;
-			
 		admin.init();
-		//adminIndex.init();
-			
-		// Loop over all the delete buttons in the table
-		$(context)
-			.find('a')
-			.hover(function(e)
-			{
-				var t 			= e.target, 					// Shortcut for event target
-					a			= $(t).closest('a') || null, 	// Try to get closest anchor tag
-					intercept 	= a !== null ? true : false; 	// Do we need to intercept click (no if not an anchor)
-					
-				// Just return if we do not need to intercept the click
-	
-				
-				if ( a.hasClass('relResourceLink') )
-				{
-					admin.relResTimeout = setTimeout(function(){ admin.relatedResource(a,e); }, 250);
-				}
-				
-			}, function(e)
-			{
-				var that = this;
-				
-				clearTimeout(admin.relResTimeout);
-				
-				admin.relResHideTimeout = setTimeout(function(){ $(that).siblings('.adminRelResBubble').addClass('ninja').parent(); }, 250);
-			});
 		
 		return this;
 	}
@@ -2117,7 +1996,6 @@ var adminCreate =
 		admin.init();
 		
 		admin
-			//.handleForeigKeyFields()
 			.handleSlugFields()
 			.handleDateFields()
 			.handleOneToOneFields()
@@ -2139,7 +2017,6 @@ var adminUpdate =
 		admin.init();
 		
 		admin
-			//.handleForeigKeyFields()
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()
@@ -2163,5 +2040,5 @@ var adminSearch =
     	adminIndex.init();
     	
         return this;
-    },
+    }
 };

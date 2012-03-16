@@ -1,4 +1,4 @@
-{* Accepted params values: $label, $value, $name, $resourceSingular, $options [$required] *}
+{* Accepted params values: $label, $value, $name, $resourceSingular, $options, [$selected], [$required] *}
 {$resourceSingular = $resourceSingular|default:''}
 {if $resourceSingular !== ''}{$secondPart=$name|default:$label|ucfirst}{else}{$secondPart=$name|default:$label}{/if}
 {if $mode === 'api'}

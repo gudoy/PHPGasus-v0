@@ -19,7 +19,7 @@
 {/if}
 {if $view.name}
 <script>
-$(document).ready(function(){ if ( typeof({$view.name}) !== 'undefined' {if $data.options.outputExtension === 'xhtml'}&amp;&amp;{else}&&{/if} {$view.name}.init ) { {$view.name}.init(); } });
+$(document).ready(function(){ if ( typeof({$view.name}) !== 'undefined' && {$view.name}.init ) { {$view.name}.init(); } });
 </script>
 {/if}
 {/if}

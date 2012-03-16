@@ -175,7 +175,8 @@ class View extends Application implements ViewInterface
 		
 		// Special case if method is 'retrieve' but resource id is not set
 		// In this case, method is forced back to index 
-		if ( $m === 'retrieve' && is_null($id) ) { $m = 'index'; }
+		if 		( $m === 'retrieve' && is_null($id) ) 	{ $m = 'index'; }
+		elseif 	( $m === 'retrieve' && $id === 'new' ) 	{ $m = 'create'; }
 		
 		//$m 			= !empty($pM) 
 		//					? $pM : !empty($gM) 

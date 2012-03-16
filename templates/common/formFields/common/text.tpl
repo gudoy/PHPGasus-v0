@@ -12,9 +12,9 @@
 
 {/strip}
 {if !isset($inputOnly) || !$inputOnly}
-<div class="line">
+<div class="line" id="{$postValName}Line">
 	<div class="labelBlock">
-		<label for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
+		<label class="span" for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
 {/if}

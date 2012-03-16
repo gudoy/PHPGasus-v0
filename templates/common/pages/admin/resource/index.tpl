@@ -41,6 +41,7 @@
 
 	<form class="adminForm adminIndexForm" id="frmAdmin{$resourceName|capitalize}" action="{$smarty.const._URL_ADMIN}{$resourceName}?method=index" class="commonForm" method="post" enctype="multipart/form-data">
 	{include file='common/blocks/admin/resource/list/list.tpl'}
+	<input type="hidden" name="ids[]" id="resourceIds" />
 	</form>
 	
 </section>

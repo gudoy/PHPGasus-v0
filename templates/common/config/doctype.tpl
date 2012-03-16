@@ -20,6 +20,5 @@
 {$doctypeCompl 		= ' PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"'}
 {$htmlAttrbitues 	= " $xmlns $langAttr $xmllang"}
 {/if}
-{/strip}
-<!DOCTYPE html{$doctypeCompl}>
+{/strip}<!DOCTYPE html{$doctypeCompl}>
 <html id="{$view.cssid|default:$view.smartname|default:'noSpecificId'}" class="no-js {include file='common/config/css/bodyClasses.tpl'}"{if $smarty.const._APP_USE_MANIFEST} manifest="{$smarty.const._APP_MANIFEST_FILENAME}"{/if}{$htmlAttrbitues}>

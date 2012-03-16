@@ -12,7 +12,7 @@
 <div class="group actionsButtons">
     <span class="title">{t}actions{/t}</span>
     {if $userResPerms.allow_update || $userResPerms.allow_delete}
-    <span class="actions primary">
+    <span class="actions primary">{block name='primaryActions'}
     {strip}
     	{if $userResPerms.allow_update}
         {$crudability = $data._resources[$resourceName].crudability|default:'CRUD'}
@@ -34,19 +34,23 @@
         </a>
         {/if}
     {/strip}
-    </span>
+    {/block}</span>
     {/if}
+    <span class="actions secondary">{strip}{block name='secondaryActions'}{/block}{/strip}</span>
 </div>
 <div class="group filterButtons">
-    <span class="actions">
+    <div class="actions">
         <a class="action actionBtn filter filterLink" href="#{$resourceName}FiltersRow">
             <span class="value">{t}filter{/t}</span>
         </a>
-    </span>
+        <div class="group others" id="userSpecificFilters">
+        	{block name='userSpecificFilters'}{*<span class="title">{t}others{/t}</span><div class="content">{t}others{/t}</div>*}{/block}
+        </div>
+    </div>
 </div>
 <div class="group settings">
 	<span class="title">{t}settings{/t}</span>
-	<div class="groups">
+	<div class="groups others">
         <div class="group displayMode">
         	<span class="title">{t}display mode{/t}</span>
         	<span class="actions">

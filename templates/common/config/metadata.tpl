@@ -1,5 +1,5 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>{$view.title|default:$smarty.const._APP_TITLE}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 {block name='metas'}
 <meta name="description" content="{$view.description|default:$smarty.const._APP_META_DECRIPTION|replace:'&':'&amp;'}" />
 <meta name="keywords" content="{$view.keywords|default:$smarty.const._APP_META_KEYWORDS}" />

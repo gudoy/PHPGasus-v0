@@ -10,6 +10,7 @@ var app =
 	isMobile: window.screen.width <= 600,
 	//isBackBerry: ua.indexOf('BlackBerry') > -1,
 	support: {touch: (typeof Touch == "object")},
+	fullscreen: window.navigator.standalone || false,
 	orientation: 'landscape',
 	
 	init: function()
@@ -19,7 +20,33 @@ var app =
 		ui.init();
 		
 		return this;
-	}	
+	},
+	
+	// Dynamic plugins loading
+	// name => {}
+	// 		status: 0=not loaded, 1=loaded, 2=loading
+	plugins: {}, 
+	require: function()
+	{
+		var that 	= this,
+			args 	= arguments,
+			plugin 	= args[0] || null,
+			loaded 	= {};
+		
+		if ( plugin === 'notifier' )
+		{
+			that.plugins.notifier = {status:2};		
+			Tools.loadCSS('/public/stylesheets/default/jquery.noty.css', {'id':'jqueryNotyCSS'});
+			Tools.loadJS(
+			{
+				id:'jqueryNotyJS', 
+				url:'/public/javascripts/common/libs/jquery.noty.js', 
+				success:function(){ that.plugins.notifier.status = 1;}
+			});
+		}
+		
+		return this;
+	}
 };
 
 var ui =
@@ -38,8 +65,7 @@ var ui =
 			$(this).closest('nav').toggleClass('active');
 		});
 		
-		$('#header').find('#accountActions')
-        	//$('#accountActions')
+		$('#accountActions')
         	.bind('click', function(e)
 	        {
 	            e.stopPropagation();
@@ -63,14 +89,14 @@ var ui =
 				$dtl.addClass('active');
 	        });
        
-       $('footer').find('#accountActions')
-       //$('#accountActions')
-       	.on('click', function(){ $(this).toggleClass('active'); });
+		$('#accountActions')
+			//.bind('click', function(){ $(this).toggleClass('active'); });
+       		.on('click', function(){ $(this).toggleClass('active'); });
         
         // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
         if ( $('html').hasClass('gecko') ){ self.fixFirefoxFlexbox(); }
 		
-		return this.langChooser().handleIos().handleOrientation();
+		return this.handleIos().handleOrientation();
 	},
 	
 	
@@ -94,39 +120,6 @@ var ui =
         });
         
         return this;
-	},
-	
-	langChooser: function()
-	{
-		if ( !app.isIphone && !app.isAndroid ){ return this; }
-		
-		$('#languagesBlock').click(function(e)
-		{
-			e.preventDefault();
-			
-			$(this)
-				.dialog(
-				{
-					width: '80%',
-					height: 'auto',
-					minHeight: 200,
-					modal: true,
-					close: function() { $(this).dialog('destroy'); },
-					open: function()
-					{
-						$('a', this).click(function(e)
-						{
-							e.preventDefault();
-							
-							var t = $(this).attr('href') || '';
-							
-							if ( t !== '' ){ window.location.href = t; }  
-						});
-					}
-				})
-		});
-		
-		return this;
 	},
 	
 	handleOrientation: function()
@@ -159,8 +152,8 @@ var ui =
 		// Hide the url bar
 		if ( app.isIphone || app.isIpad )
 		{
-			window.scrollTo(0,0);
-		}
+			//window.scrollTo(0,0);
+			window.addEventListener('load',function() { setTimeout(function(){ window.scrollTo(0, 1); }, 0); }); }
 		
 		return this;
 	}

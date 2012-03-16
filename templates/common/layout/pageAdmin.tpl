@@ -31,7 +31,6 @@
 		</nav>
 		{/block}
 		
-		
 	</div>
 		
 {/block}

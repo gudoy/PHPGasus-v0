@@ -89,7 +89,7 @@ class Model extends Application
 			// TODO: make something more user friendly. redirect to /error/
 			die('Database connection error. ' . ( $this->env['type'] === 'prod' 
 				? '' 
-				: $this->db-connect_errno() . ': ' . $this->db-connect_error() ));
+				: $this->db->connect_errno . ': ' . $this->db->connect_error ));
 		}
 		
 		// Tell mysql we are sending already utf8 encoded data
