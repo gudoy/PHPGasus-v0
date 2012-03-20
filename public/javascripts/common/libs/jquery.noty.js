@@ -218,7 +218,7 @@
 		text : "null",
 		//textAlign : "center",
 		type : "alert",
-		speed : 50000,
+		speed : 320,
 		timeout : 5000,
 		closable : true,
 		closeOnSelfClick : true,

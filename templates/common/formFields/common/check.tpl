@@ -1,14 +1,14 @@
 {strip}
-{* Accepted params values: $label, $name, $options, [$resourceSingular], [$value], [$selected], [$default], [$required] *}
+{* Accepted params values: $label, $value, $name, $resourceSingular, [$checked], [$required] *}
 
 {$resourceSingular = $resourceSingular|default:''}
 
 {if $resourceSingular !== ''}{$secondPart=$name|default:$label|ucfirst}{else}{$secondPart=$name|default:$label}{/if}
 
-{if $mode == 'api'}
-    {$postValName=$label}
+{if $mode === 'api'}
+	{$postValName = $label}
 {else}
-    {$postValName=$resourceSingular|cat:$secondPart}
+	{$postValName = $resourceSingular|cat:$secondPart}
 {/if}
 
 {* Handle case where the post value use arrays *}
@@ -27,12 +27,7 @@
 	</div>
 	<div class="fieldBlock">
 {/if}
-		<select class="{$class|default:'normal'} {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" {if $required}required="required"{/if}>
-            {foreach $options as $k => $v}
-            {$optVal=$v}
-            <option value="{$optVal}" {if $postValue === $optVal || ($selected && $selected === $optVal) || $default && $default == $optVal}selected="selected"{/if}>{$v}</option>
-            {/foreach}
-		</select>
+		<input class="multi {$class} {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" {if $required}required="required"{/if} type="checkbox"  {if $value}value="{$value}"{/if} {if $postValue === $value || $checked}checked="checked"{/if} />
 {if !isset($inputOnly) || !$inputOnly}
 	</div>
 </div>

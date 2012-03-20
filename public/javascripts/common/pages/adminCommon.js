@@ -8,6 +8,10 @@ var admin =
 	
 	init: function()
 	{
+		// Fix scrolling on var dumps (dev)
+		$('pre')
+			.closest('body').closest('html').andSelf().css({'overflow-x':'visible', 'overflow-y':'visible', 'overflow':'visible'});
+		
 	    this.search.init();
 	    
 	    this
@@ -1177,7 +1181,7 @@ var adminIndex =
 				{
 					filter: 'tr.dataRow',
 					distance: 20,
-					cancel: 'div.value, input',
+					cancel: 'div.value, :input',
 					selecting: function(event, ui)
 					{
 						$(ui.selecting)
@@ -1227,7 +1231,7 @@ var adminIndex =
 				
 				// If the target is an input, just return
 				else if ( jt.is(':input') )
-				{	
+				{
 					if 		( jt.is('#toggleAll') ){ return self.toggleAll(jt); }
 					else if ( jt.is(':checkbox') )
 					{
@@ -1256,7 +1260,7 @@ var adminIndex =
 					
 				// Just return if we do not need to intercept the click
 				//if ( !cel.hasClass('dataCol') || !intercept  ){ return self; }
-				if ( !a ){ return self; }
+				if ( !a ){ return; }
 				
 				// Handle specific link types
 				if 		( a.hasClass('deleteLink') )			{ return admin.del(a); }
@@ -1461,16 +1465,19 @@ Tools.log(conditions);
 	            	success: function(response)
 					{
 //Tools.log('global filter count success');
-//Tools.log('global filter count: ' + response[$(self.context).data('resource')]);
 					
 						var count 			= response[$(self.context).data('resource')] || 0,
 							urlQuery 		= $.param($.extend({}, reqData)) || '',
 							globalFilterUrl = reqURL + ( urlQuery ? '?' + urlQuery : '');
 							
-//Tools.log('globalFilterUrl: ' + globalFilterUrl);
+//Tools.log('global filter count: ' + count);
+
+						// Remove global filter notification if any
+						$('#globalFilterNotification').remove();
+							
+						if ( !count ){ return; }
 					   
-						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.';
-						$('#globalFilterNotification').remove(); 
+						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.'; 
 						noty(
 						{
 							'id': 'globalFilterNotification',
