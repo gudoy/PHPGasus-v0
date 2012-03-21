@@ -560,6 +560,7 @@ class Model extends Application
             case 'url':
             case 'email':
             case 'enum':
+			case 'json':
 			case 'varchar':
 				// Try to get the subtype
 				$colProps = &$this->application->dataModel[$p['resource']][$p['colName']];
@@ -1507,6 +1508,11 @@ class Model extends Application
 				if ($tmpVal !== '') $value = $this->escapeString(trim(stripslashes('POINTFROMTEXT(\''.$tmpVal.'\')')));
 				else $value = "''";
 			}
+			else if ( $field['type'] === 'json' )
+			{
+				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";   
+			}
 			else if ( $field['type'] === 'varchar' )
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
@@ -2018,6 +2024,10 @@ $tmpVal = isset($d[$fieldName])
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				if ($tmpVal !== '') $value = $this->escapeString(trim(stripslashes('POINTFROMTEXT('.$tmpVal.')')));
 				else $value = "''";
+			}
+			else if ( $field['type'] === 'json' )
+			{
+				$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
 			}
 			else if ( $field['type'] === 'varchar' )
 			{

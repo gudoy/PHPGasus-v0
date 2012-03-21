@@ -910,7 +910,9 @@ class AdminView extends View
 		// Log the performed action
 		$oldPOST = $_POST;
 		$log = array(
-			'slug' 				=> $p['action'] . ucfirst($p['resource_name']) . $p['resource_id'],
+			'slug' 				=> $p['action'] 
+									. ucfirst($p['resource_name']) 
+									. ( is_array($p['resource_id']) ? join(', ', $p['resource_id']) : $p['resource_id'] ),
 			'action' 			=> $p['action'],
 			'resource_name' 	=> $p['resource_name'],
 			'resource_id' 		=> $p['resource_id'],

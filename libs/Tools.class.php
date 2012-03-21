@@ -449,6 +449,9 @@ class Tools
 				$value = filter_var($value, FILTER_SANITIZE_EMAIL); break;
 			case 'tel':
 				$value = preg_replace('/\D/', '', $value); break;
+			case 'json':
+				// TODO: how to validate json???
+				// use Json Schema PHP Validator???
 			case 'string':
 			default:	
 				$value = filter_var($value, FILTER_SANITIZE_STRING); break;

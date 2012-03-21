@@ -14,10 +14,10 @@
 {* Handle case where the post value use arrays *}
 {$postValue = $smarty.post[$postValName]}
 {* BUGGY *}
-{if strpos($postValName, '[') !== false}
+{* if strpos($postValName, '[') !== false}
 {$tmp = "smarty.post{preg_replace('/^(.*)\[(.*)$/U', "['$1'][$2", str_replace(array("[","]"), array("['","']"), $postValName))}"}
 {$postValue={${$tmp}}}
-{/if}
+{/if *}
 
 {if empty($type) || !in_array($type, array('email','phone','url','search','password','datetime','date','time'))}{$type='text'}{/if}
 {$isDatetimeType = in_array($type, array('date','datetime'))}

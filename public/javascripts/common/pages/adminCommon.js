@@ -1235,21 +1235,12 @@ var adminIndex =
 					if 		( jt.is('#toggleAll') ){ return self.toggleAll(jt); }
 					else if ( jt.is(':checkbox') )
 					{
-						var jTR = jt.closest('tr');
-						//jt.is(':checked') ? jTR.addClass('ui-selected') : jTR.removeClass('ui-selected ui-selectee')
+						var $tr = jt.closest('tr');
 						
-						if ( jt.is(':checked') )
-						{
-							jTR.addClass('ui-selected');
-							
-							$toolbars.find('.actionsButtons').show();
-						}
-						else
-						{
-							jTR.removeClass('ui-selected ui-selectee');
-							
-							if ( !$('.ui-selected', self.context).length ){ $toolbars.find('.actionsButtons').hide(); }
-						}
+						if ( jt.is(':checked') ){ $tr.addClass('ui-selected'); }
+						else 					{ $tr.removeClass('ui-selected ui-selectee'); }
+						
+						self.handleSelection();
 					}
 					
 					return true;
@@ -1340,6 +1331,33 @@ var adminIndex =
 		        else  { $cols.addClass('hidden').removeClass('displayed'); }
 		    });
 		});
+		
+		return this;
+	},
+	
+	handleSelection: function()
+	{
+		var $selected 	= $('.ui-selected', 'tbody'),
+			$toolbars 	= $('nav').filter('.toolbar');
+		
+		// If no row is selected, hide primary actions
+		if ( !$selected.length ){ $toolbars.find('.actionsButtons').hide(); }
+		else 					{ $toolbars.find('.actionsButtons').show(); }
+		
+		// Update actions labels
+		$('.primary, .secondary', $toolbars).find('a').filter('.action')
+			.each(function()
+			{
+				var $this 	= $(this),
+					$count 	= $('.count', $this).hide();
+					
+				if ( $selected.length > 1 )
+				{
+					$count = $count.length 
+								? $count.text('(' + $selected.length + ')').show()
+								: $this.append($('<span />', {'class':'count','text':'(' + $selected.length + ')'})).show()
+				}
+			});
 		
 		return this;
 	},
@@ -1579,10 +1597,13 @@ Tools.log(conditions);
 							? (args[0] === 'check' ? 'check' : 'uncheck')
 							: ($(args[0]).is(':checked') ? 'check' : 'uncheck'),
 			all 		= $('input:checkbox:visible', self.context),
-			$toolbars 	= $('.adminListToolbar');
+			//$toolbars 	= $('.adminListToolbar');
+			$toolbars 	= $('nav').filter('.toolbar');
 		
 		if ( action === 'check' )	{ all.attr('checked','checked').closest('tr').addClass('ui-selected'); $toolbars.find('.actionsButtons').show(); }
 		else 						{ all.removeAttr('checked').closest('tr').removeClass('ui-selectee ui-selected'); $toolbars.find('.actionsButtons').hide(); }
+		
+		self.handleSelection();
 		
 		return this;
 	},

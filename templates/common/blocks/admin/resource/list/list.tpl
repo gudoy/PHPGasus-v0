@@ -11,6 +11,10 @@
 	<div class="block adminListingBlock {$displayMode}Mode" id="admin{$resourceName|capitalize}Block">
 		{if $displayMode === 'thumbs'}
 		{include file='common/blocks/admin/resource/list/listThumbs.tpl'}
+		{elseif $displayMode === 'list'}
+		{include file='common/blocks/admin/resource/list/listThumbs.tpl'}
+		{elseif $displayMode === 'table' || $displayMode === 'grid'}
+		{include file='common/blocks/admin/resource/list/listTable.tpl'}
 		{else}
 		{include file='common/blocks/admin/resource/list/listTable.tpl'}
 		{/if}

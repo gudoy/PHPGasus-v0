@@ -13,6 +13,6 @@
 {foreachelse}
 <tr class="noData first firstRow last lastRow">
 	{* TODO: use proper displayed fields count + 3 (checkbox col, actions co, goto col) *}
-	<td class="firstCol lastCol" colspan="{count($rModel)*2+3}">{t}There's currently nothing here{/t}</td>
+	<td class="firstCol lastCol" colspan="{count($rModel)*2+3}"><p class="nodata">{t}There's currently nothing here{/t}</p></td>
 </tr>
 {/foreach}

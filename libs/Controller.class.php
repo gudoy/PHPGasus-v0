@@ -647,6 +647,17 @@ class Controller extends Application
 		{
 			$filteredData  = addslashes($f);
 		}
+		else if ( $field['type'] === 'json' )
+		{
+			// TODO: how to validate json???
+			// use Json Schema PHP Validator???
+			
+			// Try decoding json data and check if it returns an error
+			$tmp = json_decode((string) $f);
+			unset($tmp);
+			
+			$filteredData = json_last_error() === JSON_ERROR_NONE ? $f : null;
+		}
 		/*
 		else if ( $field['type'] === 'text' && !empty($field['subtype']) && $field['subtype'] === 'html' )
 		{

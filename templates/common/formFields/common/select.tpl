@@ -14,10 +14,10 @@
 {* Handle case where the post value use arrays *}
 {$postValue = $smarty.post[$postValName]}
 {* BUGGY *}
-{if strpos($postValName, '[') !== false}
+{* if strpos($postValName, '[') !== false}
 {$tmp = "smarty.post{preg_replace('/^(.*)\[(.*)$/U', "['$1'][$2", str_replace(array("[","]"), array("['","']"), $postValName))}"}
 {$postValue={${$tmp}}}
-{/if}
+{/if *}
 
 {/strip}
 {if !isset($inputOnly) || !$inputOnly}
