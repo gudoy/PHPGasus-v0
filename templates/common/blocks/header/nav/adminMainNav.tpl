@@ -5,7 +5,7 @@
 <ul class="nav main nav-lv1 resourceGroups" id="adminMainNav">
     {block name='adminMainNavItems'}
     <li id="dashboardNavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
-        <a href="{$smarty.const._URL_ADMIN}"><span class="value name">{t}dashboard{/t}</span></a>
+        <a class="view" href="{$smarty.const._URL_ADMIN}"><span class="value name">{t}dashboard{/t}</span></a>
     </li>
     {foreach $resourcesGroups as $gpName => $gpProps}
     {$gpDisplayName     = $gpProps.displayName|default:$gpName}

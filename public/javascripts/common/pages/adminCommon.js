@@ -56,6 +56,8 @@ var admin =
 		var $menu = $('#adminMainNav');
 		
 		$menu
+			.on('click', function(e){ handleMenu(e);})
+			/*
 			.on('click', '.action', function(e){ e.stopPropagation(); })
 			.on('click', '.resourceGroup', function(e)
 			{
@@ -69,7 +71,7 @@ var admin =
 				e.preventDefault();
 				
 				$this.attr('aria-expanded', !($this.attr('aria-expanded') == 'true') + '');
-			})
+			})*//*
 			.find('.resourceGroup').each(function()
 			{
 				var $this 	= $(this);
@@ -79,7 +81,35 @@ var admin =
 				if ( !$ul.length ) { return; }
 				
 				$this.attr('aria-expanded', visible);
-			})
+			})*/
+			
+		var handleMenu = function(e)
+		{
+Tools.log('click menu');
+			var $this 	= $(this),
+				$t 		= $(e.target),
+				$a 		= $t.closest('a', $this),
+				$action = $a.filter('.action'); 
+					
+Tools.log('class: ' + $t.attr('class'));
+Tools.log('$action: ' + $action.length);
+			e.stopPropagation()
+
+			if ( $a.length && $a.hasClass('view') ){ return true; }
+			else if ( $action.length ){ return true; }
+			else
+			{														
+				var $group 	= $t.closest('.resourceGroup', $this),
+					$ul 	= $('> ul', $group);
+					
+				$ul.toggle();
+				$group.attr('aria-expanded', $ul.is(':visible'));
+				
+				e.preventDefault();
+				
+				if ( $('#sideCol').hasClass('collapsed') ){ $group.siblings().find('> ul').hide().attr('aria-expanded',false); }
+			}
+		}
 		
 		return this;
 	},

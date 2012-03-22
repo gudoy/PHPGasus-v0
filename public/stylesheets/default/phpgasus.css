@@ -229,12 +229,14 @@ form .hint .key { display:none; }
 #body { clear:both; }
 #footer { clear:both; }
 
+/*
 #footer #copyrightBlock { display:inline; display:inline-block; float:left; text-align:left; }
 #footer #poweredByBlock { display:inline; display:inline-block; float:right; text-align:right; }
 
 .nav { display:inline; display:inline-block; vertical-align:middle; }
 .nav li { margin-left:0; display:inline; display:inline-block; vertical-align:middle; }
 .nav li a { display:block; float:left; }
+*/
 
 
 /* Header */

@@ -65,6 +65,7 @@ var ui =
 			$(this).closest('nav').toggleClass('active');
 		});
 		
+		/*
 		$('#accountActions')
         	.bind('click', function(e)
 	        {
@@ -87,7 +88,7 @@ var ui =
 	           
 	           // Otherwise, just expand it 
 				$dtl.addClass('active');
-	        });
+	        });*/
        
 		$('#accountActions')
 			//.bind('click', function(){ $(this).toggleClass('active'); });

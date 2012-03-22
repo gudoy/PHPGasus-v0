@@ -481,12 +481,13 @@ header .paginationBlock { float:right; }
 	.admin #sideCol #asideContent,
 	#mainColContent { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
 
+	/*
 	html.api.no-flexbox,
 	html.admin.no-flexbox,
 	html.api.no-flexbox body,
 	html.admin.no-flexbox body,
 	.api #sideCol #asideContent,
-	.admin #sideCol #asideContent { overflow:auto; overflow-y:auto; }
+	.admin #sideCol #asideContent { overflow:auto; overflow-y:auto; }*/
 	
 	.api #layout,
 	.admin #layout { max-height:100%; }
