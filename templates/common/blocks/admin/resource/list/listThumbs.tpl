@@ -19,7 +19,10 @@
 	</figure>
 	{if $displayMode === 'list'}
 	{if $isReadable}<a class="content goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{else}<div class="content">{/if}
-		{if $resource.update_date}<time class="lastupdate" datetime="{$resource.update_date|date_format:"%Y-%m-%dT%H:%M:%S:00Z"}">{$resource.update_date|date_format:"%d %B %Y, %Hh%M"}</time>{/if}
+		{if $resource.update_date}
+		{*<time class="lastupdate" datetime="{$resource.update_date|date_format:"%Y-%m-%dT%H:%M:%S:00Z"}">{$resource.update_date|date_format:"%d %B %Y, %Hh%M"}</time>*}
+		{include file='common/blocks/humanTime.tpl' value=$resource.update_date}
+		{/if}
 		<hgroup>
 			<h3><span class="id">{$resource.id} </span>{if $resource[$nameField]}<span class="nameField">{$resource[$nameField]}</span>{/if}</h3>
 		</hgroup>		

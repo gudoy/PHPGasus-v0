@@ -14,7 +14,7 @@
     <li id="{$gpName}NavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
         <a id="{$gpName}ResourcesGroupLink"><span class="value name">{$gpDisplayName}</span></a>
         {if $gpProps.resources}
-        <ul class="nav nav-lv2 resources resourcesGroupList" id="{$gpName}ResourcesList">
+        <ul class="nav nav-lv2 resources resourcesGroupList" id="{$gpName}ResourcesList" data-groupdisplayname="{$gpName}" data-groupdisplayname="{$gpDisplayName}">
         {foreach $gpProps.resources as $k => $v}
         {strip}
         

@@ -52,7 +52,7 @@ class php2XML
 		$count = count($obj);
 		$i = 0;
 		foreach ($obj as $key => $val)
-		{
+		{			
 			$i++;
 			
 			$isLast 	= $i === $count;
@@ -60,7 +60,7 @@ class php2XML
 			$eltName     = is_numeric($key) || !$this->isValidElement($key)/*|| !empty($parentName)*/ ? Tools::singular($parentName) : $key;
 //$this->dump($key);
 //$this->dump($parentName);
-//if ( is_array($val) ) { $this->dump($eltName); } 
+//if ( is_array($val) ) { $this->dump($eltName); }
 			
 			// Store the current element
 			

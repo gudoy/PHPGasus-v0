@@ -374,6 +374,13 @@ class Tools
 		switch($p['type'])
 		{
 			case 'email': 	$isValid = !!filter_var($value, FILTER_VALIDATE_EMAIL); break;
+			case 'json':
+				// TODO: how to validate json???
+				// use Json Schema PHP Validator???
+				$tmp = json_decode((string) $f);
+				unset($tmp);
+				
+				$isValid = json_last_error() === JSON_ERROR_NONE; break;
 			case 'sting': 
 			default:  		$isValid = true; break; 
 		}

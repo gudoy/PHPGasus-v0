@@ -107,7 +107,7 @@ Tools.log('$action: ' + $action.length);
 				
 				e.preventDefault();
 				
-				if ( $('#sideCol').hasClass('collapsed') ){ $group.siblings().find('> ul').hide().attr('aria-expanded',false); }
+				if ( $('#sideCol').hasClass('collapsed') ){ $group.siblings().attr('aria-expanded',false).find('> ul').hide(); }
 			}
 		}
 		
