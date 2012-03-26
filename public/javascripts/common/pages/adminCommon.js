@@ -1182,6 +1182,7 @@ var adminIndex =
 
 		admin.init();
 		
+		// TODO: handle delete mode
 		// Handle Mode switching
 		$('#editModeBtn')
 			.live('click', function(e)

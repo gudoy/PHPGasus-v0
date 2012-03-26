@@ -29,8 +29,9 @@
 	</h2>
 	{/block}
 	{block name='mainColHeaderPrimaryActions'}
-	<nav class="actions resourceActions" id="mainColHeaderPrimaryActions">
-		{include file='common/blocks/admin/resource/actions/actions.tpl'}
+	<nav class="resourceActions" id="mainColHeaderPrimaryActions">
+		<div class="actions primary">{include file='common/blocks/admin/resource/actions/actions.tpl'}</div>
+		<div class="actions secondary">{strip}{block name='secondaryActions'}{/block}{/strip}</div>
 	</nav>
 	{/block}
 </header>

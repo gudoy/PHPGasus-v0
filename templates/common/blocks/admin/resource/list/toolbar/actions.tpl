@@ -36,7 +36,7 @@
     {/strip}
     {/block}</span>
     {/if}
-    <span class="actions secondary">{strip}{block name='secondaryActions'}{/block}{/strip}</span>
+    <div class="actions secondary">{strip}{block name='secondaryActions'}{/block}{/strip}</div>
 </div>
 <div class="group filterButtons">
     <div class="actions">

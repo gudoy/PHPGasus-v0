@@ -36,7 +36,8 @@ nav.main > .title .value { /*text-indent:-9999em;*/ font:0/0 serif; text-shadow:
 
 nav.main .resource .value,
 .admin.index #mainColHeader #editModeBtn .value,
-.toolbar .settings .action .value { font-size:12px; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; line-height:normal; }
+.toolbar .settings .action .value,
+.listMode .resource .action .value { font-size:12px; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; line-height:normal; }
 @media handheld, only screen and (min-width:980px) 
 {
 	#layout .actions .action:hover .value,
@@ -251,7 +252,9 @@ div.actionBtn,
 .js .translationsNav,
 .js #mainNavTitle,
 .ui-dialog-buttonset button,
-.toolbar .settings { background:#b8b8b8; background:-webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#b8b8b8)); background:-webkit-linear-gradient(#fefefe, #b8b8b8); background:-moz-linear-gradient(#fefefe, #b8b8b8); background:-o-linear-gradient(#fefefe, #b8b8b8); background:-ms-linear-gradient(#fefefe, #b8b8b8); border:1px solid #5f5f5f; -mox-border-radius:3px; border-radius:3px; box-shadow:1px 1px 0 rgba(255,255,255,0.2); }
+.toolbar .settings,
+.listMode .resource .action:not(.view) { background:#b8b8b8; background:-webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#b8b8b8)); background:-webkit-linear-gradient(#fefefe, #b8b8b8); background:-moz-linear-gradient(#fefefe, #b8b8b8); background:-o-linear-gradient(#fefefe, #b8b8b8); background:-ms-linear-gradient(#fefefe, #b8b8b8); border:1px solid #5f5f5f; -mox-border-radius:3px; border-radius:3px; box-shadow:1px 1px 0 rgba(255,255,255,0.2); }
+.titleBlock .actions:empty { display:none; }
 .ui-dialog-buttonset button { padding:3px 10px; }
 .toolbar .actions .action:not(:last-child),
 .titleBlock .actions .action:not(:last-child) { border-right:1px solid #5f5f5f; }
@@ -278,6 +281,8 @@ nav.main .resourceGroup > a:before,
 nav.main .resourceGroup[aria-expanded="false"] > a:before { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAlElEQVR42mP4z5l2utb1P/N/BmTI8F8+6X/S/+z9jRb/mZCFdUHCIJi7rkXrPyNM2AAmnPQ/+Xfeol5ZkBSKMAimfGxx/M+EJtx9/WLRf6X/LEjCnU+uL/mf9d/qvzBcdePLC6v+5/13/q/wnwtitm7Z45Mb/hf9dwdq5oE5Euju//7/vf6r/udFdTfnf7H//Oi+BABk3oxnBUxsOgAAAABJRU5ErkJggg=="); }
 nav.main .resourceGroup[aria-expanded="true"] > a:before { background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAo0lEQVR42lXMAQbCABiG4X9bsCqjFCBZdoYIRJJ0ixUGgJBSTCRGOkm6QhBFiRihRIcItLcys+UD74NP0J2jTXLOAV0orUf/vBlSFAy602eM7oMOhqBh7ZYR9oK9h4UmCDnas1vIiyutb8uPVaqneS+w6b8vLiZqyEKWpufbrM40yCARq1T8ifO6DyijxCykqW/H1NCRJCsUMMmjxBwdpVCj+gC7jI3hIJxPgQAAAABJRU5ErkJggg=="); }
 nav.main .resourceGroup > a:only-child:before { background-image:none; }
+
+.listMode .resource .action:not(.view) { padding:4px 8px; }
 
 .toolbar .actions:empty { display:none; border:none; }
 .toolbar .title { display:none; text-align:center; font-weight:bold; }
@@ -650,20 +655,24 @@ section > header { padding:5px 0; margin-bottom:0; }
 .breadcrumbs { float:left; display:none; }
 
 
-
 /* Resources list (start) */
 .resource .actions { }
 .resource .action { margin:0; }
-.resource .actions .action { display:none; }
+.resource .actions .action,
+.resource .status input,
 .editMode .resource .action:not(.edit) { display:none; }
-.editMode .resource .action.edit { display:inline-block; }
+.deleteMode .resource .action:not(.delete) { display:none; }
+.editMode .resource .action.edit,
+.deleteMode .resource .action.delete,
 .resource .actions .view,
-.editMode .resource .edit { display:inline-block; }
+/*.editMode .resource .edit,*/
+.editMode .resource .status input { display:inline-block; }
 .resource .nameField { color:#000; font-weight:bold; font-size:13px; }
+.resource[data-nameField*=email] .title { text-transform:none; }
 
 .adminLisBlock.thumbsMode {}
 .thumbsMode .resource { /*width:90px; min-height:90px;*/ max-width:90px; max-height:90px; margin:10px 10px; display:inline-block; position:relative; vertical-align:top; }
-.thumbsMode .resource .cover { max-width:90px; max-height:90px; box-sizing:border-box; -moz-box-sizing:border-box; margin:0 auto 10px; padding:5px; display:block; background:#fff; border:1px solid #999; box-shadow:3px 3px 3px rgba(0,0,0,0.3); }
+.thumbsMode .resource .cover { max-width:90px; max-height:90px; box-sizing:border-box; -moz-box-sizing:border-box; margin:0 auto 10px; padding:5px; display:block; background:#fff; border:1px solid #bbb; box-shadow:3px 3px 3px rgba(0,0,0,0.3); }
 .thumbsMode .resource .cover.default { width:90px; height:90px; }
 .thumbsMode .resource figcaption { display:block; clear:both; text-align:center; }
 .thumbsMode .resource figcaption > a { text-decoration:none; }
@@ -681,12 +690,15 @@ section[data-density="average"] .thumbsMode .resource .cover { max-width:90px; m
 section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; max-height:120px; }
 
 .listMode .resource { display:table; border-bottom:1px solid #BBB; background-repeat:no-repeat; background-position:99% 50%; background-position:right 10px center; }
-.listMode .resource > figure { padding:0 10px 0 10px; display:table-cell; vertical-align:top; }
-.listMode .resource > figure .cover { width:32px; height:32px; overflow:hidden; margin:0 5px; border:1px solid; background:#fff; border-radius:8px; }
+.listMode .resource > .status { display:table-cell; padding:0 2px; vertical-align:middle; }
+.listMode .resource > figure { padding:2px 5px 2px 5px; display:table-cell; vertical-align:top; }
+.listMode .resource > figure .cover { width:32px; height:32px; overflow:hidden; margin:0; border:1px solid #bbb; background:#fff; border-radius:8px; }
 .listMode .resource > .content { width:100%; display:table-cell; vertical-align:top; text-decoration:none; }
-.listMode .resource > .content .action.goTo { padding:2px 0; display:block; }
+.listMode .resource > .content.goTo { padding:2px 0; }
 .listMode .resource > .actions { display:table-cell; vertical-align:middle; text-align:center; }
 .listMode .resource .id { display:none; }
+.listMode .resource .datetimeField { margin:2px 5px 0 5px; float:right }
+.listMode .resource .action { margin-left:5px; margin-right:5px; }
 /* Resources list (end) */
 
 
@@ -725,9 +737,13 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	#layout .toolbar.bottom .settings .action:hover,
 	#layout .toolbar.bottom .settings .action.hover { position:static; }
 	#layout .toolbar.bottom .settings .action:hover .value:before,
-	#layout .toolbar.bottom .settings .action.hover .value:before { display:none; }
+	#layout .toolbar.bottom .settings .action.hover .value:before,
+	#layout .listMode .resource .actions .action.hover .value:before,
+	#layout .listMode .resource .actions .action:hover .value:before { display:none; }
 	#layout .toolbar.bottom .settings .action:hover .value,
-	#layout .toolbar.bottom .settings .action.hover .value { margin-left:0; margin-top:0; margin-bottom:0; padding:0; background:none; border:none; position:static; font-weight:normal; text-transform:none; }
+	#layout .toolbar.bottom .settings .action.hover .value,
+	#layout .listMode .resource .actions .action.hover .value,
+	#layout .listMode .resource .actions .action:hover .value { min-width:0; margin-left:0; margin-top:0; margin-bottom:0; padding:0; background:none; border:none; position:static; font-weight:normal; text-transform:none; }
 	
 	/* Tooltips (end) */
 

@@ -7,7 +7,8 @@
 
 {foreach array_keys((array) $data[$resourceName]) as $key}
 {$resource = $data[$resourceName][$key]}
-<article class="resource" id="{$resourceName}{$resource.id}" data-id="{$resource.id}">
+<article class="resource" id="{$resourceName}{$resource.id}" data-id="{$resource.id}" data-nameField="{$nameField}">
+	<div class="status"><input type="checkbox" name="resourceIds" value="{$resource.id}" /></div>
 	<figure>
 		{$src = $resource[$imageField]|default:$rProps.icon}
 		<img class="cover{if !$src} default{/if}" src="{$src|default:"{$smarty.const._URL_STYLESHEETS}images/pix.png"}" />
@@ -21,10 +22,10 @@
 	{if $isReadable}<a class="content goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{else}<div class="content">{/if}
 		{if $resource.update_date}
 		{*<time class="lastupdate" datetime="{$resource.update_date|date_format:"%Y-%m-%dT%H:%M:%S:00Z"}">{$resource.update_date|date_format:"%d %B %Y, %Hh%M"}</time>*}
-		{include file='common/blocks/humanTime.tpl' value=$resource.update_date}
+		{include file='common/blocks/humanTime.tpl' class='datetimeField' value=$resource.update_date}
 		{/if}
 		<hgroup>
-			<h3><span class="id">{$resource.id} </span>{if $resource[$nameField]}<span class="nameField">{$resource[$nameField]}</span>{/if}</h3>
+			<h3 class="title"><span class="id">{$resource.id} </span>{if $resource[$nameField]}<span class="nameField">{$resource[$nameField]}</span>{/if}</h3>
 		</hgroup>		
 	{if $isReadable}</a>{else}</div>{/if}
 	{/if}

@@ -1,10 +1,11 @@
 {strip}{if $value}
 {*
-	PARAMS:
+	PARAMS: value, [as], [format], [withseconds], [class]
 	- value 
 	- as: 'datetime'|'date'|'date' (default=null)],
 	- format: TODO  
 	- withseconds: true|false (default=null)
+	- class: (default ='')
 *}
 
 {if !$CURRRENT_DATETIME}
@@ -21,7 +22,7 @@
 {$year 	= $value|date_format:'%Y'}
 {$month = $value|date_format:'%m'}
 {$day 	= $value|date_format:'%d'}
-<time datetime="{$value|date_format:'%Y-%m-%dT%H:%M:%SZ'}">
+<time class="{$class}" datetime="{$value|date_format:'%Y-%m-%dT%H:%M:%SZ'}">
 {if $as === 'datetime'}
 	{$value|date_format:'%d/%m/%y %H:%M:%S'}
 {elseif $as === 'date'}

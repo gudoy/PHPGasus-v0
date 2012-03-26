@@ -470,6 +470,13 @@ class Application
 			'name' => _APP_CONTEXT,
 			'type' => in_array(_APP_CONTEXT, array('local','dev')) && !isset($_GET['PRODJS']) ? "dev" : "prod",
 		);
+		
+		// Get PHP version info
+		$vParts 	= preg_split('/\.|-/',phpversion());
+		$phpVersion = array_merge(
+			array_combine(array('major','minor','build','revision'), array_pad($vParts, 4, '?')),
+			array('full' => join('.',$vParts))
+		);
         
 		if ( $this->env['type'] === 'dev' )
 		{
@@ -498,8 +505,11 @@ class Application
 		// Secure session cookies if login is only activated through https,
 		ini_set('session.cookie_secure', ( defined('_APP_HTTPSONLY_LOGIN') && _APP_HTTPSONLY_LOGIN && strpos(_APP_PROTOCOL, 'https') !== false ) ? 1 : 0);	
 		
-		// Always disable register globals 
-		ini_set('register_globals', 0);
+		// For PHP < 5.4, force disactivation of register globals
+		if ( $phpVersion['major'] <= 5 && $phpVersion['minor'] < 4 )
+		{
+			ini_set('register_globals', 0);
+		} 
 		
 		ini_set('xdebug.var_display_max_depth', 6);
 		ini_set('xdebug.var_display_max_data', 99999);
