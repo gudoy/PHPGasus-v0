@@ -1368,8 +1368,15 @@ var adminIndex =
 	
 	handleSelection: function()
 	{
-		var $selected 	= $('.ui-selected', 'tbody'),
+//Tools.log('handleSelection');
+		var $selected 	= $('tr', 'tbody').filter('.ui-selected'),
 			$toolbars 	= $('nav').filter('.toolbar');
+			rIds 		= [];
+			
+		$selected.each(function(){ var rId = $(this).data('id') || null; if ( rId ){ rIds.push(rId); } });
+			
+		// Update selected resources ids input
+		$('#resourceIds').val(rIds.join(',') || '');
 		
 		// If no row is selected, hide primary actions
 		if ( !$selected.length ){ $toolbars.find('.actionsButtons').hide(); }
@@ -1477,7 +1484,7 @@ var adminIndex =
 	            //$tbody.css('visibility','visible');
 	            $tbody.appendTo(self.context);
 	            
-Tools.log(conditions);
+//Tools.log(conditions);
 	            
 	            // If the whole items of the resource are not displayed
 	            var showedCnt 	= $(':input', '#displayedResourcesCountBottom').val(),
@@ -1488,7 +1495,7 @@ Tools.log(conditions);
 //Tools.log('url: ' + location.href.replace(new RegExp("(\\?.*)?",''), ''));
 
 	            	
-	            if ( !showedCnt || !(showedCnt < totalCnt) ){ return }
+	            if ( !showedCnt || !(showedCnt < totalCnt) ){ return } 
 	            
             	// Get current url conditions (if any)
             	var reqURL 				= location.href,
@@ -1525,8 +1532,53 @@ Tools.log(conditions);
 						$('#globalFilterNotification').remove();
 							
 						if ( !count ){ return; }
-					   
-						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.'; 
+						
+						// Prepare notification buttons
+						var buttons = [
+							{type: 'view', text: 'view' + (count ? ' (' + count + ')' : ''), click: function() { location.href = globalFilterUrl; }},
+							{type: 'select', text: 'select' + (count ? ' (' +  count + ')' : ''), click: function()
+							{
+					            // Get the total count of items having matching the provided filters 
+					            $.ajax(
+					            {
+					            	url: reqURL,
+					            	data: $.extend({}, reqData, {'getFields':'id', 'limit':-1}),
+					            	type: 'get',
+					            	//dataType: 'html',
+					            	dataType: 'json',
+	            					//cache: false,
+					            	success: function(response)
+					            	{
+										var selectedIds = $('#resourceIds').val(),
+											ids 		= response[$(self.context).data('resource')] || []
+										$('#resourceIds').val((selectedIds ? selectedIds + ',' : '') + ids.join());
+					            	}
+					            });
+							}}
+						];
+						$('.actions', 'nav').filter('.secondary').find('.action').each(function()
+						{
+							var $this = $(this);
+//Tools.log('class: ' + $this.attr('class'));
+//Tools.log('class: ' + $this.attr('class').replace(/^.*action\s(.*)\s/,'$1'));
+							buttons.push({
+								type: $this.attr('class').replace(/^.*action\s(\w*)(\s(.*)|$)/,'$1') || '',
+								text: $this.find('.value').text() + (count ? ' (' +  count + ')' : ''),
+								href: $this.attr('href') || '#',
+								click: function(e)
+								{
+Tools.log('click noty button:' + $this.attr('class'));
+Tools.log(e);
+									e.preventDefault(); $this.trigger('click');
+								} // Specificaly handle actions
+							})
+						});
+//Tools.log(buttons);
+						
+						// Prepare notification content
+						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.';
+							
+						// Create notification 
 						noty(
 						{
 							'id': 'globalFilterNotification',
@@ -1535,35 +1587,7 @@ Tools.log(conditions);
 							type: 'alert',
 							text: txt,
 							timeout: false,
-							buttons: [
-								{type: 'view', text: 'view' + (count ? ' (' + count + ')' : ''), click: function()
-								{
-									location.href = globalFilterUrl;
-								}},
-								{type: 'select', text: 'select' + (count ? ' (' +  count + ')' : ''), click: function()
-								{
-						            // Get the total count of items having matching the provided filters 
-						            $.ajax(
-						            {
-						            	url: reqURL,
-						            	data: $.extend({}, reqData, {'getFields':'id', 'limit':-1}),
-						            	type: 'get',
-						            	//dataType: 'html',
-						            	dataType: 'json',
-		            					//cache: false,
-						            	success: function(response)
-						            	{
-											var selectedIds = $('#resourceIds').val(),
-												ids 		= response[$(self.context).data('resource')] || []
-//Tools.log(ids);
-											$('#resourceIds').val((selectedIds ? selectedIds + ',' : '') + ids.join());
-
-//Tools.log($('#resourceIds').length);											
-//Tools.log($('#resourceIds').val());
-						            	}
-						            });
-								}}
-							]
+							buttons: buttons
 						});
 					}
 	            });

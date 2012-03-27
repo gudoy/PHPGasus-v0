@@ -20,7 +20,7 @@ p.nodata { margin:10px; }
 footer.menu { display:none; }
 
 
-/* Image Replacement (start) */
+/* Text hiding (start) */
 .ui-inlineedit-form button.action,
 #searchQueryFieldBlock #validateSearchBtn,
 .counts .key,
@@ -34,16 +34,18 @@ nav.main > .title .value { /*text-indent:-9999em;*/ font:0/0 serif; text-shadow:
 	footer.menu li > a .value { /*text-indent:-9999em;*/ font:0/0 serif; text-shadow:none; }
 }
 
+/* Cancel text hiding */
 nav.main .resource .value,
 .admin.index #mainColHeader #editModeBtn .value,
 .toolbar .settings .action .value,
-.listMode .resource .action .value { font-size:12px; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; line-height:normal; }
+.listMode .resource .action .value,
+.notification .action .value { font-size:12px; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; line-height:normal; }
 @media handheld, only screen and (min-width:980px) 
 {
 	#layout .actions .action:hover .value,
 	#layout .actions .action.hover .value { font-size:12px; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; line-height:normal; }
 }
-/* Image Replacement (end) */
+/* Text hiding (end) */
 
 
 .photo.default { background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAAAAACPAi4CAAADSUlEQVR42u2XTYscRRjHn6e6e7qnZyaZZYxZ4q4bIQbFi2JEJIbkoKDxFHLwI4h48St4F/wAXvSkgjHHeNKgC8nB18MG1myWGDYv+zKTTHqn36qe55HZzmSs2c2uhReR/JqGarrqV/+iH6q7UeDf8Vjwfxf0Fy/+yY2QBjRz4uXYWSDL5/6YnsaSVQDrt0+cjR0FsvhZPiMJD9v+Plh+5d0IdkTBzvQuFE/e7xEM0eubs5e/N04C+n2lmZdKeIioLHti/qaToHsJoUCWCoastn7bRSA3+miQx+CgdT11EOjlgTLEY4hqv606CEwCKDZ8t4Cd8OERMIOFoHIR+DQpAM/pKXhMMgm4JGAQ3rYmF4ER3iZwS8AsYCGEboLJGZHEpRKZhe0yEBaHBF7IZEdAjnyHBMEBNGKjDzRcEjy9LwnsBMVsy0EAB/d3fbKSDuZil0psP88GrBU0D3sugvDYVIkyBjdPzbntic8cJ0IYgab+auwmCE/OpDwmefMIuAngqXciDVwB6bNvxa4C72ibZURx7BC4CmDxruIR6pc1Z8Glr0EZqaD60ie33F5t2fmLXnEPsboS6JTt0yfDfyygpXNL7WzNPIwnYQfTg2dfqOPeAt7cXLi8Ivs3eqJkvBn4U+2BaR1+6Wgj9ncT9K/PL7BArDcSVFYobE6FOlUqfO712c6jBLeuXOhBPTJlkmilLDWyBPU4rEGe+dHpF2d2Etz5+ZvCbxZlmWlmDwXBRkR5QRhEYZoHZ453tgnmv1ythVlesAgoQJgEhwpB5YXNqEjnzrxmCzbOfyv1NCdBa6wtQJDhgUEzTvR7b/9dcPXThVhnbA+3Gd8Q4GBKpx++gQ8Fax9di++LIIJY3W3BuGFM0Kbs8+lRKdMXC8GGFmEi3hsiRsy7MvgqGyXovt/VZQS7g9ZDzTEMe9+1qk2Vf7jJxie0u++GgJDn9e89ENCPaWAUiN3FYlKphHK/9ushD9TWd6Awa7LnmMTWF8Skg3ldJbjRYy2mdFgCagOeBFewElztogCU4CBgACLvDlSC1cRjAAE3hLGvw2oJjQ7BXmzPpLyVBwnmWtciwL0TCG6dMvKlH/90aktw5ANQ4AJVmw038sd/bf8NwV8YIGRZSBg8mgAAAABJRU5ErkJggg=='); }
@@ -691,7 +693,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 
 .listMode .resource { display:table; border-bottom:1px solid #BBB; background-repeat:no-repeat; background-position:99% 50%; background-position:right 10px center; }
 .listMode .resource > .status { display:table-cell; padding:0 2px; vertical-align:middle; }
-.listMode .resource > figure { padding:2px 5px 2px 5px; display:table-cell; vertical-align:top; }
+.listMode .resource > figure { padding:2px 5px 2px 5px; display:table-cell; vertical-align:middle; }
 .listMode .resource > figure .cover { width:32px; height:32px; overflow:hidden; margin:0; border:1px solid #bbb; background:#fff; border-radius:8px; }
 .listMode .resource > .content { width:100%; display:table-cell; vertical-align:top; text-decoration:none; }
 .listMode .resource > .content.goTo { padding:2px 0; }
@@ -699,6 +701,15 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 .listMode .resource .id { display:none; }
 .listMode .resource .datetimeField { margin:2px 5px 0 5px; float:right }
 .listMode .resource .action { margin-left:5px; margin-right:5px; }
+.listMode .resource .title { margin-bottom:1px; }
+.listMode .resource .descField { margin-bottom:0; color:#000000; }
+.listMode .resource .data { color:#7F7F7F; }
+.listMode .resource .data .col + .col:before { content:' - '; }
+.listMode .resource .data .col + .col:empty:before { display:none; }
+/*
+.listMode .resource .data .col { display:block; }
+.listMode .resource .data .col:before { content:attr(data-label)": "; }
+*/
 /* Resources list (end) */
 
 
@@ -899,9 +910,6 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 /* 1600 x 1200 */
 @media screen and (min-width:1560px) 
 {
-    /*#sideCol,
-    #sideCol.expanded { width:359px; }*/
-    
 	#adminLogsBlock { max-width:720px; }
 	#adminActiveUsersBlock { max-width:320px; }
 	#adminActiveUsersBlock .content { margin-top:30px; }
@@ -917,6 +925,5 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 2) and (min-width:768px)
-{
-html { /*width:2048px; height:1536px; border:1px solid yellow;*/ }	
+{	
 } 

@@ -1,3 +1,5 @@
+String.prototype.ucfirst = function(){ return (str + '').replace(/^(.)|\s(.)/g, function($1){ return $1.toUpperCase(); }); }
+
 var Tools = 
 {
 	// TODO: merge loadCSS & loadJS => load
@@ -126,7 +128,7 @@ var Tools =
 	
 	ucfirst:function(str)
 	{
-		return (str + '').replace(/^(.)|\s(.)/g, function($1){ return $1.toUpperCase(); });
+		return str.ucfirst()
 	},
 	
 	lcfirst:function(str)

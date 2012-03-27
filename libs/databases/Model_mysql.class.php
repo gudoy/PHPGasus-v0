@@ -117,7 +117,7 @@ class Model extends Application
         $this->launchedQuery    = $query;
         
         // Do the query
-        $this->queryResult 		= $this->db->query($query);
+        $this->queryResult 		= mysql_query($query);
 
         // 
         $this->success          = is_bool($this->queryResult) && !$this->queryResult ? false : true;

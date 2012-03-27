@@ -197,6 +197,7 @@ if ( PEAR::isError($result) )
 {
 
 var_dump($this->smtpParams);
+var_dump($this->headers);
 
 var_dump($result->getMessage());
 var_dump($result->getCode());

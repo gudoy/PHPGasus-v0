@@ -164,7 +164,7 @@
 							$('<a/>',
 								{
 									'class' : 'action ' + bclass,
-									'id': button.id || $noty.closest('li').attr('id'),
+									'id': button.id || ($noty.closest('li').attr('id') + bclass),
 									'href': button.href || '#',
 									'html': '<span class="value">' + button.text + '</span>'
 								})
