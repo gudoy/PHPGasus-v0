@@ -8,9 +8,12 @@
 
 {block name='header'}{/block}
 
-{* block name='mainNav'}
-{include file='common/blocks/header/nav/adminMainNav.tpl' *}
-{/block *}
+{block name='mainNav'}
+<nav class="main mainNav" id="mainNav">
+	<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
+	{include file='common/blocks/header/nav/adminMainNav.tpl'}
+</nav>
+{/block}
 
 {block name='accountNav'}{/block}
 
@@ -24,12 +27,7 @@
 		
 		{include file='common/blocks/admin/search/search.tpl'}
 		
-		{block name='mainNav'}
-		<nav class="main mainNav" id="mainNav">
-			<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
-			{include file='common/blocks/header/nav/adminMainNav.tpl'}
-		</nav>
-		{/block}
+		{block name='mainNav'}{/block}
 		
 	</div>
 		

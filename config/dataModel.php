@@ -43,7 +43,7 @@ $dataModel = array(
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
 'groups' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 0, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
 	'admin_title' 			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
@@ -75,7 +75,7 @@ $dataModel = array(
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 0),
 ),
 'resourcescolumns' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 0, 'editable' => 0),
 	'resource_id' 			=> array('type' => 'int', 'fk' => 1, 'list' => 3, 'relResource' => 'resources', 'relField' => 'id', 'relGetFields' => 'name', 'relGetAs' => 'resource_name'),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
 	'type' 					=> array('type' => 'enum', 'possibleValues' => array('string', 'email', 'password', 'url', 'tel', 'color', 'meta', 'ip', 'slug', 'tag', 'text', 'html', 'code', 'int', 'tinyint', 'float', 'smallint', 'mediumint', 'bigint', 'bool','boolean','timestamp', 'datetime', 'date', 'time', 'year', 'month', 'week', 'day', 'hour', 'minutes', 'seconds', 'onetoone', 'onetomany', 'manytoone', 'manytomany', 'id', 'enum', 'file', 'image', 'video', 'sound',), 'list' => 3),
@@ -98,7 +98,7 @@ $dataModel = array(
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
 'users' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 0, 'editable' => 0),
 	'email' 				=> array('type' => 'varchar', 'subtype' => 'email', 'list' => 3, 'searchable' => 1),
 	'password' 				=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 1, 'exposed' => 0),
 	//'password_old_1' 		=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 1, 'exposed' => 0),
@@ -120,7 +120,7 @@ $dataModel = array(
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
 'sessions' => array(
-	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 1, 'editable' => 0),
+	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 0, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1, 'editable' => 0),
 	'user_id' 				=> array('type' => 'int', 'fk' => 1, 'list' => 1, 'editable' => 0, 'relResource' => 'users', 'relField' => 'id', 'relGetFields' => 'email', 'relGetAs' => 'user_email','displayName' => 'user'),
 	'expiration_time'		=> array('type' => 'timestamp', 'list' => 1, 'editable' => 1),
@@ -130,7 +130,7 @@ $dataModel = array(
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),	
 ),
 'tasks' => array(
-    'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 1, 'editable' => 0),
+    'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 0, 'editable' => 0),
     'slug'           		=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 3),
     'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 3),

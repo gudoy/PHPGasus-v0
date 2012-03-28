@@ -90,13 +90,13 @@ class Application
 		$accptHeader = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']) : '';
 		
 		// Try to find lang in GET param
-		if ( empty($lang) && isset($_GET['lang']) && in_array(strtolower($_GET['lang']), $known) )			{ $lang = strtolower($_GET['lang']); }
+		if ( empty($lang) && isset($_GET['lang']) && ($lower = strtolower(str_replace('-', '_', $_GET['lang']))) && in_array($lower, $known) ){ $lang = $lower; }
 		
 		// Try to find lang in POST param
-		if ( empty($lang) && isset($_POST['lang']) && in_array(strtolower($_POST['lang']), $known) )		{ $lang = strtolower($_POST['lang']); }
+		if ( empty($lang) && isset($_POST['lang']) && ($lower = strtolower(str_replace('-', '_', $_POST['lang']))) && in_array($lower, $known) ){ $lang = $lower; }
 		
 		// Try to find lang in SESSION param
-		if ( empty($lang) && isset($_SESSION['lang']) && in_array(strtolower($_SESSION['lang']), $known) )	{ $lang = strtolower($_SESSION['lang']); }
+		if ( empty($lang) && isset($_SESSION['lang']) && ($lower = strtolower(str_replace('-', '_', $_SESSION['lang']))) && in_array($lower, $known) ){ $lang = $lower; }
 		
 		// If the lang has not been found and if there's an Accept-Llanguage http header
 		if ( empty($lang) && !empty($accptHeader) )
@@ -135,6 +135,8 @@ class Application
 		bindtextdomain(_APP_NAME, _PATH_I18N);
 		textdomain(_APP_NAME);
 		bind_textdomain_codeset(_APP_NAME, $codeset);
+		
+var_dump($lc);
 		
 		// Store the current lang
 		$_SESSION['lang'] 	= $language . '_' . $territory;
@@ -472,7 +474,8 @@ class Application
 		);
 		
 		// Get PHP version info
-		$vParts 	= preg_split('/\.|-/',phpversion());
+		$vParts 	= preg_split('/\./',phpversion());
+		
 		$phpVersion = array_merge(
 			array_combine(array('major','minor','build','revision'), array_pad($vParts, 4, '?')),
 			array('full' => join('.',$vParts))
