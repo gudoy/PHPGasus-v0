@@ -95,7 +95,7 @@ var ui =
        		.on('click', function(){ $(this).toggleClass('active'); });
         
         // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
-        if ( $('html').hasClass('gecko') ){ self.fixFirefoxFlexbox(); }
+//if ( $('html').hasClass('gecko') ){ self.fixFirefoxFlexbox(); }
 		
 		return this.handleIos().handleOrientation();
 	},
@@ -117,7 +117,7 @@ var ui =
 			if ( windowW < 980 ){ return; }
         	
         	$('#asideContent').css({'height':maxH, 'max-height':maxH});
-        	$('#mainColContent').css({'height':maxH, 'max-height':maxH, 'overflow-y':'auto'});
+        	$('#mainContent').css({'height':maxH, 'max-height':maxH, 'overflow-y':'auto'});
         });
         
         return this;

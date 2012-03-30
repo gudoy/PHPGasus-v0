@@ -503,8 +503,12 @@ class Controller extends Application
 				{
 					// If a validation pattern has been defined for this field
 					// Check the passed value against
-					if ( defined('_APP_USE_PATTERN_VALIDATION') && _APP_USE_PATTERN_VALIDATION
-						&& !empty($field['pattern']) && !preg_match('/' . $field['pattern'] . '/', $spGlobaleItems) ) 
+					$checkPattern 	= defined('_APP_USE_PATTERN_VALIDATION') && _APP_USE_PATTERN_VALIDATION;
+					$hasPattern 	= !empty($field['pattern']);
+					$reg 			= $hasPattern ? ( $field['pattern'][0] === '/' ? $field['pattern'] : '/' . $field['pattern'] . '/' ) : '';
+					if ( $checkPattern
+						//&& !empty($field['pattern']) && !preg_match('/' . $field['pattern'] . '/', $spGlobaleItems) ) 
+						&& $hasPattern && !preg_match($reg, $spGlobaleItems) )
 					{
 						$this->errors[1007] = $fieldName;
 					}

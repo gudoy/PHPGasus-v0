@@ -117,7 +117,7 @@ class AdminView extends View
             //$actionAuths    = array();                                                        // Init user auths actions indexed array
             
             // Can the user access the admin
-            $ugps           = !empty($u['group_admin_titles']) ? explode(',', $u['group_admin_titles']) : array();
+            $ugps           = !empty($u['group_slugs']) ? explode(',', $u['group_slugs']) : array();
             $isGod          = in_array('gods', $ugps);
             $u['auths']     = array(
                 '__can_access_admin' => $isGod || in_array('superadmins', $ugps) || in_array('admins', $ugps) 

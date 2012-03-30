@@ -26,7 +26,7 @@
 {if !isset($inputOnly) || !$inputOnly}
 <div class="line {if $isDatetimeType}type{$type|ucfirst}{else}typeVarchar{/if}" id="{$postValName|replace:'[]':''}Line">
 	<div class="labelBlock">
-		<label class="span" for="{$postValName}">{$label|default:$postValName}{if $required}<span class="required">*</span>{/if}</label>
+		<label class="span" for="{$postValName}">{strip}{$label|default:$postValName}{if $required}{/strip}<span class="required">*</span>{/if}</label>
 	</div>
 	<div class="fieldBlock">
 {/if}

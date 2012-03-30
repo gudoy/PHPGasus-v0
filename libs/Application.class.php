@@ -136,8 +136,6 @@ class Application
 		textdomain(_APP_NAME);
 		bind_textdomain_codeset(_APP_NAME, $codeset);
 		
-var_dump($lc);
-		
 		// Store the current lang
 		$_SESSION['lang'] 	= $language . '_' . $territory;
 	}

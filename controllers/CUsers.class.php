@@ -133,7 +133,7 @@ class CUsers extends Controller
 			if ( empty($user['password_expiration']) ){ continue; }
 		
 			// Get intersection between user group and password expiration exempted groups
-			$uGps 		= !empty($user['group_admin_titles']) ? Tools::toArray($user['group_admin_titles']) : array();
+			$uGps 		= !empty($user['group_slugs']) ? Tools::toArray($user['group_slugs']) : array();
 			$intersect 	= array_intersect($uGps, $exmptGps);
 			
 			// Do not continue if the user belongs to a an exempted group

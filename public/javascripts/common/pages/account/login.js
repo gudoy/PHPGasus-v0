@@ -23,7 +23,6 @@ var accountLogin =
         {
             $.cookie('userLogin', ($login.val() || ''), {expires: 18, path: '/'})
         });
-
     }
 }
 

@@ -48,7 +48,7 @@ class RSSimporter extends Application
 			$slug        = substr(Tools::slugify($title), 0,63);
 			
 			// Do no import already imported entries
-			$entryInDB = $CEntries->retrieve(array('by' => 'admin_title', 'values' => $slug));
+			$entryInDB = $CEntries->retrieve(array('by' => 'slug', 'values' => $slug));
 			if ( !empty($entryInDB) ) { $this->success = true; continue; }
 			
 			// Get images tags then remove them from the description
@@ -56,7 +56,7 @@ class RSSimporter extends Application
 			$desc 	= preg_replace('/<img.*\\>/Uis', '', $desc);
 			
 			$entry = array(
-				'admin_title' 		=> $slug,
+				'slug' 				=> $slug,
 				'type' 				=> 'rssItem',
 				'title_FR' 			=> $title,
 				'text_FR' 			=> $desc,
@@ -86,7 +86,7 @@ class RSSimporter extends Application
 				if ( empty($src) ){ continue; }
 				
 				$media 	= array(
-					'admin_title' 	=> 'rssItem' . $eid . '_' . preg_replace('/.*\/(.*)/','$1',$src),
+					'slug' 			=> 'rssItem' . $eid . '_' . preg_replace('/.*\/(.*)/','$1',$src),
 					'title_FR' 		=> $alt,
 					'url' 			=> $src,
 					'width' 		=> $width,

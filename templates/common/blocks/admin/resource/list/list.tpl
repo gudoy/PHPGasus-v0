@@ -1,3 +1,11 @@
+{$rProps 		= $data._resources[$resourceName]}
+{$rModel 		= $data.dataModel[$resourceName]}
+{$imageField 	= $rProps.imageField}
+{$nameField 	= $rProps.nameField|default:$rProps.defaultNameField}
+{$descField 	= $rProps.descField|default:null}
+{$userResPerms 	= $data.current.user.auths[$resourceName]}
+{$crudability 	= $rProps.crudability|default:'CRUD'}
+{$isReadable 	= (strpos($crudability, 'R')>-1)?1:0}
 <div class="block adminBlock adminListBlock" id="admin{$resourceName|capitalize}ListBlock">
 	{strip}
 	

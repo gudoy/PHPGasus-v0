@@ -1,6 +1,6 @@
 {foreach array_keys((array) $data[$resourceName]) as $key}
 {$resource = $data[$resourceName][$key]}
-<tr class="dataRow {cycle values='odd,even'}{if $resource@first} firstRow{/if}{if $resource@last} lastRow{/if}" data-id="{$resource.id}" data-nameField="{$nameField}">
+<tr class="dataRow {cycle values='odd,even'}{if $resource@first} firstRow{/if}{if $resource@last} lastRow{/if}" id="row{$resource.id}" data-id="{$resource.id}" data-nameField="{$nameField}">
 	<td class="col firstCol colSelectResources"><input type="checkbox" name="ids[]" value="{$resource.id}"{if $smarty.post.ids && in_array($resource.id, $smarty.post.ids)} checked="checked"{/if} /></td>
 	<td class="col actionsCol">
 		<span class="actions">{include file='common/blocks/admin/resource/actions/listActions.tpl'}</span>

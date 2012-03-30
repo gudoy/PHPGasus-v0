@@ -16,7 +16,7 @@ table thead .sort .value,
 
 
 /* Togglers */
-#header .resourceGroupItem,
+/*#header .resourceGroupItem,*/
 thead .sort.desc:before,
 summary,
 .adminTable tbody td.typeSet summary 				{ background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAMAAABPT11nAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkQ5NEU5QTY3MTcyNDExRTA5NjQzREE3NDVERDA2N0Q5IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQ5NEU5QTY4MTcyNDExRTA5NjQzREE3NDVERDA2N0Q5Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RDk0RTlBNjUxNzI0MTFFMDk2NDNEQTc0NUREMDY3RDkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RDk0RTlBNjYxNzI0MTFFMDk2NDNEQTc0NUREMDY3RDkiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5N+iQkAAAACVBMVEUeN33////7+/txxX7OAAAAA3RSTlP//wDXyg1BAAAAI0lEQVR42mJggAAmIAQBRkYGJiYwDRQBsoA0mMEEpJkAAgwAApIAKqpPi8MAAAAASUVORK5CYII="); }
@@ -34,27 +34,6 @@ details summary,
 
 
 /* Start Header */
-#branding { }
-
-
-#mainNavTitle { display:none; }
-.js #mainNavBlock { display:inline-block; float:left; position:absolute; left:10px; top:5px; }
-.js #mainNavTitle { padding:2px 10px; display:inline-block; cursor:pointer; }
-.js #mainNavBlock > .nav { display:none; position:absolute; left:0; top:100%; z-index:10000; }
-.js #mainNavBlock.expanded > .nav { display:block; text-align:left; }
-
-
-#header #accountNav { display:none; }
-#header .nav { display:block; text-align:left; }
-#header .nav li { margin:20px 0; display:block; }
-#header .nav li a { display:inline-block; float:none; }
-#header .nav-lv2 { width:218px; max-width:240px; padding:10px; display:none; position:absolute; top:100%; left:0; z-index:10000; }
-#header .nav .item-lv1 > a { padding-left:20px; background-position:0 50%; background-repeat:no-repeat; }
-#header .nav .item-lv1.expanded { position:relative; }
-#header .nav .item-lv1.expanded .nav-lv2 { display:inherit; }
-#header .nav .item-lv2 { display:block; clear:both; }
-#header #adminMainNav { display:block; clear:both; }
-
 #dashboardNavItem > a 	{ background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAihJREFUeNqkkz1v01AUht/Yzoed2LHqfKAqCgRBEUsYonxIzRYWpLBUapcixILEjGDoyMSvYOzMUMYgBhZE6A9ogciRUuMoVUjjuLGTOObcKEgUWgkpV3rk63PP+16de88N+L6PVQaHFUeAxt+xW8R94g6RXsa6xBHRIL5dZRAjdpPJ5MNyuXw7l8ulZVlmMQyHw1Gr1eo2m82vvV7vgEL7xIit8UsDlviiUqns1uv1iqqqqUKhENF1nZtMJlyxWIy4rqvl8/kb8/k8axiGRvlfiMlvg6e06yNKzFuWJZAI7XYb0+l0AZuzGMFnMpk0mWimaXqkazKDDU3TXlar1cJ2oyF8VhQ4s9lCuBRdoFQqBcbj8Vqn04k6jvOJGTym3R94nrf2URTxXNfxnuMwJgPbtnF2NqQzGMGybPp3cXz8ncx9PhgMcqZp9Nk13qOaE+SKCZWzJ0l4NRigb5gYjRw65RBCIQmiqECSFEQiMgRBQiqVTTAtM7jO87xYq9XYpcAPS3jmengjRzE/d8DzYRLGyUBewAw2N/OIxVSRaZlBlDVUo/EBHCdClhNQr2XxZHCO/YQCq9eF5/kIk7EghCmHx+Fhi30XWo5a+efpad9WlCTicY0MVGhaGus372L7Rx9vsymY+hGVY13otm73xGZaNt9Z3unJZcjBoNHb2vIvWWOaHdYErBaZEK5o9zrxmtgj3v0RnxHW/7wXnlhffv99TKs+518CDAAhHOlpeYzP9gAAAABJRU5ErkJggg=="); }
 #usersNavItem > a 		{ background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAzhJREFUeNpsU1toFFcY/s6Zmc1kb9nEbLLRFOuqxWQRDd4esmiRuErBIvXy1IeCLX0otFIrFEQfIr6UthQKvqugDwqiL+KrQn0Qdb20a3ZryGVNsrNp9jK7M7szc87pmY0FC/7wP5zz/9/3Hf7/O+TM/j74IQQQDKuwGh6IPHOqgnIPnIsNmk4KQ4mQ0mwJGCWLaVR8RAiZ9nEq3gkuWTjnPkFMUFGVtHAFXo3vHFDC0QRqJmQWlYqxnKcK7WDpf2AhRJJ53N2QjIr+RKTCGbflnR4IIOAyDQxROLwXaqAHDoPCBAWXcJUR0nk+4zw/viOuhHuGUKsLVM03+vKSUdC7HWzekYYejGHX4BqMZ7bj7Dc/gVIKQiio3kXhZ0AjiutJJRFZVdKiaDt8uGE6ubGJfVg7PIC6aaLZaIIKp6zBQZdwQB3HlY0uLLvdUVo/msLBz8bx1anDcGwHl597R+eyOdQrdZhyCMabEvK87/jEJ2nEv05BFY2aHJQKu+mVxw7sjdfmFrGyUoXdaIGy9tSPl7aWnsxMl/rVnsGFxSW8nP+7nD4ZL2X1MpSWAvr0iwomJkbxlxs7Pv/kGcxKDY2qVCoWsenLVHBk4+5/toykBwWzYdUrGBjaGh/bls7xlpMVHouSzG8FMCUIxrwtJ/tu3k+SfLy4UMJDI4qxExlsWjePZOxTDIRG0bSA18ZDWNpjkHYXbt+8xCmYE2FtM5sZjeRSm5Nx7lmwzWUkehOYqx7D5I0Ufr/3HYTLZauNO9kzuPvoClrMlaKgKnPd+sWjH6A7pGO47wj69xzBdtvGTMWBq3Rh74eHcPr6GkTEIXiiGw1bbl/pRtGYkaYjUMOagC3tdvuZBU0BJj/WIBwL1/7UpDPryKxXUa1HIFcO5jL0hofl/glmZwuSQBppadlEwWijXLYh6/j86qozVQlQJWFeD8G2LBgvZ+WsomBtsdpAiDc9VftBnV2o4o+pFfTHQh1H4m3d/xC+kl+zmjZ+PZ/fGR8KBsuLku2t+2W+VpvTD07dalo/S9+rQuB/QfxvSRTPW3jx/ekLI49/OZej307u5u/W/ZYemRtXNd8bHSWZtfcV/xVgADL1kUey9zNsAAAAAElFTkSuQmCC"); }
 #configNavItem > a 		{ background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACG0lEQVQ4y3WTX0+SYRjGPet7ZOceeFJtnVZHfQ9T5I/KGENE0oyQPyFbpZLVPGjNwqCJIoEhkDUGaCSvWDFmm2tmrC/A1XM982XAO57t3v1e1/27b57nfR/6+nqsea8fbo8PzL0YoK3kcnsiIsKqnnO5cXr6G8yq9+Dh/Llg1jUDBBQJv4tg7W0Y0/dmz5wz9/H4ySJi8YTM1MJvsk6OfMcAu8MZf/5yFRWlinQmh/rJL1SOjpFMpVH+VpE6ncnKOjny3Ufon5xyNl69XsNu9hNim9vYiMVlVoM+65NT0w3ymndgszugHFWxtZ1EbCsB76MgPL4AfCKvR6LSV8SuyHW8A4dzRpqBYBD5QgmpnV3RtAC90fTm6rXrd5j9gQXps06OPPvkALEl1OonUKrfkc7mkMntyc9389btG+JHLjFT02edHHn2tQZYrDY8XQph73NeBndgtliXrTb7ZWZqtUaOfGuAWIOMcbMFhdIBvuQLiCeS8PoDEN9cZmr6rJNTezpeomnC3IxGYygKqFjcR2n/ayuo6bNuHJtoaC6S2Ob5UmgFxz9qeL+xKe9A+VDBQflQZmr6rJMTfLhjwLBOnwqtvMDi8jOMjBoaOr0Rs3Mu/KzVZaYeNZiabCYn9AfNRRoa1n0cujuSEs8DPB+bzv78lc3qmQ2m8X+C2RHPVzQX6cLsV4U4q7gLYzxzOzXQznQP6F6DbdHz7/wfp1L5bN07uzcAAAAASUVORK5CYII=");}
@@ -182,9 +161,9 @@ table thead .sort:before { width:8px; height:5px; display:inline-block; content:
 .adminTable thead .title .infos:hover .detail,
 .adminTable thead .title .infos.hover .detail { display:block; z-index:1000; }
 .adminTable thead .info {  }
-.adminTable thead td { /*border-color:#aaa #aaa #aaa #fff;*/ }
+.adminTable thead td { }
 .adminTable tbody tr.ui-selected th,
-.adminTable tbody tr.ui-selected td { /*background:#E0E8A4;*/ }
+.adminTable tbody tr.ui-selected td { }
 .adminTable th.idCol,
 .adminTable td.idCol { width:1em; }
 .adminTable th.fk.typeInt,
@@ -322,11 +301,11 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
 
 
-/* Start Sidecol */
+/* Start aside */
 footer.menu .toggler .plus { display:none; }
 footer.menu .toggler.active .minus { display:none; }
 footer.menu .toggler.active .plus { display:block; }
-/* End sideCol */
+/* End aside */
 
 
 header .title,
@@ -340,12 +319,6 @@ header .paginationBlock { float:right; }
 .resourceDetailBlock dl { display:block; letter-spacing:-4px; }
 .resourceDetailBlock dt { width:50%; display:inline-block; float:left; clear:both; letter-spacing:normal; vertical-align:top; }
 .resourceDetailBlock dd { width:50%; display:inline-block; float:left; letter-spacing:normal; vertical-align:top; }
-/*
-.flexbox .resourceDetailBlock dl { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
-.flexbox .resourceDetailBlock dt { width:50%; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
-.flexbox .resourceDetailBlock dd { width:50%; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; }
-.flexbox .resourceDetailBlock dd { height:20px; display:block; content:'testttt'; clear:both; background:red; }
-*/ 
 
 .activityBlock li { display:block; clear:both; }
 .activityBlock .item { padding-left:20px; background-repeat:no-repeat; }
@@ -404,11 +377,11 @@ header .paginationBlock { float:right; }
     html,
     body { width:100%; height:100%; }
     body { margin:0; padding:0; }
-    #layout { width:100%; height:100%; margin:0 auto; padding:0; text-align:left; }
+    #layout { width:100%; height:100%; overflow:hidden; margin:0 auto; padding:0; text-align:left; }
 
-	#mainCol:before,
-	#mainCol:after { content:""; display:table; }
-	#mainCol:after { clear:both; }
+	#main:before,
+	#main:after { content:""; display:table; }
+	#main:after { clear:both; }
     
     /* Buttons */
 	.toolbar .paginationButtons .firstLink,
@@ -423,21 +396,11 @@ header .paginationBlock { float:right; }
 	.action { width:auto; min-width:16px; min-height:16px; background-position:0 50%; }
 	.actions .action { margin-right:10px; }
 	.actions .action:last-child { margin-right:0; }
-	/*.ui-inlineedit-form .actions .action:last-child { margin-right:0; }*/
 	.toolbar .actions .action { margin-right:0; padding-left:20px; }
 	.titleBlock .actions .action { margin-right:15px; padding-left:20px; }
 	.toolbar .actions .action .value, 
-	.titleBlock .actions .action .value { /*display:inline;*/ display:none; text-indent:0; vertical-align:middle; }
+	.titleBlock .actions .action .value { display:none; text-indent:0; vertical-align:middle; }
 	.toolbar .actions .action .count { padding-left:18px; }
-	
-	/*#header .nav { display:inline-block; }*/
-	/*#mainNavBlock { margin-bottom:10px; }*/
-	.js #mainNavTitle { display:none; }
-	.js #mainNavBlock { position:static; }
-	.js #mainNavBlock > .nav { display:block; position:static; }
-	#header .nav li { margin:0 20px 0 0; display:inline-block; }
-	#myAccountNavBlock .titleBlock h2 .value { padding-left:2px; text-indent:0; }
-	#myAccountNavBlock .titleBlock h2:before { margin-right:2px; }
 	
 	.resourceDetailBlock { margin:10px; max-width:480px; }
 	.api .resourceDetailBlock { max-width:300px; width:100%; float:left; border:1px solid; }
@@ -450,58 +413,33 @@ header .paginationBlock { float:right; }
     /* Opera does not support flex box module (04/11, current version 11.50): fallback to displays table/table-cell */
     /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
 	/* IE < 9 does not support table-cell: NO fallback, go hell */
-	html.api,
-	html.admin,
-	html.api body,
-	html.admin body { overflow:hidden; overflow-x:hidden; overflow-y:hidden; }
-	.api #layout,
-	.admin #layout,
-	.api #body,
-	.admin #body,
-	.api #sideCol,
-	.admin #sideCol,
-	.api #mainCol,
-	.admin #mainCol { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; }
+	#layout,
+	#header,
+	#body,
+	#main,
+	#aside { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; }
 	
-	.api #layout,
-	.admin #layout,
-	.api #sideCol,
-	.admin #sideCol,
-	.api #mainCol,
-	.admin #mainCol { -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; box-orient:vertical; }
+	#layout,
+	#body { -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; }
+	#header,
+	#aside,
+	#main { -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; }
 	
-	.api #body,
-	.admin #body { -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; box-orient:horizontal; }
+	#header,
+	#mainNav,
+	#body,
+	#main,
+	#headerContent,
+	#asideContent,
+	#mainContent { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
 	
-	.api #body,
-	.admin #body,
-	.api #mainCol,
-    .admin #mainCol,
-    .api #sideCol #asideContent,
-	.admin #sideCol #asideContent,
-	#mainColContent { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
-
-	/*
-	html.api.no-flexbox,
-	html.admin.no-flexbox,
-	html.api.no-flexbox body,
-	html.admin.no-flexbox body,
-	.api #sideCol #asideContent,
-	.admin #sideCol #asideContent { overflow:auto; overflow-y:auto; }*/
+	#headerContent,
+	#asideContent,
+	#mainContent { overflow-x:auto; overflow-y:auto; }
 	
-	.api #layout,
-	.admin #layout { max-height:100%; }
-	.api #mainCol #mainColContent,
-	.admin #mainCol #mainColContent { /*overflow:hidden;*/ overflow-x:auto; overflow-y:auto; }
-
-	.api.no-flexbox #layout,
-	.admin.no-flexbox #layout { max-height:auto; }
-	.no-flexbox #body { width:100%; min-height:90%; display:table; }
-	.no-flexbox #sideCol { display:table-cell; float:none; position:relative; vertical-align:top; position:relative; }
-	.no-flexbox #mainCol { margin-left:0; display:table-cell; position:relative; vertical-align:top; }
-	.no-flexbox footer.menu { position:absolute; left:0; right:0; bottom:0; }
-	
-	.flexbox.gecko #mainColContent { min-height:1px; } /* Fix for gecko to force it to size the box correctly */
+	#body { -moz-box-direction:reverse; -webkit-box-direction:reverse; -o-box-direction:reverse; -ms-box-direction:reverse; }
+	#aside,
+	#main { -moz-box-direction:normal; -webkit-box-direction:normal; -o-box-direction:normal; -ms-box-direction:normal; }
 	/* Flexbox layout (start) */
 }
 

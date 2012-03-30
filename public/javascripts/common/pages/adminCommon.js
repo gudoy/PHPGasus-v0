@@ -46,7 +46,7 @@ var admin =
 	aside: function()
 	{
 		var self 	= this
-			context = '#sideCol';
+			context = '#aside';
 		
 		return this;
 	},
@@ -85,14 +85,14 @@ var admin =
 			
 		var handleMenu = function(e)
 		{
-Tools.log('click menu');
+//Tools.log('click menu');
 			var $this 	= $(this),
 				$t 		= $(e.target),
 				$a 		= $t.closest('a', $this),
 				$action = $a.filter('.action'); 
 					
-Tools.log('class: ' + $t.attr('class'));
-Tools.log('$action: ' + $action.length);
+//Tools.log('class: ' + $t.attr('class'));
+//Tools.log('$action: ' + $action.length);
 			e.stopPropagation()
 
 			if ( $a.length && $a.hasClass('view') ){ return true; }
@@ -107,7 +107,7 @@ Tools.log('$action: ' + $action.length);
 				
 				e.preventDefault();
 				
-				if ( $('#sideCol').hasClass('collapsed') ){ $group.siblings().attr('aria-expanded',false).find('> ul').hide(); }
+				if ( $('#aside').hasClass('collapsed') ){ $group.siblings().attr('aria-expanded',false).find('> ul').hide(); }
 			}
 		}
 		
@@ -194,13 +194,13 @@ Tools.log('$action: ' + $action.length);
 	                    	// Add loading indicators
 	                        $('body').append($(app.loadingBlock).attr('id','loadingBlock'));
 	                        
-	                        $('#adminSearchBlock', '#sideCol').siblings().remove();
+	                        //$('#adminSearchBlock', '#aside').siblings().remove();
 	                        
 	                        // Reset search results counts & specific css rules if necessary
 	                        if ( $('#adminSearchResultsBlock').length ) 	{ $('#adminSearchResultsBlock, #searchDynamicCSS').empty(); }
 	                        // Otherwise, just clear updated content container
-	                        //else 											{ $('#mainCol').empty(); }
-	                        else 											{ $('#mainColContent').length ? $('#mainColContent').empty() : $('#mainCol').empty(); }
+	                        //else 											{ $('#main').empty(); }
+	                        else 											{ $('#mainContent').length ? $('#mainContent').empty() : $('#main').empty(); }
 	                        
 	                    },
 	                    error: function()
@@ -214,14 +214,14 @@ Tools.log('$action: ' + $action.length);
 	                            query           = $('#searchQuery').val() || '',
 	                            rule            = ".commonTable.adminTable td .dataValue[data-exactValue*='" + query  + "'] { background:lightyellow; }",
 	                            $resultsCtnr    = $('#adminSearchResultsBlock'), 
-	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : $('#mainCol'); 
-	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : ( $('#mainColContent').length ? $('#mainColContent') : $('#mainCol') );
-	                            $dest 			= $('#mainColContent');
-	                        
+	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : $('#main'); 
+	                            //$dest           = $resultsCtnr.length ? $resultsCtnr : ( $('#mainContent').length ? $('#mainContent') : $('#main') );
+	                            $dest 			= $('#mainContent');
+     
 	                        // Insert updated content
 	                        //$dest.html($(r));
-	                        $('#mainColHeader').replaceWith($(r).find('#mainColHeader'));
-	                        $dest.html($(r));
+	                        $('#mainHeader').replaceWith($(r).filter('#mainHeader'));
+	                        $dest.html($(r).filter('#adminSearchResultsBlock'));
 	                        
 	                        // Remove Loading Indicators
 	                        $('#loadingBlock').remove();
@@ -1667,7 +1667,7 @@ Tools.log(e);
 	{
 		var tr = jqObj.closest('tr');
 		
-		return tr.attr('id').replace(/row/,'');
+		return (tr.attr('id') || '').replace(/row/,'');
 	},
 	
 	handleToolbars: function()

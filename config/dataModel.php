@@ -9,16 +9,16 @@ $_resourcesGroups = array(
 
 ### DATAMODEL: RESOURCES ###
 $resources = array(
-'adminlogs' 			=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs'),
-'bans' 					=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'),
-'groups' 				=> array('singular' => 'group', 'alias' => 'gp', 'crudability' => 'CRUD', 'defaultNameField' => 'admin_title'),
-'groupsauths' 			=> array('singular' => 'groupsauth', 'table' => 'groups_auths',  'alias' => 'gpauth', 'crudability' => 'CRUD', 'defaultNameField' => 'group_id', 'displayName' => 'groups auths'),
-'resources' 			=> array('singular' => 'resource', 'alias' => 'res', 'crudability' => 'CRUD', 'defaultNameField' => 'name'),
-'resourcescolumns' 		=> array('singular' => 'resourcecolumn', 'alias' => 'rescol', 'table' => 'resources_columns', 'crudability' => 'CRUD', 'defaultNameField' => 'columns', 'displayName' => 'columns'),
-'sessions' 				=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'name'),
-'tasks' 				=> array('singular' => 'task', 'alias' => 'tsk', 'crudability' => 'CRUD', 'defaultNameField' => 'slug'),
-'users' 				=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'searchable' => 1, 'related' => array('usergroups' => array('on' => 'user_id'))),
-'usersgroups' 			=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'displayName' => 'users groups',),
+'adminlogs' 				=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs'),
+'bans' 						=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'),
+'groups' 					=> array('singular' => 'group', 'alias' => 'gp', 'crudability' => 'CRUD', 'defaultNameField' => 'slug'),
+'groupsauths' 				=> array('singular' => 'groupsauth', 'table' => 'groups_auths',  'alias' => 'gpauth', 'crudability' => 'CRUD', 'defaultNameField' => 'group_id', 'displayName' => 'groups auths'),
+'resources' 				=> array('singular' => 'resource', 'alias' => 'res', 'crudability' => 'CRUD', 'defaultNameField' => 'name'),
+'resourcescolumns' 			=> array('singular' => 'resourcecolumn', 'alias' => 'rescol', 'table' => 'resources_columns', 'crudability' => 'CRUD', 'defaultNameField' => 'columns', 'displayName' => 'columns'),
+'sessions' 					=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'name'),
+'tasks' 					=> array('singular' => 'task', 'alias' => 'tsk', 'crudability' => 'CRUD', 'defaultNameField' => 'slug'),
+'users' 					=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'searchable' => 1, 'related' => array('usergroups' => array('on' => 'user_id'))),
+'usersgroups' 				=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'displayName' => 'users groups',),
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
@@ -45,7 +45,7 @@ $dataModel = array(
 'groups' => array(
 	'id' 					=> array('type' => 'int', 'pk' => 1, 'list' => 0, 'editable' => 0),
 	'name' 					=> array('type' => 'varchar', 'length' => 32, 'list' => 1),
-	'admin_title' 			=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
+	'slug' 					=> array('type' => 'varchar', 'subtype' => 'slug', 'from' => 'name', 'list' => 1),
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 1),
 ),
@@ -105,12 +105,12 @@ $dataModel = array(
 	//'password_old_2' 		=> array('type' => 'varchar', 'subtype' => 'password', 'hash' => 'sha1', 'length' => 64, 'editable' => 1, 'exposed' => 0),
 	//'password_expiration'	=> array('type' => 'timestamp', 'editable' => 0, 'list' => 1, 'default' => null),
 	//'password_lastedit_date'=> array('type' => 'timestamp', 'default' => null),
-	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 0),
-	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 0),
-	'name' 					=> array('type' => 'varchar', 'length' => 128, 'list' => 1, 'searchable' => 1),
+	'first_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 0, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 0),
+	'last_name' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 0, 'eval' => 'strtolower(trim(---self---))', 'searchable' => 0),
+	'name' 					=> array('type' => 'varchar', 'length' => 128, 'list' => 3, 'searchable' => 1),
 	//'prefered_lang' 		=> array('type' => 'varchar', 'length' => 5, 'list' => 1),
 	//'groups' 				=> array('type' => 'onetomany', 'relResource' => 'groups', 'relField' => 'id', 'pivotResource' => 'users_groups', 'pivotLeftField' => 'user_id', 'pivotRightField' => 'group_id', 'getFields' => 'admin_title'),
-	'groups' 				=> array('type' => 'onetomany', 'getFields' => 'id,admin_title'),
+	'groups' 				=> array('type' => 'onetomany', 'getFields' => 'id,slug'),
 	'activated' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'exposed' => 0),
 	//'activation_key' 		=> array('type' => 'varchar', 'subtype' => 'uniqueID', 'length' => 32, 'editable' => 1, 'exposed' => 0),
 	//'password_reset_key' 	=> array('type' => 'varchar', 'length' => 32, 'exposed' => 0, 'editable' => 1),

@@ -135,7 +135,7 @@ class VAccount extends View
 			if ( defined('_APP_PASSWORDS_EXPIRATION_TIME') 
 				&& _APP_PASSWORDS_EXPIRATION_TIME > 0 
 				&& ( !$user['password_expiration'] || $user['password_expiration'] < (!empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time()) )
-				&& ( !($uGps = array_intersect((array) Tools::toArray(_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS), (array) Tools::toArray($user['group_admin_titles']))) && empty($uGps) )
+				&& ( !($uGps = array_intersect((array) Tools::toArray(_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS), (array) Tools::toArray($user['group_slugs']))) && empty($uGps) )
 			)
 			{ $this->data['errors'][] = 10033; $this->redirect(_URL_ACCOUNT_PASSWORD_EXPIRED . '?errors=10033'); }
 			

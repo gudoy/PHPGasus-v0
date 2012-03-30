@@ -1,11 +1,11 @@
 {extends file='specific/layout/pageAdmin.tpl'}
 
-{block name='mainColHeader'}
+{block name='mainHeader'}
 {$resourceName 	= $view.resourceName}
 {$resource 		= $data[$resourceName][0]}
-<header class="titleBlock" id="mainColHeader">
-	{block name='mainColHeaderSecondaryActions'}{/block}
-	{block name='mainColbreadcrumbs'}
+<header class="titleBlock" id="mainHeader">
+	{block name='mainHeaderSecondaryActions'}{/block}
+	{block name='mainbreadcrumbs'}
 	<nav class="breadcrumbs">{strip}
 		<span class="breadcrumb item" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
 			<a rel="home up up up" href="{$smarty.const._URL}" itemprop="url"><span class="value" itemprop="title">{t}home{/t}</span></a>
@@ -28,8 +28,8 @@
 		</a>
 	</h2>
 	{/block}
-	{block name='mainColHeaderPrimaryActions'}
-	<nav class="resourceActions" id="mainColHeaderPrimaryActions">
+	{block name='mainHeaderPrimaryActions'}
+	<nav class="resourceActions" id="mainHeaderPrimaryActions">
 		<div class="actions primary">{include file='common/blocks/admin/resource/actions/actions.tpl'}</div>
 		<div class="actions secondary">{strip}{block name='secondaryActions'}{/block}{/strip}</div>
 	</nav>

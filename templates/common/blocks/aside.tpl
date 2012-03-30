@@ -1,4 +1,1 @@
-<div id="sideCol">
-	
-	
-</div>
+<div id="aside"></div>

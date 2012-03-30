@@ -1,7 +1,7 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='mainCol'}
-<div class="col" id="mainCol">
+{block name='main'}
+<div class="col" id="main">
 {$smarty.block.parent}
 </div>
 {/block}

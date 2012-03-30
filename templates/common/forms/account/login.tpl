@@ -9,9 +9,7 @@
 		
 		<div class="line" id="userPasswordLine">
 			<div class="labelBlock">
-				<label for="userPassword">
-					{t}password{/t}<span class="required">*</span>
-				</label>
+				<label for="userPassword">{t}password{/t}<span class="required">*</span></label>
 			</div>
 			<div class="fieldBlock">
 				{include file='common/formFields/user/password.tpl' label="{t}password{/t}" name='password' placeholder="{t}password{/t}" inputOnly=1 required=true}

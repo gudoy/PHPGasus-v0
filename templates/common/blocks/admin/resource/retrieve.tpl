@@ -4,7 +4,7 @@
 	<div class="block adminBlock adminRetrieveBlock" id="admin{$resourceName|capitalize}RetrieveBlock"> 
 		
 		{block name='adminResourceDetail'}
-		<div class="resourceDetailBlock adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">		
+		<div class="resourceDetailBlock adminResourceDetailBlock" id="admin{$resourceName|capitalize}DetailBlock">
 			{include file='common/blocks/admin/resource/retrieve/retrieve.tpl'}
 		</div>
 		{/block}

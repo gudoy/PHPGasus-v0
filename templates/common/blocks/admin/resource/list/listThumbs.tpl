@@ -1,11 +1,11 @@
-{$rProps 		= $data._resources[$resourceName]}
+{* $rProps 		= $data._resources[$resourceName]}
 {$rModel 		= $data.dataModel[$resourceName]}
 {$imageField 	= $rProps.imageField}
 {$nameField 	= $rProps.nameField|default:$rProps.defaultNameField}
 {$descField 	= $rProps.descField|default:null}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 {$crudability 	= $rProps.crudability|default:'CRUD'}
-{$isReadable 	= (strpos($crudability, 'R')>-1)?1:0}
+{$isReadable 	= (strpos($crudability, 'R')>-1)?1:0 *}
 
 {foreach array_keys((array) $data[$resourceName]) as $key}
 {$resource = $data[$resourceName][$key]}

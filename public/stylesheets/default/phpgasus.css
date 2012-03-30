@@ -72,7 +72,7 @@ form .noLabelBlock .fieldBlock { margin-left:35%; }
 form .labelBlock label,
 form .labelBlock span.label { }
 form label,
-form span.label { margin-right:10px; display:block; font-weight:bold; }
+form span.label { margin-right:10px; display:block; /*font-weight:bold;*/ }
 form label small,
 form span.label small { display:block; font-weight:normal; text-transform:none; }
 form label.span { display:inline; font-weight:normal; }
@@ -247,10 +247,12 @@ form .hint .key { display:none; }
 #languagesBlock li .value { display:none; }
 #languagesBlock li.current { display:inline-block; }
 
+/*
 #layout:after,
 #header:after,
 #body:after,
 #footer:after,
+*/
 .tableWrapperBlock:after { height:0; clear:both; content:' '; display:block; visibility:hidden; }
 
 /* Micro clearfix: http://nicolasgallagher.com/micro-clearfix-hack/ */

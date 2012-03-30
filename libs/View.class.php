@@ -1412,7 +1412,7 @@ class View extends Application implements ViewInterface
  		$pathParts 	= explode('/', ltrim(str_replace('.' . $this->options['output'], '', strtolower($uriParts['path'])), '/'));
 		
         // Get user groups
-        $uGps       = !empty($d['current']['user']['group_admin_titles']) ? explode(',',$d['current']['user']['group_admin_titles']) : array();
+        $uGps       = !empty($d['current']['user']['group_slugs']) ? explode(',',$d['current']['user']['group_slugs']) : array();
 		foreach ($uGps as &$gp) { $gp = 'group' . ucfirst($gp); }
 
 		// 

@@ -1,7 +1,7 @@
 {$currentUser=$data.current.user}
 {$updatedUser=$resource}
-{if !empty($currentUser.group_admin_titles)}{$curUGroups=explode(',',$currentUser.group_admin_titles)}{else}{$curUGroups=[]}{/if}
-{if !empty($updatedUser.group_admin_titles)}{$upUGroups=explode(',',$updatedUser.group_admin_titles)}{else}{$upUGroups=[]}{/if}
+{if !empty($currentUser.group_slugs)}{$curUGroups=explode(',',$currentUser.group_slugs)}{else}{$curUGroups=[]}{/if}
+{if !empty($updatedUser.group_slugs)}{$upUGroups=explode(',',$updatedUser.group_slugs)}{else}{$upUGroups=[]}{/if}
 
 {if in_array('gods', $curUGroups) || ( in_array('superadmins', $curUGroups) && count(array_intersect((array) $upUGroups, array('gods','superadmins'))) )}
 {$hasHigherAuth=true}

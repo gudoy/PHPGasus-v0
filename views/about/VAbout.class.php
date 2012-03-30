@@ -27,7 +27,7 @@ class VAbout extends View
 		
 		// Get all apps
 		$this->requireControllers(array('CApps','CPlatforms'));
-		$this->data['platforms'] 			= CPlatforms::getInstance()->index(array('reindexby' => 'admin_title', 'isUnique' => true));
+		$this->data['platforms'] 			= CPlatforms::getInstance()->index(array('reindexby' => 'slug', 'isUnique' => true));
 		$this->data['apps'] 				= CApps::getInstance()->index(array(
 			'groupBy' 		=> 'platforms_id', 
 			'conditions' 	=> array('is_displayable' => 1), 

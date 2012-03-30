@@ -1,11 +1,9 @@
 {extends file='specific/layout/pageAdmin.tpl'}
 
-{block name='mainContent'}
-
-{block name='mainColHeader'}
-<header class="titleBlock" id="mainColHeader">
-	{block name='mainColHeaderSecondaryActions'}{/block}
-	{block name='mainColbreadcrumbs'}
+{block name='mainHeader'}
+<header class="titleBlock" id="mainHeader">
+	{block name='mainHeaderSecondaryActions'}{/block}
+	{block name='mainbreadcrumbs'}
 	<nav class="breadcrumbs">{strip}
 		<span class="breadcrumb item" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
 			<a rel="home up up" href="{$smarty.const._URL}" itemprop="url"><span class="value" itemprop="title">{t}home{/t}</span></a>
@@ -23,10 +21,11 @@
 		<span class="value">{t}search results{/t}</span>
 	</h2>
 	{/block}
-	{block name='mainColHeaderPrimaryActions'}{/block}
+	{block name='mainHeaderPrimaryActions'}{/block}
 </header>
 {/block}
 
+{block name='mainContent'}
 {if $data.search.type === 'contextual'}
 
 {$resourceName 	= $view.resourceName}
@@ -50,6 +49,7 @@
 </form>
 
 {else}
+{block name='mainHeader'}{/block}
 {include file='common/blocks/admin/search/results.tpl' search=$data.search}
 {/if}
 

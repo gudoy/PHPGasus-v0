@@ -1666,14 +1666,14 @@ class Model extends Application
 			{
 				// Get the user whose data are being updated and get the logged user
 				$updatedUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1)));
-				$upUGroups      = !empty($updatedUser['group_admin_titles']) ? explode(',',$updatedUser['group_admin_titles']) : array();
+				$upUGroups      = !empty($updatedUser['group_slugs']) ? explode(',',$updatedUser['group_slugs']) : array();
 				
 				// If the user is logged
 				if ( $this->isLogged() )
 				{
 					// Get the logged user & usergroups
 					$currentUser 	= CUsers::getInstance()->retrieve(array_merge($o, array('limit' => 1, 'by' => 'id', 'values' => $_SESSION['user_id'])));
-	                $curUGroups     = !empty($currentUser['group_admin_titles']) ? explode(',',$currentUser['group_admin_titles']) : array();
+	                $curUGroups     = !empty($currentUser['group_slugs']) ? explode(',',$currentUser['group_slugs']) : array();
 	
 					// Has the current user higher authorization than the updated one
 					$foundUsersData = !empty($updatedUser) && !empty($currentUser);
