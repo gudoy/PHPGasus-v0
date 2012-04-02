@@ -301,13 +301,6 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
 
 
-/* Start aside */
-footer.menu .toggler .plus { display:none; }
-footer.menu .toggler.active .minus { display:none; }
-footer.menu .toggler.active .plus { display:block; }
-/* End aside */
-
-
 header .title,
 header .actions { display:inline-block; vertical-align:middle; }
 header .title { text-transform:capitalize; }
@@ -373,16 +366,7 @@ header .paginationBlock { float:right; }
 
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 
-{    
-    html,
-    body { width:100%; height:100%; }
-    body { margin:0; padding:0; }
-    #layout { width:100%; height:100%; overflow:hidden; margin:0 auto; padding:0; text-align:left; }
-
-	#main:before,
-	#main:after { content:""; display:table; }
-	#main:after { clear:both; }
-    
+{
     /* Buttons */
 	.toolbar .paginationButtons .firstLink,
 	.toolbar .paginationButtons fieldset,
@@ -408,52 +392,4 @@ header .paginationBlock { float:right; }
 	.api .resourceDetailBlock dd { min-height:1em; padding-top:0; padding-bottom:0; }
 	.adminCreateBlock form,
 	.adminUpdateBlock form { margin:10px; max-width:640px; }
-	
-	/* Flexbox layout (start) */
-    /* Opera does not support flex box module (04/11, current version 11.50): fallback to displays table/table-cell */
-    /* IE < 10 does not support flex box module: fallback to displays table/table-cell */
-	/* IE < 9 does not support table-cell: NO fallback, go hell */
-	#layout,
-	#header,
-	#body,
-	#main,
-	#aside { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; }
-	
-	#layout,
-	#body { -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; }
-	#header,
-	#aside,
-	#main { -moz-box-orient:vertical; -webkit-box-orient:vertical; -o-box-orient:vertical; -ms-box-orient:vertical; }
-	
-	#header,
-	#mainNav,
-	#body,
-	#main,
-	#headerContent,
-	#asideContent,
-	#mainContent { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
-	
-	#headerContent,
-	#asideContent,
-	#mainContent { overflow-x:auto; overflow-y:auto; }
-	
-	#body { -moz-box-direction:reverse; -webkit-box-direction:reverse; -o-box-direction:reverse; -ms-box-direction:reverse; }
-	#aside,
-	#main { -moz-box-direction:normal; -webkit-box-direction:normal; -o-box-direction:normal; -ms-box-direction:normal; }
-	/* Flexbox layout (start) */
-}
-
-/* 1280 x 1024 */
-@media screen and (min-width:1240px) 
-{
-}
-
-/* 1600 x 1200 */
-@media screen and (min-width:1560px) 
-{
-}
-
-/* 1980 x 1200 */
-@media screen and (min-width:1820px) 
-{
 }

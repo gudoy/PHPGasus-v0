@@ -100,6 +100,9 @@ var_dump($result);
 		//$this->cci 			= !empty($o['cci']) ? $o['cci'] : null;
 		$this->format 		= !empty($o['format']) ? $o['format'] : 'text';
 		$this->alternative 	= !empty($o['alternative']) ? $o['alternative'] : '';
+		
+		$this->returnPath 	= !empty($o['returnPath']) ? $o['returnPath'] : $this->from;
+		$this->returnPath 	= ($pos = strpos($this->returnPath, '<')) && $pos !== false ? str_replace(array('<','>'), '', substr($this->returnPath, $pos)) : $this->returnPath;
 	}
 	
 	public function setHeaders()
@@ -111,7 +114,8 @@ var_dump($result);
 			'Bcc' 							=> $this->bcc,
 			//'Cci' 							=> $this->cci,
 			'Reply-To' 						=> $this->replyTo,
-			'Return-Path' 					=> $this->from,
+			//'Return-Path' 					=> $this->from,
+			'Return-Path' 					=> $this->returnPath,
 			'Subject' 						=> $this->subject,
 			'MIME-Version' 					=> '1.0',
 			'Content-Type' 					=> $this->format === 'html' ? ' text/html; charset=UTF-8' : ' text/plain; charset=UTF-8',
@@ -192,7 +196,8 @@ echo $message;
 			$this->errors 	= !$this->success ? $result : array();
 			
 			// TODO: handle PEAR error
-/*				
+
+/*
 if ( PEAR::isError($result) )
 {
 

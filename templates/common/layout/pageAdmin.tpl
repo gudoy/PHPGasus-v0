@@ -1,6 +1,9 @@
 {extends file='specific/layout/page.tpl'}
 
-{block name='headerHeaderContent'}{include file='common/blocks/admin/search/search.tpl'}{/block}
+{block name='headerContentContent'}
+{include file='common/blocks/admin/search/search.tpl'}
+{$smarty.block.parent}
+{/block}
 
 {block name='headerNav'}
 <nav class="main mainNav" id="mainNav">
