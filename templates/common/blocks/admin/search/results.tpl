@@ -5,11 +5,6 @@
 {/if}
 <section id="adminSearchResultsBlock" class="section searchResultsBlock adminSearchResultsBlock">
 {if $search.totalResults && $search.type === 'global'}
-	{*
-    <header class="titleBlock">
-        <h3 class="title">{t}results{/t}</h3>
-    </header>
-    *}
     {$currentDefined    = false}
     {foreach $search.groups as $groupName => $group}
     {$groupResource     = $group.resource}
@@ -33,6 +28,7 @@
                     <span class="key">{t}displayed{/t}</span>
                     <span class="value">{$displayedCount}</span>
                 </span>
+                <span class="of">{t}of{/t}</span>
                 {/if}
                 <span class="totalCount">
                     <span class="key">{t}total{/t}</span>

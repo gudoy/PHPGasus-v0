@@ -1,18 +1,4 @@
-/* Fix for opera that refuses align the search input & its submit button with display:table-cell */
-.no-flexbox.opera #searchQueryFieldBlock input#searchQuery { height:25px; float:left; } 
-
-.counts span { display:inline-block; vertical-align:middle; }
-.totalCount:before { display:inline-block; content:'/'; vertical-align:middle; }
-
 .resourceDetailBlock:after { clear:both; content:'.'; display:block; visibility:hidden; height:0; }
-
-
-.action .value,
-.toolbar .settings > .title,
-.validity,
-table thead .sort .value,
-.adminTable #colsManagerLink,
-.js .translationsNav .lang .value { /*text-indent:-9999em;*/ font:0/0 serif; text-shadow:none; }
 
 
 /* Togglers */
@@ -25,7 +11,7 @@ thead .sort.asc:before,
 details[open] summary,
 .adminTable tbody td.typeSet details[open] summary 	{ background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAMAAABPT11nAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkQwNjY4MTI1MTcyNDExRTBCNDAyQTdERjg0ODU4MkFBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQwNjY4MTI2MTcyNDExRTBCNDAyQTdERjg0ODU4MkFBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RDA2NjgxMjMxNzI0MTFFMEI0MDJBN0RGODQ4NTgyQUEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RDA2NjgxMjQxNzI0MTFFMEI0MDJBN0RGODQ4NTgyQUEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5tTn5vAAAACVBMVEUeN33////7+/txxX7OAAAAA3RSTlP//wDXyg1BAAAAI0lEQVR42iyGgQkAAAiDXP8f3YwEUaakoskNeFiPZ1YAAQYABPYAKpt28kMAAAAASUVORK5CYII="); }
 
-#header .resourceGroupItem,
+/*#header .resourceGroupItem,*/
 details summary,
 .adminTable tbody td.typeSet summary { padding-left:10px; padding-right:10px; background-position:0 6px; cursor:pointer; background-repeat:no-repeat; /*background-position:100% 6px;*/ }
 .chrome details summary,
@@ -109,10 +95,6 @@ a.relResourceLink 		{ background-size:6px; }
 .ui-inlineedit-form.warnings,
 .ui-inlineedit-form.valid,
 .ui-inlineedit-form.invalid { padding-right:20px; background-position:100% 50%; }
-
-html.create,
-html.delete,
-html.update { background:none; }
 
 
 /* Forms (start) */
@@ -301,12 +283,6 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
 
 
-header .title,
-header .actions { display:inline-block; vertical-align:middle; }
-header .title { text-transform:capitalize; }
-header .counts { margin-top:8px; margin-right:10px; float:right; }
-header .paginationBlock { float:right; }
-
 .resourceDetailBlock { }
 .resourceDetailBlock .comment { display:none; }
 .resourceDetailBlock dl { display:block; letter-spacing:-4px; }
@@ -334,12 +310,6 @@ header .paginationBlock { float:right; }
 .js .translationsNav .lang.all .value { text-indent:0; }
 
 
-/* Start TMP TODO */
-#adminSearchBlock fieldset legend { display:none; }
-#adminSearchBlock fieldset > a { display:none; }
-#adminSearchBlock fieldset .labelBlock { display:none; }
-/* End TMP TODO */
-
 .account.confirmation .action .value { text-indent:0; }
 
 
@@ -355,13 +325,6 @@ header .paginationBlock { float:right; }
 .relatedResourcesBlock .name { margin:0; margin-left:15px; padding:0; display:inline-block; float:left; text-transform:capitalize; }
 .relatedResourcesBlock .counts { margin-top:0.7em; margin-right:25px; float:right; }
 
-
-.admin section header .actions { margin-left:10px; margin-right:10px; float:right; }
-.admin section header .action .value,
-.admin section header .action:hover .value,
-.admin section header .action.hover .value { display:inline-block; }
-.admin section header .action:hover,
-.admin section header .action.hover { position:static; }
 
 
 /* 1024 x 768 */
