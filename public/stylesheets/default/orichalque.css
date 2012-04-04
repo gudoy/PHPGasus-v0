@@ -321,7 +321,6 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 
 .relatedResourcesBlock {  }
 .relatedResourcesBlock .action.go { display:block; background-position:99.5%; }
-.relatedResourcesBlock .action.go .value { text-indent:0; }
 .relatedResourcesBlock .name { margin:0; margin-left:15px; padding:0; display:inline-block; float:left; text-transform:capitalize; }
 .relatedResourcesBlock .counts { margin-top:0.7em; margin-right:25px; float:right; }
 
@@ -337,8 +336,6 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 	.toolbar .paginationButtons .action.paginationLink.nextLink { border-right-width:1px; }
 	.toolbar .settings { display:inline-block; }
 
-	.adminTable th[data-importance="1"],
-	.adminTable td[data-importance="1"] { display:table-cell; }
 	
 	.action { width:auto; min-width:16px; min-height:16px; background-position:0 50%; }
 	.actions .action { margin-right:10px; }

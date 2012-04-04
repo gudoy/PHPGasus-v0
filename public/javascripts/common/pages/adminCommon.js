@@ -123,7 +123,7 @@ var admin =
 	    {
 	    	var self = this;
 	    	
-	    	// If 
+	    	// 
 	    	if ( $(self.resultsContext).length ) { self.results(); }
 	    	
 	        return this.listen();
@@ -165,6 +165,15 @@ var admin =
 	    	
 	    	// On search form submit
 	        $(self.formContext)
+				.bind('keypress', function(e)
+				{
+					var k 		= e.keyCode; 			// Shortcut for pressed keycode
+					
+Tools.log('keyCode: ' + k);
+
+					// 
+					if 		( k === 13 ){ e.preventDefault(); e.stopPropagation(); $(this).submit(); }
+				})
 	            .bind('submit', function(e)
 	            {
 	                e.preventDefault();
@@ -1567,8 +1576,8 @@ var adminIndex =
 								href: $this.attr('href') || '#',
 								click: function(e)
 								{
-Tools.log('click noty button:' + $this.attr('class'));
-Tools.log(e);
+//Tools.log('click noty button:' + $this.attr('class'));
+//Tools.log(e);
 									e.preventDefault(); $this.trigger('click');
 								} // Specificaly handle actions
 							})

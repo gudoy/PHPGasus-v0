@@ -46,6 +46,7 @@
 	<nav class="actions">
 		{if $isReadable}<a class="action primary view goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{/if}
 		{include file='common/blocks/admin/resource/actions/listActions.tpl'}
+		{if $isReadable}</a>{/if}
 	</nav>
 </article>
 {foreachelse}

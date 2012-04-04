@@ -1,32 +1,4 @@
-pre {
-	overflow-x: auto;
-	white-space: -moz-pre-wrap !important;
-	white-space: pre-wrap;
-	word-wrap: break-word;
-}
 
-img { -ms-interpolation-mode:bicubic; }
-
-a:focus,
-input:focus { outline:1px dotted black; }
-
-a img { border:none; }
-
-.chrome datalist { display: inline-block; }
-
-
-.accessib { width:0!important; height:0!important; margin:0!important; padding:0!important; overflow:hidden!important; position:absolute!important; top:-9999em!important; left:-9999em!important; border:none!important; font-size:0!important; }
-.accessib.anchor { position:static!important; visibility:hidden; }
-
-.ninja { display:none; color:black; visibility:hidden; }
-.hidden { display:none!important; }
-.displayed { display:block!important; }
-
-.raw { margin:0!important; padding:0!important; }
-
-.block {}
-
-.col {}
 
 .divine1 { width:593px; float:left; }
 .divine2 { width:367px; float:left; }
@@ -221,43 +193,3 @@ form .hint .key { display:none; }
 .commonTable tbody td.dataCol.ui-inlineedit-active input:focus { outline:1px dotted #000; }
 .commonTable tbody td.dataCol.ui-inlineedit-active button:focus {  }
 .commonTable tbody td.dataCol.ui-inlineedit-active button:before { outline:none!important; }
-
-
-/* Layout */
-#layout { clear:both; } 
-#header { clear:both; }
-#body { clear:both; }
-#footer { clear:both; }
-
-/*
-#footer #copyrightBlock { display:inline; display:inline-block; float:left; text-align:left; }
-#footer #poweredByBlock { display:inline; display:inline-block; float:right; text-align:right; }
-
-.nav { display:inline; display:inline-block; vertical-align:middle; }
-.nav li { margin-left:0; display:inline; display:inline-block; vertical-align:middle; }
-.nav li a { display:block; float:left; }
-*/
-
-
-/* Header */
-#languagesBlock { width:100%; padding:2px 0; background:transparent; text-align:right; }
-#languagesBlock .blockTitle { display:none; }
-#languagesBlock ul { margin:0 10px 0 0; display:inline-block; }
-#languagesBlock li { display:none; }
-#languagesBlock li .value { display:none; }
-#languagesBlock li.current { display:inline-block; }
-
-/*
-#layout:after,
-#header:after,
-#body:after,
-#footer:after,
-*/
-.tableWrapperBlock:after { height:0; clear:both; content:' '; display:block; visibility:hidden; }
-
-/* Micro clearfix: http://nicolasgallagher.com/micro-clearfix-hack/ */
-/*
-.clearfix:before,
-.clearfix:after { content:""; display:table; }
-.clearfix:after { clear:both; }
-*/

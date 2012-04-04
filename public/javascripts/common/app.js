@@ -57,71 +57,19 @@ var ui =
 			detailSel 	= '#myAccountNavBlock',
 			mainNavSel 	= '#mainNavBlock';
 		
-		//$('#mainNavTitle').click(function(e){ e.preventDefault(); e.stopPropagation(); $(mainNavSel).toggleClass('expanded'); });
 		$('#mainNavTitle').click(function(e)
 		{
 			e.preventDefault(); e.stopPropagation(); 
 			
 			$(this).closest('nav').toggleClass('active');
 		});
-		
-		/*
-		$('#accountActions')
-        	.bind('click', function(e)
-	        {
-	            e.stopPropagation();
-	            e.preventDefault();
-	            
-	            var $dtl = $(detailSel); 			// Shortcut for my account nav block detail 
-	            
-	            // If the detail is collapsed
-	            if ( !$dtl.hasClass('active') )
-	            {
-	            	// Make any click outside of the block to collapse it
-					$('body').one('click', function(e)
-					{
-						var $t = $(e.target); 		// Shortcut for target 
-						
-						if ( !$t.closest(detailSel).length ){ $dtl.removeClass('active'); }
-					});
-	            }
-	           
-	           // Otherwise, just expand it 
-				$dtl.addClass('active');
-	        });*/
        
 		$('#accountActions')
-			//.bind('click', function(){ $(this).toggleClass('active'); });
        		.on('click', function(){ $(this).toggleClass('active'); });
-        
-        // Fix wrong flexbox layouting in Firefox when browser window is not fullscreen
-//if ( $('html').hasClass('gecko') ){ self.fixFirefoxFlexbox(); }
 		
 		return this.handleIos().handleOrientation();
 	},
-	
-	
-	// Fix wrong flexbox layouting in Firefox when browser window does not use fullscreen
-	fixFirefoxFlexbox: function()
-	{
-		var $html = $('html');
-		
-		if ( !$html.hasClass('admin') && !$html.hasClass('api') ){ return this; } 
-		
-        $(window).bind('resize load',function(e)
-        {
-        	var $window = $(window),
-        		windowW = $window.width(),
-        		maxH 	= $window.height() - $('#header').height() - $('#asideFooter').height();
-        		
-			if ( windowW < 980 ){ return; }
-        	
-        	$('#asideContent').css({'height':maxH, 'max-height':maxH});
-        	$('#mainContent').css({'height':maxH, 'max-height':maxH, 'overflow-y':'auto'});
-        });
-        
-        return this;
-	},
+
 	
 	handleOrientation: function()
 	{
