@@ -1179,6 +1179,7 @@ Tools.log('keyCode: ' + k);
 var adminIndex =
 {
 	context: 'table.adminTable',
+	$context: $('table').filter('.adminTable'),
 	
 	init: function()
 	{
@@ -1208,14 +1209,25 @@ var adminIndex =
 		// Hide action buttons (since they only are necessary when items are selected)
 		//$toolbars.find('.actionsButtons').hide()
 		
-		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink').click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
-        $('a.editAllLink').click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
-        $('a.duplicateAllLink').click(function(e) { e.preventDefault(); admin.duplicate($('tbody tr.ui-selected:visible', self.context)); });
+		$('#deleteSelectionTopBtn, #deleteSelectionBottomBtn, a.deleteAllLink')
+			.not('.disabled')
+			.click(function(e) { e.preventDefault(); admin.del($('tbody tr.ui-selected:visible', self.context)); });
+			
+        $('a')
+        	.filter('.editAllLink')
+        	.not('.disabled')
+        	.click(function(e) { e.preventDefault(); admin.edit($('tbody tr.ui-selected:visible', self.context)); });
+        	
+        $('a')
+        	.filter('.duplicateAllLink')
+			.not('.disabled')
+        	.click(function(e) { e.preventDefault(); admin.duplicate($('tbody tr.ui-selected:visible', self.context)); });
 
 		// We do not need selectable rows on mobile
+		// TODO: disable this on touch only devices
 		if ( !app.isMobile )
 		{
-			$(self.context)
+			self.$context
 				.find('tbody')
 				.selectable(
 				{
@@ -1238,27 +1250,27 @@ var adminIndex =
 		}
 
 		// Loop over all the delete buttons in the table
-		$(self.context)
+		self.$context
 			.parent()
 			.click(function(e)
 			{
-				var t 			= e.target, 						// Shortcut for event target
-					jt 			= $(t),								// Shortcut for event target jqueryfied
-					tmpA 		= jt.closest('a'),					// Try to get closest anchor tag
-					a			= tmpA.length > 0 ? tmpA : false, 	// or set if to false
-					href 		= a ? a.attr('href') : false, 			// Try to get the href of the link
-					//intercept 	= a, 							// Do we need to intercept click (no if no an anchor)
-					jCel 		= jt.closest('td');					// jQuery Reference to the closest <td>
+				var $t 			= $(e.target),						// Shortcut for event target jqueryfied
+					$td 		= $t.closest('td', self.$context),	// jQuery Reference to the closest <td>
+					$tmpA 		= $t.closest('a', self.$context),	// Try to get closest anchor tag
+					$a			= $tmpA.length ? $tmpA : false, 	// or set if to false
+					href 		= $a ? $a.attr('href') : false; 	// Try to get the href of the link
 					
-				jt.focus();
+				$t.focus();
 				
-				if ( jt.hasClass('dataValue') || jt.hasClass('validity') )	{ return self.inlineEdit(jCel); }
+				if ( $a.hasClass('disabled') ){ e.preventDefault(); return; }
 				
-				else if ( jt.is('summary') )
+				if ( $t.hasClass('dataValue') || $t.hasClass('validity') )	{ return self.inlineEdit($td); }
+				
+				else if ( $t.is('summary') )
 				{
 					if ( support.detailsSummary ){ return; }
 					
-					var $p = jt.parent('details');
+					var $p = $t.parent('details');
 					
 					if 		( $p.attr('open') === 'open' )	{ $p.removeAttr('open'); }
 					else 									{ $p.attr('open','open'); }
@@ -1270,14 +1282,14 @@ var adminIndex =
 				}
 				
 				// If the target is an input, just return
-				else if ( jt.is(':input') )
+				else if ( $t.is(':input') )
 				{
-					if 		( jt.is('#toggleAll') ){ return self.toggleAll(jt); }
-					else if ( jt.is(':checkbox') )
+					if 		( $t.is('#toggleAll') ){ return self.toggleAll($t); }
+					else if ( $t.is(':checkbox') )
 					{
-						var $tr = jt.closest('tr');
+						var $tr = $t.closest('tr', self.$context);
 						
-						if ( jt.is(':checked') ){ $tr.addClass('ui-selected'); }
+						if ( $t.is(':checked') ){ $tr.addClass('ui-selected'); }
 						else 					{ $tr.removeClass('ui-selected ui-selectee'); }
 						
 						self.handleSelection();
@@ -1291,16 +1303,16 @@ var adminIndex =
 					
 				// Just return if we do not need to intercept the click
 				//if ( !cel.hasClass('dataCol') || !intercept  ){ return self; }
-				if ( !a ){ return; }
+				if ( !$a ){ return; }
 				
 				// Handle specific link types
-				if 		( a.hasClass('deleteLink') )			{ return admin.del(a); }
-				else if ( a.hasClass('duplicateLink') )			{ return admin.duplicate(a); }
-				else if ( a.hasClass('selectAll') ) 			{ return self.toggleAll('check'); }
-				else if ( a.hasClass('selectNone') ) 			{ return self.toggleAll('uncheck'); }
-				else if ( href )								{ window.location.href = href; }
+				if 		( $a.hasClass('deleteLink') )						{ return admin.del($a); }
+				else if ( $a.hasClass('duplicateLink') )					{ return admin.duplicate($a); }
+				else if ( $a.hasClass('selectAll') ) 						{ return self.toggleAll('check'); }
+				else if ( $a.hasClass('selectNone') ) 						{ return self.toggleAll('uncheck'); }
+				else if ( href )											{ window.location.href = href; }
 				
-				//window.location.href = a.attr('href');
+				//window.location.href = $a.attr('href');
 			})
 			;
 			

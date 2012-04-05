@@ -861,7 +861,7 @@ class View extends Application implements ViewInterface
 		else if ( $of === 'csv' )
 		{
 			$output 	= '';
-			$sep 		= ",";
+			$sep 		= !empty($_GET['separator']) && in_array($_GET['separator'], array(',',';','\n','\t')) ? $_GET['separator'] : ",";
 			$eol 		= PHP_EOL;
 			$comment 	= "#";
 			

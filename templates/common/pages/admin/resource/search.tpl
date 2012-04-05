@@ -36,7 +36,7 @@
 
     {block name='admin{$resourceName|ucfirst}IndexBlock'}
 	<section class="adminSection adminIndexSection admin{$resourceName|ucfirst}IndexSection">
-	{include file='common/blocks/admin/resource/list.tpl'}
+	{include file='common/blocks/admin/resource/list/list.tpl'}
 	</section>
 	{/block}
 	

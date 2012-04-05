@@ -45,41 +45,10 @@
 
 {block name='breadcrumbs'}{/block}
 
-{* block name='asideContent'}
-	
-	<div class="colContent asideContent" id="asideContent">
-		
-		{include file='common/blocks/admin/search/search.tpl'}
-		
-		{block name='headerNav'}{/block}
-		
-	</div>
-		
-{/block}
 
-{block name='asideFooter'}
-<footer class="menu" id="asideFooter">
-	<ul>
-		<li class="toggler colToggler" id="asideToggler">
-			{*<a class="toggle plus" id="showAside"><span class="value">{t}show{/t}</span></a>
-			<a class="toggle minus" id="hideAside"><span class="value">{t}hide{/t}</span></a>*}
-			<a class="toggle" id="asideToggleBtn"><span class="value">{t}show/hide{/t}</span></a>
-		</li>
-		{*
-		<li class="more" id="asideMoreOptions">
-			<a id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
-		</li>*}
-		<li class="group account accountActions myAccountNav" id="accountActions">
-			<span class="title">{t}account{/t}</span>
-			<div class="groups">
-			{include file='common/blocks/header/account/detail.tpl' user=$data.current.user}
-			</div>
-		</li>
-	</ul>
-</footer>
-{/block *}
 
 {block name='aside'}{/block}
+
 
 {block name='mainFooter'}
 	<footer class="menu" id="mainFooter">

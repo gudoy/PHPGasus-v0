@@ -7,7 +7,7 @@
 	{$resource 		= $data[$resourceName]}
 
     {block name='admin{$resourceName|ucfirst}IndexBlock'}
-	{include file='common/blocks/admin/resource/list.tpl'}
+	{include file='common/blocks/admin/resource/list/list.tpl'}
 	{/block}
 
 {/block}
