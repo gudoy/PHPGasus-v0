@@ -1,4 +1,4 @@
-<nav class="mainNavBlock" id="mainNavBlock">
+<nav class="mainNavBlock" id="mainNavBlock" role="navigation">
 	
 	<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
 	

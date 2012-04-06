@@ -1,4 +1,4 @@
-String.prototype.ucfirst = function(){ return (str + '').replace(/^(.)|\s(.)/g, function($1){ return $1.toUpperCase(); }); }
+String.prototype.ucfirst = function(){ return this.replace(/^(.)|\s(.)/g, function($1){ return $1.toUpperCase(); }); }
 
 var Tools = 
 {

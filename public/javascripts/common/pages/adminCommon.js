@@ -168,8 +168,6 @@ var admin =
 				.bind('keypress', function(e)
 				{
 					var k 		= e.keyCode; 			// Shortcut for pressed keycode
-					
-Tools.log('keyCode: ' + k);
 
 					// 
 					if 		( k === 13 ){ e.preventDefault(); e.stopPropagation(); $(this).submit(); }
@@ -913,6 +911,93 @@ Tools.log('keyCode: ' + k);
 		return this;
 	},
 	
+	handleOneToManyFields2: function()
+	{
+Tools.log('handle oneToMany fields 2')
+		
+		var self 			= this,
+			$searchInputs  	= $('input').filter('.oneToManySearch');
+			
+		$searchInputs
+.css('border','1px solid blue')
+			.each(function()
+		{
+			var $input  	= $(this),
+				$context 	= $input.closest('.ui-oneToMany'),
+				$content 	= $context.find('> .content'),
+				updateReq 	= null;
+				
+			$context
+				.on('click', function(e)
+				{
+Tools.log('click');
+					e.preventDefault();
+					e.stopPropagation();
+										
+					$context.addClass('active');
+					
+					$('body').on('click', ':not(.ui-oneToMany)', function(){ $context.removeClass('active'); });
+					
+					/*if ( $context.hasClass('active') )
+					{
+						$('body').on('click', ':not(.ui-oneToMany)', function(){ $context.removeClass('active'); })
+					}*/
+				})
+				.on('click', 'article.resource', function(e)
+				{
+					$(this).toggleClass('active');
+				})
+				.on('keyup', 'input', function(e)
+				{
+Tools.log('keyup');
+					var key 		= e.keyCode,
+						val 		= $input.val() || '',
+						$current 	= $('article').filter('.current.resource');
+					
+Tools.log('val: ' + val);
+
+					if 		( key === 27 ){ $context.removeClass('active'); }
+					// Up
+					else if ( key === 38 )
+					{
+						$current.length ? $current.removeClass('focused').prev().addClass('focused') : $('article').filter('.resource:last').addClass('focused')
+					}
+					// Down
+					else if ( key === 40 )
+					{
+						$current.length ? $current.removeClass('focused').next().addClass('focused') : $('article').filter('.resource:first').addClass('focused');
+					}
+
+					// Reset content if the new value is empty and if the field already has a value
+					if 		( val !== '' && val !== $input.data('oldvalue') ) { $content.empty(); }
+					else if ( val.length < 2 ){ return; }
+					
+					// Update old value
+					$input.data('oldval',val);
+					
+					if ( updateReq ) { updateReq.success = function(){}; } 
+					
+					updateReq = $.ajax(
+					{
+						url: $context.data('relatedurl'),
+						data: {'displayMode':'list', 'conditions':$context.data('relnamefield') + '|contains|' + val},
+						type: 'get',
+						dataType: 'html',
+						success: function(response)
+						{
+							var $response = $(response);
+							
+							$response.find('a').attr('disabled','disabled').removeAttr('href');
+							
+							$content.html($response);
+						}
+					}); 
+				})
+		});
+		
+		return this;
+	},
+	
 	handleMultiLangFields: function()
 	{
 		$translNav = $('nav').filter('.translationsNav'); 
@@ -1254,6 +1339,8 @@ var adminIndex =
 			.parent()
 			.click(function(e)
 			{
+Tools.log('table click');
+				
 				var $t 			= $(e.target),						// Shortcut for event target jqueryfied
 					$td 		= $t.closest('td', self.$context),	// jQuery Reference to the closest <td>
 					$tmpA 		= $t.closest('a', self.$context),	// Try to get closest anchor tag
@@ -1262,7 +1349,9 @@ var adminIndex =
 					
 				$t.focus();
 				
-				if ( $a.hasClass('disabled') ){ e.preventDefault(); return; }
+Tools.log('$td: ' + $td.length);
+				
+				if ( $a && $a.hasClass('disabled') ){ e.preventDefault(); return; }
 				
 				if ( $t.hasClass('dataValue') || $t.hasClass('validity') )	{ return self.inlineEdit($td); }
 				
@@ -1731,7 +1820,7 @@ var adminIndex =
 		    	
 		        $this
 		           .find('select')
-		               .bind('change', function(e)
+		               .live('change', function(e)
 	                   {
 	                       e.preventDefault();
 	                       
@@ -1749,25 +1838,27 @@ var adminIndex =
 	                   })
 	               .end()
 	               .find('input.pageNb')
-	               .bind('change', function(e)
+	               .live('keyup', function(e)
+	               { 
+						if ( e.keyCode === 13 )
+						{
+							e.preventDefault();
+							e.stopPropagation();
+							
+					    var $input 		= $(this),
+					    	newPage   	= $input.val(), 
+					        curURL      = window.location.href,
+					        cleaned     = Tools.removeQueryParam(curURL, 'page'),
+					        cleaned     = Tools.removeQueryParam(cleaned, 'offset'),
+					        newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'page=' + newPage;
+					        
+							window.location.href = newURL;
+						}
+	               })
+	               .live('change', function(e)
 	               {
-	               		e.preventDefault();
-	               		e.stopPropagation();
-	               	
-                        var input 		= $(this);
-                        	newPage   	= input.val(), 
-                            curURL      = window.location.href,
-                            cleaned     = Tools.removeQueryParam(curURL, 'page'),
-                            newURL      = cleaned + ( cleaned.indexOf('?') > -1 ? '&' : '?') + 'page=' + newPage,
-                            form 		= input.closest('form');
-                           
-                        //if ( !Modernizr.input.formaction )
-                        {
-                        	form.attr('action',newURL).append($('<input />', {'type':'hidden','name':'method','value':'index'})).submit();	
-                        }
-                        // Otherwise, the formaction attribute should override the one of the form
-                        // everything should go well
-						
+						e.preventDefault();
+						e.stopPropagation();
 	               })
 		    });
 	    
@@ -2104,6 +2195,7 @@ var adminCreate =
 			.handleDateFields()
 			.handleOneToOneFields()
 			.handleOneToManyFields()
+			.handleOneToManyFields2()
 			.handleFileFields()
 			.handleSetFields()
 			.handleRTEFields()
@@ -2126,6 +2218,7 @@ var adminUpdate =
 			.handlePasswordFields()
 			.handleOneToOneFields()
 			.handleOneToManyFields()
+			.handleOneToManyFields2()
 			.handleFileFields()
 			.handleSetFields()
 			.handleRTEFields()

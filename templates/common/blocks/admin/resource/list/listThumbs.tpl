@@ -10,7 +10,7 @@
 {foreach array_keys((array) $data[$resourceName]) as $key}
 {$resource = $data[$resourceName][$key]}
 <article class="resource" id="{$resourceName}{$resource.id}" data-id="{$resource.id}" data-nameField="{$nameField}">
-	<div class="status"><input type="checkbox" name="resourceIds" value="{$resource.id}" /></div>
+	<div class="status"><input type="checkbox" name="{$resourceName}Ids[]" value="{$resource.id}" /></div>
 	<figure>
 		{$src = $resource[$imageField]|default:$rProps.icon}
 		<img class="cover{if !$src} default{/if}" src="{$src|default:"{$smarty.const._URL_STYLESHEETS}images/pix.png"}" />

@@ -6,7 +6,7 @@
 {/block}
 
 {block name='headerNav'}
-<nav class="main mainNav" id="mainNav">
+<nav class="main mainNav" id="mainNav" role="navigation">
 	<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
 	{include file='common/blocks/header/nav/adminMainNav.tpl'}
 </nav>
