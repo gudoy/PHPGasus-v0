@@ -842,6 +842,9 @@ class Model extends Application
 		$o 					= array_merge($this->options, $options);
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		
+		$skipLimit 			= false;
+		$skipOffset 		= true;
+		
 		$this->queryData 	= array(
 			'fields' 		=> array(),
 			'tables' 		=> array(),
@@ -904,6 +907,7 @@ class Model extends Application
         }
 		
 		// Case where we just want to count the number of records in the table
+		/*
         if ( $o['mode'] === 'count')
 		{
 			// Set the field used to do the count. Try the 'id' field if it exists, otherwise use the first one defined in the datamodel
@@ -923,7 +927,7 @@ class Model extends Application
             //$query      .=  ( !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : '' );
             //$query      .=  ( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : '' );		
 		}
-		else if ( $o['mode'] === 'distinct' && !empty($o['field']))
+		else*/ if ( $o['mode'] === 'distinct' && !empty($o['field']))
 		{
 			$where 		= $this->handleOperations($o);
 			$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
@@ -1193,17 +1197,26 @@ class Model extends Application
 			$where 		= $this->handleOperations($o);
 			$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
 			
+			if ( $o['mode'] === 'count')
+			{
+				// Set the field used to do the count. Try the 'id' field if it exists, otherwise use the first one defined in the datamodel
+				$usedfield 		= ( !is_array($rModel) || isset($rModel['id']) ) ? 'id' : key($rModel);
+				$finalFields 	= "COUNT(" . $this->alias . '.' . $this->escapeString($usedfield) . ") AS total";
+				
+				$skipLimit = true;
+			}
+			
 			// Build final query  
 			$query 		= 	"SELECT " . $finalFields . " ";
 			//$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->dbTableName . " AS " . $this->dbTableShortName . " ";
 			$query 		.= 	"FROM " . _DB_TABLE_PREFIX . $this->table . " AS `" . $this->alias . "` ";
-			$query 		.= 	( !empty($leftJoins) ? $leftJoins : " " );
-			$query 		.= 	( !empty($crossJoins) ? $crossJoins : "" );
+			$query 		.= 	!empty($leftJoins) ? $leftJoins : " ";
+			$query 		.= 	!empty($crossJoins) ? $crossJoins : "";
 			$query 		.= 	$where . $conditions;
 			$query 		.= 	$groupBy;
-			$query 		.= 	( !empty($orderBy) ? $orderBy . " " : "" );
-			$query 		.= 	( !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : "" );
-			$query 		.= 	( !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : "" );
+			$query 		.= 	!empty($orderBy) ? $orderBy . " " : "";
+			$query 		.= 	!$skipLimit && !empty($o['limit']) && $o['limit'] != -1 ? "LIMIT " . $o['limit'] . " " : "";
+			$query 		.= 	!$skipOffset && !empty($o['offset']) ? "OFFSET " . $o['offset'] . " " : "";
 		}
 		
 		return $query;
@@ -2187,6 +2200,7 @@ $tmpVal = isset($d[$fieldName])
 			$multiFields   = is_array($fields) || ( is_string($fields) && strpos($fields, ',') !== false );
 			$operator      = count($condition) > 2 ? strtolower(str_replace(' ', '', $condition[1])) : '=';
 			$usedOperator  = $knownOps[$operator];
+			$usedOperator  = isset($knownOps[$operator]) ? $knownOps[$operator] : '=';
             
             // Do not continue if the current operator does not belong to the known ones, throwing a warning by the way
             if ( !isset($knownOps[$operator]) ){ $this->warnings[4215] = $operator; continue; } // Unknown operator
@@ -2262,7 +2276,7 @@ $tmpVal = isset($d[$fieldName])
 				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
 				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields);
 				$opts 	+= array('values' => $values);
-				
+
 				$fields = Tools::toArray($fields);
 				//$output .= $condKeyword . $oParenthesis;
 				$output .= $condKeyword . $before . $oParenthesis;
@@ -2292,6 +2306,7 @@ $tmpVal = isset($d[$fieldName])
 			// Case for single field & single value operators
 			else
 			{
+				/*	
 				// Try to get the queried fields data
 				$qf         = !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				
@@ -2327,6 +2342,19 @@ $tmpVal = isset($d[$fieldName])
                 $output .= $isValColname 
                 	? $values
                 	: $this->handleConditionsTypes(array('values' => $values, 'resource' => $res ,'column' => $col, 'operator' => $operator)) . ' ';
+				 */
+				
+				// Try to get the queried fields data
+				$qf     = !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
+				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
+				$opts 	= $multiFields ? array() : array('resource' => $res, 'column' => $fields, 'operator' => $operator);
+				$opts 	+= array('values' => $values);
+				
+				$fields = Tools::toArray($fields);
+				//$output .= $condKeyword . $oParenthesis;
+				$output .= $condKeyword . $before . $oParenthesis;
+				$output .= $this->handleConditionsColumns(array('columns' =>$fields));
+				$output .= ' ' . $usedOperator . ' ' . $this->handleConditionsTypes($opts) . ' ';
 			}
 			
 			// Get conditions alternatives
@@ -2353,52 +2381,37 @@ $tmpVal = isset($d[$fieldName])
 		$output 	= '';
 		
 		
+//$this->dump($o['columns']);
+		
 		// Do not continue if there's no columns passed
 		if ( empty($o['columns']) ) { return $output; }
 		
 		$j = 0;
 		foreach( $o['columns'] as $col )
 		{
-			/*
-			$qf = !empty($this->queryData['fields'][$col]) ? $this->queryData['fields'][$col] : null;
-			
-            // TODO: handle this properly (require queryFields to contains joined fields)
-            // If the column name contains a "., assume that it is like 'table'.'column', matching db real structure
-            $useAlias   = strpos($col, '.') === false;
-            $colParts   = !$useAlias ? explode('.',$col) : null;                
-            $alias      = !$useAlias 
-                            ? ( isset($this->resources[$colParts[0]]) ? $this->resources[$colParts[0]]['alias'] : $colParts[0] ) 
-                            : ( !empty($qf['tableAlias']) ? $qf['tableAlias'] : $this->alias );
-            $col        = !$useAlias ? $colParts[1] : $col;
-            
-			// Do not continue if the field is not an existing one
-			// but only when we are handling conditions in a select request 
-			// since there's no queryData for update & insert requests 
-			//if ( !$qf && !$useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
-			//if ( !$qf && $useAlias ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
-			if ( !$qf && $useAlias && isset($this->queryType) 
-				&& !in_array($this->queryType, array('insert','update')) ) { $this->warnings[4213] = $col; continue; } 
-			*/
-			
-			
-
             // If the column name contains a "., assume that it is like 'table'.'column', matching db real structure
             $hasDot   		= strpos($col, '.') !== false;
             $colParts   	= $hasDot ? explode('.',$col) : null;
+
+//$this->dump($col);			
+//$this->dump($this->queryData['tableAliases']);
 
 			// Try to get the related resource for the current field/column, otherwise assume its the current one
 			// If resource passed
 			// Possible cases:
 			// {column}
+			// {resource}.{column}
 			// {table}.{column}
 			// {table alias}.{column}
 			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
-			$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) ); 
+			$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
+			$resTable 		= $resExists && !empty($this->resources[$res]['table']) ? $this->resources[$res]['table'] : $res;
 			//$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
 			$alias 			= !$hasDot 
 								? $this->alias 
 								// Search the queryData for the resource'alias if any
-								: ( in_array($res, (array) $this->queryData['tableAliases']) ? array_search($res, $this->queryData['tableAliases']) : null );
+								//: ( in_array($res, (array) $this->queryData['tableAliases']) ? array_search($res, $this->queryData['tableAliases']) : null );
+								: ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
 			// TODO: check alias against datamodel
 			$aliasExists 	= $alias && isset($alias, $this->queryData['tableAliases']);
 							
@@ -2406,6 +2419,7 @@ $tmpVal = isset($d[$fieldName])
 			$column 		= $hasDot ? $colParts[1] : $col;
 			$columnExists 	= isset($this->application->dataModel[$res][$column]) || isset($this->queryData['fields'][$column]);
 			
+
 //$this->dump($qf);
 //$this->dump('res: ' . $res);
 //$this->dump('is res: ' . (int) $resExists);
@@ -2414,16 +2428,14 @@ $tmpVal = isset($d[$fieldName])
 //$this->dump('col: ' . $column);
 //$this->dump('is col: ' . (int) $columnExists);
 
-			// Skip the condition and raise a warning if the resource either the resource & the columns are unknown
+
+			// Skip the condition and raise a warning if either the resource & the columns are unknown
 			// but only when we are handling conditions in a select request 
 			// since there's no queryData for update & insert requests 
 			if ( !in_array($this->queryType, array('insert','update')) 
 				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknow field/column	
 			
 			$output .= $j !== 0 ? ', ' : '';
-            //$output .= $useAlias ? $alias . '.' : '';
-            //$output .= $alias . '.' . $col;
-            //$output .= ( !$hasDot ? $alias . '.' : '' ) . $col;
             $output .= $alias ? $alias . '.' . $column : $col;
 			
 //$this->dump('output: ' . $output);

@@ -57,17 +57,43 @@ var ui =
 			detailSel 	= '#myAccountNavBlock',
 			mainNavSel 	= '#mainNavBlock';
 		
-		$('#mainNavTitle').click(function(e)
+		$('#mainNavTitle')
+			.on('click',function(e)
 		{
 			e.preventDefault(); e.stopPropagation(); 
 			
-			$(this).closest('nav').toggleClass('active');
+			var $nav = $(this).closest('nav'); 
+			
+			$nav.toggleClass('active');
+			
+			self.setBlockToFullscreen($nav.find('> ul'));
 		});
        
 		$('#accountActions')
-       		.on('click', function(){ $(this).toggleClass('active'); });
+       		.on('click', function()
+       		{
+       			var $this = $(this); 
+       			$this.toggleClass('active');
+       			self.setBlockToFullScreen($this.find('> .groups'));
+       		});
 		
 		return this.handleIos().handleOrientation();
+	},
+	
+	setBlockToFullscreen: function($item)
+	{
+		if ( $('body').width() < 980 )
+		{
+			var bodyH 		= $('#body').outerHeight() || '100%',
+				viewportH 	= window.innerHeight || bodyH,
+				headerH 	= $('#header').outerHeight();
+				ulPadding 	= (parseInt($item.css('padding-top')) || 0) + (parseInt($item.css('padding-bottom')) || 0),
+				newH 		= (bodyH + headerH) < viewportH ? viewportH - headerH + ulPadding : bodyH + ulPadding + 10;
+			
+			$item.css({'height': newH, 'min-height':newH});
+		}
+		
+		return this;
 	},
 
 	

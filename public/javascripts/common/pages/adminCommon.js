@@ -299,10 +299,11 @@ var admin =
 	},
 	
 	del: function(jqObj)
-	{
-		var self 		= this
+	{		
+		var self 		= this,
 			multiple 	= jqObj.length > 1,								// Is there several objects to delete
-			url 		= !multiple ? jqObj.attr('href') : null; 		// If not use the object href as url otherwise we will set it later
+			//url 		= !multiple ? jqObj.attr('href') : null; 		// If not use the object href as url otherwise we will set it later
+			url 		= !multiple ? jqObj.find('td.actionsCol a.deleteLink').attr('href') : null; 		// If not use the object href as url otherwise we will set it later
 
 			
 		// When handling multiple resources, we need to get all theirs id to be able to build the proper request URL 
@@ -339,7 +340,7 @@ var admin =
 				// If the request did not succeed, we do not continue
 				if ( !success )
 				{
-					$('table.adminTable')
+					$('table').filter('.adminTable')
 						.parents('.adminListBlock')
 						.insertBefore('<div class="notificationsBlock errorsBlock"></div>')
 					
@@ -919,29 +920,25 @@ Tools.log('handle oneToMany fields 2')
 			$searchInputs  	= $('input').filter('.oneToManySearch');
 			
 		$searchInputs
-.css('border','1px solid blue')
+//.css('border','1px solid blue')
 			.each(function()
 		{
 			var $input  	= $(this),
 				$context 	= $input.closest('.ui-oneToMany'),
 				$content 	= $context.find('> .content'),
+				$contentDim = {w:null, h:null, innerH:null};
 				updateReq 	= null;
 				
 			$context
 				.on('click', function(e)
 				{
-Tools.log('click');
+//Tools.log('click');
 					e.preventDefault();
 					e.stopPropagation();
 										
-					$context.addClass('active');
+					$context.addClass('active focused').siblings().removeClass('focused');
 					
 					$('body').on('click', ':not(.ui-oneToMany)', function(){ $context.removeClass('active'); });
-					
-					/*if ( $context.hasClass('active') )
-					{
-						$('body').on('click', ':not(.ui-oneToMany)', function(){ $context.removeClass('active'); })
-					}*/
 				})
 				.on('click', 'article.resource', function(e)
 				{
@@ -949,23 +946,40 @@ Tools.log('click');
 				})
 				.on('keyup', 'input', function(e)
 				{
-Tools.log('keyup');
 					var key 		= e.keyCode,
 						val 		= $input.val() || '',
-						$current 	= $('article').filter('.current.resource');
+						$articles 	= $('article').filter('.resource'),
+						$current 	= $articles.filter('.active'),
+						$focused 	= $articles.filter('.focused');
+
+					$focused = $focused.length ? $focused : $current;
 					
-Tools.log('val: ' + val);
+Tools.log('focused id: ' + $focused.attr('id'));
 
 					if 		( key === 27 ){ $context.removeClass('active'); }
 					// Up
-					else if ( key === 38 )
+					else if ( key === 38 || key === 40 )
 					{
-						$current.length ? $current.removeClass('focused').prev().addClass('focused') : $('article').filter('.resource:last').addClass('focused')
-					}
-					// Down
-					else if ( key === 40 )
-					{
-						$current.length ? $current.removeClass('focused').next().addClass('focused') : $('article').filter('.resource:first').addClass('focused');
+						var dir 		= key === 38 ? 'top' : 'bottom',
+							$newfocused = !$focused.length 
+											? dir === 'top' ? $articles.filter(':last') : $articles.filter(':first')
+											: dir === 'top' ? $focused.prev() : $focused.next();
+						
+							$focused.removeClass('focused');
+							$newfocused.addClass('focused');
+							
+						if ( $contentDim.innerH === null ){ $contentDim.innerH = $content.innerHeight(); }
+						
+Tools.log('content h: ' + $contentDim.innerH);
+Tools.log('newfocused y: ' + $newfocused.position().top);
+Tools.log('newfocused h: ' + $newfocused.outerHeight());
+
+						if ( $newfocused.position().top > $contentDim.innerH - $newfocused.outerHeight() ){ $content.scrollTop($newfocused.position().top); }
+						//if ( $newfocused.position().top > $contentDim.innerH - $newfocused.outerHeight() ){ $content.trigger('keyup'); }
+						
+						//e.preventDefault();
+						e.stopPropagation();
+						return;
 					}
 
 					// Reset content if the new value is empty and if the field already has a value
@@ -983,12 +997,17 @@ Tools.log('val: ' + val);
 						data: {'displayMode':'list', 'conditions':$context.data('relnamefield') + '|contains|' + val},
 						type: 'get',
 						dataType: 'html',
+						beforeSend: function()
+						{
+							if ( $content.is(':empty') ){ $context.addClass('loading'); }
+						},
 						success: function(response)
 						{
 							var $response = $(response);
 							
 							$response.find('a').attr('disabled','disabled').removeAttr('href');
 							
+							$context.removeClass('loading');
 							$content.html($response);
 						}
 					}); 
@@ -1339,8 +1358,6 @@ var adminIndex =
 			.parent()
 			.click(function(e)
 			{
-Tools.log('table click');
-				
 				var $t 			= $(e.target),						// Shortcut for event target jqueryfied
 					$td 		= $t.closest('td', self.$context),	// jQuery Reference to the closest <td>
 					$tmpA 		= $t.closest('a', self.$context),	// Try to get closest anchor tag
@@ -1348,8 +1365,6 @@ Tools.log('table click');
 					href 		= $a ? $a.attr('href') : false; 	// Try to get the href of the link
 					
 				$t.focus();
-				
-Tools.log('$td: ' + $td.length);
 				
 				if ( $a && $a.hasClass('disabled') ){ e.preventDefault(); return; }
 				

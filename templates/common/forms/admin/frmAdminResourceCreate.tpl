@@ -1,5 +1,5 @@
 {$mode='create'}
-<form action="{$data.current.url}" id="frmAdminCreate{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
+<form action="{$data.current.url}" id="frmAdminCreate{$resourceName|capitalize}" class="commonForm adminForm {$mode}Mode" method="post" enctype="multipart/form-data">
 	
 	{block name='resourceColumnsFieldset'}
 	<fieldset class="body">

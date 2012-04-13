@@ -46,8 +46,8 @@
 	</nav>
 {else}
 	<div class="current">
-		<span class="idValue{if !$curVal} empty{/if}">{$data[$resourceName][$fieldName]}</span>
-		<span class="textValue{if !$curVal} empty{/if}">{if $curVal}{$data[$resourceName][$relGetAs]|default:"{t}[untitled]{/t}"}{/if}</span>
+		<span class="idValue{if !$curVal} empty{/if}">{$resource[$fieldName]}</span>
+		<span class="textValue{if !$curVal} empty{/if}">{if $curVal}{$resource[$relGetAs]|default:"{t}[untitled]{/t}"}{/if}</span>
 		<nav class="actions">
 			{if $curVal}
 			{include file='common/blocks/actionBtn.tpl' id="edit{$fieldName|ucfirst}Btn" class="action edit relItemSearchBtn" label="{t}edit{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}

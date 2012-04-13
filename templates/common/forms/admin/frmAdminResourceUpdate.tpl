@@ -1,5 +1,5 @@
 {$mode='update'}
-<form action="{$data.current.url}" id="frmAdminUpdate{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
+<form action="{$data.current.url}" id="frmAdminUpdate{$resourceName|capitalize}" class="commonForm adminForm {$mode}Mode" method="post" enctype="multipart/form-data">
 	
 	<fieldset class="body">
 		<legend><span class="value">{t}Edit resource data{/t}</span></legend>

@@ -1,5 +1,5 @@
 {$mode='delete'}
-<form action="{$data.current.url}" id="frmAdminDelete{$resourceName|capitalize}" class="commonForm {$mode}Mode" method="post" enctype="multipart/form-data">
+<form action="{$data.current.url}" id="frmAdminDelete{$resourceName|capitalize}" class="commonForm adminForm {$mode}Mode" method="post" enctype="multipart/form-data">
 
 	<fieldset class="body">
 		
