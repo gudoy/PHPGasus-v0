@@ -112,9 +112,10 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 CREATE TABLE IF NOT EXISTS `tasks` (
   `id` int(11) NOT NULL auto_increment,
   `slug` varchar(64) default NULL,
-  `type` enum('import') default NULL,
+  `type` enum('import','export','custom') default NULL,
   `subtype` varchar(32) default NULL,
   `items_count` int(8) default NULL,
+  `log` TEXT NULL AFTER,
   `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
   `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)

@@ -199,6 +199,14 @@ class Tools
         $len    = strlen($plural);
         $sing   = $plural;          // Default
         
+        $irregular = array(
+			'children' 	=> 'child',
+			'men' 		=> 'man',
+			'women' 	=> 'woman',
+		);
+		
+		if ( isset($irregular[$plural]) ){ return $irregular[$plural]; }
+        
         if      ( $len >= 5 && substr($plural, -4) === 'uses' )     { $sing = preg_replace('/(.*)uses/','$1us', $plural); }
         else if ( $len >= 4 && substr($plural, -3) === 'ses' )      { $sing = preg_replace('/(.*)ses/','$1ss', $plural); }
         else if ( $len >= 4 && substr($plural, -3) === 'hes' )      { $sing = preg_replace('/(.*)hes/','$1h', $plural); }
@@ -377,7 +385,7 @@ class Tools
 			case 'json':
 				// TODO: how to validate json???
 				// use Json Schema PHP Validator???
-				$tmp = json_decode((string) $f);
+				$tmp = json_decode((string) $value);
 				unset($tmp);
 				
 				$isValid = json_last_error() === JSON_ERROR_NONE; break;
@@ -457,8 +465,16 @@ class Tools
 			case 'tel':
 				$value = preg_replace('/\D/', '', $value); break;
 			case 'json':
+//var_dump('case json');
+//var_dump($value);
 				// TODO: how to validate json???
 				// use Json Schema PHP Validator???
+				//$value = $value;
+				$value = addslashes($value);
+//var_dump($value);
+				break;
+			case 'timestamp';
+				$value = is_numeric($value) ? (int) $value : strtotime((string) $value); 
 			case 'string':
 			default:	
 				$value = filter_var($value, FILTER_SANITIZE_STRING); break;

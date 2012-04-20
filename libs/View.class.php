@@ -920,17 +920,17 @@ class View extends Application implements ViewInterface
 		else if ( $of === 'csvtxt' )
 		{
 			$output 	= '';
-			$sep 		= ",";
+			$sep 		= !empty($_GET['separator']) && in_array($_GET['separator'], array(',',';','\n','\t')) ? $_GET['separator'] : ",";
 			$eol 		= PHP_EOL;
 			$comment 	= "#";
 			
 			//$buffer = fopen('php://temp', 'r+');
 			
 			// Loop over the data
-			foreach (array_keys($this->data) as $k)
+			foreach (array_keys((array) $this->data) as $k)
 			{
 				// Skip everything that is not the current resource
-				if ( $k !== $this->data['current']['resource'] ){ continue; }
+				if ( !empty($this->data['current']['resource']) && $k !== $this->data['current']['resource'] ){ continue; }
 				
 				$rows = $this->data[$k];
 				 
@@ -941,7 +941,7 @@ class View extends Application implements ViewInterface
 				}
 				
 				// Loop of the the rows
-				foreach (array_keys($rows) as $i)
+				foreach (array_keys((array) $rows) as $i)
 				{
 					$row = $rows[$i];
 					
@@ -949,17 +949,32 @@ class View extends Application implements ViewInterface
 					//$output .= join($sep,$row) . $eol;
 					
 					$buffer = fopen('php://temp', 'r+');
-					fputcsv($buffer, array_values($row), $sep);
+					fputcsv($buffer, array_values((array) $row), $sep);
 					rewind($buffer);
 					$csv = fgets($buffer);
 					$output .= $csv;
 					fclose($buffer);
 				}
 			}
-						
+			
 			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
+			//$this->headers[] = 'plain/txt; charset=utf-8;';
 			$this->writeHeaders();
-			exit($output);
+			exit($output);			
+			
+			/*
+			class_exists('php2CSV') || require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
+			
+			foreach(array('success','errors','warnings') as $item) { if ( isset($this->data[$item]) ) { unset($this->data[$item]); } }
+			
+			$php2CSV = new php2CSV();
+			$output = $php2CSV->process($this->data);
+			//$output = $php2CSV->process($this->data['entries']);
+						
+			//$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
+			//$this->writeHeaders();
+			//exit($output);
+			*/
 		}
 		else if ( $of === 'qr' )
 		{

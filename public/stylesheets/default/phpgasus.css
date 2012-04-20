@@ -58,7 +58,7 @@ form select.sized { margin-left:0; margin-right:5px; vertical-align:middle; }
 form .fieldBlock label.span { padding-top:6px; display:block; }
 form .fieldBlock label.span.multi { padding:0; vertical-align:middle; }
 form input { font-size:118%; }
-form input.normal { width:80%; height:24px; padding:3px 3px 0; float:left; display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
+form input.normal { width:80%; height:24px; padding:3px 3px 0; /*float:left;*/ display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
 form input.sized { width:auto; height:24px; margin-left:0; padding:3px 3px 0; float:left; display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
 form input.multi { border:none; }
 form input.sized.file { float:none; vertical-align:middle; }

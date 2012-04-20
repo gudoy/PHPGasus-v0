@@ -118,6 +118,94 @@ if ( is_array($val) )
 //$this->dump(preg_match('/^[a-zA-Z_][a-zA-Z_0-9]*$/', $name));
 		return preg_match('/^[a-zA-Z_][a-zA-Z_0-9]*$/', $name);
 	}
+	
+	
+	public function process2($data, $params = array())
+	{
+//var_dump(__METHOD__);
+		
+		$p = array_merge(array(
+			'eol' 			=> PHP_EOL,
+			'tab' 			=> "\t",
+			'depth' 		=> 0,
+			'element' 		=> 'root',
+			'inline' 		=> false,
+			'doctype' 		=> false,
+			'childrenOnly' 	=> false,
+		), $params);
+		$p = array_merge($p, array(
+			'eol' 			=> !$p['inline'] ? $p['eol'] : '',
+			'tab' 			=> !$p['inline'] ? $p['tab'] : '',
+		));
+		$indent = '';
+		if ( $p['tab'] ){ for ($i=0; $i<=$p['depth']; $i++){ $indent .= $p['tab']; } }
+		
+		$str = '';
+
+//var_dump('params');		
+//var_dump($p);
+		
+//var_dump($p);
+//var_dump('data BEFORE attributes handling');
+//var_dump($data);
+		
+		$attrStr = '';
+		$attrs = is_array($data) && !empty($data['@attributes']) ? $data['@attributes'] : ( is_object($data) && !empty($data->{'@attributes'}) ? $data->{'@attributes'} : array() );
+		//$attrs = is_array($data) ? $data['@attributes'] : ( is_object($data) ? $data->{'@attributes'} : array() );
+		foreach($attrs as $name => $value){ $attrStr .= ' ' . $name . '="' . $value . '"'; }
+		if ( is_array($data) ) { unset($data['@attributes']); }
+		if ( is_object($data) ) { unset($data->{'@attributes'}); }
+		
+//var_dump('data AFTER attributes handling');
+//var_dump($data);
+
+		if ( $p['depth'] === 0 && $p['doctype'] !== false )
+		{
+			$str = '<?xml version="1.0" encoding="UTF-8" ?>' . $p['eol'];
+		}
+		
+		if ( !$p['childrenOnly'] )
+		{
+			$str .= '<' . $p['element'] . $attrStr . '>';	
+		}
+		
+		foreach (array_keys((array) $data) as $k)
+		{
+			$v 		= is_array($data) ? $data[$k] : ( is_object($data) ? $data->$k : null );
+			$name 	= is_numeric($k) ? Tools::singular($p['element']) : $k;
+			$name 	= $name === $p['element'] ? $name . 'Item' : $name;
+			
+			if ( is_array($v) || is_object($v) )
+			{				
+				//$str .='<' . $name . '>';
+				//$str .= $p['eol'];
+				//$str .= $indent;
+				
+				$content = $this->process2($v, array_merge($p, array('element' => $k, 'depth' => $p['depth']+1, 'childrenOnly' => false)));
+				
+				//$str .= $content;
+				$str .= !empty($content) ? $p['eol'] . $indent . $content . $p['eol'] : '';
+				//$str .= '</' . $name . '>';
+			}
+			else
+			{
+				$str .= $p['eol'];
+				$str .= $indent;
+				$str .= '<' . $name .'>';
+				$str .= $v;
+				$str .= '</' . $name . '>';
+			}
+		}
+
+		//$str .= $p['depth'] !== 0 && !empty($str) ? $p['eol'] : '';
+		
+		if ( !$p['childrenOnly'] )
+		{
+			$str .= '</' . $p['element'] .'>';	
+		}
+		
+		return $str;
+	}
 }
 
 ?>

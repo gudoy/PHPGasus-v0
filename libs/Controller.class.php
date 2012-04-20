@@ -653,6 +653,7 @@ class Controller extends Application
 		}
 		else if ( $field['type'] === 'json' )
 		{
+			/*
 			// TODO: how to validate json???
 			// use Json Schema PHP Validator???
 			
@@ -661,6 +662,8 @@ class Controller extends Application
 			unset($tmp);
 			
 			$filteredData = json_last_error() === JSON_ERROR_NONE ? $f : null;
+			*/
+			$filteredData = Tools::validate($f, array('type' => 'json')) ? Tools::sanitize($f, array('type' => 'json')) : null;
 		}
 		/*
 		else if ( $field['type'] === 'text' && !empty($field['subtype']) && $field['subtype'] === 'html' )

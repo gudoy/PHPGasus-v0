@@ -1525,6 +1525,7 @@ class Model extends Application
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";   
+				//$value = "'" . $this->escapeString($tmpVal) . "'";
 			}
 			else if ( $field['type'] === 'varchar' )
 			{
@@ -2040,7 +2041,8 @@ $tmpVal = isset($d[$fieldName])
 			}
 			else if ( $field['type'] === 'json' )
 			{
-				$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
+				//$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
+				$value = "'" . $this->escapeString($d[$fieldName]) . "'";
 			}
 			else if ( $field['type'] === 'varchar' )
 			{
@@ -2380,9 +2382,6 @@ $tmpVal = isset($d[$fieldName])
 		$o      	= &$options;
 		$output 	= '';
 		
-		
-//$this->dump($o['columns']);
-		
 		// Do not continue if there's no columns passed
 		if ( empty($o['columns']) ) { return $output; }
 		
@@ -2411,7 +2410,9 @@ $tmpVal = isset($d[$fieldName])
 								? $this->alias 
 								// Search the queryData for the resource'alias if any
 								//: ( in_array($res, (array) $this->queryData['tableAliases']) ? array_search($res, $this->queryData['tableAliases']) : null );
-								: ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
+								//: ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
+								: !empty($this->queryData) && ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
+								
 			// TODO: check alias against datamodel
 			$aliasExists 	= $alias && isset($alias, $this->queryData['tableAliases']);
 							
@@ -2432,8 +2433,11 @@ $tmpVal = isset($d[$fieldName])
 			// Skip the condition and raise a warning if either the resource & the columns are unknown
 			// but only when we are handling conditions in a select request 
 			// since there's no queryData for update & insert requests 
-			if ( !in_array($this->queryType, array('insert','update')) 
-				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknow field/column	
+			//if ( !in_array($this->queryType, array('insert','update')) 
+			if ( !empty($this->queryType) && !in_array($this->queryType, array('insert','update'))
+				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
+				
+				
 			
 			$output .= $j !== 0 ? ', ' : '';
             $output .= $alias ? $alias . '.' . $column : $col;

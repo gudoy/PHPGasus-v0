@@ -2,6 +2,9 @@
 
 ### RESOURCES GROUPS ###
 $_resourcesGroups = array(
+	// App specific
+
+	// PHPGasus default
     'users'         => array('resources' => array('users', 'usersgroups', 'groups', 'groupsauths', 'sessions')),
     'config'        => array('resources' => array('adminlogs', 'bans', 'resources', 'resourcescolumns', 'tasks',)),
 );
@@ -9,6 +12,7 @@ $_resourcesGroups = array(
 
 ### DATAMODEL: RESOURCES ###
 $resources = array(
+// PHPGasus default
 'adminlogs' 				=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs'),
 'bans' 						=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'displayName' => 'bans'), 
 'groups' 					=> array('singular' => 'group', 'alias' => 'gp', 'crudability' => 'CRUD', 'defaultNameField' => 'slug'),
@@ -17,12 +21,14 @@ $resources = array(
 'resourcescolumns' 			=> array('singular' => 'resourcecolumn', 'alias' => 'rescol', 'table' => 'resources_columns', 'crudability' => 'CRUD', 'defaultNameField' => 'columns', 'displayName' => 'columns'),
 'sessions' 					=> array('singular' => 'session', 'alias' => 'sess', 'crudability' => 'R', 'defaultNameField' => 'name'),
 'tasks' 					=> array('singular' => 'task', 'alias' => 'tsk', 'crudability' => 'CRUD', 'defaultNameField' => 'slug'),
-'users' 					=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'searchable' => 1, 'related' => array('usergroups' => array('on' => 'user_id'))),
+'users' 					=> array('singular' => 'user', 'alias' => 'u', 'crudability' => 'CRUD', 'defaultNameField' => 'email', 'nameField' => 'email', 'descField' => 'name', 'searchable' => 1, 'related' => array('usersgroups' => array('on' => 'user_id')), 'icon' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFcklEQVR42s2XS2xUZRTH//cxc+fOA+2TNrAwUFFICBSBPkgqoCtcmggrorIyJEKaoro2IYqI4saVLnQFicoCYQOUWl4tqAgWoZTadqZD6bzn3rmP774892YMUV3MwBg9nV/ufM3JOf/zzXfON4P/2jjUZ8L+gSc/E3l+t8dxEgeuGsQzbdf58uOR4hsAnH9DAPd6zxNdTbIwyYd4tLaGkVgSgu1y0HUXqmKhUrYR4j1kVGvVF2OlKQAeajARtVm4KSpOShEBa1ZHEYvFIPBhWA6HsmJD5HXoZgWFAkNbIjQJIEKYqMH4WrZ975amg4Ig4OmuMGLRKHiBBITjCEsJROQEpEgCciQG2+VJlIA3B5oPAhAaJIByhIW90TgQk2VKLkMMyRDEKELSEoTCCcIXJdFahqq55CfuBRBpmACO56VojKqjCjkhRMlDlDQOkQQIYpwql8DxIYi8iIruguNEqZECBI7z3VwwBljMg+3wAclUHmNXJzCbWsBipgDTtPyOAE/+L62JrwLANeYQupTcEZF+YGA2nYZtLaBU1tGxvBM7X9uBFV3LoSoVfPDeV6ioJXj0990tdaYqwHtsAa7nmhZzpFde3YXMgzx4nrph/WpEYxFoioZyUYFLIjdsfhanZ+7Do/dBYqIRO+Aqhn0hZOCFzmUdWNO7ATZVq2s61HIFhmHCNBgcx0H70iaEwxyKGjsDwCa8RpwBNl+yTpiqhcX0IjzNgOGjU2KTgTELzKanxaCQIDnsIauYIwCsRh1C8+StymmTedl8vgjHtoOklmVXseDQ07EdWIZOc0LMHL+uHmvkIGJE6caiO5SaXoDr+V3gBIntABu27dL/XKi5An687xwAUCRYowR4hDI6rY6eODFy/KfLNwDXoZcDh3Apsee5mLo9gyvjt4+P3C2NAigTbiPvAkYUIiE3MjVXhJBIgHNtWIzBME1MTadxa+I3REREfD+CNfI25A4fOboxIsfeF6TY9i1PZcEKs5hJZZArlKEqCs0EBeFEJ5Zt3A1dKZzTKuo7Q4P7rgHwHkcAd+jDIztkWf46Ho9La9euxXMb1mHu2ufIzk1ANwyUSgoyuTxKhTxMJLDr3WPIzqfw8/UbUFXF1HX95bcODJ7yhdQrQPzok0/PtjY3D/T29qCzswNlqrKtfSk8VkDy5imUc/MoLs7CE+MB7asGIDWtQCIiYUkijvT9BVy5MoZMNvvN0OD+nQDsWgWIhw4fGelaubJ/S38fyoqKXC4HVdMgcDw2btoEiZKYlgPL9g+i3wUWKoqC5NxsMAWjsoyWlpZAyMVLl3H33r1Lbw8NPu+LqOUQRjmO6+/uXo/UfBoPFhdBlxEBMM/DxYuj6O/rA3gersX8bgjacWryzsPBwRjyhQKWtreju3sdkslkvx+XKNciQIrKMaiqirlkivJwIEHwjfLDdR2MjY+jt2czBIGn6hkmbv4CwzDIl3/Yu+ScTKUgigIRDuLW2oacaZmoVDQwZv4R9E+Bc3TwRr6/gL6+Hlwd/4F8K76Yv32iLvkWS0Uwywzi1ioADmPQdQ0ms8BXq/+riHy+gJMnT/u7E2Db/+gX3Bu2xeobRIpSQbADphkEf1QLBBgGGLPrE6Bqqt/nwbx3XQ+PooFyB+eH2TZy+Vx9Aixm5WdmZpqbmluoAo3Wjh8StRsHMSQEX1YpThCvHgFsePjsnq1bt39bKpaQoLkfjcXAC4JfVg25uaA1K0oFC+kFFItFnD9/bg8AVusgChMdbW1tq7dte3GfHI0+I0nSCtRppmlO65p2Z3j4zNFMJvMrgAWC1SKAIySiiWglEtU1j9rNJUxCIbJEobr26rmMREKqItT5Q9YjHMKsYuP/ar8D0J3XbruuI+AAAAAASUVORK5CYII='),
 'usersgroups' 				=> array('singular' => 'usersgroup', 'table' => 'users_groups', 'alias' => 'ugp', 'crudability' => 'CRUD', 'displayName' => 'users groups',),
+
 );
 
 ### DATAMODEL: RESOURCES COLUMNS ###
 $dataModel = array(
+// PHPGasus default
 'adminlogs' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 0, 'editable' => 0),
     'slug'           		=> array('type' => 'varchar', 'length' => 64, 'list' => 3),
@@ -136,9 +142,10 @@ $dataModel = array(
 'tasks' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 0, 'editable' => 0),
     'slug'           		=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
-    'type'                  => array('type' => 'enum', 'possibleValues' => array('import'), 'list' => 3),
+    'type'                  => array('type' => 'enum', 'possibleValues' => array('import','export','custom'), 'list' => 3),
     'subtype'				=> array('type' => 'varchar', 'length' => 32, 'list' => 3),
     'items_count'    		=> array('type' => 'int', 'length' => 8, 'default' => null, 'list' => 3),
+    'log' 					=> array('type' => 'text', 'default' => null),
     'creation_date'         => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'list' => 1),
     'update_date'           => array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1, 'list' => 3),
 ),

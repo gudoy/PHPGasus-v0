@@ -103,7 +103,10 @@ class VAccount extends View
 			$_SESSION['login_attemps'] = isset($_SESSION['login_attemps']) ? $_SESSION['login_attemps']+1 : 1;
 			
 			// Add a warning with remaining login attempts
-			if ( $_SESSION['login_attemps'] >= 1 ){ $this->data['warnings'][10031] = _APP_MAX_LOGIN_ATTEMPTS - $_SESSION['login_attemps']; }
+			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') && _APP_MAX_LOGIN_ATTEMPTS >= 1 && $_SESSION['login_attemps'] >= 1 )
+			{
+				$this->data['warnings'][10031] = _APP_MAX_LOGIN_ATTEMPTS - $_SESSION['login_attemps'];
+			}
 			
 			// Check for the required params
 			$req = array('userEmail' => 20010, 'userPassword' => 20012);

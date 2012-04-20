@@ -299,7 +299,7 @@ var admin =
 	},
 	
 	del: function(jqObj)
-	{		
+	{
 		var self 		= this,
 			multiple 	= jqObj.length > 1,								// Is there several objects to delete
 			//url 		= !multiple ? jqObj.attr('href') : null; 		// If not use the object href as url otherwise we will set it later

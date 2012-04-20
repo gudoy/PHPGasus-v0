@@ -203,6 +203,8 @@ section > header { padding:5px 0; margin-bottom:0; }
 .admin.index #mainHeader .action.hover .value { min-width:0; display:inline-block; position:static; font-weight:bold; text-transform:capitalize; background:none; border:none; vertical-align:middle; text-indent:0; }
 .admin.index #mainHeader .action:hover .value,
 .admin.index #mainHeader .action.hover .value { margin:0; padding:0; }
+.admin.index #mainHeader .action.hover .value:before,
+.admin.index #mainHeader .action:hover .value:before { display:none; }
 .admin.index #mainHeader #editModeBtn { min-width:0; min-height:16px; padding:4px 8px; padding-right:8px; }
 .admin.index #mainHeaderPrimaryActions .action { background-image:none; }
 
@@ -896,7 +898,9 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	#header,
 	#body,
 	#main,
-	#aside { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; }
+	#aside,
+	.admin.update #mainContent,
+    .admin.retrieve #mainContent { display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; display:box; }
 	
 	#layout,
 	#body { -moz-box-orient:horizontal; -webkit-box-orient:horizontal; -o-box-orient:horizontal; -ms-box-orient:horizontal; }
@@ -914,7 +918,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	#loginBlock,
     #lostPasswordBlock,
     #resetPasswordBlock,
-    #accountConfirmation { -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
+    #accountConfirmation{ -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1;  }	
 	
 	/*#headerContent,
 	#asideContent,
@@ -1157,6 +1161,14 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	
 	
 	.searchResultsBlock .nodata { max-width:640px; padding:20px; margin:20px auto; background:rgba(180, 180, 180, 0.2); border:1px solid #999; border-radius:15px; box-shadow:2px 2px 3px rgba(180, 180, 180, 0.5) inset, 1px 1px 0 rgba(255, 255, 255, 0.2); font-size:16px; }
+	
+	/*
+	.admin:not(.index) form.adminForm { max-width:480px; margin:20px auto; padding:10px 20px; background:#DEE4EA; border-radius:20px; border:1px solid #8DA2B8; box-shadow: 1px 1px 5px rgba(0, 0, 0, .3) inset, -1px -1px 1px rgba(255, 255, 255, .5) inset; }
+	.admin:not(.index) form .labelBlock { text-align:left; }
+	.admin:not(.index) form .fieldBlock { text-align:right; }
+	.admin:not(.index) form input.normal { float:none; }
+	.admin:not(.index) .fieldBlock .inputIcon {float:none; display:inline-block; }
+	*/
 }
 
 /* 1280 x 1024 */
