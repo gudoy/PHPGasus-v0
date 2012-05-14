@@ -28,6 +28,5 @@ $jsAssoc    = array(
 	'apiHome' 				=> array('default', $pages . 'api/home.js'),
 
     # App specifics
-	//'adminSpecifics' 	=> array('controllers/admin/adminCommon.js','controllers/admin/adminSpecifics.js',),
 );
 ?>

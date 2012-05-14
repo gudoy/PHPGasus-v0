@@ -934,7 +934,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	#aside,
 	#main { -moz-box-direction:normal; -webkit-box-direction:normal; -o-box-direction:normal; -ms-box-direction:normal; }
 	
-	.gecko #mainContent { min-height:1px; } /* Fix for gecko that does not correctly layout flex boxes without this */
+	.gecko #mainContent { min-width:1px; min-height:1px; } /* Fix for gecko that does not correctly layout flex boxes without this */
 	
 	html.no-flexbox { overflow:visible!important; }
 	.no-flexbox body { overflow:auto; }

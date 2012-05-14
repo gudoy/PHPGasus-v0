@@ -28,6 +28,7 @@
 	<div class="fieldBlock">
 {/if}
 		<input class="multi {$class} {if $required}check-required{/if}" name="{$postValName}" id="{$postValName}" {if $required}required="required"{/if} type="checkbox"  {if $value}value="{$value}"{/if} {if $postValue === $value || $checked}checked="checked"{/if} />
+		{if $placeholder}<span class="label">{$placeholder}</span>{/if}
 {if !isset($inputOnly) || !$inputOnly}
 	</div>
 </div>

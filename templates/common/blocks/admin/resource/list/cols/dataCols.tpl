@@ -8,12 +8,16 @@
 {$relResource 	= $field.relResource}
 <td id="{$fieldName}Col{$resource.id}" class="col {$fieldName}Col typeInt fk{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" headers="row{$resource.id} {$fieldName}Col" data-importance="{$field.list|default:0}">
 	<div class="value dataValue" id="{$fieldName}{$resource.id}" data-exactValue="{$value}">
+		{if $value}
 		<a class="relResourceLink" href="{$smarty.const._URL_ADMIN}{$relResource}/{$value}">{$value}</a>
+		{/if}
 	</div>
 </td>
 <td id="{$field.relGetAs}Col{$resource.id}" class="col {$field.relGetAs}Col typeVarchar fk{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" headers="row{$resource.id} {$field.relGetAs}Col" data-importance="{$field.list|default:0}">
 	<div class="value dataValue" id="{$field.relGetAs}{$resource.id}" data-exactValue="{$resource[$field.relGetAs]}">
+		{if $value}
 		<a class="relResourceLink" href="{$smarty.const._URL_ADMIN}{$relResource}/{$value}">{$resource[$field.relGetAs]}</a>
+		{/if}
 	</div>
 </td>
 {/if}

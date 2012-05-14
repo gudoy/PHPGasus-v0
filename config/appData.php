@@ -3,8 +3,8 @@
 define('_PHPGASUS_VERSION', 						'0.7.4.0');
 
 ### APP META
-define("_APP_VERSION", 								'0.1.0.0');
 define('_APP_NAMESPACE', 							'pgas');
+define("_APP_VERSION", 								'0.1.0.0');
 define('_APP_TITLE', 								_APP_NAME); // App displayed name
 define('_APP_BASELINE', 							'');
 define('_APP_META_AUTHOR', 							false);

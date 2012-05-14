@@ -843,7 +843,7 @@ class Model extends Application
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		
 		$skipLimit 			= false;
-		$skipOffset 		= true;
+		$skipOffset 		= false;
 		
 		$this->queryData 	= array(
 			'fields' 		=> array(),
@@ -1203,7 +1203,8 @@ class Model extends Application
 				$usedfield 		= ( !is_array($rModel) || isset($rModel['id']) ) ? 'id' : key($rModel);
 				$finalFields 	= "COUNT(" . $this->alias . '.' . $this->escapeString($usedfield) . ") AS total";
 				
-				$skipLimit = true;
+				$skipLimit 	= true;
+				$skipOffset = true;
 			}
 			
 			// Build final query  
@@ -2403,7 +2404,8 @@ $tmpVal = isset($d[$fieldName])
 			// {table}.{column}
 			// {table alias}.{column}
 			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
-			$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
+			//$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
+			$resExists 		= $res && ( isset($this->resources[$res]) || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) );
 			$resTable 		= $resExists && !empty($this->resources[$res]['table']) ? $this->resources[$res]['table'] : $res;
 			//$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
 			$alias 			= !$hasDot 
