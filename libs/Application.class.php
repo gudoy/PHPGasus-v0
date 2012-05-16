@@ -129,12 +129,16 @@ class Application
 		$locale 	= $language . '_' . $territory . '.' . $codeset;
 		
 		// Set locale & gettext conf
-		putenv('LANG=' . $locale);
+		//putenv('LANG=' . $locale);
+		putenv('LANG=' . $language . '_' . $territory);
+		putenv('LANGUAGE=' . $language . '_' . $territory);
 		putenv('LC_ALL=' . $language . '_' . $territory);
 		$lc = setlocale(LC_ALL, $locale, $language . '_' . $territory, $language);
 		bindtextdomain(_APP_NAME, _PATH_I18N);
 		textdomain(_APP_NAME);
 		bind_textdomain_codeset(_APP_NAME, $codeset);
+		
+		
 		
 		// Store the current lang
 		$_SESSION['lang'] 	= $language . '_' . $territory;

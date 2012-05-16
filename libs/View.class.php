@@ -417,7 +417,7 @@ class View extends Application implements ViewInterface
 				$ctrlr 			= new $ctrlrName(); 										// Instanciate it
 				$count 			= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
 				//$d[$relResName] = $count < 100 ? $ctrlr->index() : null;
-				$d[$relResName] = ( $count < 100 || ( !empty($p['uiWidget']) && in_array($p['uiWidget'], array('select','dataset')) ) )  
+				$d[$relResName] = ( $count < 100 || ( !empty($p['uiWidget']) && in_array($p['uiWidget'], array('select','datalist')) ) )  
 										? $ctrlr->index() 
 										: null;
 				

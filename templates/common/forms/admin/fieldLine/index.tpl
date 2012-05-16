@@ -34,7 +34,8 @@
 	<div class="labelBlock{if $field.comment} hasInfos{/if}">
 		{strip}
 		{if $field.relResource && $field.type !== 'onetomany'}
-		<label for="{$resourceFieldName}{$itemIndex}">{$data._resources[$field.relResource].singular|default:$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
+			{*<label for="{$resourceFieldName}{$itemIndex}">{$data._resources[$field.relResource].singular|default:$field.displayName|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}*}
+			<label for="{$resourceFieldName}{$itemIndex}">{$field.displayName|default:$data._resources[$field.relResource].singular|default:$field.relResource|default:$fieldName|capitalize|replace:'_':' '}
 			{if $isRequired}<span class="required">*</span>{/if}
 		</label>
 		{elseif $field.type == 'bool' || $field.subtype === 'fakebool'}

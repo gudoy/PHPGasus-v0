@@ -2406,6 +2406,7 @@ $tmpVal = isset($d[$fieldName])
 			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
 			//$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
 			$resExists 		= $res && ( isset($this->resources[$res]) || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) );
+//$resExists 		= $res && ( isset($this->resources[$res]) && ( $res === $this->resourceName || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) ) );
 			$resTable 		= $resExists && !empty($this->resources[$res]['table']) ? $this->resources[$res]['table'] : $res;
 			//$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
 			$alias 			= !$hasDot 
@@ -2431,15 +2432,19 @@ $tmpVal = isset($d[$fieldName])
 //$this->dump('col: ' . $column);
 //$this->dump('is col: ' . (int) $columnExists);
 
+// TODO: test this
+// Skip the condition and raise a warning if the resource is not the current one and is not one of the queried ones 
+// but only when we are handling conditions in a select request  
+if ( !empty($this->queryType) && $this->queryType === 'select'
+	&& $resExists && $res !== $this->resourceName
+	&& !in_array($res, $this->queryData['tables']) ) { $this->warnings[4212] = $col; continue; } // Unknow resource/table
 
 			// Skip the condition and raise a warning if either the resource & the columns are unknown
 			// but only when we are handling conditions in a select request 
 			// since there's no queryData for update & insert requests 
 			//if ( !in_array($this->queryType, array('insert','update')) 
 			if ( !empty($this->queryType) && !in_array($this->queryType, array('insert','update'))
-				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknow field/column
-				
-				
+				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknown field/column
 			
 			$output .= $j !== 0 ? ', ' : '';
             $output .= $alias ? $alias . '.' . $column : $col;
