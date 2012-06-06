@@ -49,6 +49,8 @@ $errorsAssoc = array(
 					
 	'4210' => array('back' => 'Wrong condition format: %s',
 					'front' => _('Wrong condition format. Expected: field, [operator], $values. Received: %s')),
+	'4212' => array('back' => 'Unknown condition resource/table: %s',
+					'front' => _('Unknown condition resource/table: %s')),
 	'4213' => array('back' => 'Unknown condition field/column: %s',
 					'front' => _('Unknown condition field/column: %s')),
 	'4215' => array('back' => 'Unknown condition operator: %s',

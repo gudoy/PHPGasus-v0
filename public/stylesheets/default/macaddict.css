@@ -572,6 +572,10 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .ui-dialog .actionsCol,
 .ui-dialog .goToCol { display:none; }
 .ui-dialog .adminTable thead .title .comment { display:none; }
+
+.ui-dialog .ui-dialog-content #adminListToolbarTop { display:block; }
+.ui-dialog .ui-dialog-content.adminIndexSection { margin-bottom:50px; }
+.ui-dialog .ui-dialog-content .toolbar .settings { display:none; }
 /* End Dialog */
 
 
