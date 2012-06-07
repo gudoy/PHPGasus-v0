@@ -595,10 +595,11 @@ class Model extends Application
 			'mode' => null,
 		), $o);
 		
-		$this->resultsIndexes 		= !empty($o['indexBy']) ? Tools::toArray($o['indexBy']) : null;
-		$this->resultsUniqueIndexes = !empty($o['indexByUnique']) ? Tools::toArray($o['indexByUnique']) : null;
-		
-$this->dump($this->resultsUniqueIndexes);
+		// Get indexes as array and count them (memoizing for later use)
+		$this->resultsIndexes 			= !empty($o['indexBy']) ? Tools::toArray($o['indexBy']) : null;
+		$this->resultsUniqueIndexes 	= !empty($o['indexByUnique']) ? Tools::toArray($o['indexByUnique']) : null;
+		$this->resultsUniqueIndexCount 	= count($this->resultsUniqueIndexes);
+		$this->resultsIndexCount 		= count($this->resultsIndexes);
         
         if ( $o['mode'] === 'count' )
         {
@@ -686,18 +687,6 @@ $this->dump($this->resultsUniqueIndexes);
 	{
 		$o = &$options;
 		
-//var_dump($this->resultsUniqueIndexes);
-//var_dump(count($this->resultsUniqueIndexes));
-
-		$unqIndxCnt = count($this->resultsUniqueIndexes);
-		$indxCnt = count($this->resultsIndexes);
-	
-//var_dump(__METHOD__);
-//$this->dump($options);
-//$this->dump($o);
-//$this->dump($this->resourceName);
-//$this->dump(isset($this->application->dataModel[$this->resourceName][$o['indexBy']]));
-		
 		// Handle unique indexing
 		// and if this column has been retrieved
 
@@ -725,23 +714,36 @@ $this->dump($this->resultsUniqueIndexes);
 		}
 		
 		else*/ //if ( !empty($o['indexByUnique']) && !empty($item[$o['indexByUnique']]) )
-		if ( $unqIndxCnt > 1 )
-		{
-			// Loop over indexes and build an array with the maching values
+		// Handle unique indexes
+		if ( $this->resultsUniqueIndexCount > 1 )
+		{			
+			// Loop over indexes and build an array with the maching values, removing unknown cols by the way
 			$indexVals = array();
 			foreach ($this->resultsUniqueIndexes as $col){ if ( !isset($item[$col]) ){ continue; } $indexVals[] = $item[$col]; }
 			
 			$assign = '$this->data[\'' . join('\'][\'', $indexVals) . '\'] = ' . '$item;';
 			eval($assign);
 		}
-		elseif ( $unqIndxCnt === 1 && !empty($item[$o['indexByUnique']]) )
+		elseif ( $this->resultsUniqueIndexCount === 1 && !empty($item[$o['indexByUnique']]) )
 		{
 			$key 				= &$item[$o['indexByUnique']];
 			$this->data[$key] 	= $item;
 		}
-		// Handle non-unique indexing
+		// Handle non-unique indexes
 		//else if ( !empty($o['indexBy']) && isset($this->application->dataModel[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
-		else if ( !empty($o['indexBy']) && !empty($item[$o['indexBy']]) )
+		//else if ( !empty($o['indexBy']) && !empty($item[$o['indexBy']]) )
+		elseif ( $this->resultsIndexCount > 1 )
+		{
+			// Loop over indexes and build an array with the maching values, removing unknown cols by the way
+			$indexVals = array();
+			foreach ($this->resultsIndexes as $col){ if ( !isset($item[$col]) ){ continue; } $indexVals[] = $item[$col]; }
+			
+			//$assign = '$this->data[\'' . join('\'][][\'', $indexVals) . '\'][] = ' . '$item;';
+			$assign = '$this->data[\'' . join('\'][\'', $indexVals) . '\'][] = ' . '$item;';
+var_dump($assign);
+			eval($assign);
+		}
+		else if ( $this->resultsIndexCount === 1 && !empty($item[$o['indexBy']]) )
 		{
 //$this->dump('case non unique indexing');
 			$key 				= &$item[$o['indexBy']];

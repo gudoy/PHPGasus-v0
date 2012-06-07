@@ -234,7 +234,7 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 .adminTable .colsBlock li { width:150px; margin-bottom:5px; display:block; float:left; }
 .adminTable .colsBlock input { margin:0; padding:0; }
 .adminTable .colsBlock label { display:inline-block; }
-.macos.webkit .adminTable { max-width:100%; overflow-x: auto; box-sizing:border-box; display:block; } /* fix bad table layout when contents overflows */
+.macos.webkit .adminTable { max-width:100%; overflow-x:auto; box-sizing:border-box; /*display:block;*/ } /* fix bad table layout when contents overflows */
 .macos.chrome .adminTable .idCol { max-width:5em; } /* fix not applied width */
 
 
