@@ -1,6 +1,9 @@
 <select name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if}>
-	<option value="">&nbsp;</option>
+	{$value = $postedVal|default:$resource[$fieldName]|default:$field.default}
+	{if !$value}
+	<option>&nbsp;</option>
+	{/if}
 	{foreach $field.possibleValues as $item}
-	<option value="{$item}" {if $smarty.post[$resourceFieldName] === $item || $resource[$fieldName] === $item || $field.default === $item}selected="selected"{/if}>{$item}</option>
+	<option value="{$item}" {if $value === $item}selected="selected"{/if}>{$item}</option>
 	{/foreach}
 </select>

@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_name` varchar(64) NOT NULL,
   `name` varchar(128) default NULL,
   `prefered_lang` varchar(5) NULL,
+  `prefered_timezone` ENUM('Europe/Amsterdam',  'Europe/Berlin',  'Europe/Brussels',  'Europe/London',  'Europe/Madrid',  'Europe/Paris',  'Europe/Rome',  'Europe/Zurich') NULL,
   `device_id` varchar(64) NOT NULL,
   `activated` tinyint(1) NOT NULL default '0',
   `activation_key` varchar(32) NOT NULL,

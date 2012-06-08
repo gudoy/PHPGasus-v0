@@ -85,6 +85,10 @@ define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES', 		0); 			// In seconds. Min time be
 define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES_H', 		''); 			// (Humanly readable value for above conf).
 define('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN', 		false); 		//  
 
+
+define('_APP_DEFAULT_TIMEZONE', 					'UTC'); 		// http://php.net/manual/en/timezones.php
+
+
 ### AMAZON WEB SERVICES
 define('_AWS_ACCESSKEY', 							'yourAccessKeyHere');
 define('_AWS_SECRET_KEY', 							'yourSecretKeyHere');
