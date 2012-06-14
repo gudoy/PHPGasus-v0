@@ -740,7 +740,7 @@ class Model extends Application
 			
 			//$assign = '$this->data[\'' . join('\'][][\'', $indexVals) . '\'][] = ' . '$item;';
 			$assign = '$this->data[\'' . join('\'][\'', $indexVals) . '\'][] = ' . '$item;';
-var_dump($assign);
+//var_dump($assign);
 			eval($assign);
 		}
 		else if ( $this->resultsIndexCount === 1 && !empty($item[$o['indexBy']]) )
@@ -1040,7 +1040,8 @@ var_dump($assign);
 					foreach ($getFields as $item)
 					{
 						// Do not process fields that are not existing resource fields
-						if ( empty($relResource) || empty($relResource[$item]) ) { continue; }
+						//if ( empty($relResource) || empty($relResource[$item]) ) { continue; }
+						if ( empty($relResource) || !isset($this->application->dataModel[$relResource][$item]) ) { continue; }
 						
 						// Build the storing name
 						// ie: in a table 'users', a 'groups' with getFields('id,name')
@@ -1063,7 +1064,7 @@ var_dump($assign);
 					// Build the storing name
 					//$storingName = $pivotTable . '_id';
 					//$storingName = $this->resourceSingular . '_' . $relResource  . '_ids';
-					$storingName 	= $pivotResource . '_ids'; 
+					$storingName 	= $pivotResource . '_ids';
 										
 					$this->queryData['fields'][$storingName] = array(
 									'name' 			=> 'id',
@@ -1156,7 +1157,7 @@ var_dump($assign);
 			$finalFields = '';
 			
 			foreach ($this->queryData['fields'] as $k => $field)
-			{	
+			{
 				// Get the field type
 				$resName 	= !empty($field['resource']) ? $field['resource'] : $this->resourceName;
 				$res 		= &$this->application->dataModel[$resName];

@@ -596,6 +596,12 @@ class Model extends Application
 		$o 			= array_merge(array(
 			'mode' => null,
 		), $o);
+		
+		// Get indexes as array and count them (memoizing for later use)
+		$this->resultsIndexes 			= !empty($o['indexBy']) ? Tools::toArray($o['indexBy']) : null;
+		$this->resultsUniqueIndexes 	= !empty($o['indexByUnique']) ? Tools::toArray($o['indexByUnique']) : null;
+		$this->resultsUniqueIndexCount 	= count($this->resultsUniqueIndexes);
+		$this->resultsIndexCount 		= count($this->resultsIndexes);
         
         if ( $o['mode'] === 'count' )
         {
@@ -683,12 +689,6 @@ class Model extends Application
 	{
 		$o = &$options;
 		
-//$this->dump(__METHOD__);
-//$this->dump($options);
-//$this->dump($o);
-//$this->dump($this->resourceName);
-//$this->dump(isset($this->application->dataModel[$this->resourceName][$o['indexBy']]));
-		
 		// Handle unique indexing
 		// and if this column has been retrieved
 
@@ -715,15 +715,37 @@ class Model extends Application
 			}
 		}
 		
-		else*/ if ( !empty($o['indexByUnique']) && !empty($item[$o['indexByUnique']]) )
-		//else if ( !empty($o['indexByUnique']) && isset($this->application->dataModel[$this->resourceName][$o['indexByUnique']]) && !empty($item[$o['indexByUnique']]) )
+		else*/ //if ( !empty($o['indexByUnique']) && !empty($item[$o['indexByUnique']]) )
+		// Handle unique indexes
+		if ( $this->resultsUniqueIndexCount > 1 )
+		{			
+			// Loop over indexes and build an array with the maching values, removing unknown cols by the way
+			$indexVals = array();
+			foreach ($this->resultsUniqueIndexes as $col){ if ( !isset($item[$col]) ){ continue; } $indexVals[] = $item[$col]; }
+			
+			$assign = '$this->data[\'' . join('\'][\'', $indexVals) . '\'] = ' . '$item;';
+			eval($assign);
+		}
+		elseif ( $this->resultsUniqueIndexCount === 1 && !empty($item[$o['indexByUnique']]) )
 		{
 			$key 				= &$item[$o['indexByUnique']];
 			$this->data[$key] 	= $item;
 		}
-		// Handle non-unique indexing
+		// Handle non-unique indexes
 		//else if ( !empty($o['indexBy']) && isset($this->application->dataModel[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
-		else if ( !empty($o['indexBy']) && !empty($item[$o['indexBy']]) )
+		//else if ( !empty($o['indexBy']) && !empty($item[$o['indexBy']]) )
+		elseif ( $this->resultsIndexCount > 1 )
+		{
+			// Loop over indexes and build an array with the maching values, removing unknown cols by the way
+			$indexVals = array();
+			foreach ($this->resultsIndexes as $col){ if ( !isset($item[$col]) ){ continue; } $indexVals[] = $item[$col]; }
+			
+			//$assign = '$this->data[\'' . join('\'][][\'', $indexVals) . '\'][] = ' . '$item;';
+			$assign = '$this->data[\'' . join('\'][\'', $indexVals) . '\'][] = ' . '$item;';
+//var_dump($assign);
+			eval($assign);
+		}
+		else if ( $this->resultsIndexCount === 1 && !empty($item[$o['indexBy']]) )
 		{
 //$this->dump('case non unique indexing');
 			$key 				= &$item[$o['indexBy']];
@@ -845,7 +867,7 @@ class Model extends Application
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		
 		$skipLimit 			= false;
-		$skipOffset 		= true;
+		$skipOffset 		= false;
 		
 		$this->queryData 	= array(
 			'fields' 		=> array(),
@@ -1020,7 +1042,8 @@ class Model extends Application
 					foreach ($getFields as $item)
 					{
 						// Do not process fields that are not existing resource fields
-						if ( empty($relResource) || empty($relResource[$item]) ) { continue; }
+						//if ( empty($relResource) || empty($relResource[$item]) ) { continue; }
+						if ( empty($relResource) || !isset($this->application->dataModel[$relResource][$item]) ) { continue; }
 						
 						// Build the storing name
 						// ie: in a table 'users', a 'groups' with getFields('id,name')
@@ -1043,7 +1066,7 @@ class Model extends Application
 					// Build the storing name
 					//$storingName = $pivotTable . '_id';
 					//$storingName = $this->resourceSingular . '_' . $relResource  . '_ids';
-					$storingName 	= $pivotResource . '_ids'; 
+					$storingName 	= $pivotResource . '_ids';
 										
 					$this->queryData['fields'][$storingName] = array(
 									'name' 			=> 'id',
@@ -1205,7 +1228,8 @@ class Model extends Application
 				$usedfield 		= ( !is_array($rModel) || isset($rModel['id']) ) ? 'id' : key($rModel);
 				$finalFields 	= "COUNT(" . $this->alias . '.' . $this->escapeString($usedfield) . ") AS total";
 				
-				$skipLimit = true;
+				$skipLimit 	= true;
+				$skipOffset = true;
 			}
 			
 			// Build final query  
@@ -1527,6 +1551,7 @@ class Model extends Application
 			{
 				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";   
+				//$value = "'" . $this->escapeString($tmpVal) . "'";
 			}
 			else if ( $field['type'] === 'varchar' )
 			{
@@ -2042,7 +2067,8 @@ $tmpVal = isset($d[$fieldName])
 			}
 			else if ( $field['type'] === 'json' )
 			{
-				$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
+				//$value = "'" . $this->escapeString(trim(stripslashes($d[$fieldName]))) . "'";
+				$value = "'" . $this->escapeString($d[$fieldName]) . "'";
 			}
 			else if ( $field['type'] === 'varchar' )
 			{
@@ -2382,9 +2408,6 @@ $tmpVal = isset($d[$fieldName])
 		$o      	= &$options;
 		$output 	= '';
 		
-		
-//$this->dump($o['columns']);
-		
 		// Do not continue if there's no columns passed
 		if ( empty($o['columns']) ) { return $output; }
 		
@@ -2406,14 +2429,18 @@ $tmpVal = isset($d[$fieldName])
 			// {table}.{column}
 			// {table alias}.{column}
 			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
-			$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
+			//$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
+			$resExists 		= $res && ( isset($this->resources[$res]) || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) );
+//$resExists 		= $res && ( isset($this->resources[$res]) && ( $res === $this->resourceName || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) ) );
 			$resTable 		= $resExists && !empty($this->resources[$res]['table']) ? $this->resources[$res]['table'] : $res;
 			//$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
 			$alias 			= !$hasDot 
 								? $this->alias 
 								// Search the queryData for the resource'alias if any
 								//: ( in_array($res, (array) $this->queryData['tableAliases']) ? array_search($res, $this->queryData['tableAliases']) : null );
-								: ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
+								//: ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
+								: !empty($this->queryData) && ( in_array($resTable, (array) $this->queryData['tableAliases']) ? array_search($resTable, $this->queryData['tableAliases']) : null );
+								
 			// TODO: check alias against datamodel
 			$aliasExists 	= $alias && isset($alias, $this->queryData['tableAliases']);
 							
@@ -2430,12 +2457,20 @@ $tmpVal = isset($d[$fieldName])
 //$this->dump('col: ' . $column);
 //$this->dump('is col: ' . (int) $columnExists);
 
+		// TODO: test this
+		// Skip the condition and raise a warning if the resource is not the current one and is not one of the queried ones 
+		// but only when we are handling conditions in a select request  
+		if ( !empty($this->queryType) && $this->queryType === 'select'
+			&& $resExists && $res !== $this->resourceName
+			&& !empty($this->queryData)
+			&& !in_array($res, (array) $this->queryData['tables']) ) { $this->warnings[4212] = $col; continue; } // Unknow resource/table
 
 			// Skip the condition and raise a warning if either the resource & the columns are unknown
 			// but only when we are handling conditions in a select request 
 			// since there's no queryData for update & insert requests 
-			if ( !in_array($this->queryType, array('insert','update')) 
-				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknow field/column	
+			//if ( !in_array($this->queryType, array('insert','update')) 
+			if ( !empty($this->queryType) && !in_array($this->queryType, array('insert','update'))
+				&& !$resExists && !$aliasExists && !$columnExists ) { $this->warnings[4213] = $col; continue; } // Unknown field/column
 			
 			$output .= $j !== 0 ? ', ' : '';
             $output .= $alias ? $alias . '.' . $column : $col;
