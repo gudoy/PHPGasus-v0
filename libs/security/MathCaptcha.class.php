@@ -2,7 +2,7 @@
 
 class MathCaptcha
 {	
-	public function create()
+	static public function create()
 	{				
 		$nb1 							= rand(10,90);
 		$nb2 							= rand(1,9);

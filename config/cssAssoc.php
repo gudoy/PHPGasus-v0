@@ -10,5 +10,7 @@ $cssAssoc = array(
 	'default' 		=> array('base', 'theme', 'app'),
 	'api' 			=> array('base', 'api.css', 'theme', 'macaddict_api.css', 'app'),
 	'admin' 		=> array('base', 'theme', 'jqueryUI', 'app'),
+	
+	// App specific
 );
 ?>
