@@ -678,6 +678,9 @@ class Application
 		$rqP['method'] = !empty($p['method']) && in_array(strtolower($p['method']), $kown['methods']) 
 							? strtolower($p['method']) 
 							: $default['method'];
+							
+		# Handle content-type header
+		$rqP['content-type'] = !empty($p['content-type']) ? $p['content-type'] : $default['content-type']; 
 		
 		# Handle accept header (accepted output(s))
 		// if 'output' param passed an if it's a known output, use id
@@ -695,11 +698,14 @@ class Application
 			$req->addHeaders(array('Content-Type'=> $p['content-type']));
 			$req->addHeaders(array('Accept'=> $p['accept']));
 			
+			if 		( $rqP['method'] === 'post' ) 	{ $request->setBody( is_string($data) ? $data : http_build_query((array) $data) ); }
+			elseif 	( $rqP['method'] === 'put' ) 	{ $request->setPutData($data); }
+			
 			// Send the request
 		    $req->send();
 			
 			// Get the status code
-			$data = array(
+			$response = array(
 				'statusCode' 	=> $req->getResponseCode(),
 				'body' 			=> $req->getResponseBody()
 			);
@@ -707,22 +713,74 @@ class Application
 		// Otherwise try to use CURL extension
 		else if ( extension_loaded('curl') )
 		{
-			// TODO
+			$ch = curl_init();
+			
+			$options = array();
+			
+			curl_setopt($ch, CURLOPT_URL, $url);
+			
+			// Set Method
+			// curl_setopt($ch, constant('CURLOPT_' . strtoupper($rqP['method'])), true); // CURLOPT_HTTPGET for GET. Does not work for DELETE.	
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($rqP['method']));
+			
+			// Set Headers
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type: ' . $rqP['content-type'],
+				'Accept: ' . $rqP['accept'],
+			));
+			
+			curl_setopt($ch, CURLOPT_HEADER, false);  			// Do we want to have response headers in the output
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 	// Get result instead of displaying it
+			//curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1000); 		// Request timeout (in milliseconds)
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); 	// Allow redirections
+			curl_setopt($ch, CURLOPT_MAXREDIRS, 6); 			// Max number of allowed redirections
+			
+			// Set post data if any
+			if ( in_array($rqP['method'], array('post','put','delete')) )
+			{
+				 curl_setopt ($Curl_Session, CURLOPT_POSTFIELDS, is_string($data) ? $data : http_build_query((array) $data));
+			}
+				
+			// Separate responde headers & body (if CURLOPT_HEADER set to true)
+			// TODO: parse headers		
+			//$tmp = curl_exec($ch); 
+			//list($headers, $body) = explode("\r\n\r\n", $tmp, 2);
+						
+			// Get the response data
+			$response = array(
+				'body' 			=> curl_exec($ch),
+				'statusCode' 	=> curl_getinfo($ch, CURLINFO_HTTP_CODE),
+			);
+			
+			curl_close($ch);
 		}
 		// Otherwise
 		else
 		{
 			// TODO
+			// http://www.croes.org/gerald/blog/ecrire-un-client-rest-en-php-23/490/
 			// http://wezfurlong.org/blog/2006/nov/http-post-from-php-without-curl/
 			// http://query7.com/http-request-without-curl
 		}
 		
 		# Handle response
-		
-		return; // data? object?
+		//return; // data? object?
+		//return $response;
+		if ( $response['statusCode'] === 200 )
+		{			
+			if 		( $p['output'] === 'json' )	{ $response['body'] = json_decode($response['body'], true); }
+			else if ( $p['output'] === 'xml' )	{ $response['body'] = Tools::XML2array(simplexml_load_string($response['body']), true); }
+			
+			return $response; 
+		}
+	}
+
+	public function wsCall($uri, $options = array())
+	{
+		return $this->request($uri, $options);
 	}
 	
-	
+	/*
 	public function wsCall($uri, $options = array())
 	{
         $this->log(__METHOD__);
@@ -737,72 +795,76 @@ class Application
 		$data 			= array( 'statusCode' => null, 'body' => null );
 		$m 				= !empty($o['method']) ? strtolower($o['method']) : null; // Shortcut for method
 		$o['output'] 	= !empty($o['output']) ? $o['output'] : 'xhtml';
-
-		// What method should we use? default = get
-		switch($m)
+		
+		// Try to use HttpRequest extension (PECL extension)
+		if ( extension_loaded('http') )
 		{
-			case 'post': 	$httpMethod = HttpRequest::METH_POST; 	break;
-			case 'put': 	$httpMethod = HttpRequest::METH_PUT; 	break;
-			case 'delete': 	$httpMethod = HttpRequest::METH_DELETE; break;
-			case 'get':
-			default:		$httpMethod = HttpRequest::METH_GET; 	break;
-		}
-
-		// Create the request object
-		$request 	= new HttpRequest($uri, $httpMethod);
-		
-		// What is the format of the WS
-		switch($o['output'])
-		{
-			case 'json': 	$accept = 'application/json;'; break;
-			case 'xml': 	$accept = 'text/xml; application/xml;'; break;
-			case 'xhtml':
-			case 'html':
-			default: 		$accept = 'text/html;';  break;
-		}
-		
-		$request->addHeaders(array('Content-Type'=> !empty($o['Content-Type']) ? $o['Content-Type'] : 'application/x-www-form-urlencoded'));
-		$request->addHeaders(array('Accept'=> $accept));
-		
-		// For POST, PUT, requests, add the query data
-		// setRawPostData is now deprecated and should be replaced by setBody
-		//if 		( $m === 'post' ) 	{ $request->setRawPostData( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
-		if 		( $m === 'post' ) 	{ $request->setBody( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
-		//if 		( $m === 'post' ) 	{ $request->setRawPostData( $sentData ); }
-		elseif 	( $m === 'put' ) 	{ $request->setPutData($sentData); }
-		
-		try
-		{			
-			// Send the request
-		    $request->send();
-			
-			// Get the status code
-			$data['statusCode'] = $request->getResponseCode();
-
-			$body 				= $request->getResponseBody();
-			
-			// Decode the ws response json body transforming it into an associative array
-			//$data['body'] 		= !empty($body) ? json_decode($body, true) : null;
-			
-			$data['body'] = null;
-
-			if ( !empty($body) )
+			// What method should we use? default = get
+			switch($m)
 			{
-				if 		( $o['output'] === 'json' )	{ $data['body'] = json_decode($body, true); }
-				else if ( $o['output'] === 'xml' )	{ $data['body'] = Tools::XML2array(simplexml_load_string($body), true); }
-				else 								{ $data['body'] = $body; }
+				case 'post': 	$httpMethod = HttpRequest::METH_POST; 	break;
+				case 'put': 	$httpMethod = HttpRequest::METH_PUT; 	break;
+				case 'delete': 	$httpMethod = HttpRequest::METH_DELETE; break;
+				case 'get':
+				default:		$httpMethod = HttpRequest::METH_GET; 	break;
+			}
+	
+			// Create the request object
+			$request 	= new HttpRequest($uri, $httpMethod);
+			
+			// What is the format of the WS
+			switch($o['output'])
+			{
+				case 'json': 	$accept = 'application/json;'; break;
+				case 'xml': 	$accept = 'text/xml; application/xml;'; break;
+				case 'xhtml':
+				case 'html':
+				default: 		$accept = 'text/html;';  break;
 			}
 			
-			$data['errors'] 	= !empty($data['body']['ws']['error']) ? $data['body']['ws']['error'] : null;
+			$request->addHeaders(array('Content-Type'=> !empty($o['Content-Type']) ? $o['Content-Type'] : 'application/x-www-form-urlencoded'));
+			$request->addHeaders(array('Accept'=> $accept));
 			
-			// If the request is successfull, just return data
-		    if 	( $data['statusCode'] === 200 ) { return $data; }
+			// For POST, PUT, requests, add the query data
+			// setRawPostData is now deprecated and should be replaced by setBody
+			//if 		( $m === 'post' ) 	{ $request->setRawPostData( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
+			if 		( $m === 'post' ) 	{ $request->setBody( is_string($sentData) ? $sentData : http_build_query((array)$sentData) ); }
+			//if 		( $m === 'post' ) 	{ $request->setRawPostData( $sentData ); }
+			elseif 	( $m === 'put' ) 	{ $request->setPutData($sentData); }
+			
+			try
+			{			
+				// Send the request
+			    $request->send();
+				
+				// Get the status code
+				$data['statusCode'] = $request->getResponseCode();
+	
+				$body 				= $request->getResponseBody();
+				
+				// Decode the ws response json body transforming it into an associative array
+				//$data['body'] 		= !empty($body) ? json_decode($body, true) : null;
+				
+				$data['body'] = null;
+	
+				if ( !empty($body) )
+				{
+					if 		( $o['output'] === 'json' )	{ $data['body'] = json_decode($body, true); }
+					else if ( $o['output'] === 'xml' )	{ $data['body'] = Tools::XML2array(simplexml_load_string($body), true); }
+					else 								{ $data['body'] = $body; }
+				}
+				
+				$data['errors'] 	= !empty($data['body']['ws']['error']) ? $data['body']['ws']['error'] : null;
+				
+				// If the request is successfull, just return data
+			    if 	( $data['statusCode'] === 200 ) { return $data; }
+			}
+			//catch (HttpException $ex) { $data['errors']['code'] = 12000; }
+			catch (HttpException $ex) { }
 		}
-		//catch (HttpException $ex) { $data['errors']['code'] = 12000; /*echo 'TODO: exception on logout when lost session ?';*/ }
-		catch (HttpException $ex) { }
 		
 		return $data;
-	}
+	}*/
 
 }
 

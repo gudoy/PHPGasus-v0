@@ -1349,7 +1349,9 @@ var adminIndex =
 						$(ui.selecting)
 							.find('td.colSelectResources input:checkbox')
 							.removeAttr('checked');
-					}
+					},
+					selected: function(){ self.handleSelection(); },
+					unselected: function(){ self.handleSelection(); }
 				});
 		}
 
@@ -1493,7 +1495,6 @@ var adminIndex =
 	
 	handleSelection: function()
 	{
-//Tools.log('handleSelection');
 		var $selected 	= $('tr', 'tbody').filter('.ui-selected'),
 			$toolbars 	= $('nav').filter('.toolbar');
 			rIds 		= [];

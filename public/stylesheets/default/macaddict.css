@@ -576,6 +576,8 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .ui-dialog .ui-dialog-content #adminListToolbarTop { display:block; }
 .ui-dialog .ui-dialog-content.adminIndexSection { margin-bottom:50px; }
 .ui-dialog .ui-dialog-content .toolbar .settings { display:none; }
+
+.ui-dialog .adminCreateBlock fieldset.body { margin-bottom:40px; }
 /* End Dialog */
 
 
@@ -868,6 +870,9 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 
 
 .api #header { display:none!important; } /* TODO: Fix this */
+
+
+.adminTaskSection .results { padding:10px; }
 
 
 /* 1024 x 768 */

@@ -180,7 +180,7 @@ var Tools =
     slugify: function(string){ return Tools.slug(string) },	
 	slug: function(string)
 	{
-        var string = Tools.deaccentize(string);
+        string = Tools.deaccentize(string);
 
         return string
         		.replace(/^[^A-Za-z0-9]+/g, '')
