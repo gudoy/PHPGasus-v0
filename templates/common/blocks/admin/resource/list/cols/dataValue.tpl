@@ -47,7 +47,8 @@
 		<a class="relResourceLink" href="{$smarty.const._URL_ADMIN}{$relResource}/{$value}">{$resource[{$field.relGetAs|default:$field.relGetFields}]|default:$value}</a>
 	{else}
 		{if !$field.listTruncate}
-			{$value|regex_replace:'/&([^#]|$)/':'&amp;$1'|stripslashes|default:'&nbsp;'}
+			{* $value|regex_replace:'/&([^#]|$)/':'&amp;$1'|stripslashes|default:'&nbsp;' *}
+			{$value|regex_replace:'/&([^#]|$)/':'&amp;$1'|stripslashes|escape:'html'|default:'&nbsp;'}
 		{else}
 			{$value|regex_replace:'/&([^#]|$)/':'&amp;$1'|stripslashes|truncate:50:"..."|default:'&nbsp;'}
 		{/if}

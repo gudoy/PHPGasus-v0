@@ -1331,7 +1331,8 @@ class Model extends Application
                                            array("%file_extension%", "%file_name%", "%time%"), 
                                            array($uf['extension'], basename($uf['name'], '.' . $uf['extension']), $_SERVER['REQUEST_TIME']), 
                                         $field['destName'])
-                                    : $uf['name'];
+                                    //: $uf['name'];
+                                    : ( !empty($u['name']) ? $uf['name'] : '' );
 									
 				if ( !$uploadFile )
 				{
