@@ -888,7 +888,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	.adminTable td[data-importance="1"] { display:table-cell; }
 	
 	
-	form.adminForm fieldset .line.buttonsLine { max-height:32px; overflow:hidden; margin:0; padding:0; position:absolute; bottom:3px; right:10px; z-index:1000; background:none; border:none; }
+	form.adminForm fieldset .line.buttonsLine { max-height:32px; /*overflow:hidden;*/ margin:0; padding:0; position:absolute; bottom:3px; right:10px; z-index:1000; background:none; border:none; }
 	
 	/* Layout (start) */
 	

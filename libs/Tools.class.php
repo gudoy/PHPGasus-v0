@@ -323,8 +323,12 @@ class Tools
 	}
 
 
+	//static function XML2Array($xml, $recursive = false, $options){ return self::xmlToArray($xml, $options); }
+	//static function XML2Array_old($xml, $recursive = false, $options = array())
     static function XML2Array($xml, $recursive = false, $options = array())
     {
+var_dump(__METHOD__);
+		
         $o = array_merge(array(
             'type' => 'xml',
             'parent' => null,
@@ -353,14 +357,64 @@ class Tools
                 // Loop over its childens    
                 foreach ( $propVal as $k => $v )
                 {
+/*
+if ( $k === 'Product' )
+{
+	var_dump($k);
+	var_dump('PRODUCT');
+	//var_dump(gettype($propVal));
+	var_dump($v);
+	var_dump('PRODUCT to array');
+	var_dump((array) $v);
+	var_dump('children:');
+	var_dump($v->children());
+	var_dump('children to array');
+	var_dump((array) $v->children());
+	var_dump('children keys');
+	var_dump(array_keys((array) $v->children()));
+	var_dump('children count:');
+	var_dump($v->count());
+	//var_dump('child 0 as a string');
+	//var_dump((string) $v);
+	var_dump('child [0]');
+	var_dump($v[0]);
+	var_dump('child {0}');
+	var_dump($v->{0});
+	var_dump('child 0 name');
+	var_dump($v[0]->getName);
+	//var_dump('v after cleaning');
+	//unset($v->{'@attributes'});
+	//var_dump(key(next($v[0])));
+	var_dump('text node content: ' . ( $v->count() === 0 ? (string) $v[0] : '') );
+	$tmp = (array) $v;
+	var_dump($v->{'@attributes'});
+	var_dump($tmp['@attributes']);
+	//foreach($v as $k )
+	//die();
+	
+	foreach($v as $name => $value)
+	{
+		var_dump($name);
+		var_dump($value);
+	}
+	
+	var_dump((array) $v->children());
+}*/
+//$bar = (array) $v;
+//var_dump($bar);
+					
                     // Only handle text nodes which have both @attributes and a 0 indexed property        
                     if ( ($v = (array) $v) && isset($v['@attributes']) && isset($v[0]) )
+                    //if ( $v instanceof SimpleXMLElement && $v->count() === 0 && ( $children =  $v->children()) )
+                    //if ( ($children = (array) $v->children()) && )
                     {
                         $fixed[$k][] = array('@attributes' => $v['@attributes'], 'text' => $v[0]);
                     }
                 }
             
                 $propVal = array_merge((array)$propVal, $fixed);
+                //$propVal = array_merge((array) $v->children(), $fixed);
+                //if ( !empty($fixed) ) { $propVal = array_merge((array) $propVal->children(), $fixed); }
             } 
             # End of the fix
             
@@ -368,7 +422,85 @@ class Tools
         }
         
         return $data;
-    } 
+    }
+
+    static function xmlToArray($xml, $options = array())
+    {
+//var_dump(__METHOD__);
+		
+        $o = array_merge(array(
+            'type' => 'xml',
+            'parent' => null,
+        ), $options);
+		
+        //$nodes  = $xml instanceof SimpleXMLElement ? $xml : ( is_file($xml) ? simplexml_load_file($xml) : simplexml_load_string($xml) );
+        $nodes  = $xml instanceof SimpleXMLElement 
+        			? $xml 
+					: ( is_file($xml) 
+						? simplexml_load_file($xml, 'SimpleXMLElement', LIBXML_COMPACT) 
+						: simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_COMPACT)
+					);
+					
+        $data 	= array();
+		
+//var_dump($nodes);
+
+//if ( !$xml instanceof SimpleXMLElement ){ var_dump('nodes count: ' . $nodes->count()); }
+	
+		// If the element has attributes, get them
+		if ( ($attrs = (array) $nodes->attributes()) && $attrs && isset($attrs['@attributes']) ){ $data['@attributes'] = $attrs['@attributes']; }
+		
+        foreach ($nodes as $node)
+        {
+			// Get current node Name
+			$nodeName 	= $node->getName();
+			
+//var_dump($nodeName);
+			
+			// has attributes?
+			//$nodeAttrs 		= (array) $node->attributes();
+			//$hasAttrs 		= count($nodeAttrs) && isset($nodeAttrs['@attributes']);
+			
+			// has Children?
+			//$childrenCount 	= $node->count();
+			//$hasChidren 	= $childrenCount;
+			
+			// If the key already exists, it means that we may be facing a collection of items of the same tag  
+			// we have to wrap the value into an indexed array before adding another item to the collection 
+			if ( isset($data[$nodeName]) && !isset($data[$nodeName][0]) )
+			{
+//var_dump('creating collection array for: ' . $nodeName);
+				$data[$nodeName] 	= array($data[$nodeName]);
+				$data[$nodeName][] 	= $node instanceof SimpleXMLElement ? self::xmlToArray($node, $o) : $node;
+//var_dump($data[$nodeName]);
+			}
+			// If the key already exists, and the value is an indexed array
+			// assume we are facing another item of an the collection and just add it to the array
+			elseif ( isset($data[$nodeName]) && isset($data[$nodeName][0]) )
+			{
+//var_dump('inserting new collection item in: ' . $nodeName);
+				$data[$nodeName][] 	= $node instanceof SimpleXMLElement ? self::xmlToArray($node, $o) : $node;
+			}
+			// Otherwise, stay on a simple key => value mode
+			else
+			{
+				$data[$nodeName] 	= $node instanceof SimpleXMLElement ? self::xmlToArray($node, $o) : $node;
+			}
+			
+			// Handle possible text node, casting the node itsef into a string
+			$textNode = trim((string) $node);
+			if ( $textNode ) { $data[$nodeName]['text'] = $textNode; }
+        }
+
+		// If the element has a text node, casting the node itsef into a string
+		$textNode = trim((string) $nodes);
+		if ( $textNode ) { $data['text'] = $textNode; }
+		
+		// Force freeing memory
+		unset($nodes, $node);
+        
+        return $data;
+    }
 
 	static function validate($value, $params = array())
 	{
@@ -389,6 +521,12 @@ class Tools
 				unset($tmp);
 				
 				$isValid = json_last_error() === JSON_ERROR_NONE; break;
+			case 'date':
+				// TODO: use full date validation?
+				// (?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))
+				// or 
+				// (?:(?:0[1-9]|1[0-2])[\/\\-. ]?(?:0[1-9]|[12][0-9])|(?:(?:0[13-9]|1[0-2])[\/\\-. ]?30)|(?:(?:0[13578]|1[02])[\/\\-. ]?31))[\/\\-. ]?(?:19|20)[0-9]{2}
+				$isValue = preg_match('/[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])/', (string) $value); break;
 			case 'sting': 
 			default:  		$isValid = true; break; 
 		}
@@ -474,7 +612,9 @@ class Tools
 //var_dump($value);
 				break;
 			case 'timestamp';
-				$value = is_numeric($value) ? (int) $value : strtotime((string) $value); 
+				$value = is_numeric($value) ? (int) $value : strtotime((string) $value); break;
+			case 'date':
+				$value = is_numeric($value) ? strftime('%Y-%m-%d', (int) $value) : (string) $value; break;
 			case 'string':
 			default:	
 				$value = filter_var($value, FILTER_SANITIZE_STRING); break;

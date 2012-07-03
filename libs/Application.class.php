@@ -479,7 +479,7 @@ class Application
 		$vParts 	= preg_split('/\./',phpversion());
 		
 		$phpVersion = array_merge(
-			array_combine(array('major','minor','build','revision'), array_pad($vParts, 4, '?')),
+			(array) array_combine(array('major','minor','build','revision'), array_pad($vParts, 4, '?')),
 			array('full' => join('.',$vParts))
 		);
         

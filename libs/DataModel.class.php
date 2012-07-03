@@ -401,8 +401,15 @@ class DataModel
 				
 				### Now, we can start to do some magic
 				
+				//$type 			= isset($p['type']) && in_array(strtolower($p['type']), self::$columnTypes) ? strtolower($p['type']) : 'string';
+				
 				// Handle Numeric types
-				if ( $p['type'] === 'varchar' )
+				//if ( $p['type'] === 'varchar' )
+				if ( !isset($p['type']) )
+				{
+					// ???
+				}
+				elseif ( $p['type'] === 'varchar' )
 				{
 					
 				}
@@ -666,8 +673,12 @@ class DataModel
 					{
 						$code .= $pValue;
 					}
-					else
+					else if ( is_array($pValue) )
 					{
+						$code .= 'array(' . ( count($pValue) ? "'" . join("','", $pValue) . "'" : '' ) . ')';
+					}
+					else
+					{	
 						$code .= "'" . $pValue . "'";
 					}
 					

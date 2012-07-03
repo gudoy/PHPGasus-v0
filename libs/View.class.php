@@ -527,14 +527,17 @@ class View extends Application implements ViewInterface
 		if ( $r['method'] === 'GET' || $r['method'] === 'POST' ){ return $this; }
 		
 		// Get the raw input data
-		$inputData = trim(file_get_contents('php://input'));
+		//$inputData = trim(file_get_contents('php://input'));
+		$inputData = array();
+		parse_str(trim(file_get_contents('php://input')), $inputData);
 		
 		// Do not continue if it's empty
 		if ( empty($inputData) ){ return $this; }
 		
-		// Loop over those data, inserting earch input fied into the proper global value
+		// Loop over those data, inserting each input fied into the proper global value
 		// TODO: use proper $_PUT and $_DELETE ???
-		foreach (explode('&', $inputData) as $item) { $tmp = explode('=', $item); $_POST[$tmp[0]] = $tmp[1]; }
+		//foreach (explode('&', $inputData) as $item) { $tmp = explode('=', $item); $_POST[$tmp[0]] = $tmp[1]; }
+		$_POST = $inputData;
 		
 		return $this;
 	}

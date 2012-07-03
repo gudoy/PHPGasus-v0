@@ -109,7 +109,7 @@ class AdminView extends View
 		{
             // Get the user data
             $u              = CUsers::getInstance()->retrieve(array('values' => $uid));
-            
+
             # Get user credentials
             $gids           = !empty($u['group_ids']) ? $u['group_ids'] : array();          // Get user group ids
             $opts           = array('by' => 'group_id', 'values' => $gids);                 // Set options
@@ -123,7 +123,6 @@ class AdminView extends View
                 '__can_access_admin' => $isGod || in_array('superadmins', $ugps) || in_array('admins', $ugps) 
             );
             $uAuths         = &$u['auths'];                                                      
-
 
             // Gods are allmighty
             if ( $isGod )
@@ -664,7 +663,7 @@ class AdminView extends View
 		
 		// If the resource update form has been posted
 		if ( !empty($_POST) )
-		{			
+		{
 			$this->C->update(array('values' => $rIds));
 		}
 
@@ -924,6 +923,97 @@ class AdminView extends View
 		$_POST = $oldPOST;
 		
 		return $this;
+	}
+	
+	public function selection()
+	{
+//var_dump(__METHOD__);
+
+		$args 	= func_get_args(); 											// Get passed arguments
+		//$rName 	= isset($this->resourceName) ? $this->resourceName : null; 	// Shortcut for resource name
+		$rName 	= !empty($args[0]) ? $args[0] : null;
+		$rqM 	= $_SERVER['REQUEST_METHOD']; 								// Shortcut for request method  
+		
+		// Does not continue if resourceName is not defined
+		// TODO: return what???
+		if ( !$rName ){ return; }
+		
+		// Init selection for the current resource
+		$rSel = array('filters' => array(), 'items' => array());
+		
+		// Does not continue if the current resource is not selectable
+		if ( isset($this->data['_resources'][$rName]['selectable']) && !$this->data['_resources'][$rName]['selectable'] ){ return; }
+		
+//var_dump($rqM);
+//var_dump($_POST);
+		
+		// 
+		if ( in_array($rqM, array('PUT','POST')) && !empty($_POST['conditions']) )
+		{
+			// When PUT is used, clear current selection first
+			if ( $rqM === 'PUT' ) { $_SESSION['selection'][$rName] = $rSel; }
+			
+			// Expect conditions to be passed as uri compatible strings (cf api conditions params):
+			// samples:
+			// name|foo
+			// conditions=email|contains|@gmail
+			// conditions=id|notin|3,5
+			// conditions=type|bar;email|endsby|.org
+			
+			// handle forms:
+			// conditions[]=$cond1&conditions[]=$cond2&conditions[]=$cond3
+			// conditions=$cond1;$cond2;$cond3
+			$postConds = array();
+			foreach(Tools::toArray($_POST['conditions']) as $item){ foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; } }
+			
+//var_dump($postConds);
+			
+			// Loop over POST conditions, adding each one condition to selection filters
+			foreach ( (array) $postConds as $item ){ $rSel['filters'][$item] = explode('|', $item); }
+
+			$_SESSION['selection'][$rName] = $rSel;
+			
+			return $this->statusCode(201);
+		}
+		//elseif ( $rqM === 'DELETE' && !empty($_POST['conditions']) )
+		elseif ( $rqM === 'DELETE' )
+		{
+			// Clear all filters
+			if ( empty($_POST['conditions']) )
+			{
+				$_SESSION['selection'][$rName] = array();
+				unset($_SESSION['selection'][$rName]);	
+			}
+			// Otherwise only remove passed filters
+			else
+			{
+				$postConds = array();
+				foreach(Tools::toArray($_POST['conditions']) as $item){ foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; } }
+				
+				// Loop over POST conditions, adding each one condition to selection filters
+				foreach ( (array) $postConds as $item ){ unset($_SESSION['selection'][$rName]['filters'][$item]); }	
+			}
+			
+			return $this->statusCode(201);
+		}
+		else
+		{
+			// return selected items ids???
+			// return _ADMIN_RESOURCES_NB_PER_PAGE items & all if ?limit=-1 passed?
+			$opt = array_merge($this->options, array(
+				'getFields' 	=> 'id',
+				//'conditions' 	=> array(),
+			));
+//var_dump($opt);
+			
+			//$this->data['current']['selected'][$rName] = $rSel;
+			$this->data = array('selected' => $_SESSION['selection']);
+			//$this->data['current']['selected'][$rName] = $this->C->index($opt);
+//var_dump($this->data['current']['selected'][$rName]);
+//var_dump($this->data['current']['selected']);
+
+			$this->render();
+		}
 	}
 		
 }
