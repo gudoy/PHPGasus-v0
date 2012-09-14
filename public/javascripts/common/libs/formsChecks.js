@@ -74,7 +74,8 @@ var FORM =
 		$(fields, FORMS[formId].context).
 			
 			// Remove some fields that we are sure we do not want to check
-			not('.actionBtn, .noCheck, input[type="submit"], input[type="hidden"]').
+			//not('.actionBtn, .noCheck, input[type="submit"], input[type="hidden"]').
+			not('.action, .actionBtn, .noCheck, input[type="submit"], input[type="hidden"]').
 			
 			// Loop the remaining fields
 			each(function() { self.initOne($(this), formId); });

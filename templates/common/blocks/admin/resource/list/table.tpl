@@ -56,7 +56,7 @@
 					</li>
 					{foreach array_keys($rModel) as $column}
 						<li>
-						{if $smarty.const._APP_ENABLE_SPLITED_ONE2ONE_COLS && ($rModel[$column].type === 'onetoone' || $rModel[$column].fk)}
+						{if $rModel[$column].type === 'onetoone' || $rModel[$column].fk}
 							<input type="checkbox" id="{$column}ColDisplay" {if $rModel[$column].list}checked="checked"{/if} />
 							<label class="span" for="{$column}ColDisplay">{$column|replace:'_':' '}</label>
 						</li>

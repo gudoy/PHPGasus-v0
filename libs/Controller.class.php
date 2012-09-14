@@ -2,7 +2,7 @@
 
 class Controller extends Application
 {
-	public $application;
+	//public $application;
 	public $model					= null;
 	public $errors					= null;
 	public $success					= null;
@@ -30,7 +30,7 @@ class Controller extends Application
     
 	public function __call($method, $args)
     {
-//var_dump(__METHOD__);
+var_dump(__METHOD__);
 //var_dump($method);
 //var_dump($args);
 
@@ -58,6 +58,8 @@ class Controller extends Application
 			'all'			=> array('limit' => -1),
 			'first' 		=> array('limit' => 1, 'sortBy' => 'ASC'), // + use default oderBy column (default to id)
 			'last' 			=> array('limit' => 1, 'sortBy' => 'DESC'), // + use default oderBy column (default to id)
+			// + 'firstX'
+			// + 'lastX' 
 		);
 		
 		$offseters 		= array(
@@ -74,12 +76,11 @@ class Controller extends Application
 			'by',
 			'where',
 			'with',
-			'whose', + 
+			'whose', 
 			'which',
 			'whom',
 			'and',
 			'or',
-			
 		);
 		
 		$conditionOperators = array(
@@ -96,27 +97,58 @@ class Controller extends Application
 			'conditions' 	=> array(), // reset or extends
 		);
 		
+		// Split on UpperCase
 		//$parts = preg_split('/(?<!^)(?=[A-Z])/', $foo, -1, PREG_SPLIT_OFFSET_CAPTURE);
 		$parts = preg_split('/(?=[A-Z])/', $method, -1, PREG_SPLIT_NO_EMPTY);
+		
+//var_dump($parts);
+
+		$next 		= null;
+		$current 	= null;
+		$prev 		= null;
 		
 		// Loop over the parts
 		$i = 0;
 		foreach($parts as $part)
 		{
+			$i++;
 			$lower = strtolower($part);
+			$next = next($parts);
+			
+//var_dump($lower);
 			
 			# Verb
 			// Check that the verb is a known/allowed one
-			if ( $i === 0 && !isset($verbs[$lower]) ){ return; } // TODO: how to handle errors????
-			$method = $verbs[$lower];
+			if ( $i === 1 )
+			{
+//var_dump('handle verb');
+				if ( !isset($verbs[$lower]) ) { return; } // TODO: how to handle errors????
+				
+				$method = $verbs[$lower];
+				$prev 	= 'verb';
+				continue;
+			}
 			
 			# Limiters
 			// If the part is a number, assume use it as a limit
-			if 		( is_numeric($part) ){ $opts['limit'] = (int) $part; }
 			// Otherwise, check if it's a known limiter
-			else if ( in_array($lower, $limiters) )
+			if ( $prev === 'verb' )
 			{
-				$opts = array_merge($opts + $limiters[$lower]);
+//var_dump('handle limiter');
+				
+				if ( in_array($lower, $limiters) )
+				{
+					$opts 			= array_merge($opts + $limiters[$lower]);	
+				}
+				elseif 		( is_numeric($part) )
+				{
+					$opts['limit'] 	= (int) $part;
+				}
+				else
+				{
+					$prev = 'limiter';
+					continue;	
+				}
 			}
 			
 			# Offseters
@@ -126,9 +158,10 @@ class Controller extends Application
 			# Conditioners
 			
 			# Sorters
-			 
-			$i++;
 		}
+		
+//var_dump($opts);
+//die();
 
 		return $this->$method($opts);
     }
@@ -607,6 +640,14 @@ class Controller extends Application
 				}	
 			}
 		}
+/*
+		else if ( $field['type'] === 'enum' )
+		{
+var_dump('validating enum '. $f);
+			//$filteredData = in_array($f, (array) $field['possibleValues']) ? $f : null;
+			$filteredData = in_array($f, (array) Tools::toArray($field['possibleValues'])) ? $f : null;
+var_dump('val after:' . $filteredData);
+		}*/
 		else if ( $field['type'] === 'varchar' )
 		{
 			$filteredData = filter_var($f, FILTER_SANITIZE_STRING);

@@ -106,11 +106,12 @@ define('_APP_USE_DEFERED_JS',                   	false);         // experimental
 define('_XML2ARRAY_FIX_TEXT_NODES_ATTRIBUTES',  	true);          // experimental.
 define('_APP_USE_RESOURCESGROUPS',              	true);          // experimental.
 //define('_APP_USE_SQL_REINDEXBY_V2',             	false); 		// experimental.
-define('_APP_ENABLE_SPLITED_ONE2ONE_COLS',      	true); 			// experimental.
+//define('_APP_ENABLE_SPLITED_ONE2ONE_COLS',      	true); 			// experimental.
 define('_APP_USE_FIREPHP_LOGGING',      			true); 			// experimental. In local & dev environment, use FirePHP server lib to log data (using $this->dump()) into Firefox console (require related extension).
 define('_APP_USE_CHROMEPHP_LOGGING',      			true); 			// experimental. In local & dev environment, use ChromePHP server lib to log data (using $this->dump()) into Chrome console (require related extension).
 define('_APP_FETCH_RELATED_ONETOMANY', 				false); 		// experimental. Automatically fetch related onetomany items
-define('_APP_USE_PATTERN_VALIDATION',              	true);          // experimental. 
+define('_APP_USE_PATTERN_VALIDATION',              	true);          // experimental.
+define('_APP_ADMIN_LIST_DEFAULT_DISPLAY_MODE',      'table');       // experimental. 'table', 'list', 'thumbs' 
 
 
 ?>

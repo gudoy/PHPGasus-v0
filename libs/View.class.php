@@ -7,10 +7,10 @@ interface ViewInterface
 
 class View extends Application implements ViewInterface
 {
-	public $controller        = null;
-	public $headers           = array();
-	public $events            = null;
-	public $data              = array(
+	public $controller 		= null;
+	public $headers 		= array();
+	public $events 			= null;
+	public $data 			= array(
 		'success' 		=> false,
 		'errors' 		=> array(), 
 		'warnings' 		=> array()
@@ -142,6 +142,11 @@ class View extends Application implements ViewInterface
 		
 		if ( isset($args[__METHOD__]) && !$args[__METHOD__] ){ return $this; }
 		
+//var_dump(__METHOD__);
+//var_dump($args); 
+//die();
+//$this->dispatchParams($args);
+		
 		// Known methods (alias => used)
 		$known = array(
 			'index' 	=> 'index',
@@ -197,6 +202,157 @@ class View extends Application implements ViewInterface
 			return $this->statusCode(405); // Method not allowed
 		}
 	}
+
+	// users/1 				=> findUserById(1)
+	// users/1,2 			=> findUserById(array(1,2))
+	// users/id/1 			=> findUserById(1)
+	// users/id/1,2 		=> findUserById(array(1,2))
+	// users/john 			=> findUserByNameField('john')
+	// users/john,jack 		=> findUserByNameField(array('john','jack'))
+	// users/john,jack 		=> findUserByNameField(array('john','jack'))
+	public function dispatchParams($params)
+	{
+//var_dump(__METHOD__);
+
+//var_dump($params);
+				
+		// Get passed arguments & extends default params with passed one
+		$args 	= func_get_args();
+		
+		// Shortcuts
+		$rName 	= strtolower(substr(get_called_class(), 1)); 					// TODO: get_called_class (only works for php 5.3>) How to for previous versions?
+		
+		// Default request pattern
+		$pattern 	= 'rows';
+
+//var_dump($_r);
+//var_dump('params');
+//var_dump($params);
+		$_res 	= $this->data['_resources'];
+		$_dm 	= $this->data['dataModel'];
+		
+//var_dump($this->application->resources);
+		
+//var_dump($_dm);
+		
+		// Loop over params
+		$i = 0;
+		foreach ((array) $params as $param)
+		{
+//var_dump($param);
+			
+			// Does the current param contains ','
+			$isMulti 	= strpos($param, ',') !== false;
+			
+//var_dump('isMulti: ' . (int) $isMulti);
+			
+			// Split on ',' & force the result to be an array (even if the param has no ',')
+			$items 		= Tools::toArray(explode(',',$param));
+
+//var_dump('items (arrayfied)');			
+//var_dump($items);
+			
+			$values 	= next($params);
+
+//var_dump('values:');
+//var_dump($values);
+			
+			foreach($items as $item)
+			{
+//var_dump((int) DataModel::isColumn($_r->name, (string) $item));
+//var_dump('is column: ' . $item . ' : ' . (int) DataModel::isColumn($_r, (string) $item));
+//var_dump('is column: ' . $item . ' : ' . (int) (!empty($rName) && isset($_dm[$rName]) && isset($dm[$rName][(string) $item])));
+//var_dump(!empty($rName) && isset($_dm[$rName]) && isset($_dm[$rName][(string) $item]));
+				
+				// If the item is numeric, assume it's an id
+				if ( is_numeric($item) )
+				{
+//var_dump('case id (is numeric): ' . $item);
+					// TODO
+					// ==> add filters/conditions + go to next()
+					//$_rq->filters['id'] = $item;
+//var_dump($_rq->filters);
+					$this->options['filters']['id'] 	= !empty($this->options['filters']['id']) ? (array) $this->options['filters']['id'] : array();
+					$this->options['filters']['id'][] 	= $item;
+					
+					// TODO: remove duplicates? (ex, /users/1,3,1)
+					
+					// Set pattern type
+					$pattern 			= count($this->options->filters['id']) > 1 ? 'rows' : 'row';  
+				}
+				// If the current resource is defined and the current item is one of it's columns
+				//elseif ( !empty($rName) && DataModel::isColumn($rName, (string) $item) )
+				elseif ( !empty($rName) && isset($_dm[$rName]) && isset($_dm[$rName][(string) $item]) )
+				{
+					if ( $values !== false )
+					{
+//var_dump('case resource column with values: ' . $item);
+						$this->options['filters'][$item] = !empty($this->options['filters'][$item]) ? (array) $this->options['filters'][$item] : array();
+						//$this->options['filters'][$item][] = Tools::toArray($values);
+						$this->options['filters'][$item] = array_merge($this->options['filters'][$item], Tools::toArray($values));
+						
+						$pattern 	= 'rows';
+					}
+					// TODO
+					// If no values passed, assume it's a columns/getFields restricter
+					else
+					{
+//var_dump('case resource column WITHOUT values: ' . $item);
+//var_dump($this->request['columns']);
+						
+						// If the distinct parameter has been passed (but column on which to apply it is not set)
+						if ( isset($this->options['mode']) && $this->options['mode'] === 'distinct' && empty($this->options['field']) )
+						{
+							// Set it
+							$this->options['field'] = $item;
+						}
+						else
+						{
+							// Restrict gotten columns to passed one(s) 
+							//$_rq->restricters[] = 'distinct';
+							//$_rq->columns[] 	= $item;
+							$this->options['getFields'] 	= !empty($this->options['getFields']) ? Tools::toArray($this->options['getFields']) : array();
+							$this->options['getFields'][] 	= $item;							
+						}
+						
+						// Set pattern type
+						$pattern 		= 'columns';
+					}
+				}
+				/*
+				// If the current resource is defined and has a nameField
+				// but the current item is NOT one of it's columns
+				 // TODO: only allow this for first param (=> search) 
+				//elseif ( !empty($this->_resource) && !empty($this->_resource->nameField) )
+				elseif ( isset($_res[$rName]) && !empty($_res[$rName]['defaultNameField']) )
+				{
+					$nameField = $_res[$rName]['defaultNameField'];
+					
+					// Assume that the current item is a {$nameField} value to check against
+					$this->options['filters'][$nameField] = !empty($this->options['filters'][$nameField]) ? (array) $this->options['filters'][$nameField] : array();
+					$this->options['filters'][$nameField][] = $item;
+				}*/
+				else
+				{
+					
+				}
+				
+				// ==> add filters/conditions + go to next()	
+			}
+			
+			$i++;	
+		}
+		
+//var_dump(__METHOD__);
+//var_dump($this);
+//var_dump($this->request);
+//var_dump($RC);
+//var_dump($this);
+//var_dump($this->options);
+//var_dump($this->options['filters']);
+//var_dump($this->options['getFields']);
+//die();
+	}
 	
 	
 	/*
@@ -239,6 +395,8 @@ class View extends Application implements ViewInterface
 				//break;
 			} 
 		}
+		
+		if ( in_array($this->platform['name'], array('iphone','ipad','ipod')) ){ $this->platform['name'] = 'ios ' . $this->platform['name']; }
 
 		return $this;
 	}
@@ -306,16 +464,23 @@ class View extends Application implements ViewInterface
 			'KHTML' 		=> 'khtml', 
 			'BlackBerry' 	=> 'mango',
 			'wOSBrowser' 	=> 'webkit',
+			
+			'Nintendo 3DS' 	=> 'webkit',
+			'PLAYSTATION 3' => 'webkit',
 		);
 		$knownBrowsers 	= array(
 			'MSIE' 			=> array('name' => 'internetexplorer', 'displayName' => 'Internet Explorer', 'alias' => 'ie', 'versionPattern' => '/.*(MSIE)\s([0-9]*\.[0-9]*);.*/'),
 			'Firefox' 		=> array('alias' => 'ff', 'versionPattern' => '/.*(Firefox|MozillaDeveloperPreview)\/([0-9\.]*).*/'),
 			'Chrome' 		=> array('versionPattern' => '/.*(Chrome)\/([0-9\.]*)\s.*/'),
-			'Safari' 		=> array('versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
 			'Opera' 		=> array('versionPattern' => '/.*(Version|Opera)\/([0-9\.]*)\s?.*/'),
 			'Konqueror' 	=> array('versionPattern' => '/.*(Konqueror)\/([0-9\.]*)\s.*/'),
-            'BlackBerry' 	=> array('versionPattern' => '/.*(BlackBerry[a-zA-Z0-9]*)\/([0-9\.]*)\s.*/'),
+            'BlackBerry' 	=> array('versionPattern' => '/.*(BlackBerry[a-zA-Z0-9]*|Version)\/([0-9\.]*)\s.*/'),
             'Dolphin' 		=> array('versionPattern' => '/.*(Dolfin)\/([0-9\.]*)\s.*/'),
+            //'Safari' 		=> array('versionPattern' => '/.*(Safari|Version)\/([0-9\.]*)\s.*/'),
+            'Safari' 		=> array('versionPattern' => '/.*(Safari)\/([0-9\.]*)\s.*/'),
+            
+			'Nintendo 3DS' 	=> array('name' => 'nintendo3ds', 'displayName' => 'Nintendo 3DS', 'alias' => '3ds', 'versionPattern' => '/.*(Version)\s([0-9]*\.[0-9]*);.*/'),
+			'PLAYSTATION 3' => array('name' => 'ps3', 'displayName' => 'PlayStation 3', 'alias' => 'ps3', 'versionPattern' => '/.*(Version)\s([0-9]*\.[0-9]*);.*/'),
 		);
 				
 		// Try to get the browser data using the User Agent
@@ -442,12 +607,25 @@ class View extends Application implements ViewInterface
 
 		// Known options
 		$known    = array(
-			'output','method','viewType','offset','limit','sortBy','orderBy','by','value','values','searchQuery','page',
-			'mode', 'dataOnly',
-			'reindexBy','reindexby', 		// TODO: deprecate 
+			'searchQuery',
+			
+			// restricters
+			'mode', 'field', 'getFields',
+			'by','value','values',
+			
+			// offseters & limiters
+			'offset','limit','sortBy','orderBy','page',
+			
+			// Request output
+			'reindexBy','reindexby', 		// TODO: deprecate
+			'groupBy', 'regroupBy', 
 			'indexBy','indexByUnique',
 			'operation','debug','confirm',
-			'getFields',
+			
+			// Display
+			'output', 'method',
+			'displayCols', 'displayMode', 'viewType', 'dataOnly', 
+			
 			'success', 'errors','successes','warnings','notifications',
 			'css', 'js', 'minify',
 		);
@@ -468,8 +646,16 @@ class View extends Application implements ViewInterface
 									: ( !empty($o[$opt]) ? $o['opt'] : (in_array($opt, $specZero) ? 0 : null));
 		}
 		
+		//$this->options['displayCols'] = !empty($this->options['displayCols']) ? Tools::toArray((string) $this->options['displayCols']) : array();
+		$this->options['displayCols'] = !empty($this->options['displayCols']) && ( $tmpCols = Tools::toArray($this->options['displayCols']) ) 
+			? array_combine($tmpCols, $tmpCols) 
+			: array();
+		
 		// 
 		$this->options['conditions'] = isset($_GET['conditions']) ? $_GET['conditions'] : null;
+		
+		// 
+		$this->options['filters'] = null;
 		
 		if ( !empty($this->options['conditions']) )
 		{

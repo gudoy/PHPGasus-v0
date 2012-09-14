@@ -1,14 +1,45 @@
-{* $rProps 		= $data._resources[$resourceName]}
-{$rModel 		= $data.dataModel[$resourceName]}
-{$imageField 	= $rProps.imageField}
-{$nameField 	= $rProps.nameField|default:$rProps.defaultNameField}
-{$descField 	= $rProps.descField|default:null}
-{$userResPerms 	= $data.current.user.auths[$resourceName]}
-{$crudability 	= $rProps.crudability|default:'CRUD'}
-{$isReadable 	= (strpos($crudability, 'R')>-1)?1:0 *}
-
 {foreach array_keys((array) $data[$resourceName]) as $key}
 {$resource = $data[$resourceName][$key]}
+{* Case 1 column only *}
+{if !is_array($resource)}
+{$request.pattern = 'column'}
+<article class="resource" id="{$resourceName}{$key@index}" data-nameField="{$nameField}">
+	<div class="status"><input type="checkbox" name="selectedItems[]" value="{$key@index}" /></div>
+	<div class="content oneColOnly">
+		<hgroup>
+			<h3 class="title">
+			{strip}
+			{$colVal 	= $resource}
+			{if isset($getFields) && count($getFields) === 1}
+				{$pattern 	= 'get1Col'}
+				{$colName 	= $getFields[0]}
+			{elseif $data.options.mode === 'distinct' && isset($data.options.field)}
+				{$pattern 	= 'distinct1Col'}
+				{$colName 	= $data.options.field}
+			{/if}
+			{/strip}
+			{if $pattern === 'get1Col' || $pattern === 'distinct1Col'}
+			{$cProps 		= $rModel[$colName]}
+			{$cType 		= $cProps.type}
+			<span class="col {$colName}Col {if is_null($colVal) || $colVal == ''} noValue{/if}" data-column="{$colName}" data-label="{$cProps.displayName|default:"{$colName|replace:'-':' '|replace:'_':' '}"}" data-type="{$cType}" data-subtype="{$cProps.subtype}" {if !is_array($colVal)}data-value="{$colVal}"{/if}>{include file='common/blocks/admin/resource/list/cols/dataValue2.tpl'}</span>
+			{else}
+			<span class="col {if is_null($colVal) || $colVal == ''}noValue{/if}">{$colVal|default:"{t}[no value]{/t}"}</span>
+			{/if}
+			</h3>
+		</hgroup>
+	</div>
+	<nav class="actions">
+		{if $isReadable}
+		{if isset($resource.id)}
+		<a class="action primary view goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}"><span class="value">view</span></a>
+		{elseif $colName}
+		<a class="action primary view viewAll goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/?conditions={$colName}|{$colVal}&displayCols={$colName}" title="{t 1=$resourceName 2=$colName 3="{$colVal|default:"{t}this value{/t}"}"}view all %1 whose %2 match %3{/t}"><span class="value">view</span></a>
+		{/if}
+		{/if}
+	</nav>
+</article>
+{* Case several columns *}
+{else}
 <article class="resource" id="{$resourceName}{$resource.id}" data-id="{$resource.id}" data-nameField="{$nameField}">
 	<div class="status"><input type="checkbox" name="{$resourceName}Ids[]" value="{$resource.id}" /></div>
 	<figure>
@@ -21,34 +52,48 @@
 		{/if}
 	</figure>
 	{if $displayMode === 'list'}
-	{if $isReadable}<a class="content goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{else}<div class="content">{/if}
+	{* if $isReadable}<a class="content goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{else}<div class="content">{/if *}
+	<div class="content">
+		{* var_dump($data.options) *}
 		{if $resource.update_date}
 		{include file='common/blocks/humanTime.tpl' class='datetimeField' value=$resource.update_date}
 		{/if}
 		<hgroup>
-			<h3 class="title"><span class="id">{$resource.id} </span>{if $resource[$nameField]}<span class="nameField">{$resource[$nameField]}</span>{/if}</h3>
+			<h3 class="title">
+				{if $resource.id}<span class="col id idCol" data-column="id" data-value="{$colVal}">{$resource.id}</span>{/if}
+				{if $resource[$nameField]}
+				<span class="col nameField nameFieldCol {$nameField}Col" data-column="{$nameField}" data-value="{$resource[$nameField]}">{$resource[$nameField]}</span>
+				{/if}
+			</h3>
 		</hgroup>
 		{if $descField}
-		<p class="summary descField" data-column="{$colName}" data-label="{$colName|replace:'-':' '}" data-type="{$rType}" {if !is_array($colVal)}data-exactvalue="{$colVal}"{/if}>{$resource[$descField]}</p>
+		<p class="summary descField descFieldCol {$descField}Col" data-column="{$descField}" data-label="{$descField|replace:'-':' '}" data-type="{$rModel[$descField].type}" {if !is_array($resource[$descField])}data-value="{$colVal}"{/if}>{$resource[$descField]}</p>
 		{/if}
-		<div class="data">
+		<div class="data">{strip}
 			{$skipColumns =['id' => 'id', $imageField => $imageField, $nameField => $nameField, $descField => $descField, 'update_date' => 'update_date']}
 			{$hasData = false}
 			{foreach $resource as $colName => $colVal}
-			{$rType 		= $rModel[$colName].type}
-			{if !isset($skipColumns[$colName]) && ($rModel[$colName].list && $rModel[$colName].list > 0)}
-			<span class="col {$colName}Col" data-column="{$colName}" data-label="{$colName|replace:'-':' '}" data-type="{$rType}" {if !is_array($colVal)}data-exactvalue="{$colVal}"{/if}>{include file='common/blocks/admin/resource/list/cols/dataValue2.tpl'}</span>
+			{$cProps 		= $rModel[$colName]}
+			{$cType 		= $cProps.type}
+			{if (!isset($skipColumns[$colName]) && ($cProps[$colName].list && $cProps.list > 0)) || isset($data.options.displayCols[$colName])}
+			{* TODO: if col does not exists in dataModel *}
+			{if !isset($rModel[$colName])}{$skipColumns[$colName] = $colName}{/if}
+			{if !isset($skipColumns[$colName])}
+			{* TODO: display human readable values instead of exact ones *}
+			<span class="col {$colName}Col {if is_null($colVal) || $colVal == ''} noValue{/if}" data-column="{$colName}" data-label="{$cProps.displayName|default:"{$colName|replace:'-':' '|replace:'_':' '}"}" data-type="{$cType}" data-subtype="{$cProps.subtype}" {if !is_array($colVal)}data-value="{$colVal}"{/if}>{include file='common/blocks/admin/resource/list/cols/dataValue2.tpl'}</span>
+			{/if}
 			{/if}
 			{/foreach}
-		</div>
-	{if $isReadable}</a>{else}</div>{/if}
+		{/strip}</div>
+	{* if $isReadable}</a>{else}</div>{/if *}
+	</div>
 	{/if}
 	<nav class="actions">
-		{if $isReadable}<a class="action primary view goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}">{/if}
+		{if $isReadable}<a class="action primary view goTo" href="{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}"><span class="value">view</span></a>{/if}
 		{include file='common/blocks/admin/resource/actions/listActions.tpl'}
-		{if $isReadable}</a>{/if}
 	</nav>
 </article>
+{/if}
 {foreachelse}
 <p class="nodata">{t}There's currently nothing here{/t}</p>
 {/foreach}

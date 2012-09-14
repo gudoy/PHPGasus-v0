@@ -1,3 +1,15 @@
+if ( typeof Modernizr !== 'undefined' )
+{
+	Modernizr.addTest("overflowscrolling",function(){
+	    return Modernizr.testAllProps("overflowScrolling");
+	});
+	
+	Modernizr.addTest("flexboxlegacy",function(){
+    	return Modernizr.testAllProps('boxDirection');
+	});
+}
+
+
 var ua 	= navigator.userAgent || null;
 var app = 
 {

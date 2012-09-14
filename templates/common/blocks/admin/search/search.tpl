@@ -33,6 +33,7 @@
                 <input type="hidden" name="method" value="search" />
             </fieldset>
         </form>
+        <section class="searchResults adminSearchResults" id="adminSearchResults"></section>
         
         {* if $search.type === 'contextual'}
         {block name='contextualSearchResults'}

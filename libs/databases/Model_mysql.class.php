@@ -31,7 +31,7 @@ class Model extends Application
 		$this->resources      = &$resources;
 		$rProps               = &$this->resources[$this->resourceName];
 		
-        // Handle filters
+        // Handle filter resources
 		if ( !empty($rProps['extends']) && isset($this->resources[$rProps['extends']]) )
         {
             $parentName     = &$rProps['extends'];
@@ -2429,9 +2429,9 @@ $tmpVal = isset($d[$fieldName])
 			// {table}.{column}
 			// {table alias}.{column}
 			$res        	= $hasDot ? $colParts[0] : $this->resourceName;
-			//$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['table']) );
-			$resExists 		= $res && ( isset($this->resources[$res]) || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) );
-//$resExists 		= $res && ( isset($this->resources[$res]) && ( $res === $this->resourceName || ( !empty($this->queryData['table']) && in_array($res, (array) $this->queryData['table']) ) ) );
+			//$resExists 		= $res && ( isset($this->resources[$res]) || in_array($res, (array) $this->queryData['tables']) );
+			$resExists 		= $res && ( isset($this->resources[$res]) || ( !empty($this->queryData['tables']) && in_array($res, (array) $this->queryData['tables']) ) );
+//$resExists 		= $res && ( isset($this->resources[$res]) && ( $res === $this->resourceName || ( !empty($this->queryData['tables']) && in_array($res, (array) $this->queryData['tables']) ) ) );
 			$resTable 		= $resExists && !empty($this->resources[$res]['table']) ? $this->resources[$res]['table'] : $res;
 			//$alias 			= !$hasDot ? $this->alias : ( $res ? $res : null );
 			$alias 			= !$hasDot 

@@ -32,7 +32,7 @@ class Model extends Application
 		$this->resources      = &$resources;
 		$rProps               = &$this->resources[$this->resourceName];
 		
-        // Handle filters
+        // Handle filter resources
 		if ( !empty($rProps['extends']) && isset($this->resources[$rProps['extends']]) )
         {
             $parentName     = &$rProps['extends'];
@@ -1076,7 +1076,7 @@ class Model extends Application
 //var_dump($field);
 //var_dump($d[$fieldName]);
 			
-			// Handle value treatments/filters via eval
+			// Handle value treatments/modifiers via eval
 			if ( !empty($field['eval']) && !empty($d[$fieldName]) )
 			{
 				$phpCode 		= str_replace('---self---', '\'' . $d[$fieldName] . '\'', $field['eval']);
@@ -1479,7 +1479,7 @@ class Model extends Application
 			
 			$i++;
 			
-			// Handle value treatments/filters via eval
+			// Handle value treatments/modifiers via eval
 			if ( !empty($field['eval']) )
 			{
 				$phpCode 		= str_replace('---self---', '\'' . $d[$fieldName] . '\'', $field['eval']);

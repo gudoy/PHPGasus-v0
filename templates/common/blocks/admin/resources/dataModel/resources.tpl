@@ -1,6 +1,6 @@
 {block name='adminDataModelResourcesBlock'}
 <section class="block adminBlock adminDataModelBlock adminDataModelResourcesBlock" id="adminDataModelResourcesBlock">
-	<header class="titleBlock">
+	<header class="groupTitle">
 		<h3 class="title">
 			<span>dataModel resources</span>	
 		</h3>

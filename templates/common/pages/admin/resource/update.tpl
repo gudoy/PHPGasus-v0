@@ -6,7 +6,7 @@
 <header class="titleBlock" id="mainHeader">
 	{block name='mainHeaderSecondaryActions'}{/block}
 	{block name='mainbreadcrumbs'}
-	<nav class="breadcrumbs">{strip}
+	<nav class="breadcrumbs" id="mainBreadcrumbs">{strip}
 		<span class="breadcrumb item" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
 			<a rel="home up up" href="{$smarty.const._URL}" itemprop="url"><span class="value" itemprop="title">{t}home{/t}</span></a>
 		</span>

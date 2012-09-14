@@ -7,8 +7,10 @@ $spages     = 'specific/pages/';
 
 $jsAssoc    = array(
     # Libs
-	'jquery' 				=> array($libs . 'jquery-1.7.2.min.js'),
-	'jqueryUI' 				=> array($libs . 'jquery-ui-1.8.16.custom.min.js'),
+	//'jquery' 				=> array($libs . 'jquery-1.7.2.min.js'),
+	'jquery' 				=> array($libs . 'jquery-1.8.1.min.js'),
+	//'jqueryUI' 				=> array($libs . 'jquery-ui-1.8.16.custom.min.js'),
+	'jqueryUI' 				=> array($libs . 'jquery-ui-1.8.23.custom.min.js'),
 	'jqueryPlusUI' 			=> array('jquery', 'jqueryUI'),
 	'zepto' 				=> array($libs . 'zepto.js'),
 	'jqueryEasing' 			=> array($libs . 'jquery.easing.1.3.js'),

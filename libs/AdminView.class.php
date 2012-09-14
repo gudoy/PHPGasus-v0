@@ -818,7 +818,10 @@ class AdminView extends View
                 $this->data['_dataModel'],
                 $this->data['_resources'],
                 $this->data['dataModel'],
-                $this->data['_resourcesGroups']
+                $this->data['_resourcesGroups'],
+				
+				$this->data['search'],
+				$this->data['current']
             );
 		}
 		
@@ -925,95 +928,297 @@ class AdminView extends View
 		return $this;
 	}
 	
+	public function handleSelection($params = array())
+	{
+		return call_user_func_array(array($this, 'selection'), array(null, array_merge(array('render' => false), $params)));
+	}
+	
+	// GET /admin/selection 							=> render the current selection
+	// GET /admin/selection/{$resources} 				=> render the current selection for the passed resources (csv)
+	// POST /admin/selection +postdata 					=> add postdata filters to current selection (render & returns 201 if OK)
+	// POST /admin/selection/{$resources} +postdata 	=> add postdata filters to current selection for the passed resources (render & returns 201 if OK)
+	// DELETE /admin/selection 							=> clear the current selection (render & returns 200 if OK)
+	// DELETE /admin/selection/{$resources} 			=> clear the current selection for the passed resources (render & returns 200 if OK)
+	// DELETE /admin/selection/{$resource}/{$indexes} 	=> remove the passed indexes (csv) from the selection for the passed resource 
+	// PUT /admin/selection 							=> replace the current selection filters by passed ones (render & returns 200 if OK)
+	// PUT /admin/selection/{$resources} 				=> replace the current selection filters by passed ones for the passed resources (render & returns 200 if OK)
+	// calling via handleSelection()  					=> same as calling via /admin/selectio/n but does not render (until explicitely setted)
 	public function selection()
 	{
 //var_dump(__METHOD__);
 
-		$args 	= func_get_args(); 											// Get passed arguments
+		$args 		= func_get_args(); 											// Get passed arguments
 		//$rName 	= isset($this->resourceName) ? $this->resourceName : null; 	// Shortcut for resource name
-		$rName 	= !empty($args[0]) ? $args[0] : null;
-		$rqM 	= $_SERVER['REQUEST_METHOD']; 								// Shortcut for request method  
-		
-		// Does not continue if resourceName is not defined
-		// TODO: return what???
-		if ( !$rName ){ return; }
-		
-		// Init selection for the current resource
-		$rSel = array('filters' => array(), 'items' => array());
-		
-		// Does not continue if the current resource is not selectable
-		if ( isset($this->data['_resources'][$rName]['selectable']) && !$this->data['_resources'][$rName]['selectable'] ){ return; }
-		
+		$rNames 	= !empty($args[0]) ? Tools::toArray($args[0]) : null;
+		$rqM 		= isset($_GET['method']) && in_array(strtolower($_GET['method']), array('get','post','put','delete')) 
+			? strtoupper($_GET['method']) 
+			: $_SERVER['REQUEST_METHOD']; 										// Shortcut for request method
+		$passedOpts = !empty($args[1]) ? (array) $args[1] : array();
+		$o 			= array_merge(array( 										// Set options (default + user + forced)
+			'render' 			=> true,
+			'returning' 		=> 'nothing', 									// 'nothing' | 'selection' | 'countsOnly'
+			'defaultOperator' 	=> 'is',											
+		), $passedOpts , array(
+		));
+
 //var_dump($rqM);
-//var_dump($_POST);
+
+		$_sel = &$_SESSION['selection'];
 		
-		// 
-		if ( in_array($rqM, array('PUT','POST')) && !empty($_POST['conditions']) )
+//var_dump('current selection:');
+//var_dump($_sel);
+
+		// Search in filters if the tested filter exist and if yes, return it's index
+		function indexOfFilter($filters = array(), $test = array())
 		{
-			// When PUT is used, clear current selection first
-			if ( $rqM === 'PUT' ) { $_SESSION['selection'][$rName] = $rSel; }
+			$index = -1;
+			foreach((array) $filters as $key => $filter){ if ($test[0] == $filter[0] && $test[1] == $filter[1]) { $index = $key; break; } }
+			return (int) $index;
+		}
+		
+
+		// When PUT is used, 
+		// If resource passed with indexes (like PUT /selection/{$resource}/filters/0,3,5)
+		// Update passed filters
+		if ( $rqM === 'PUT' && isset($rNames) && count($rNames) === 1 && $args[1] === 'filters' && isset($args[2]) )
+		{
+			$rName 	= $rNames[0]; 
+			$i 		= (int) $args[2];
 			
-			// Expect conditions to be passed as uri compatible strings (cf api conditions params):
-			// samples:
+			// Accept:
+			// ?conditions=$col[|$op]|$values
+			// $_POST = {'filters': {'column': $col, 'operator': $op, 'values': $values}}
+			// $_POST = {'column': $col, 'operator': $op, 'values': $values}
+			// $_POST = {'filters': "$col[|$op]|$values"}
+			$cond 	= !empty($_POST['filters']) ? $_POST['filters'] : ( !empty($_GET['conditions']) ? $_GET['conditions'] : $_POST);
+//var_dump($cond);
+			$cond 	= is_array($cond) ? $cond : explode('|', $cond);
+				
+//var_dump($cond);
+//var_dump(count($cond));
+			
+			$res 	= isset($cond['resource']) ? $cond['resource'] : null;	
+			$col 	= isset($cond['column']) ? $cond['column'] : (isset($cond[0]) ? $cond[0] : null);
+			$op 	= isset($cond['operator']) ? $cond['operator'] : ( count($cond) > 2 ? $cond[1] : $o['defaultOperator']);
+			$vals 	= isset($cond['values']) ? $cond['values'] : ( count($cond) > 2 ? $cond[2] : (isset($cond[1]) ? $cond[1] : null) );
+			
+			// Do not update the condition if the colum is empty
+			if ( empty($col) )
+			{
+				if ( $o['render'] ) { return $this->statusCode(401); }
+			}
+			else
+			{
+				// First unset the current condition
+				unset($_sel[$rName]['filters'][$i]);
+				
+				// Then update it
+				//$_sel[$rName]['filters'][$i] = array($col,$op,$vals);
+				$_sel[$rName]['filters'][$i] = array( ($res ? $res . '.' : '') . $col,$op,$vals);
+				
+				// Finally, clear any other selection the post
+				unset($_POST['selection']);
+			}
+		}
+		//if ( in_array($rqM, array('PUT','POST')) && !empty($_POST['conditions']) )
+		else if ( in_array($rqM, array('PUT','POST')) && !empty($_POST['selection']) )
+		{
+			// Or if resource(s) have been passed without any other param, clear their current selection first
+			if ( $rqM === 'PUT' && !empty($rNames) ) 	{ foreach($rNames as $rName) { $_sel[$rName] = array(); } }
+			// Otherwise, clear the whole selection first
+			else if ( $rqM === 'PUT' )						{ $_sel = array(); }
+			
+			// Expect conditions like (cf api conditions params): colum|[operator|]values 
+			// Samples:
 			// name|foo
 			// conditions=email|contains|@gmail
 			// conditions=id|notin|3,5
 			// conditions=type|bar;email|endsby|.org
 			
-			// handle forms:
-			// conditions[]=$cond1&conditions[]=$cond2&conditions[]=$cond3
-			// conditions=$cond1;$cond2;$cond3
+			// HANDLED passed filter conditions formats
+			// conditions=$cond1;$cond2;$cond3 (filters passed as URI params)
+			// conditions[]=$cond1&conditions[]=$cond2&conditions[]=$cond3 ()
+			// selection[$resource][filters][0]=$cond (filter passed as a contition string)
+			// selection[$resource][filters][0][column]=$col&selection[$resource][filters][0][values]=$values (filter passed as an array, no operator passed => use default operator)
+			// selection[$resource][filters][0][column]=$col&selection[$resource][filters][0][operator]=$op&selection[$resource][filters][0][values]=$values  (filter passed as an array, no operator passed => use default operator)
+//var_dump('POST selection:');
+//var_dump($_POST['selection']);
+			
 			$postConds = array();
-			foreach(Tools::toArray($_POST['conditions']) as $item){ foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; } }
+			//foreach(Tools::toArray($_POST['conditions']) as $item){ foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; } }
+			// Loop over selection items (should be resource names)
+			foreach(Tools::toArray($_POST['selection']) as $key => $val)
+			{
+//var_dump($key);
+				
+				// Do not continue if the POST selection for current item is empty
+				if ( empty($_POST['selection'][$key]) ){ return; }
+				
+				/*
+				// Handle selection filters passed with resource as a param (like selection['filters'][]['resource'])
+				// or passed in url (like POST /selection/{$resource}/ + postdata)
+				if ( $key === 'filters' )
+				{
+					foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; }
+				}
+				// Handle selection filters passed with resource in param name (like selection[$resource]['filters'][])
+				else
+				{*/
+					// Current resource
+					$rName = $key;
+				
+					// Do not continue if the current resource is not selectable
+					if ( isset($this->data['_resources'][$rName]['selectable']) && !$this->data['_resources'][$rName]['selectable'] ){ return; }
+					
+					// Init the current resources filters array and create a shortcut for it
+					$_sel[$rName]['filters'] 	= isset($_sel[$rName]['filters']) ? $_sel[$rName]['filters'] : array();
+					$rFilters 					= &$_sel[$rName]['filters'];
+					
+					// Loop over POST selection conditions for the current resource
+					foreach ( Tools::toArray($_POST['selection'][$rName]) as $item)
+					{
+						// Handle filters passed as an array or a string 
+						$conds = is_array($item) ? $item : explode(';', rtrim(urldecode($item),';'));
+						
+//var_dump($conds);
+				
+						// Loop over passed filters		
+						foreach ($conds as $cond)
+						{
+							// Handle filters passed as an array or a string
+							$cond 	= is_array($cond) ? $cond : explode('|', $cond);
+							
+							$res 	= isset($cond['resource']) ? $cond['resource'] : null;
+							$col 	= isset($cond['column']) ? $cond['column'] : $cond[0];
+							$op 	= isset($cond['operator']) ? $cond['operator'] : ( count($cond) > 2 ? $cond[1] : $o['defaultOperator']);
+							$vals 	= isset($cond['values']) ? $cond['values'] : ( count($cond) > 2 ? $cond[2] : $cond[1] );
+							
+							// Do not add the condition to the selection if either the colum or the values is empty
+							//if ( empty($col) || $vals === '' ){ continue; }
+							if ( empty($col) ){ continue; }
+							
+							// Check if a condition for the same column with the same operator exists
+							$fi 	= indexOfFilter($rFilters, array($col,$op,$vals));
+							
+//var_dump($rFilters);
+//var_dump('indexof cond: ' . $fi );
+							
+							// If the exact same condition exists, do not add it
+							if 		( $fi !== -1 && $rFilters[$fi][2] === $vals ){ continue; }
+							// Otherwise, just merge the existing values with the ones of the current conditions
+							else if ( $fi !== -1 )
+							{
+//var_dump('should merge values');
+								$rFilters[$fi][2] = array_unique(array_merge(Tools::toArray($rFilters[$fi][2]), Tools::toArray($vals)));
+//var_dump($rFilters[$fi][2]);
+								continue;
+							}
+							
+							//$_sel[$rName]['filters'][] 					= array($col,$op,$vals);
+							$_sel[$rName]['filters'][] 						= array( ($res ? $res . '.' : '') . $col,$op,$vals);
+							//$_sel[$rName]['filtersByColumn'][$col][] 	= array($col,$op,$vals);
+							//$_sel[$rName]['filtersByOperator'][$op][] 	= array($col,$op,$vals);
+						}
+					}
+
+					// Remove doubles if any
+					//$_sel[$rName]['filters'] = array_unique($_sel[$rName]['filters']);
+				//}
+			}
+			
+//var_dump('selection:');
+//var_dump($_SESSION['selection']);
 			
 //var_dump($postConds);
 			
 			// Loop over POST conditions, adding each one condition to selection filters
-			foreach ( (array) $postConds as $item ){ $rSel['filters'][$item] = explode('|', $item); }
+			//foreach ( (array) $postConds as $item ){ $rSel['filters'][$item] = explode('|', $item); }
 
-			$_SESSION['selection'][$rName] = $rSel;
+			//$_SESSION['selection'][$rName] = $rSel;
 			
-			return $this->statusCode(201);
+			if ( $o['render'] ) { return $this->statusCode(201); }
 		}
 		//elseif ( $rqM === 'DELETE' && !empty($_POST['conditions']) )
 		elseif ( $rqM === 'DELETE' )
 		{
+//var_dump('case delete from url');
+//var_dump($rNames);
+//var_dump($args);
+			// If resource passed with indexes (like DELETE /selection/{$resource}/filters/0,3,5)
+			// remove passed filters
+			if ( isset($rNames) && count($rNames) === 1 && $args[1] === 'filters' && isset($args[2]) )
+			{
+				$rName 		= $rNames[0]; 
+				$indexes 	= Tools::toArray($args[2]);
+				foreach( $indexes as $i) { unset($_sel[$rName]['filters'][(int) $i]); }
+			}
+			// If resources passed without filters, just clear their selection
+			else if ( isset($rNames) && count($rNames) === 1 )
+			{
+				foreach( $rNames as $rName) { unset($_sel[$rName]); }
+			}			
 			// Clear all filters
-			if ( empty($_POST['conditions']) )
+			//else if ( !empty($_POST) && empty($_POST['selection']) )
+			else if ( empty($_POST['selection']) )
 			{
-				$_SESSION['selection'][$rName] = array();
-				unset($_SESSION['selection'][$rName]);	
-			}
-			// Otherwise only remove passed filters
-			else
-			{
-				$postConds = array();
-				foreach(Tools::toArray($_POST['conditions']) as $item){ foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; } }
-				
-				// Loop over POST conditions, adding each one condition to selection filters
-				foreach ( (array) $postConds as $item ){ unset($_SESSION['selection'][$rName]['filters'][$item]); }	
+				//$_SESSION['selection'][$rName] = array();
+				$_sel = array();
+				//unset($_SESSION['selection'][$rName]);	
+				unset($_sel);
 			}
 			
-			return $this->statusCode(201);
+			if ( $o['render'] ) { return $this->statusCode(200); }
 		}
-		else
-		{
-			// return selected items ids???
-			// return _ADMIN_RESOURCES_NB_PER_PAGE items & all if ?limit=-1 passed?
-			$opt = array_merge($this->options, array(
-				'getFields' 	=> 'id',
-				//'conditions' 	=> array(),
-			));
-//var_dump($opt);
-			
-			//$this->data['current']['selected'][$rName] = $rSel;
-			$this->data = array('selected' => $_SESSION['selection']);
-			//$this->data['current']['selected'][$rName] = $this->C->index($opt);
-//var_dump($this->data['current']['selected'][$rName]);
-//var_dump($this->data['current']['selected']);
+		
+//var_dump($_sel);
 
-			$this->render();
+//var_dump($_GET);
+//var_dump(array_values($_GET['selection']['machines']['filters']));
+//$foo = array('col','op','values');
+//$bar = array('col','op','values');
+//var_dump($foo === $bar);
+		
+		// Loop over selection resources
+		foreach ( (array) $_sel as $rName => $rSel )
+		{
+			// Do not continue if the current resource has no filters
+			if ( empty($rSel['filters']) ){ continue; }
+			
+			if ( $o['returning'] !== 'nothing' )
+			{
+				// Depending of the passed returing param, get either the ids matching the selection, 
+				// or just their count
+				$opts 	= $o['returning'] === 'countsOnly' ? array('mode' => 'count') : array( 'getFields' => 'id');
+				$cName 	= 'C' . ucfirst($rName);
+				$res 	= $cName::getInstance()->index(array_merge($opts, array( 
+					'conditions' 	=> $rSel['filters'],
+					'limit' 		=> -1,
+				)));
+				
+				if ( $o['returning'] === 'countsOnly' ){ $_sel[$rName]['itemsCount'] = $res; }
+				else
+				{
+					$_sel[$rName]['items'] 		= $res;
+					$_sel[$rName]['itemsCount'] = count($res);
+				}
+
+var_dump($cName::getInstance()->model->launchedQuery);
+			}				
+				
+
+//var_dump($_sel[$rName]);
+
+			$this->data['selection'] = array();
+
+			// If resources have been passed as an argument, just return their selections
+			if ( !empty($rNames) && in_array($rName, $rNames) )	{ $this->data['selection'][$rName] = $_sel[$rName]; }
 		}
+
+		// If no resources have been passed as an argument, return the whole selection
+		if ( empty($rNames) ){ $this->data['selection'] = $_sel; }
+		
+		if ( $o['render'] )	{ $this->beforeRender(array('function' => __FUNCTION__)); return $this->render(); }
+		else 				{ return $_sel; }
 	}
 		
 }

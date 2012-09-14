@@ -497,7 +497,7 @@ class Model extends Application
 //var_dump($field);
 //var_dump($d[$fieldName]);
 			
-			// Handle value treatments/filters via eval
+			// Handle value treatments/modifiers via eval
 			if ( !empty($field['eval']) )
 			{
 				$phpCode 		= str_replace('---self---', '\'' . $d[$fieldName] . '\'', $field['eval']);
@@ -710,7 +710,7 @@ class Model extends Application
 			
 			$i++;
 			
-			// Handle value treatments/filters via eval
+			// Handle value treatments/modifiers via eval
 			if ( !empty($field['eval']) )
 			{
 				$phpCode 		= str_replace('---self---', '\'' . $d[$fieldName] . '\'', $field['eval']);

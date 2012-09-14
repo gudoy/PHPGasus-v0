@@ -1,6 +1,6 @@
 {block name='adminDataModelCodeBlock'}
 <div class="block adminBlock adminDataModelCodeBlock" id="adminDataModelCodeBlock">
-	<header class="titleBlock">
+	<header class="groupTitle">
 		<h3 class="title">
 			<span>datamodel generated code</span>	
 		</h3>

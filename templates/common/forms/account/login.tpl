@@ -12,7 +12,7 @@
 				<label for="userPassword">{t}password{/t}<span class="required">*</span></label>
 			</div>
 			<div class="fieldBlock">
-				{include file='common/formFields/user/password.tpl' label="{t}password{/t}" name='password' placeholder="{t}password{/t}" inputOnly=1 required=true}
+				{include file='common/formFields/user/password.tpl' label="{t}password{/t}" name='password' placeholder="{t}password{/t}" inputOnly=1 required=true autocomplete=true}
 				{if $smarty.const._APP_ALLOW_LOST_PASSWORD_RESET}
 				{include file='common/blocks/actionBtn.tpl' href=$smarty.const._URL_ACCOUNT_PASSWORD_LOST class='lostPasswordLink' id='lostPasswordLink' label="{t}lost password?{/t}"}
 				{/if}

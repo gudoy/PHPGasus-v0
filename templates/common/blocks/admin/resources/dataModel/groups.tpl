@@ -1,6 +1,6 @@
 {block name='adminDataModelGroupsBlock'}
 <section class="block adminBlock adminDataModelBlock adminDataModelGroupsBlock" id="adminDataModelGroupsBlock">
-	<header class="titleBlock">
+	<header class="groupTitle">
 		<h3 class="title">
 			<span>dataModel groups</span>	
 		</h3>

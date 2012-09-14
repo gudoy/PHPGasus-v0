@@ -219,6 +219,19 @@ class Tools
         return $sing;
 	}
 	
+	
+	// TODO
+	static function camelize(){ }
+	static function dasherize(){ }
+	static function parameterize(){ }
+	static function tableize(){ }
+	static function titleize(){ }
+	
+	// Remove special cars and lowerize
+	static function resourcize($string)
+	{
+		return preg_replace('/[^a-z]/', '', strtolower(self::deaccentize($string)));
+	}
 
 	// Replace accents chars by their non-accentued equivalent 
 	// & replace non-URL friendly chars by dashes or nothing
@@ -327,7 +340,7 @@ class Tools
 	//static function XML2Array_old($xml, $recursive = false, $options = array())
     static function XML2Array($xml, $recursive = false, $options = array())
     {
-var_dump(__METHOD__);
+//var_dump(__METHOD__);
 		
         $o = array_merge(array(
             'type' => 'xml',
@@ -443,6 +456,8 @@ if ( $k === 'Product' )
 					
         $data 	= array();
 		
+		if ( !$nodes ){ return $data; }
+		
 //var_dump($nodes);
 
 //if ( !$xml instanceof SimpleXMLElement ){ var_dump('nodes count: ' . $nodes->count()); }
@@ -497,7 +512,7 @@ if ( $k === 'Product' )
 		if ( $textNode ) { $data['text'] = $textNode; }
 		
 		// Force freeing memory
-		unset($nodes, $node);
+		unset($nodes, $node, $attrs, $textNode);
         
         return $data;
     }
