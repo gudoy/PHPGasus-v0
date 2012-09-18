@@ -2835,6 +2835,8 @@ $tmpVal = isset($d[$fieldName])
 		$this->dump($query);
 		
 //var_dump($query);
+		// Do no execute the query if the dry-run option has been passed
+		if ( isset($o['dry-run']) ){ return $this->data; }
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);
@@ -2864,6 +2866,9 @@ $tmpVal = isset($d[$fieldName])
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildInsert($resourceData, $o);
 		
         $this->dump($query);
+		
+		// Do no execute the query if the dry-run option has been passed
+		if ( isset($o['dry-run']) ){ return $this->data; }
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);
@@ -2874,9 +2879,9 @@ $tmpVal = isset($d[$fieldName])
 	}
 	
 	
-	public function createTable($params = array())
+	public function createTable($options = array())
 	{
-		$p 			= &$params;
+		$o 			= &$options;
 		
 		$query = "
 			CREATE TABLE IF NOT EXISTS `" . $p['name'] . "` (
@@ -2888,6 +2893,9 @@ $tmpVal = isset($d[$fieldName])
 		";
 		
 		$this->dump($query);
+		
+		// Do no execute the query if the dry-run option has been passed
+		if ( isset($o['dry-run']) ){ return $this; }
 		
 		// Execute the query and store the returned data
 		//$this->data = $this->query($query)->data;
@@ -2917,6 +2925,9 @@ $tmpVal = isset($d[$fieldName])
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
         $this->dump($query);
+		
+		// Do no execute the query if the dry-run option has been passed
+		if ( isset($o['dry-run']) ){ return $this->data; }
         
 		$this->data = $this->query($query, $o)->data;
 		
@@ -2943,6 +2954,9 @@ $tmpVal = isset($d[$fieldName])
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildUpdate($resourceData, $o);
 		
         $this->dump($query);
+		
+		// Do no execute the query if the dry-run option has been passed
+		if ( isset($o['dry-run']) ){ return $this; }
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);
@@ -2976,6 +2990,9 @@ $tmpVal = isset($d[$fieldName])
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildDelete($o);
 		
 		$this->dump($query);
+		
+		// Do no execute the query if the dry-run option has been passed
+		if ( isset($o['dry-run']) ){ return $this; }
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);

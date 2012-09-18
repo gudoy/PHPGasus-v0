@@ -17,9 +17,9 @@
 		<header class="titleBlock">
 			<h3 class="title">{t}Related items{/t}</h3>	
 		</header>
-		<div class="content">
-			{include file='common/blocks/admin/resource/retrieve/related.tpl'}
-		</div>
+		<nav class="resources resourcesNav" role="navigation">
+		{include file='common/blocks/admin/resource/retrieve/related.tpl'}
+		</nav>
 	</div>
 	{/block}
 

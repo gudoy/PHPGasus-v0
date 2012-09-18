@@ -1,4 +1,4 @@
-{$title = $title|default:"{t}selection{/t}"}
+{$title = $title|default:"{t}filters{/t}"}
 <div class="resourceFilters transactionsFilters" id="transactionsFilters">
 	<header>
 		<span class="title">{$title}</span>
@@ -65,6 +65,9 @@
 			{/foreach}
 			</ul>
 		</div>
+		<nav class="actions">
+			<a id="addSelectionFilter" class="action add" data-revertlabel="{t}cancel{/t}" title="{t}add new filter(s){/t}"><span class="value">add</span></a>
+		</nav>
 		<form class="adminSelectionFilterForm" id="adminSelectionFilterForm" action="{$data.current.url}" data-ajaxaction="{$smarty.const._URL_ADMIN}selection/{$filtersResName}" method="post">
 			<div class="fields fieldset body">
 				<legend><span class="value">{t}Add a filter{/t}</span></legend>
@@ -107,8 +110,5 @@
 				{include file='common/blocks/actionBtn.tpl' mode='button' label="{t}add{/t}"}
 			</div>
 		</form>
-		<nav class="actions">
-			<a id="addSelectionFilter" class="action add" data-revertlabel="{t}cancel{/t}" title="{t}add new filter(s){/t}"><span class="value">add</span></a>
-		</nav>
 	</header>
 </div>

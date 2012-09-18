@@ -161,20 +161,16 @@ class Application
 		// Specific case for session forwarding from iphone/ipod/ipad app to safari where the session id is 
 		// passed in the URL.
 		$ua = !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
-		//if ( (strpos($ua, 'iPhone') !== false || strpos($ua, 'iPod') !== false || strpos($ua, 'iPad') !== false ) && !empty($_GET[_SESSION_NAME]) )
-		//if ( _APP_ALLOW_GET_SID_FROM_URL && !empty($_REQUEST[_SESSION_NAME]) )
 		if ( _APP_ALLOW_GET_SID_FROM_URL && ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) )
 		{
 			// Get the data of the passed session id
-			//$s = CSessions::getInstance()->retrieve(array('values' => $_GET[_SESSION_NAME], 'sortBy' => 'expiration_time', 'orderBy' => 'DESC', 'limit' => 1));
-			//$sid 	= filter_var($_REQUEST[_SESSION_NAME], FILTER_SANITIZE_STRING);
 			$sid 	= ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) 
 						? filter_var( !empty($_POST[_SESSION_NAME]) ? $_POST[_SESSION_NAME] : $_GET[_SESSION_NAME], FILTER_SANITIZE_STRING)
 						: null;
 			
 			session_id($sid);
 			session_start(); 
-			$_SESSION['id'] 		= $sid;
+			$_SESSION['id'] = $sid;
 		}
 		
 		// Start the session if not already started
@@ -183,24 +179,33 @@ class Application
 		// Get the current session id
 		$sid = session_id();
 		
-		// TODO: if session passed (cookie or anything) check that ip match the stored one
-		$CSessions = new CSessions();
-		$session = $CSessions->retrieve(array( 
-			'getFields' 	=> 'id,name,user_id,ip',
+		$CSessions 	= new CSessions();
+		$session 	= $CSessions->retrieve(array( 
+			'getFields' 	=> 'id,name,user_id,ip,expiration_time',
 			'sortBy' 		=> 'expiration_time',
 			'orderBy' 		=> 'DESC',
 			'conditions' 	=> array('name' => $sid),
 			'limit' 		=> 1, 
 		));
 		
+//var_dump($session);
+
+//var_dump($this->isSessionValid($session['expiration_time']));
+//die();
+		
 		// Get user ip & clean it
-		$clientIp = !empty($_SERVER['HTTP_X_FORWARDED_FOR']) 
-						? $_SERVER['HTTP_X_FORWARDED_FOR'] 
-						: ( !empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null );
+		$clientIp = !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ( !empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null );
 		$clientIp = filter_var($clientIp, FILTER_VALIDATE_IP) ? $clientIp : false;
 		
 		// If the client ip match the passed session's one, set it as the current session id
 		if ( empty($session) || !empty($session['ipg']) || $clientIp !== $session['ip'] )
+		{
+			$this->logged = false;
+			return $this;
+		}
+		
+		// Do not continue any longer is the session is no longer valid
+		if ( !$this->isSessionValid($session['expiration_time']) )
 		{
 			$this->logged = false;
 			return $this;
@@ -227,7 +232,14 @@ class Application
 		
 		return $this;
 	}
-	
+
+	public function isSessionValid($expTime)
+	{
+		$exp 	= !empty($expTime) ? (is_numeric($expTime) ? $expTime : strtotime($expTime) ) : null;
+		$time 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+		
+		return ($exp && ($exp > $time));
+	}
 	
 	
 	public function isLogged()
@@ -246,11 +258,14 @@ class Application
 		));
 		
 		// Has the session been found and is it always valid (not expired)
+		/*
 		$sessExp	 	= !empty($session) 
 							? (is_numeric($session['expiration_time']) ? $session['expiration_time'] : strtotime($session['expiration_time']) )
 							: null;
 		$time 			= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
 		$this->logged 	= !empty($sessExp) && $sessExp > $time && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
+		*/
+		$this->logged 	= $this->isSessionValid($session['expiration_time']) && !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'];
 		
 		return $this->logged;
 	}
@@ -568,13 +583,9 @@ class Application
 		
 		switch ($type)
 		{
-			//case 'libs': 		class_exists($name) || require(_PATH_LIBS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
 			case 'libs': 		class_exists($name) || include_once(_PATH_LIBS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-			//case 'controllers': class_exists($name) || require(_PATH_CONTROLLERS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
 			case 'controllers': class_exists($name) || include_once(_PATH_CONTROLLERS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-			//case 'models': 		class_exists($name) || require(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
 			case 'models': 		class_exists($name) || include_once(_PATH_MODELS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
-			//case 'views': 		class_exists($name) || require(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : $name ) . '.class.php');
 			case 'views': 		class_exists($name) || include_once(_PATH_VIEWS . ( !empty($shortPath) ? $shortPath : '' ) . $name . '.class.php');
 		}
 		
