@@ -89,8 +89,9 @@
 						<label class="span" for="filterValue">Filter</label>
 					</div>
 					<div class="fieldBlock">
-						<input type="hidden" name="selection[{$filtersResName}][filters][0][operator]" value="is" />
-						<input name="selection[{$filtersResName}][filters][0][values]" type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggestFilterValue"{/if} class="normal search" id="filterValue" placeholder="{join(', ',(array)$placeholderAll)}" />
+						<input type="hidden" id="filterOperator" name="selection[{$filtersResName}][filters][0][operator]" value="is" />
+						{*<input name="selection[{$filtersResName}][filters][0][values]" type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggestFilterValue"{/if} class="normal search" id="filterValue" placeholder="{join(', ',(array)$placeholderAll)}" />*}
+						<input name="selection[{$filtersResName}][filters][0][values]" type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggestFilterValue"{/if} class="normal search" id="filterValue" placeholder="" />
 						<div class="suggestFilterValue" id="suggestFilterValue">
 							<datalist class="suggest hidden" ></datalist>
 							{foreach $filters as $colName => $fProps}

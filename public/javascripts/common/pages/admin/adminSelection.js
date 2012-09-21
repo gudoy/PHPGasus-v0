@@ -173,7 +173,7 @@ var adminSelection =
 				url 			= adminSelection.$form.data('ajaxaction'),
 				insertedValues 	= 0;
 				
-//console.log('sameCondExists: ' + sameCondExists);
+console.log('sameCondExists: ' + sameCondExists);
 //console.log('url: ' + url);
 //console.log('isMulti: ' + isMulti);
 //console.log('exists selector: ' + '[data-resource="' + o.data.resource + '"][data-column="' + o.data.column + '"][data-operator="' + o.data.operator + '"]');
@@ -241,11 +241,13 @@ var adminSelection =
 					//url: url.replace(/\/$/, '') + '.json',
 					url: url.replace(/\/$/, ''),
 					type: 'post',
-					dataType: 'html',
+					//dataType: 'html',
+					dataType:'json',
 					data: adminSelection.$form.serialize(),
 					success: function(r)
 					{
-						self.onChange();
+						//self.onChange();
+//$('#mainContent').empty().append(r);
 					}
 				})
 			//}
@@ -274,8 +276,8 @@ var adminSelection =
 				var val 	= values[i], // Current value
 					exists 	= ($filter.attr('data-values') || '').indexOf(val) !== -1 || $filter.data('values') == val;
 					
-//console.log('try adding val:' + val);
-//console.log('exists:' + exists);
+console.log('try adding val:' + val);
+console.log('value exists:' + exists);
 //console.log('curCount:' + curCount);
 //console.log('.filterValues :' + $filter.find('.filterValues').length);
 //console.log($filter.find('.filterValues'));
@@ -361,7 +363,8 @@ var adminSelection =
 				
 				ids.push(index)
 				
-				$this.remove();
+				//$this.remove();
+				$this.find('> .actions .remove').addClass('loading');
 			})
 			
 //console.log('ids')
@@ -379,12 +382,21 @@ var adminSelection =
 				//data: adminSelection.$form.serialize(),
 				success: function(r)
 				{
+					// Do not continue any longer if the response success property is not true 
+					if ( r.success === undefined || !r.success ){ $filters.find('> .actions .remove').removeClass('loading'); return; }
+					
+					// Remove the filters
+					$filters.remove();
+					
+					// Since items list has been updated, we have to update the reference
+					self.$li = self.$ul.children();
+					
 					self.onChange();
 				}
 			})
 			
 			// Since items list has been updated, we have to update the reference
-			self.$li = self.$ul.children();
+			//self.$li = self.$ul.children();
 			
 			return this;	
 		},
@@ -429,18 +441,27 @@ var adminSelection =
 	form: function()
 	{
 		var self 			= this
-			//$form 			= $('#adminSelectionFilterForm'),
 			$fCol 			= $('#filterColumnLine'),
 			$fColSel 		= $fCol.find('select'),
 			$fColOpts 		= $fColSel.find('option'),
 			fColOptsNb 		= $fColOpts.length,
 			$fValue 		= $('#filterValueLine'),
-			//$fValueInput 	= $fValue.find('input').data('oldplaceholder', function(){ return $(this).attr('placeholder') || ''; }),
-			$fValueInput 	= $('#filterValue').data('oldplaceholder', function(){ return $(this).attr('placeholder') || ''; }),
+			$fValueInput 	= $('#filterValue').attr('data-oldplaceholder', function(){ return $(this).attr('placeholder') || ''; }),
 			rName 			= $fColSel.data('resource'),
 			$fValSuggest 	= $('#suggestFilterValue'),
 			suggestReq 		= {}, // We will store launched request
-			//curSuggestReq 	= [];
+			selectSuggestItem = function($item)
+			{
+				// Get the proper value
+				var $colValItem = $item.find('[data-column="' + $fColSel.val() + '"]:first'),
+					value 		= $colValItem.data('value') || $colValItem.text();
+	
+				// Update selected
+				$item.removeClass('focused').addClass('active').siblings().removeClass('focused active');
+				
+				// Update the filter input value with the selected one
+				$fValueInput.val(value);
+			}
 		
 		// Handle filter column selection
 		$fCol
@@ -558,8 +579,8 @@ var adminSelection =
 			})
 			
 			
+		// Handle filter values input
 		$fValueInput
-			//.on('blur', function(e){ $fValue.removeClass('active'); })
 			.on('focus', function(e)
 			{
 				var visibleH 		= null,
@@ -578,6 +599,7 @@ var adminSelection =
 					useDatalist 	= Modernizr.input.list && $dataList.length && $dataList.find('option').length,
 					setReferences 	= function()
 					{
+						// Do not continue if there no suggests
 						if ( $articles !== null && $articles.length ){ return };
 						
 						visibleH 		= $fValSuggest.innerHeight(); 						// Get suggest box displayed height
@@ -585,17 +607,12 @@ var adminSelection =
 						$articles 		= $fValSuggest.find('article'); 					// Store a reference to suggest items
 						$focused 		= $articles.filter('.focused:first'); 				// Get the current focused item (default it to the 1st one)	
 					};
-					
-//console.log('minForSuggest:' + minForSuggest);
-//console.log('useDatalist:' + useDatalist);
 
-				
-				//$('body')
-				$fValueInput
-					.off('keyup keydown')
+				$(document)
+					.off('keydown')
 					.on('keydown', function(e)
 					{
-//console.log('input keydown:' + e.keyCode);
+console.log('input keydown:' + e.keyCode);
 						var val 			= $fValueInput.val() || '';
 						
 						if ( useDatalist ){ return this; }
@@ -606,6 +623,10 @@ var adminSelection =
 
 						switch(e.keyCode)
 						{
+							// Validate (ENTER)
+							case 13: 
+								e.preventDefault();
+								//e.stopPropagation();
 							// Cancel (ESC)
 							case 27:
 								$fValue.removeClass('active'); 
@@ -624,9 +645,7 @@ var adminSelection =
 							
 							// (LEFT & RIGHT ARROWS)
 							case 37:
-							case 39:
-								//if 	( e.ctrlKey || e.altKey || e.shiftKey )	{ } //
-								//else 										{ e.preventDefault(); } 
+							case 39: 
 								break;
 								
 							// Move to Top (PAGE UP ARROW)
@@ -640,32 +659,26 @@ var adminSelection =
 							case 35:
 								$focused.removeClass('focused');
 								$focused = $articles.filter(':last').addClass('focused');
-								//$fValSuggest.scrollTop($focused.offsetTop + $focused.length - visibleH);
 								$fValSuggest.scrollTop(scrollH - visibleH);
 								break;	
 							
 							// Move Down (DOWN ARROW)
 							case 40:
-//console.log('should go next item')
-								// Make the suggest block visible (if not already)
-								//$fValue.addClass('active');
 								if ( !$fValue.hasClass('active') ){ $fValue.addClass('active'); break; }
 
 								// Get current active item
-								var //$focused 		= $articles.filter('.focused:first'),
-									$nextFocused 	= $focused.length & $focused.next().length ? $focused.next() : $articles.filter(':first');
+								var $newFocused 	= $focused.length & $focused.next().length ? $focused.next() : $articles.filter(':first');
 									
 								// Do not continue if there's no articles or no next item
-								if ( !$articles.length || !$nextFocused.length ){ return; }
+								if ( !$articles.length || !$newFocused.length ){ return; }
 								
 								// Update "focused" item
-								$focused.removeClass('focused');
-								$nextFocused.addClass('focused');
-								$focused = $nextFocused;
+								selectSuggestItem($newFocused);
+								$focused = $newFocused;
 								
 								// Handle Scrolling
-								var newFocusedY 	= $nextFocused[0].offsetTop || 0,
-									newFocusedH 	= $nextFocused.outerHeight() || 0;
+								var newFocusedY 	= $newFocused[0].offsetTop || 0,
+									newFocusedH 	= $newFocused.outerHeight() || 0;
 		
 								if ( (newFocusedY + newFocusedH) > visibleH )
 								{
@@ -673,23 +686,26 @@ var adminSelection =
 
 									$fValSuggest.scrollTop(offset);
 								}
+								
+								e.preventDefault();
+								
 								break;
 							
 							// Move UP (UP ARROW)
 							case 38:
 								// Get current active item
-								var $prevFocused 	= $focused.length & $focused.prev().length ? $focused.prev() : $articles.filter(':last');
+								var $newFocused 	= $focused.length & $focused.prev().length ? $focused.prev() : $articles.filter(':last');
 								
 								// Do not continue if there's no articles or no prev item
-								if ( !$articles.length || !$prevFocused.length ){ return; }
+								if ( !$articles.length || !$newFocused.length ){ return; }
 								
-								$focused.removeClass('focused');
-								$prevFocused.addClass('focused');
-								$focused = $prevFocused;
+								// Update "focused" item
+								selectSuggestItem($newFocused);
+								$focused = $newFocused;
 								
 								// Handle Scrolling
-								var newFocusedY 	= $prevFocused[0].offsetTop || 0,
-									newFocusedH 	= $prevFocused.outerHeight() || 0;
+								var newFocusedY 	= $newFocused[0].offsetTop || 0,
+									newFocusedH 	= $newFocused.outerHeight() || 0;
 		
 								if ( (newFocusedY + newFocusedH) > visibleH )
 								{
@@ -697,6 +713,9 @@ var adminSelection =
 
 									$fValSuggest.scrollTop(offset);
 								}
+								
+								e.preventDefault();
+								
 								break;
 							default:
 //console.log('input keydown:' + e.keyCode);
@@ -713,10 +732,15 @@ var adminSelection =
 								// Make the suggest block visible (if not already)
 								$fValue.addClass('active');
 								
-								var url 	= '/admin/' + rName 
-												+ '?getFields=id,' + $fColSel.val() 
+								var col 	=
+									url 	= '/admin/' + rName 
+												+ '?mode=distinct'
+												+ '&field=' + colName
+												+ '&getFields=id,' + colName
 												+ '&displayMode=list' 
-												+ '&displayCols=' + $fColSel.val() 
+												+ '&displayCols=' + colName 
+												+ '&sortBy=' + colName
+												+ '&limit=-1'
 												+ '&conditions=' + colName + '|contains|' + newval,
 									urlenc 	= encodeURI(url),
 									key 	= rName + '|' + colName + '|' + 'contains' + '|' + $.trim(newval),
@@ -793,23 +817,24 @@ $fValSuggest.empty()
 								break;
 						}
 					})
+					.off('keyup')
 					.on('keyup', function(e)
 					{
-//console.log('input keyup:' + e.keyCode);
+console.log('input keyup:' + e.keyCode);
 						var val 			= $fValueInput.val() || '';
 						
 						if ( useDatalist ){ return this; }
 
 						switch(e.keyCode)
 						{
-							case 37:
-							case 38:
-							case 39:
-							case 40:
+							case 37: // LEFT ARROW
+							case 38: // UP ARROW
+							case 39: // RIGHT ARROW
+							case 40: // DOWN ARROW
 								e.preventDefault();
 								break;
-							case 13:
-								$articles.filter('.focused').removeClass('focused').addClass('active').siblings().filter('.active').removeClass('active');
+							case 13: // ENTER
+								self.$form.submit();
 								break;
 							default:
 								break;
@@ -818,23 +843,24 @@ $fValSuggest.empty()
 			})
 			
 		$fValSuggest
+			.on('focus', function()
+			{
+console.log('focus on suggests');
+			})
 			.on('click', 'article', function(e)
-			{				
-//console.log('suggest item clicked');
-				var $article 	= $(this).closest('article'),
-					$colValItem = $article.find('[data-column="' + $fColSel.val() + '"]:first'),
-					$value 		= $colValItem.data('value') || $colValItem.html();
-					
-//console.log('$value: ' + $value); 
-
-				$article
-					.removeClass('focused').addClass('active').siblings().filter('.active').removeClass('active');
+			{
+console.log('click on suggest');
 				
-				$fValueInput.val($value);
+				// Update $focused ref
+				$focused = $(this);
 				
-				$fValue.removeClass('active'); 
+				// Update selected
+				selectSuggestItem($focused);
 				
-				e.preventDefault();
+				// Hide suggests
+				$fValue.removeClass('active');
+				
+				//e.preventDefault();
 			})
 
 		
@@ -858,7 +884,8 @@ $fValSuggest.empty()
 					'resource': $('#filterColumn').data('resource'), 
 					'column': $('#filterColumn').val(),
 					'columnDisplayName': $('#filterColumn').find(':selected').text() || $('#filterColumn').val(), 
-					'operator': 'contains',
+					//'operator': 'contains',
+					'operator': $('#filterOperator').val(),
 					'values': ($('#filterValue').val() || '').split(',')
 				};
 				

@@ -465,6 +465,39 @@ class Application
 		
 		return;
 	}
+	
+	static public function pretty_query($query)
+	{
+		return preg_replace(array(
+				// 1) Remove Linebreaks
+				'/\n/s',
+				
+				// 2) Remove extra spaces
+				'/\s{2,}/',
+				
+				// 3) Add Linebreaks before CLAUSES
+				//'/(FROM\s|LEFT\sJOIN\s|RIGHT\sJOIN\s|INNER\sJOIN\s|WHERE\s|AND\s|GROUP\sBY\s|HAVING\s|ORDER\sBY\s|LIMIT\s)/i',
+				'/(FROM\s|LEFT\sJOIN|RIGHT\sJOIN|INNER\sJOIN|WHERE|AND|GROUP\sBY|HAVING|ORDER\sBY|LIMIT\s)/i',
+				
+				// 4) Add tabs before column names in a SELECT 
+				'/SELECT\s(.*)\sFROM/'
+				
+				// 5) TODO: add linebreaks in column names (evrery ~x chars)
+			),
+			array(
+				'', 						// 1)
+				" ", 						// 2)
+				"\n$1", 					// 3)
+				"SELECT \n\t$1 FROM" 		// 4)
+			), $query
+		);
+	}
+	
+	function dump_query($query)
+	{
+		// TODO: in context not HTML, do not add tags?????
+		echo "<br/><pre>" . self::pretty_query($query) . "</p><br/>";
+	}
     
     
     public function log($data = null, $options = null)

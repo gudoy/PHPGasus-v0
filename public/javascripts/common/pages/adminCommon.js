@@ -19,6 +19,20 @@ var admin =
 	    	.aside()
 	    	.menu()
 	    	.handleMultiLangFields();
+	    	
+	    /* Test (start) */
+	    $('#mainBreadcrumbs')
+	    	.find('.item:first')
+//.css('border','1px solid red')
+			.on('click', function(e)
+			{
+				e.preventDefault();
+
+				$('#header').toggleClass('active')
+				$('#searchQuery').blur();
+			})
+			
+		/* Test (end) */
 
 		return this;
 	},
@@ -1529,11 +1543,143 @@ var adminIndex =
 	handleFilters: function()
 	{
 	    var self   			= this,
-	        $tbody 			= null,
-	        $tr    			= null, 			// Store a jquery reference containing all the rows
+	        $tbody 			= null, 				// Store a jquery reference of the tbody
+	        $tr    			= null, 				// Store a jquery reference containing all the rows
 	        //$clone 			= null, 			// Clone it so that we can manipulate it in bg (prevent multiple repaint/reflows)
-	        conditions 		= {},
-	        timeout 		= null,
+	        conditions 		= {}, 					// Init conditions hash
+	        timeout 		= null, 				//
+	        $filtersNotif 	= null, 				// Init a jQuery reference to the notification that's going to be created
+			reqURL 			= location.href,
+	        
+	        getConditions = function()
+	        {
+Tools.log('getConditions');
+            	// Get current url conditions (if any)
+            		urlConditions 		= unescape(decodeURI(Tools.getURLParamValue(reqURL, 'conditions'))) || '';
+            		filterConditions 	= '';
+            		
+            	// Build new conditions
+            	for (colName in conditions){ filterConditions += colName + '|' + conditions[colName][0] + '|' + conditions[colName][1] + ';'; }
+	            		
+Tools.log('urlConditions: ' + urlConditions);
+Tools.log('filterConditions: ' + filterConditions);
+
+				return {'conditions':filterConditions};
+	        },
+	        
+	        // Update selection
+	        updateSelection = function()
+	        {
+Tools.log('updateSeletion');
+
+				// Update selection filters
+				$.ajax(
+				{
+					url: '/admin/selection/' + admin.resourceName,
+					type: 'put',
+					data: reqData,
+					dataType: 'json',
+					success: function(r)
+					{
+					}
+				});
+	       },
+	       
+	       handleNotif = function()
+	       {
+				var reqData = getConditions();
+				
+	            // Get the total count of items having matching the provided filters 
+	            var globalFilterCountReq = $.ajax(
+	            {
+	            	url: reqURL,
+	            	data:$.extend({}, reqData, {'mode':'count', 'limit':-1}),
+	            	type: 'get',
+	            	dataType: 'json',
+	            	//cache: false,
+	            	success: function(response)
+					{
+//Tools.log('global filter count success');
+					
+						var count 			= response[$(self.context).data('resource')] || 0,
+							urlQuery 		= $.param($.extend({}, reqData)) || '',
+							globalFilterUrl = reqURL + ( urlQuery ? '?' + urlQuery : '');
+							
+//Tools.log('global filter count: ' + count);
+
+						// Remove global filter notification if any
+						$('#globalFilterNotification').remove();
+							
+						if ( !count ){ return; }
+						
+						// Prepare notification buttons
+						var buttons = [
+							/*{type: 'view', text: 'view' + (count ? ' (' + count + ')' : ''), click: function() { location.href = globalFilterUrl; }},*/
+							{type: 'select', text: 'select' + (count ? ' (' +  count + ')' : ''), click: function()
+							{
+
+console.log('overall select clicked');			           
+alert('overall select clicked');
+
+								// TODO: add to selection?
+							}}
+						];
+						/*
+						$('.actions', 'nav').filter('.secondary').find('.action').each(function()
+						{
+							var $this = $(this);
+
+							buttons.push({
+								type: $this.attr('class').replace(/^.*action\s(\w*)(\s(.*)|$)/,'$1') || '',
+								text: $this.find('.value').text() + (count ? ' (' +  count + ')' : ''),
+								href: $this.attr('href') || '#',
+								click: function(e)
+								{
+									e.preventDefault(); $this.trigger('click');
+								} // Specificaly handle actions
+							})
+						});*/
+					
+Tools.log('buttons:');	
+Tools.log(buttons);
+						
+						// Prepare notification content
+						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.';
+						
+						// If the notification already exists, just update it
+						//if ( $filtersNotif && $filtersNotif.length )
+						if ( $('#globalFilterNotification').length )
+						{
+Tools.log('update notification');
+							
+							// Update text
+							$('#globalFilterNotification').find('.noty_text').text(txt);
+							
+							// Update buttons cout
+							$('#globalFilterNotification').find('.noty_buttons').find('.value').text(function(i,val){ return (val || '').replace(/\(.*\)/, count) })
+							
+							return;
+						}
+
+Tools.log('create notification');
+							
+						// Otherwise create it 
+						noty(
+						{
+							'id': 'globalFilterNotification',
+							'class': 'globalFilterNotification',
+							layout: 'topRight',
+							type: 'alert',
+							text: txt,
+							timeout: false,
+							buttons: buttons
+						});
+						
+						// Store a jQuery reference to the notification 
+						//$filtersNotif = $('#globalFilterNotification');
+					}
+	            });
+	       },
 	        
 	        // Called when a filter input change
 	        filterCallback  = function($input)
@@ -1619,104 +1765,10 @@ var adminIndex =
 //Tools.log('showedCnt: ' + showedCnt);
 //Tools.log('totalCnt: ' + totalCnt);
 //Tools.log('url: ' + location.href.replace(new RegExp("(\\?.*)?",''), ''));
-
 	            	
 	            if ( !showedCnt || !(showedCnt < totalCnt) ){ return } 
 	            
-            	// Get current url conditions (if any)
-            	var reqURL 				= location.href,
-            		urlConditions 		= unescape(decodeURI(Tools.getURLParamValue(reqURL, 'conditions'))) || '';
-            		filterConditions 	= '';
-            		
-            	// Build new conditions
-            	for (colName in conditions){ filterConditions += colName + '|' + conditions[colName][0] + '|' + conditions[colName][1]; }
-	            		
-//Tools.log('urlConditions: ' + urlConditions);
-//Tools.log('filterConditions: ' + filterConditions);
-
-				var reqData 		= {'conditions':filterConditions};
-            	   
-	            // Get the total count of items having matching the provided filters 
-	            var globalFilterCountReq = $.ajax(
-	            {
-	            	url: reqURL,
-	            	data:$.extend({}, reqData, {'mode':'count', 'limit':-1}),
-	            	type: 'get',
-	            	dataType: 'json',
-	            	//cache: false,
-	            	success: function(response)
-					{
-//Tools.log('global filter count success');
-					
-						var count 			= response[$(self.context).data('resource')] || 0,
-							urlQuery 		= $.param($.extend({}, reqData)) || '',
-							globalFilterUrl = reqURL + ( urlQuery ? '?' + urlQuery : '');
-							
-//Tools.log('global filter count: ' + count);
-
-						// Remove global filter notification if any
-						$('#globalFilterNotification').remove();
-							
-						if ( !count ){ return; }
-						
-						// Prepare notification buttons
-						var buttons = [
-							{type: 'view', text: 'view' + (count ? ' (' + count + ')' : ''), click: function() { location.href = globalFilterUrl; }},
-							{type: 'select', text: 'select' + (count ? ' (' +  count + ')' : ''), click: function()
-							{
-					            // Get the total count of items having matching the provided filters 
-					            $.ajax(
-					            {
-					            	url: reqURL,
-					            	data: $.extend({}, reqData, {'getFields':'id', 'limit':-1}),
-					            	type: 'get',
-					            	//dataType: 'html',
-					            	dataType: 'json',
-	            					//cache: false,
-					            	success: function(response)
-					            	{
-										var selectedIds = $('#resourceIds').val(),
-											ids 		= response[$(self.context).data('resource')] || []
-										$('#resourceIds').val((selectedIds ? selectedIds + ',' : '') + ids.join());
-					            	}
-					            });
-							}}
-						];
-						$('.actions', 'nav').filter('.secondary').find('.action').each(function()
-						{
-							var $this = $(this);
-//Tools.log('class: ' + $this.attr('class'));
-//Tools.log('class: ' + $this.attr('class').replace(/^.*action\s(.*)\s/,'$1'));
-							buttons.push({
-								type: $this.attr('class').replace(/^.*action\s(\w*)(\s(.*)|$)/,'$1') || '',
-								text: $this.find('.value').text() + (count ? ' (' +  count + ')' : ''),
-								href: $this.attr('href') || '#',
-								click: function(e)
-								{
-//Tools.log('click noty button:' + $this.attr('class'));
-//Tools.log(e);
-									e.preventDefault(); $this.trigger('click');
-								} // Specificaly handle actions
-							})
-						});
-//Tools.log(buttons);
-						
-						// Prepare notification content
-						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.';
-							
-						// Create notification 
-						noty(
-						{
-							'id': 'globalFilterNotification',
-							'class': 'globalFilterNotification',
-							layout: 'topRight',
-							type: 'alert',
-							text: txt,
-							timeout: false,
-							buttons: buttons
-						});
-					}
-	            });
+				handleNotif();
 	    	};
 	    
 	    // Handle filter mode activation links
@@ -1750,9 +1802,15 @@ var adminIndex =
 	    $(':input', 'thead').filter('.filter')
 			.on('keyup', function(e)
 			{
-	        	//e.preventDefault();
 				e.stopPropagation();
-	        	//setTimeout,(filterCallback($(this));
+	        	
+	        	// Ignore alt, ctrl, shift, arrows, page up/down, home/end, F*, and some others
+	        	if ( e.keyCode < 48 || ( e.keyCode >= 112 && e.keyCode <= 123 ) ){ return }
+	        	
+Tools.log('e.keyCode: ' + e.keyCode);
+	        	
+Tools.log('keyup on filter');
+	        	
 	        	var $input = $(this);
 	        	
 	        	clearTimeout(timeout);
@@ -1761,6 +1819,7 @@ var adminIndex =
 	    	.filter('select')
 			.on('change', function(e)
 			{
+Tools.log('change on select filter');
 				e.stopPropagation();
 	        	//filterCallback($(this));
 	        	clearTimeout(timeout);
@@ -2111,7 +2170,7 @@ var adminIndex =
 							
 							$.each(item.buttons || [], function(i,btn)
 							{
-								btnsHTML += '<a class="actionBtn" ' + ( btn.id ) + ' href="' + btn.href + '"><span class="value"></span></a>'
+								btnsHTML += '<a class="action actionBtn" ' + ( btn.id ) + ' href="' + btn.href + '"><span class="value"></span></a>'
 							});	
 							
 							$('#body').prepend($('<p />', {

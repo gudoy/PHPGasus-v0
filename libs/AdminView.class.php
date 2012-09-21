@@ -971,8 +971,20 @@ class AdminView extends View
 		// Search in filters if the tested filter exist and if yes, return it's index
 		function indexOfFilter($filters = array(), $test = array())
 		{
+//var_dump(__METHOD__);
+//var_dump($filters);
+//var_dump($test);
 			$index = -1;
-			foreach((array) $filters as $key => $filter){ if ($test[0] == $filter[0] && $test[1] == $filter[1]) { $index = $key; break; } }
+			foreach((array) $filters as $key => $filter)
+			{
+				$pattern = isset($filter['column']) ? 'aa' : 'ia';
+
+//var_dump($filter);				
+//var_dump($pattern);
+				
+				if 		($pattern === 'ia' && $test[0] == $filter[0] && $test[1] == $filter[1]) { $index = $key; break; }
+				else if ($pattern === 'aa' && $test[0] == $filter['column'] && $test[1] == $filter['operator']) { $index = $key; break; }
+			}
 			return (int) $index;
 		}
 		
@@ -1041,8 +1053,8 @@ class AdminView extends View
 			// selection[$resource][filters][0]=$cond (filter passed as a contition string)
 			// selection[$resource][filters][0][column]=$col&selection[$resource][filters][0][values]=$values (filter passed as an array, no operator passed => use default operator)
 			// selection[$resource][filters][0][column]=$col&selection[$resource][filters][0][operator]=$op&selection[$resource][filters][0][values]=$values  (filter passed as an array, no operator passed => use default operator)
-//var_dump('POST selection:');
 //var_dump($_POST['selection']);
+			
 			
 			$postConds = array();
 			//foreach(Tools::toArray($_POST['conditions']) as $item){ foreach ( (array) explode(';', rtrim(urldecode($item),';')) as $cond){ $postConds[] = $cond; } }
@@ -1090,6 +1102,7 @@ class AdminView extends View
 							
 							$res 	= isset($cond['resource']) ? $cond['resource'] : null;
 							$col 	= isset($cond['column']) ? $cond['column'] : $cond[0];
+							$resCol = ($res ? $res . '.' : '') . $col;
 							$op 	= isset($cond['operator']) ? $cond['operator'] : ( count($cond) > 2 ? $cond[1] : $o['defaultOperator']);
 							$vals 	= isset($cond['values']) ? $cond['values'] : ( count($cond) > 2 ? $cond[2] : $cond[1] );
 							
@@ -1098,10 +1111,12 @@ class AdminView extends View
 							if ( empty($col) ){ continue; }
 							
 							// Check if a condition for the same column with the same operator exists
-							$fi 	= indexOfFilter($rFilters, array($col,$op,$vals));
+							//$fi 	= indexOfFilter($rFilters, array($col,$op,$vals));
+							$fi 	= indexOfFilter($rFilters, array($resCol,$op,$vals));
 							
 //var_dump($rFilters);
 //var_dump('indexof cond: ' . $fi );
+//var_dump($vals);
 							
 							// If the exact same condition exists, do not add it
 							if 		( $fi !== -1 && $rFilters[$fi][2] === $vals ){ continue; }
@@ -1151,6 +1166,9 @@ class AdminView extends View
 				$rName 		= $rNames[0]; 
 				$indexes 	= Tools::toArray($args[2]);
 				foreach( $indexes as $i) { unset($_sel[$rName]['filters'][(int) $i]); }
+				
+				// Reset items count
+				$_sel[$rName]['itemsCount'] = null;
 			}
 			// If resources passed without filters, just clear their selection
 			else if ( isset($rNames) && count($rNames) === 1 )
@@ -1167,6 +1185,8 @@ class AdminView extends View
 				unset($_sel);
 			}
 			
+			$this->data['success'] = true;
+			
 			if ( $o['render'] ) { return $this->statusCode(200); }
 		}
 		
@@ -1181,6 +1201,9 @@ class AdminView extends View
 		// Loop over selection resources
 		foreach ( (array) $_sel as $rName => $rSel )
 		{
+			$_sel[$rName]['items'] 		= null;
+			$_sel[$rName]['itemsCount'] = 0;
+			
 			// Do not continue if the current resource has no filters
 			if ( empty($rSel['filters']) ){ continue; }
 			
@@ -1202,7 +1225,7 @@ class AdminView extends View
 					$_sel[$rName]['itemsCount'] = count($res);
 				}
 
-var_dump($cName::getInstance()->model->launchedQuery);
+//var_dump($cName::getInstance()->model->launchedQuery);
 			}				
 				
 
