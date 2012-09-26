@@ -14,11 +14,13 @@
 			</p>
 		</div>
 		{/if}
+		{block name='adminUpdateForm'}
 		{if $data[$resourceName]}
 		{include file='common/forms/admin/frmAdminResourceUpdate.tpl' viewMode='admin'}
 		{else}
 		<p class="nodata">{t}No resource selected{/t}</p>
 		{/if}
+		{/block}
 		
 	</div>
 	{/block}

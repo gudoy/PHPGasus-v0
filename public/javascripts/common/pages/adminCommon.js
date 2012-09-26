@@ -191,6 +191,8 @@ var admin =
 	                e.preventDefault();
 	                e.stopPropagation();
 	                
+$('#header').removeClass('active');
+	                
 	                var $this   = $(this),
 	                    url     = $this.attr('action') || window.location.href, 		// Search url
 	                    reqData = $this.serialize(); 									// Search request & params

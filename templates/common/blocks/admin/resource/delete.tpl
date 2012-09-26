@@ -17,11 +17,13 @@
 			</div>
 		</div>
 		{else}
+			{block name='adminDeleteForm'}
 			{if $data[$resourceName]}
 			{include file='common/forms/admin/frmAdminResourceDelete.tpl' viewMode='admin'}
 			{else}
 			<p class="nodata">{t}No resource selected{/t}</p>
 			{/if}
+			{/block}
 		{/if}
 		
 	</div>

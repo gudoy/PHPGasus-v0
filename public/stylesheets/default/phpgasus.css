@@ -1,5 +1,5 @@
 
-
+/*
 .divine1 { width:593px; float:left; }
 .divine2 { width:367px; float:left; }
 
@@ -7,14 +7,7 @@
 .row { clear:both; }
 span.row,
 a.row { display:block; }
-.line { width:100%; float:left; clear:both; }
-
-.fleft { float:left; }
-.fright { float:right; }
-
-.tcenter { text-align:center!important; }
-.tleft { text-align:left!important; }
-.tright { text-align:right!important; }
+.line { width:100%; float:left; clear:both; }*/
 
 
 .datalist { max-height:300px; overflow-y:auto; display:none; list-style:none; position:absolute; left:0; top:0; background:white; border:1px solid #ABADB3; box-shadow:0 2px 2px #999; }
@@ -45,13 +38,11 @@ form .fieldBlock { width:64%; float:left; text-align:left; }
 form .labelBlock .additional,
 form .labelBlock .infos { margin-right:10px; color:gray; }
 form .noLabelBlock .fieldBlock { margin-left:35%; }
-form .labelBlock label,
-form .labelBlock span.label { }
 form label,
-form span.label { margin-right:10px; display:block; /*font-weight:bold;*/ }
+form span.label { margin-right:10px; display:block; }
 form label small,
 form span.label small { display:block; font-weight:normal; text-transform:none; }
-form label.span { display:inline; font-weight:normal; }
+form label.span { /*display:inline;*/ display:inline-block; font-weight:normal; }
 form .line { margin-bottom:1em; }
 form .multi,
 form .fieldBlock input.multi,
@@ -62,8 +53,8 @@ form select.sized { margin-left:0; margin-right:5px; vertical-align:middle; }
 form .fieldBlock label.span { padding-top:6px; display:block; }
 form .fieldBlock label.span.multi { padding:0; vertical-align:middle; }
 form input { font-size:118%; }
-form input.normal { width:80%; /*height:24px;*/ height:27px; padding:3px 3px 0; /*float:left;*/ display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
-form input.sized { width:auto; /*height:24px;*/ height:27px; margin-left:0; padding:3px 3px 0; float:left; display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
+form input.normal { width:80%; height:27px; padding:3px 3px 0; display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
+form input.sized { width:auto; height:27px; margin-left:0; padding:3px 3px 0; float:left; display:inline-block; border:1px solid #ABADB3; vertical-align:middle; }
 form input.multi { border:none; }
 form input.sized.file { float:none; vertical-align:middle; }
 form input.sized.file + .currentItem { margin-left:0; }

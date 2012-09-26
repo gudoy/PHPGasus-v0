@@ -1,10 +1,13 @@
 var adminSelection =  
 {
-	$context: $('#transactionsFilters'),
+	//$context: $('#transactionsFilters'),
+	$context: $('#resourceFilters'),
 	$form: $('#adminSelectionFilterForm'),
 	
 	init: function()
-	{		
+	{
+//console.log('admin selection init')
+		
 		var self 		= this;
 			$actions 	= self.$context.find('a').filter('.action'),
 			$addFilter 	= $('#addSelectionFilter');
@@ -173,7 +176,7 @@ var adminSelection =
 				url 			= adminSelection.$form.data('ajaxaction'),
 				insertedValues 	= 0;
 				
-console.log('sameCondExists: ' + sameCondExists);
+//console.log('sameCondExists: ' + sameCondExists);
 //console.log('url: ' + url);
 //console.log('isMulti: ' + isMulti);
 //console.log('exists selector: ' + '[data-resource="' + o.data.resource + '"][data-column="' + o.data.column + '"][data-operator="' + o.data.operator + '"]');
@@ -246,7 +249,7 @@ console.log('sameCondExists: ' + sameCondExists);
 					data: adminSelection.$form.serialize(),
 					success: function(r)
 					{
-						//self.onChange();
+						self.onChange();
 //$('#mainContent').empty().append(r);
 					}
 				})
@@ -276,8 +279,8 @@ console.log('sameCondExists: ' + sameCondExists);
 				var val 	= values[i], // Current value
 					exists 	= ($filter.attr('data-values') || '').indexOf(val) !== -1 || $filter.data('values') == val;
 					
-console.log('try adding val:' + val);
-console.log('value exists:' + exists);
+//console.log('try adding val:' + val);
+//console.log('value exists:' + exists);
 //console.log('curCount:' + curCount);
 //console.log('.filterValues :' + $filter.find('.filterValues').length);
 //console.log($filter.find('.filterValues'));
@@ -565,9 +568,12 @@ console.log('value exists:' + exists);
 			.on('change', function(e)
 			{
 //console.log('value changed')
+				var $opt 		= $fColSel.find('option:selected'),
+					placeholder = $opt.data('placeholder') || $opt.text();
+
 				$fCol.removeClass('active'); 
 				$fValueInput
-					.attr('placeholder', $fColSel.find('option:selected').text())
+					.attr('placeholder', placeholder)
 					.val('')
 					
 				var suggestList 	= ($fColSel.val() || '') + 'ValuesSuggest',
@@ -599,12 +605,13 @@ console.log('value exists:' + exists);
 					useDatalist 	= Modernizr.input.list && $dataList.length && $dataList.find('option').length,
 					setReferences 	= function()
 					{
+						$articles 		= $fValSuggest.find('article'); 					// Store a reference to suggest items
+						
 						// Do not continue if there no suggests
 						if ( $articles !== null && $articles.length ){ return };
 						
 						visibleH 		= $fValSuggest.innerHeight(); 						// Get suggest box displayed height
 						scrollH 		= $fValSuggest.find('> :first').outerHeight(); 		// Get suggest box content height
-						$articles 		= $fValSuggest.find('article'); 					// Store a reference to suggest items
 						$focused 		= $articles.filter('.focused:first'); 				// Get the current focused item (default it to the 1st one)	
 					};
 
@@ -612,7 +619,7 @@ console.log('value exists:' + exists);
 					.off('keydown')
 					.on('keydown', function(e)
 					{
-console.log('input keydown:' + e.keyCode);
+//console.log('input keydown:' + e.keyCode);
 						var val 			= $fValueInput.val() || '';
 						
 						if ( useDatalist ){ return this; }
@@ -650,6 +657,9 @@ console.log('input keydown:' + e.keyCode);
 								
 							// Move to Top (PAGE UP ARROW)
 							case 36:
+
+								if (e.shiftKey || e.ctrlKey || e.altKey) { break; };
+								
 								$focused.removeClass('focused');
 								$focused = $articles.filter(':first').addClass('focused');
 								$fValSuggest.scrollTop(0);
@@ -664,13 +674,26 @@ console.log('input keydown:' + e.keyCode);
 							
 							// Move Down (DOWN ARROW)
 							case 40:
+							
 								if ( !$fValue.hasClass('active') ){ $fValue.addClass('active'); break; }
 
 								// Get current active item
-								var $newFocused 	= $focused.length & $focused.next().length ? $focused.next() : $articles.filter(':first');
+								var $newFocused 	= $focused && $focused.length & $focused.next().length ? $focused.next() : $articles.filter(':first');
+								//var $newFocused 	= $focused.next() || $articles.filter(':first');
+								//var $newFocused 	= $('article.focused').length ? $('article.focused') : $articles.filter(':first');
+								
+/*								
+console.log('ARTICLES LENGTH: ' + $articles.length);
+//console.log('FOCUSED LENGTH: ' + ($focused.length || 0));
+console.log('NEWFOCUSED LENGTH: ' + $newFocused.length);
+*/
+//console.log($articles.css('border','1px solid green'));
+//console.log($newFocused.css('border','1px solid red'));
 									
-								// Do not continue if there's no articles or no next item
-								if ( !$articles.length || !$newFocused.length ){ return; }
+								// Do not continue if there's no article or no next item
+								if ( !$articles.length || !$newFocused.length ){ break; }
+								
+//console.log($newFocused.css('border','1px solid yellow'));
 								
 								// Update "focused" item
 								selectSuggestItem($newFocused);
@@ -696,7 +719,7 @@ console.log('input keydown:' + e.keyCode);
 								// Get current active item
 								var $newFocused 	= $focused.length & $focused.prev().length ? $focused.prev() : $articles.filter(':last');
 								
-								// Do not continue if there's no articles or no prev item
+								// Do not continue if there's no article or no prev item
 								if ( !$articles.length || !$newFocused.length ){ return; }
 								
 								// Update "focused" item
@@ -719,100 +742,111 @@ console.log('input keydown:' + e.keyCode);
 								break;
 							default:
 //console.log('input keydown:' + e.keyCode);
-								
-								// Since the value has not yet been update at this point, we have build the future using the pressed keyCode
-								// TODO: handle caret position & selection length for deletion 
-								var newval = (e.keyCode === 8) // backspace 
-									? val.slice(0,-1)
-									: val + (String.fromCharCode(e.keyCode) || '');
-								
-								// Do not continue if the value is not at least 2 characters longs
-								if ( newval.length < minForSuggest ){ return; }
-								
-								// Make the suggest block visible (if not already)
-								$fValue.addClass('active');
-								
-								var col 	=
-									url 	= '/admin/' + rName 
-												+ '?mode=distinct'
-												+ '&field=' + colName
-												+ '&getFields=id,' + colName
-												+ '&displayMode=list' 
-												+ '&displayCols=' + colName 
-												+ '&sortBy=' + colName
-												+ '&limit=-1'
-												+ '&conditions=' + colName + '|contains|' + newval,
-									urlenc 	= encodeURI(url),
-									key 	= rName + '|' + colName + '|' + 'contains' + '|' + $.trim(newval),
-									success = function(key,r)
-									{
-										suggestReq[key].response = r;
+
+								// Use a timeout to allow input value to be updated with pressed key
+								setTimeout(function()
+								{
+									var newval 	= (e.keyCode === 8) ? val.slice(0,-1) : val + (String.fromCharCode(e.keyCode) || '').toLowerCase();
+										//newval 		= $fValueInput.val();
 										
-//console.log('request success')
+//console.log('newval: ' + newval)
+									
+									// Do not continue if the value is not at least {$minForSuggest} characters longs
+									if ( newval.length < minForSuggest ){ $fValue.removeClass('active'); return; }
+									
+									// Make the suggest block visible (if not already)
+									$fValue.addClass('active');
+									
+									var col 	=
+										url 	= '/admin/' + rName 
+													+ '?mode=distinct'
+													+ '&field=' + colName
+													+ '&getFields=id,' + colName
+													+ '&displayMode=list' 
+													+ '&displayCols=' + colName 
+													+ '&sortBy=' + colName
+													//+ '&limit=-1'
+													+ '&limit=100'
+													+ '&conditions=' + colName + '|contains|' + newval,
+										urlenc 	= encodeURI(url),
+										key 	= rName + '|' + colName + '|' + 'contains' + '|' + $.trim(newval),
+										success = function(key,r)
+										{
+											suggestReq[key].response = r;
+											
+//console.log('req success: newval=' + newval + ', reqval=' + suggestReq[key].value);
 //console.log('Current value: ' + newval);
 //console.log('request value: ' + suggestReq[key].value);
-										// Do not continue any longer if the current value of the input does not match with the one used for the request
-										// This means that the value has changed between the moment where the request has been launched
-										// and the one the response has been received
-										//if ( $fValueInput.val() !== suggestReq[key].value ){ return; }
-										if ( newval !== suggestReq[key].value ){ return; }
-										
+											// Do not continue any longer if the current value of the input does not match with the one used for the request
+											// This means that the value has changed between the moment where the request has been launched
+											// and the one the response has been received
+											//if ( $fValueInput.val() !== suggestReq[key].value ){ return; }
+											
+											$fValSuggest.empty()
+											
+											if ( newval !== suggestReq[key].value ){ return; }
+											
 //console.log('values are identical, should reinject response data');
 //console.log(r);
-$fValSuggest.empty()
-										
-										// Otherwise, update the suggests with response data
-										$fValSuggest.html($(r).html()).removeClass('loading').find('a').on('click', 'a', function(e){ e.preventDefault(); });
-										
-										//suggestReq[key].suggest = $fValSuggest.clone(true);
-										//suggestReq[key].suggest = $('#suggestFilterValue').clone(true);
-										
-										// Update jquery reference to suggest values
-										$fValSuggest = $('#suggestFilterValue')
-									};
+//console.log(r);
+//console.log(suggestReq[key].response)
+											
+											// Otherwise, update the suggests with response data
+											$fValSuggest
+												.html($(suggestReq[key].response).html())
+												.removeClass('loading').find('a').on('click', 'a', function(e){ e.preventDefault(); });
+											
+//console.log('ARTICLES LENGTH BEFORE UPDATE: ' + $articles.length)
+											
+											// Update jquery reference to suggest values
+											$fValSuggest = $('#suggestFilterValue')
+											
+//console.log('ARTICLES LENGTH AFTER UPDATE: ' + $articles.length)
+											
+											setReferences();
+											
+//console.log('ARTICLES LENGTH AFTER UPDATE + RESET REFS: ' + $articles.length)
+//console.log('ARTICLES LENGTH AFTER UPDATE + RESET REFS 2: ' + $('article').length)
+										};
 								
+//console.log('stored requests:');
+//console.log(suggestReq);	
 //console.log('url: ' + url);
 //console.log('key:' + key);
 //console.log('key length:' + key.length);
 //console.log(suggestReq[key]);
-								
-								// If the request for the current value has already by launched
-								if ( suggestReq[key] )
-								{
+									
+									// If the request for the current value has already been launched
+									if ( suggestReq[key] )
+									{
 //console.log('request already launched');
 //console.log(suggestReq[key]);
-									// Response received
-									if ( suggestReq[key].xhr.readyState && suggestReq[key].xhr.readyState === 4 )
-									{
+										// Response received
+										if ( suggestReq[key].xhr.readyState && suggestReq[key].xhr.readyState === 4 )
+										{
 //console.log('relaunch xhr success');
 //console.log('Current value: ' + newval);
 //console.log('request value: ' + suggestReq[key].value);
-										success(key, suggestReq[key].xhr.response);
+											success(key, suggestReq[key].response);
+										}
 										
-										//if ( newval !== suggestReq[key].value ){ return; }
-//console.log('suggest length:' + suggestReq[key].suggest.length)
-										
-										//$('#suggestFilterValue').empty().replaceWith(suggestReq[key].suggest.clone(true));
-										//$('#suggestFilterValue').html(suggestReq[key].response).removeClass('loading').find('a').on('click', 'a', function(e){ e.preventDefault(); });
+										//break;
+										return;
 									}
 									
-									break;
-								}
-								
 //console.log('launch new request');
-								
-								// Otherwise, launch it
-								suggestReq[key] = {value:newval, response:null, xhr:$.ajax(
-								{
-									url: url,
-									type: 'get',
-									dataType: 'html',
-									cache: true,
-									beforeSend: function(){ $fValSuggest.empty().addClass('loading') },
-									success: function(r){ success(key,r); }
-								})};
-								
-//console.log(suggestReq);
+									
+									// Otherwise, launch it
+									suggestReq[key] = {value:newval, response:null, xhr:$.ajax(
+									{
+										url: url,
+										type: 'get',
+										dataType: 'html',
+										cache: true,
+										beforeSend: function(){ $fValSuggest.empty().addClass('loading') },
+										success: function(r){ success(key,r); }
+									})};
+							}, 0);
 								
 								break;
 						}
@@ -820,7 +854,7 @@ $fValSuggest.empty()
 					.off('keyup')
 					.on('keyup', function(e)
 					{
-console.log('input keyup:' + e.keyCode);
+//console.log('input keyup:' + e.keyCode);
 						var val 			= $fValueInput.val() || '';
 						
 						if ( useDatalist ){ return this; }
@@ -845,11 +879,11 @@ console.log('input keyup:' + e.keyCode);
 		$fValSuggest
 			.on('focus', function()
 			{
-console.log('focus on suggests');
+//console.log('focus on suggests');
 			})
 			.on('click', 'article', function(e)
 			{
-console.log('click on suggest');
+//console.log('click on suggest');
 				
 				// Update $focused ref
 				$focused = $(this);
@@ -889,7 +923,7 @@ console.log('click on suggest');
 					'values': ($('#filterValue').val() || '').split(',')
 				};
 				
-console.log(data)
+//console.log(data)
 			
 			$fValue.removeClass('active');
 						

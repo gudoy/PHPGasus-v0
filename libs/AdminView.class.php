@@ -459,6 +459,13 @@ class AdminView extends View
         
         $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
+	
+/*	
+$this->options['conditions'] = array_merge(
+	(array) $this->options['conditions'], 
+	(isset($_SESSION['selection'][$this->resourceName]['filters']) ? $_SESSION['selection'][$this->resourceName]['filters'] : array())
+);*/
+		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
 			$this->resourceName 	=> $this->C->index($this->options),
@@ -956,12 +963,13 @@ class AdminView extends View
 		$passedOpts = !empty($args[1]) ? (array) $args[1] : array();
 		$o 			= array_merge(array( 										// Set options (default + user + forced)
 			'render' 			=> true,
-			'returning' 		=> 'nothing', 									// 'nothing' | 'selection' | 'countsOnly'
+			//'returning' 		=> 'nothing', 									// 'nothing' | 'selection' | 'countsOnly'
+			'returning' 		=> !empty($_GET['returning']) && in_array($_GET['returning'], array('nothing','selection','countsOnly')) 
+				? $_GET['returning'] 
+				: 'nothing', 													// 'nothing' | 'selection' | 'countsOnly'
 			'defaultOperator' 	=> 'is',											
 		), $passedOpts , array(
 		));
-
-//var_dump($rqM);
 
 		$_sel = &$_SESSION['selection'];
 		

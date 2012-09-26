@@ -640,6 +640,8 @@ class Model extends Application
                 {
                     //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
 					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)), $o);
+					$row = null;
+					unset($row);
                 }
             }
             else { $this->data = array(); }
@@ -658,6 +660,8 @@ class Model extends Application
                 {
                     //$this->data[] = $this->fixDataValue($row[$usedCol], array('colName' => $usedCol));
 					$this->addToDataArray($this->fixDataValue($row[$usedCol], array('colName' => $usedCol)), $o);
+					$row = null;
+					unset($row);
                 }
             }
             else { $this->data = array(); }
@@ -672,6 +676,9 @@ class Model extends Application
                 {
                     $tmp = array();
                     $this->addToDataArray($this->fixData($row), $tmp, $o);
+					$row = null;
+					$tmp = null;
+					unset($row, $tmp);
                 }
             }
             else { $this->data = array(); }

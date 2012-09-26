@@ -1,5 +1,7 @@
-{$title = $title|default:"{t}filters{/t}"}
-<div class="resourceFilters transactionsFilters" id="transactionsFilters">
+{$title 	= $title|default:"{t}filters{/t}"}
+{$class 	= $class|default:''}	
+{$selected 	= null}
+<div class="resourceFilters {$class}" id="resourceFilters">
 	<header>
 		<span class="title">{$title}</span>
 		<div class="selectionFilters" id="selectionFilters">
@@ -35,7 +37,7 @@
 				{$parts 	= ($hasDot)?explode('.',$filter[0]):null}
 				{$res 		= ($hasDot)?$parts[0]:$filtersResName}
 				{$col 		= ($hasDot)?$parts[1]:$filter[0]}
-				<li class="item selectionFilter {if $isMulti}multi{/if}" data-resource="{$res}" data-filterindex="{$fIndex}" data-column="{$col}" data-operator="{$filter[1]}" data-values="{join(',',(array)$filter[2])}">
+				<li class="item selectionFilter {if $isMulti}multi{/if}" data-resource="{$res}" data-filterindex="{$fIndex}" data-column="{$col}" data-operator="{$filter[1]}" data-values="{join(',',(array)$filter[2])}" {if !$isMulti|truncate:250:'...':true}title="{$filter[2]}"{/if}>
 					<span class="filterResource">{$data._resources[$res].displayName|default:$res}</span>
 					<span class="filterColumn">{$filters[$col].displayName|default:$col}</span>
 					<span class="filterOperator hidden">{$col}</span>
@@ -79,7 +81,8 @@
 						<input type="hidden" name="selection[{$filtersResName}][filters][0][resource]" value="{$filtersResName}" />
 						<select name="selection[{$filtersResName}][filters][0][column]" id="filterColumn" data-resource="{$filtersResName}">
 							{foreach $filters as $colName => $fProps}
-							<option value="{$colName}" data-preload="{$fProps.preload|default:"false"}" data-minforsuggest="{$fProps.minforsuggest|default:0}" {if $colName@first}selected="selected"{/if}>{$fProps.displayName}</option>
+							{if !$selected && $fProps@first}{$selected = $colName}{/if}
+							<option value="{$colName}" data-preload="{$fProps.preload|default:"false"}" data-minforsuggest="{$fProps.minforsuggest|default:0}" data-placeholder="{$fProps.placeholder}" {if $selected === $colName}selected="selected"{/if}>{$fProps.displayName}</option>
 							{$placeholderAll[] = $fProps.displayName}
 							{/foreach}
 						</select>
@@ -91,7 +94,7 @@
 					<div class="fieldBlock">
 						<input type="hidden" id="filterOperator" name="selection[{$filtersResName}][filters][0][operator]" value="is" />
 						{*<input name="selection[{$filtersResName}][filters][0][values]" type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggestFilterValue"{/if} class="normal search" id="filterValue" placeholder="{join(', ',(array)$placeholderAll)}" />*}
-						<input name="selection[{$filtersResName}][filters][0][values]" type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggestFilterValue"{/if} class="normal search" id="filterValue" placeholder="" />
+						<input name="selection[{$filtersResName}][filters][0][values]" type="{if $html5 && $browser.support.datalist}search{else}text{/if}" {if $html5 && $browser.support.datalist}list="suggestFilterValue"{/if} class="normal search" id="filterValue" placeholder="{$filters[$selected].placeholder}" />
 						<div class="suggestFilterValue" id="suggestFilterValue">
 							<datalist class="suggest hidden" ></datalist>
 							{foreach $filters as $colName => $fProps}

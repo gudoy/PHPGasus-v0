@@ -15,7 +15,9 @@
 		</div>
 		{/if}
 	
+		{block name='adminCreateForm'}
 		{include file='common/forms/admin/frmAdminResourceCreate.tpl' viewMode='admin'}
+		{/block}
 		
 	</div>
 	{/block}
