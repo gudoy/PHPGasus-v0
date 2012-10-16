@@ -1,6 +1,7 @@
-# v1
 CACHE MANIFEST
+# v1
 
+CACHE:
 #/public/stylesheets/default/reset.css
 #/public/stylesheets/default/text.css
 #/public/stylesheets/default/layout.css
