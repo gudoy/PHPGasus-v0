@@ -65,6 +65,8 @@
 		{include file='common/forms/admin/fieldLine/caseBool.tpl'}
 	{elseif $type === 'text'}
 		{include file='common/forms/admin/fieldLine/caseText.tpl'}
+	{elseif $type == 'json'}
+		{include file='common/forms/admin/fieldLine/caseJson.tpl'}		
 	{elseif $type == 'tel'}
 		{include file='common/forms/admin/fieldLine/caseTel.tpl'}
 	{elseif $type === 'timestamp'}

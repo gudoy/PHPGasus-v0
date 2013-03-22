@@ -1,6 +1,12 @@
 <?php
 
 $errorsAssoc = array(
+
+	'21' => array('back' => 'Resource columns not defined',
+					'front' => _('Columns for the queried resource are not defined.')),
+	'22' => array('back' => 'Resource(s) columns not defined',
+					'front' => _('Columns for one or more of the queried resource(s) are not defined.')),
+
 	// NO error should be defined with error code under 1000 
 	'1000' => array('back' => 'Missing required params',
 					'front' => _('Missing required parameter(s).')),
@@ -77,9 +83,9 @@ $errorsAssoc = array(
 
 	'10000' => array('back' => 'Missing required fields',					// Deprecated: use 1002 instead
 					'front' => _('Please fill all the required fields')), 	// Deprecated: use 1002 instead
-	'10001' => array('back' => 'Incorrect email',
-					'front' => _('This email is not correct')),
-	'10002' => array('back' => 'Unknown email',
+	'10001' => array('back' => 'Invalid email',
+					'front' => _('This email address is not valid')),
+	'10002' => array('back' => 'Unknown email adress',
 					'front' => _('Invalid email and/or password')),
 	'10003' => array('back' => 'Password not correct',
 					'front' => _('Invalid email and/or password')),
@@ -91,8 +97,6 @@ $errorsAssoc = array(
 					'front' => _('Login not correct. Only letters or numerics (3 to 32 characters) are allowed.')),
 	'10007' => array('back' => 'Incorrect password format',
 					'front' => _('Password not correct. Only letters and numbers are allowed.')),
-	'10008' => array('back' => 'Incorrect email format',
-					'front' => _('Email address not valid.')),
 	'10009' => array('back' => 'Incorrect captcha format',
 					'front' => _('Anti-spam filter not correct. Only numerics are allowed.')),
 	'10010' => array('back' => 'Incorrect captcha value',
@@ -176,7 +180,9 @@ $errorsAssoc = array(
 					
 					
 	'15010' => array('back' => 'Controller folder unwritable.',
-					'front' => _('The file %s could not be created. The parent folder is not writable.')),
+					'front' => _('The file could not be created. The parent folder %s is not writable.')),
+	'15011' => array('back' => 'Controller file unwritable.',
+					'front' => _('The file %s is not writable.')),
 					
 	### APP SPECIFICS ###
 	// Required params

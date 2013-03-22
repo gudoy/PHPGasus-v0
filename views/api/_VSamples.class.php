@@ -18,7 +18,8 @@ class VSamples extends ApiView
 		$o 			= &$this->options;															// Shortcurt/alias for options
 		$rName 		= $this->resourceName; 														// Shortcut for resource name
 		
-		$this->dispatchMethods($args, array('allowed' => 'index'));
+		$this->dispatchMethods($args, array('allowed' => array('index')));
+		//$this->dispatchMethods($args, array('allowed' => array('index,create,retrieve,update,delete')));
 		//$this->dispatchMethods($args, array('allowed' => 'index,create,retrieve,update,delete'));
 		
 		# Comment/remove the following block if you want to allow listing resources
@@ -171,7 +172,7 @@ class VSamples extends ApiView
 		// If no resource identifier has been found
 		if ( empty($rid) ) { $this->data['errors'][1001] = 'id or slug'; return $this->statusCode(400); }
 		
-		// Try to get the resource
+		// Delete the resource
 		$this->C->delete($opts);
 		
 		// Set output data		

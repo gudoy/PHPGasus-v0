@@ -11,10 +11,11 @@
     {$gpDisplayName     = $gpProps.displayName|default:$gpName}
     {$gpAuthResources   = array_intersect((array) $gpProps.resources, (array) $data.current.user.auths.__can_display)}
     {if $gpProps.resources && !empty($gpAuthResources)}
-    <li id="{$gpName}NavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
-        <a id="{$gpName}ResourcesGroupLink"><span class="value name">{$gpDisplayName}</span></a>
+    {$gpId = $gpName|replace:' ':''}
+    <li id="{$gpId}NavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
+        <a id="{$gpId}ResourcesGroupLink"><span class="value name">{$gpDisplayName}</span></a>
         {if $gpProps.resources}
-        <ul class="nav nav-lv2 resources resourcesGroupList" id="{$gpName}ResourcesList" data-groupdisplayname="{$gpName}" data-groupdisplayname="{$gpDisplayName}">
+        <ul class="nav nav-lv2 resources resourcesGroupList" id="{$gpId}ResourcesList" data-groupname="{$gpName}" data-groupdisplayname="{$gpDisplayName}">
         {foreach $gpProps.resources as $k => $v}
         {strip}
         

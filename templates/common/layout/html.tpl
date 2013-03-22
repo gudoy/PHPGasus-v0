@@ -18,10 +18,7 @@
 	{include file='common/config/ienomore.tpl'}
 	{include file='common/config/js/googleChromeFrameLoad.tpl'}
 	{include file='common/config/js/googleChromeFrameInit.tpl'}
-	{block name='notifications'}
-    {if !isset($view.errorsBlock) || (isset($view.errorsBlock) && $view.errorsBlock)}{include file='common/config/errors.tpl'}{/if}
-	{if !isset($view.warningsBlock) || (isset($view.warningsBlock) && $view.warningsBlock)}{include file='common/config/warnings.tpl'}{/if}
-	{/block}
+	{block name='notifications'}{include file='common/blocks/notifications.tpl'}{/block}
 	<div id="layout">{block name='layout'}{/block}</div>
 	{include file='common/config/js/js.tpl'}
 {/block}

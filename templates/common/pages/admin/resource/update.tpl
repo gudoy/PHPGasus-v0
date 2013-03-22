@@ -62,7 +62,7 @@
 
 {block name='mainFooterContent'}
 {$position 		= 'bottom'}
-{$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
+{$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 <nav class="actions toolbar adminToolbar adminUpdateToolbar {$position}" id="adminUpdateToolbar{$position|ucfirst}">
 {if $data.total[$rName] === 1}

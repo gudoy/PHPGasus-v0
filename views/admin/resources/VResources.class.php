@@ -16,6 +16,21 @@ class VResources extends AdminView
 		return $this;
 	}
 	
+	public function create()
+	{
+		$args = func_get_args();
+		
+		// Set template data
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			//'name'           => 'adminResources' . ucfirst(__FUNCTION__),
+			'name'           => 'adminResources',
+			//'js'             => 'adminResources' . ucfirst(__FUNCTION__),
+			'js'             => 'adminResources',
+		));
+		
+		call_user_func(array('parent', 'create'), $args);
+	}
+	
 	public function retrieve()
 	{
 		$args = func_get_args();
@@ -26,7 +41,7 @@ class VResources extends AdminView
 			$DataModel->parseResources();
 			
 			//header('Content-Type: plain/text');
-			exit($DataModel->generateResources());
+			exit($DataModel->generateResources(array('inline' => true)));
 		}
 		elseif ( !empty($args[0]) && $args[0] === 'file' )
 		{
@@ -34,11 +49,36 @@ class VResources extends AdminView
 			$DataModel->parseResources();
 			return $DataModel->buildResources();
 		}
+		elseif ( !empty($args[1]) && $args[1] === 'code' )
+		{
+			$rNames = !empty($args[0]) ? Tools::toArray($args[0]) : array();
+			
+			$DataModel = new DataModel();
+			$DataModel->parseResources(array('filters' => $rNames));
+			
+			//header('Content-Type: plain/text');
+			//exit($DataModel->generateResources(array('inline' => true, 'filters' => $rNames)));
+			exit($DataModel->generateResources(array('inline' => true)));
+		}
 		
 		call_user_func(array('parent', 'retrieve'), $args);
 		//parent::retrieve($args);
 	}
 	
+	public function update()
+	{
+		$args = func_get_args();
+		
+		// Set template data
+		$this->data['view'] = array_merge((array) @$this->data['view'], array(
+			//'name'           => 'adminResources' . ucfirst(__FUNCTION__),
+			'name'           => 'adminResources',
+			//'js'             => 'adminResources' . ucfirst(__FUNCTION__),
+			'js'             => 'adminResources',
+		));
+		
+		call_user_func(array('parent', 'update'), $args);		
+	}
 	
 	public function createResourceExtra()
 	{
@@ -65,12 +105,15 @@ class VResources extends AdminView
 		
 		$this->controller->model->createTable(array('name' => $name));
 		
+//$this->C->delete(array('conditions' => array('name' => 'usersactivities')));
+		
 		return;
 	}
 	
     public function createResourceFiles()
     {		
 		$r = &$this->tmp['resource'];
+
         
 		// Create a zip archive and open it
 		$zipFile 	= tempnam('tmp', 'zip');
@@ -92,9 +135,7 @@ class VResources extends AdminView
 			{
 				$adminViewCtnt = file_get_contents(_PATH_VIEWS . 'admin/_VSamples' . $fExt);
 				$adminViewCtnt = preg_replace(
-								//array('/VSamples/', '/singular/'),
 								array('/VSamples/', '/sample/'),
-								//array($fName, $r['singular']), $adminViewCtnt);
 								array($fName, $r['singular']), $adminViewCtnt);
 								
 				$zip->addEmptyDir('views/admin/');
@@ -108,26 +149,29 @@ class VResources extends AdminView
 			
 			$fCtnt      	= file_get_contents($fFolderPath . '_' . $firstChar . 'Samples' . $fExt); 				// 
 			$fCtnt      	= preg_replace(
-								//array('/' . $firstChar . 'Samples/', '/singular/'),
 								array('/' . $firstChar . 'Samples/', '/sample/'),
 								array($fName, $r['singular']), $fCtnt); 												// file content
 			
 			// If the current file folder is writable, create the file 
-			if ( is_writable($fFolderPath) )
+			if ( !is_writable($fFolderPath) )
 			{
-		        $created    = file_put_contents($fPath, $fCtnt);	
+				$this->data['warnings'][15010] = $fFolderPath;
+			}
+			else if ( !is_writable($fPath) )
+			{
+		        $this->data['warnings'][15011] = $fPath;	
 			}
 			// Otherwise throw a warning
 			else
 			{
-				$this->data['warnings'][15010] = $cFilePath;
+				$created    = file_put_contents($fPath, $fCtnt);
 			}
 			
 			// Create the proper folder into the archive
-			$zip->addEmptyDir($item . 's/');
+			$dirAdded = $zip->addEmptyDir($item . 's/');
 			
 			// Create the proper file into the archive
-			$zip->addFromString($item . 's/' . $fFullname, $fCtnt);
+			$fileAdded = $zip->addFromString($item . 's/' . $fFullname, $fCtnt);
 			
 			$filesNb++;
 		}
@@ -139,10 +183,13 @@ class VResources extends AdminView
 		
 		// Stream the file to the client
 		header('Content-Type: application/zip');
+		//header('Content-Type: application/octet-stream');
 		header('Content-Length: ' . filesize($zipFile));
 		header('Content-Disposition: attachment; filename="[' . _APP_NAME . ']_' . $r['name'] . '.zip"');
+		ob_clean();
 		readfile($zipFile);
 		unlink($zipFile);
+		exit();
 		
 		return;
     }

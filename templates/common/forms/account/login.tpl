@@ -1,12 +1,12 @@
-{if $smarty.const._APP_MAX_LOGIN_ATTEMPTS >= 1 && $data.errors[0].id == 10030}
-{else}
 <form action="{$data.current.url}" id="frmLogin" class="commonForm loginForm" method="post" enctype="multipart/form-data">
 	{block name='loginFieldset'}
 	<fieldset>
 		<legend><span class="value">{$legend|default:"{t}login information{/t}"}</span></legend>
+		{block name='notifications'}{include file='common/blocks/notifications.tpl'}{/block}
+		{if $smarty.const._APP_MAX_LOGIN_ATTEMPTS >= 1 && $data.errors[0].id == 10030}
+		{else}
 		{$resourceSingular = 'user'}
 		{include file='common/formFields/user/email.tpl' name='email' label="{t}email{/t}" placeholder="{t}email{/t}" autofocus=true required=true}
-		
 		<div class="line" id="userPasswordLine">
 			<div class="labelBlock">
 				<label for="userPassword">{t}password{/t}<span class="required">*</span></label>
@@ -30,8 +30,7 @@
 				{/if}
 			</div>
 		</div>
-
+		{/if}
 	</fieldset>
 	{/block}
 </form>
-{/if}

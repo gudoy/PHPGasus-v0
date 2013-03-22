@@ -9,7 +9,7 @@
 #5c6062 grey (icons active)
 #8f8f8f grey (icons inactive)
 */
-* { -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box;  -webkit-transition:all .25s ease; -moz-transition:all .25s ease; -o-transition:all .25s ease; -ms-transition:all .25s ease; transition:all .25s ease; }
+* { -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box;  -webkit-transition:all .25s ease; transition:all .25s ease; }
 
 html,
 body { margin:0; padding:0; }
@@ -216,7 +216,7 @@ nav.main .resource.current,
 	background:   -moz-linear-gradient(0deg, #EDF3FE, #EDF3FE 36%, #AAA 36%, #AAA 36.4%, white 36.4%, white);
 	background:    -ms-linear-gradient(0deg, #EDF3FE, #EDF3FE 36%, #AAA 36%, #AAA 36.4%, white 36.4%, white);
 	background:     -o-linear-gradient(0deg, #EDF3FE, #EDF3FE 36%, #AAA 36%, #AAA 36.4%, white 36.4%, white);
-	background:        linear-gradient(0deg, #EDF3FE, #EDF3FE 36%, #AAA 36%, #AAA 36.4%, white 36.4%, white);
+	background:        linear-gradient(90deg, #EDF3FE, #EDF3FE 36%, #AAA 36%, #AAA 36.4%, white 36.4%, white);
 }
 .cssgradients .resourceDetailBlock dd { background:none; border:none; }
 
@@ -1433,7 +1433,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	.adminUpdateBlock form { margin:15px; border:1px solid #999; }
 	#accountConfirmation { border:1px solid #999; }
 	section#accountConfirmation header { min-height:1px; padding-left:10px; padding-right:10px; }
-	#accountConfirmation .content p { padding:0 10px 20px; }
+	#accountConfirmation .content p { padding:0 10px 0; }
 	#accountConfirmation .actions { padding:0 10px 20px; }
 	#lostPasswordForm p { padding:15px; }
 	
@@ -1475,8 +1475,8 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	/*.admin .breadcrumb.item a,*/
 	.admin .breadcrumb.item:before,
 	.admin .breadcrumb.item:after { width:19px; height:50px; display:inline-block; content:''; letter-spacing:normal; vertical-align:top; -webkit-mask-size:100% 100%; }
-	.admin .breadcrumb.item:before { -webkit-mask:url(images/test.svg) no-repeat; mask:url(images/moztest.svg#mask); }
-	.admin .breadcrumb.item:after { -webkit-mask:url(images/test2.svg) no-repeat; mask:url(images/moztest2.svg#mask); }
+	.admin .breadcrumb.item:before { -webkit-mask:url(images/arrow_before.svg) no-repeat; mask:url(images/arrow_before.svg#mask); }
+	.admin .breadcrumb.item:after { -webkit-mask:url(images/arrow_after.svg) no-repeat; mask:url(images/arrow_after.svg#mask); }
 	.admin .breadcrumb.item:first-child { margin-left:0; }
 	.admin .breadcrumb.item:first-child:before { display:none; }
 	.admin .breadcrumb.item a { display:inline-block; color:#fff; text-decoration:none; }
@@ -1545,14 +1545,11 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	.listMode .resource .data .col { width:25%; }
 }
 
-@media screen and (-webkit-min-device-pixel-ratio: 2) and (min-width:768px)
-{	
-}
-
 /* Experimental: off canvas pattern */
 html,
 body { width:100%; overflow-x:hidden; }
 #layout { width:100%; display:table; overflow-x:hidden; }
+#errorsBlock + #layout { position:relative; }
 #header { width:280px; min-width:280px; max-width:280px; display:none; vertical-align:top; }
 .no-flexboxlegacy #header {  }
 #header.active { display:table-cell;  }
@@ -1615,10 +1612,25 @@ body { width:100%; overflow-x:hidden; }
 	#layout { overflow:hidden; }
 	#header { display:table-cell; }
 	
+	#header { display:none; }
+	.api #layout,
+	.api #header,
+	.admin #layout,
+	.admin #header { display:block; display:-moz-box; display:-webkit-box; display:-o-box; display:-ms-box; }
+	
 	#mainHeader .breadcrumbs .item { display:inline-block; }
 	#mainHeader .breadcrumbs .item:first-child { margin:0; border:none; background:none; }
 	#mainHeader .breadcrumbs .item:first-child a:before { display:none; }
 	#mainHeader .breadcrumbs .item:first-child .value { font:inherit; color:inherit; font-weight:bold; }
+	
+	body > #errorsBlock { width:100%; position:fixed; top:10px; z-index:10000; text-align:center; }
+	body > #errorsBlock > .errorsList { max-width:980px; margin:0 auto; }
+}
+
+/* 1024 x 768 */
+@media screen and (min-width:980px) 
+{
+
 }
 
 @media (device-height:568px) and (-webkit-min-device-pixel-ratio: 2) {

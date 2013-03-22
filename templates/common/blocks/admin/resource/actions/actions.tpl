@@ -1,6 +1,6 @@
 {strip}
 
-{$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
+{$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 
 {if $userResPerms.allow_create && $data.view.method !== 'create'}

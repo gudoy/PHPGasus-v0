@@ -1,0 +1,2 @@
+{if !isset($view.errorsBlock) || (isset($view.errorsBlock) && $view.errorsBlock)}{include file='common/config/errors.tpl'}{/if}
+{if !isset($view.warningsBlock) || (isset($view.warningsBlock) && $view.warningsBlock)}{include file='common/config/warnings.tpl'}{/if}

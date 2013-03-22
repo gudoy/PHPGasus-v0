@@ -19,30 +19,32 @@ class DataModel
 	static $resourceProperties 				= array(
 		# Meta
 		'type',
-		'name', 'singular', 'plural', 
-		'displayName', 'nameField',
-		'defaultNameField', 					// Deprecated: use nameField instead 
+		'name', 
+		'singular', 
+		'plural', 
+		'displayName',
 		
 		# Database
-		'database', 'engine', 
-		'table', 'alias',
+		'database', 
+		'table', 'alias', 
+		'engine',
 		
 		# Relations
 		'extends', 								// default = null
-		//'parent', 								// default = null
-		//'parents',  							// default = array()
-		//'siblings',  							// default = array()
-		//'children', 							// default = array()
-		//'related', 								// parent + siblings + children
-		// use relations instead of parent/siblings/children??????
-		// 'relations'  	=> array('oneToOne','oneToMany','manyToOne', 'manyToMany')
 		
 		# PHPGasus features related
-		'order', 'importance', 					// TODO: implement
-		'searchable', 'crudability', 'exposed',
+		'crudability', 
+		'searchable', 
+		'exposed', 
+		'nameField',
+		'descField',
+		'imageField', 
+		'icon',
+		'displayMode',
+		'comment',
 		
 		# Generated
-		'_plurals', 							// array ([$plural => $singular])
+		//'_plurals', 							// array ([$plural => $singular])
 		'_parent', 								// resource name (default = null)
 		'_parents', 							// array of resource names (default = empty)
 		'_siblings', 							// array of resource names (default = empty)
@@ -50,6 +52,10 @@ class DataModel
 		'_related', 							// array of resource names (default = empty)
 		'_exposedColumns', 						// array of column names (default = empty) 
 		'_searchableColumns', 					// array of column names (default = empty)
+		
+		# Deprecated
+		'defaultNameField', 					// use nameField instead
+		'related', 								// use _related instead
 	);
 	
 	static $realTypes = array(
@@ -77,7 +83,7 @@ class DataModel
 			'email', 'password', 'url', 'tel', 'color', 'meta', 'ip',
 			'slug', 
 			//'tag', 
-			'text', 'html', 'code',
+			'text', 'html', 'code', 'json',
 			
 			# Numbers
 			'int', 'integer', 'numeric', 'decimal',
@@ -126,6 +132,7 @@ class DataModel
 				'html' 			=> 'text',
 				'code' 			=> 'text',
 				'text' 			=> 'text',
+				'json' 			=> 'text', 			// custom filter: validate_json
 				
 				// enumerations
 				'enum' 			=> 'enum',
@@ -221,7 +228,8 @@ class DataModel
 		# PHPGasus meta
 		'type',
 		'exposed',
-		'importance',
+		'importance', 							// TODO: implement
+		'order', 								// TODO: implement
 	
 		# SQL related
 		'realtype',
@@ -382,6 +390,7 @@ class DataModel
 			'varname' 		=> '_resources', 						// Name of the variable containing resources 
 			'checkDatabase' => true, 								// Do we want to look for database resources
 			'mode' 			=> 'rewrite', 							// 'rewrite' (default) or 'update'
+			'filters' 		=> array(), 							// Only passed resources will be handled
 		), $params);
 		
 		// Init temp resources var 
@@ -400,6 +409,8 @@ class DataModel
 		// Get unregistered resources from database
 		// TODO
 		
+		$dbResources = array();
+		
 		// Get registered resources from database
 		if ( $p['checkDatabase'] )
 		{
@@ -411,15 +422,17 @@ class DataModel
 				default: 			$mName = _DB_SYSTEM . 'Model'; break;
 			}
 			
-			$Resources = new Model(array('_resource' => 'resources'));
+			$CResources = new CResources();
+			//$Resources = new Model(array('_resource' => 'resources'));
 			
+			$dbResources = $CResources->index(array('indexByUnique' => 'name'));
 			//$dbResources = CResources::getInstance()->find();
 			//$dbResources = MResources::getInstance()->find();
 			//$dbResources = MResources->find();
 			//$dbResources = Resources::getInstance()->find();
 			//$dbResources = $this->resources->find();
 			//$dbResources = $this->resources->find();
-			$dbResources = $Resources->find();
+			//$dbResources = $Resources->find();
 			
 			//$dbResources 	= array();	
 		}
@@ -435,46 +448,65 @@ class DataModel
 				'_aliases' 		=> array(),
 				'_searchable' 	=> array(),
 				'_exposed' 		=> array(),
+				//'_plurals' 		=> array(),
 			);	
 		}
 		
 		// Loop over the resources
 		foreach ( $tmpRes as $name => &$res )
 		{
+			// If a filter param has been passed, skip resources that are not in the filter
+			if ( !empty($p['filters']) && !in_array($name, $p['filters']) ){ continue; }
+			
 			$realName 	= Tools::slug(preg_replace('/[\+\s\_]/', '', $name));
 			$searchable = !empty($res['searchable']) ? $res['searchable'] : 0;
 			$exposed 	= !empty($res['exposed']) ? $res['exposed'] : 0;
 			$alias 		= !empty($res['alias']) ? $res['alias'] : self::getDbTableAlias($realName);
 			
 			self::$resources['items'][$realName] = array(
-				'name' 				=> $realName,
-				'displayName' 		=> !empty($res['displayName']) ? $res['displayName'] : $name,
+				// Metadata
 				'type' 				=> !empty($res['type']) ? $res['type'] : $this->guessResourceType($name),
+				'name' 				=> $realName,
 				'singular' 			=> !empty($res['singular']) ? $res['singular'] : Tools::singular($name),
 				'plural' 			=> !empty($res['plural']) ? $res['plural'] : $realName,
+				'displayName' 		=> !empty($res['displayName']) ? $res['displayName'] : $name,
+				
+				// Database
 				'database' 			=> !empty($res['database']) ? $res['database'] : 'default',
 				'table' 			=> !empty($res['table']) ? $res['table'] : self::getDbTableName($realName),
 				'alias' 			=> $alias,
-				'engine' 			=> !empty($res['engine']) ? strtolower($res['engine']) : 'innobd',
-				'displayName' 		=> !empty($res['displayName']) ? $res['displayName'] : $name,
-				'nameField' 		=> !empty($res['nameField']) ? $res['nameField'] : ( !empty($res['defaultNameField']) ? $res['defaultNameField'] : self::guessNameField($name) ),
+				'engine' 			=> !empty($res['engine']) ? strtolower($res['engine']) : 'innodb',
+				
+				// Relations
 				'extends' 			=> !empty($res['extends']) ? $res['extends'] : null,
+				
+				// PHPGasus features
+				'crudability' 		=> !empty($res['crudability']) ? $res['crudability'] : 'CRUD',
 				'searchable' 		=> $searchable,
 				'exposed' 			=> $exposed,
-				'crudability' 		=> !empty($res['crudability']) ? $res['crudability'] : 'CRUD',
+				'nameField' 		=> !empty($res['nameField']) ? $res['nameField'] : ( !empty($res['defaultNameField']) ? $res['defaultNameField'] : self::guessNameField($name) ),
+				'descField' 		=> !empty($res['descField']) ? $res['descField'] : self::guessDescField($name),
+				'imageField' 		=> !empty($res['imageField']) ? $res['imageField'] : self::guessImageField($name),
+				'icon' 				=> !empty($res['icon']) ? $res['icon'] : '',
+				'displayMode' 		=> !empty($res['displayMode']) ? $res['displayMode'] : 'table',
+				'comment' 			=> !empty($res['comment']) ? $res['comment'] : '',
 				
-				// Generated properties
-				'_exposedColumns' 		=> array(), // will be populated by parseColumns() 
-				'_searchableColumns' 	=> array(), // will be populated by parseColumns()
+				// Generated
 				'_parent' 				=> null, 	// will be populated by parseColumns()
 				'_parents' 				=> array(), // will be populated by parseColumns()
 				'_siblings' 			=> array(), // will be populated by parseColumns()
 				'_children' 			=> array(), // will be populated by parseColumns()
 				'_related' 				=> array(), // will be populated by parseColumns()
+				'_exposedColumns' 		=> array(), // will be populated by parseColumns() 
+				'_searchableColumns' 	=> array(), // will be populated by parseColumns()
 				
+				// Deprecated (to be removed)
+				'defaultNameField' 	=> !empty($res['defaultNameField']) ? $res['defaultNameField'] : self::guessNameField($name),
+				'related' 			=> !empty($res['related']) ? $res['related'] : null,
 			);
 			
-			self::$resources['_aliases'][$alias] = $realName;
+			self::$resources['_aliases'][$alias] 	= $realName;
+			//self::$resources['_plurals'][$realName] = self::$resources['items'][$realName]['plural'];
 			
 			// 
 			if ( $searchable )	{ self::$resources['_searchable'][] = $realName; }
@@ -885,6 +917,7 @@ $dbColumns = array();
 			'inline' 	=> false,
 			'lb' 		=> "\n",
 			'tab' 		=> "\t",
+			'filters' 	=> array(),
 		), $params);
 		
 		$code 			= '<?php' . $o['lb'] . $o['lb'] . '$_resources = array(' . $o['lb'];
@@ -908,6 +941,9 @@ $dbColumns = array();
 		// Loop over the resources
 		foreach ( $resNames as $rName )
 		{
+			// If a filter param has been passed, skip resources that are not in the filter
+			if ( !empty($o['filters']) && !in_array($rName, $o['filters']) ){ continue; }
+			
 			// Shortcut for resource props
 			$p 		= &self::$resources['items'][$rName];
 			
@@ -942,7 +978,7 @@ $dbColumns = array();
 				
 				$boolProps 	= array('searchable','exposed');
 				$nullProps 	= array('extends','database', '_parent');
-				$arrayProps = array('_parents','_siblings','_children','_related','_exposedColumns','_searchableColumns');
+				$arrayProps = array('possibleValues', '_parents','_siblings','_children','_related','_exposedColumns','_searchableColumns');
 				
 				// Boolean props
 				if ( in_array($propName, $boolProps) ) 		{ $code .= $p[$propName] ? 'true' : 'false'; }
@@ -951,9 +987,16 @@ $dbColumns = array();
 				//
 				elseif ( in_array($propName, $arrayProps) ) { $code .= "array('" . (join("', '", (array) $p[$propName]) ) . "')"; }
 				// Default: string props
-				else 										{ $code .= "'" . $p[$propName] . "'"; }
+				else 										
+				{
+					//$code .= "'" . $p[$propName] . "'";
+					$code .= is_array($p[$propName]) 
+						? "array('" . (join("', '", (array) $p[$propName]) ) . "')"
+						: "'" . $p[$propName] . "'";
+					
+				}
 				
-				$code .=  "," . ( $o['inline'] ? '' : $o['lb'] );
+				$code .=  ", " . ( $o['inline'] ? '' : $o['lb'] );
 			}
 			
 			$code .= ")," . $o['lb'];
@@ -1021,7 +1064,7 @@ $dbColumns = array();
 		// Get the longest resource name and use it to get position used to verticaly align the resource code (indentation)
 		$longRes 		= Tools::longestValue($resNames);
 		$resVertPos 	= strlen($longRes) + ( 4 - (strlen($longRes) % 4) );
-				
+		
 		// Loop over the resources columns
 		foreach ( $resNames as $rName )
 		{
@@ -1170,16 +1213,24 @@ die();
 		$sing = Tools::singular($name);
 		$plur = Tools::plural($name);
 		
-//var_dump('sing' . ' : ' . $sing);
-//var_dump('plur' . ' : ' . $plur);
-		
 		// Check if any of them is a resource
 		if 		( self::isResource($sing) ){ return $sing; }
 		elseif 	( self::isResource($plur) ){ return $plur; }
 		
-		// TODO
-		// Compare string with resource name and return if matching is XX%?
-		// using levenshtein()
+		// Compare string with resource names
+		// TODO: use levenshtein(), similar_text(), soundex(), metaphone() ???
+		$results = array();
+		foreach (array_keys($_resources) as $rName)
+		{
+			$percent 			= null;
+			similar_text($name, $rName, $percent);
+			$results[$rName] 	= $percent;
+		}
+		// Sort results by top percentage
+		arsort($results);
+		
+		// Return the first result if it exceed 80% of similarity
+		if ( !empty($results) && $results[key($results)] >= 80 ){ return key($results); } 
 		
 		// If not found at this point, return false
 		return false;
@@ -1281,6 +1332,16 @@ die();
 		
 		return $tableName;
 	}
+
+	static function getResourceFromDbColumn($column)
+	{
+		// TODO
+	}
+	
+	static function getResourceFromDbTable($table)
+	{
+		// TODO
+	}
 	
 	
 	static function getDbTableAlias($resource)
@@ -1359,15 +1420,34 @@ die();
 	
 	static function guessNameField($resource)
 	{
-		$nameField = null;
+		$field = null;
 		
 		// TODO
 		// Get the first unique index char field
 		// Get the first defined char field
 		
-		return $nameField;
+		return $field;
 	}
 	
+	static function guessDescField($resource)
+	{
+		$field = null;
+		
+		// TODO
+		// Get the first text field
+		// Get the first varchar field that is not the nameField
+		
+		return $field;
+	}
+	
+	static function guessImageField($resource)
+	{
+		$field = null;
+		
+		// TODO
+		
+		return $field;
+	}
 	
 	static function guessAlias($resource)
 	{

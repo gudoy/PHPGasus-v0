@@ -75,7 +75,7 @@
 			{foreach $resource as $colName => $colVal}
 			{$cProps 		= $rModel[$colName]}
 			{$cType 		= $cProps.type}
-			{if (!isset($skipColumns[$colName]) && ($cProps[$colName].list && $cProps.list > 0)) || isset($data.options.displayCols[$colName])}
+			{if (!isset($skipColumns[$colName]) && (isset($cProps[$colName].list) && $cProps[$colName].list > 0)) || isset($data.options.displayCols[$colName])}
 			{* TODO: if col does not exists in dataModel *}
 			{if !isset($rModel[$colName])}{$skipColumns[$colName] = $colName}{/if}
 			{if !isset($skipColumns[$colName])}

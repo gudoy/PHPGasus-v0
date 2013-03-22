@@ -8,9 +8,9 @@ define("_APP_VERSION", 								'0.1.0.0');
 define('_APP_TITLE', 								_APP_NAME); // App displayed name
 define('_APP_BASELINE', 							'');
 define('_APP_META_AUTHOR', 							false);
-define('_APP_AUTHOR_NAME', 							'Clicmobile');
-define('_APP_AUTHOR_MAIL', 							'contact@clicmobile.com');
-define('_APP_AUTHOR_URL', 							'http://www.clicmobile.com');
+define('_APP_AUTHOR_NAME', 							'Guyllaume Doyer');
+define('_APP_AUTHOR_MAIL', 							'doyer.guyllaume@gmail.com');
+define('_APP_AUTHOR_URL', 							'http://www.diginja.com');
 define('_APP_META_OWNER', 							true);
 define('_APP_OWNER_NAME', 							'');
 define('_APP_OWNER_MAIL', 							'');
@@ -95,7 +95,7 @@ define('_AWS_SECRET_KEY', 							'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 							'yourBucketName');
 
 ### FEATURES
-define('_ADMIN_RESOURCES_NB_PER_PAGE', 				100);
+define('_ADMIN_RESOURCES_NB_PER_PAGE', 				50);
 define('_APP_USE_EVENTS',                       	true);          // Disable this if you do not need to use events 
 define('_APP_USE_SQL_TYPEFIXING',              		false);         // experimental.
 define('_APP_USE_ONFETCH_TYPEFIXING', 				true);          // experimental.
@@ -111,7 +111,8 @@ define('_APP_USE_FIREPHP_LOGGING',      			true); 			// experimental. In local &
 define('_APP_USE_CHROMEPHP_LOGGING',      			true); 			// experimental. In local & dev environment, use ChromePHP server lib to log data (using $this->dump()) into Chrome console (require related extension).
 define('_APP_FETCH_RELATED_ONETOMANY', 				false); 		// experimental. Automatically fetch related onetomany items
 define('_APP_USE_PATTERN_VALIDATION',              	true);          // experimental.
-define('_APP_ADMIN_LIST_DEFAULT_DISPLAY_MODE',      'table');       // experimental. 'table', 'list', 'thumbs' 
+define('_APP_ADMIN_LIST_DEFAULT_DISPLAY_MODE',      'table');       // experimental. 'table', 'list', 'thumbs'
+define('_APP_USE_EXTREMIST_REST_API',      			true);       	// experimental. Will only return collections and remove errors & warnings from outputs 
 
 
 ?>

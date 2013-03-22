@@ -1,0 +1,1 @@
+<textarea class="{if $field.editor}rteEditor{/if}" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" cols="80" rows="4" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if}>{if $mode !== 'create'}{$resource[$fieldName]}{else}{$postedVal|default:$resource[$fieldName]}{/if}</textarea>

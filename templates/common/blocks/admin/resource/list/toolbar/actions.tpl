@@ -15,7 +15,7 @@
     <span class="actions primary">{block name='primaryActions'}
     {strip}
     	{if $userResPerms.allow_update}
-        {$crudability = $data._resources[$resourceName].crudability|default:'CRUD'}
+        {$crudability = join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
         {$disabled=(strpos($crudability, 'U')!== false)?0:1}
         <a class="action actionBtn edit editLink editAllLink {if $disabled}disabled{/if}" href="{if !$disabled}{$smarty.const._URL_ADMIN}{$resourceName}/{$resource.id}?method=update{else}#{/if}">
             <span class="value">{t}edit{/t}</span>

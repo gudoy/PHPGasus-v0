@@ -186,6 +186,7 @@ var Tools =
         		.replace(/^[^A-Za-z0-9]+/g, '')
         		.replace(/[^A-Za-z0-9]+$/g, '')
         		.replace(/[^A-Za-z0-9]+/g, '-')
+        		.toLowerCase()
         ;
 	},
 	
@@ -196,6 +197,7 @@ var Tools =
         	sing 	= plural;          // Default
         
         if      ( len >= 5 && plural.slice(-4) === 'uses' )	{ sing = plural.replace(/(.*)uses/,'$1us'); }
+        else if ( len >= 4 && plural.slice(-4) === 'sses' )	{ sing = plural.replace(/(.*)sses/,'$1ss'); }
         else if ( len >= 4 && plural.slice(-3) === 'ses' )	{ sing = plural.replace(/(.*)ses/,'$1ss'); }
         else if ( len >= 4 && plural.slice(-3) === 'hes' )	{ sing = plural.replace(/(.*)hes/,'$1h'); }
         else if ( len >= 4 && plural.slice(-3) === 'ies' )	{ sing = plural.replace(/(.*)ies$/,'$1y'); }

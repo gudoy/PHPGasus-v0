@@ -312,7 +312,7 @@ class View extends Application implements ViewInterface
 							//$_rq->restricters[] = 'distinct';
 							//$_rq->columns[] 	= $item;
 							$this->options['getFields'] 	= !empty($this->options['getFields']) ? Tools::toArray($this->options['getFields']) : array();
-							$this->options['getFields'][] 	= $item;							
+							$this->options['getFields'][] 	= $item;
 						}
 						
 						// Set pattern type
@@ -1527,6 +1527,9 @@ class View extends Application implements ViewInterface
 	public function statusCode($statusCode, $entityBody = '')
 	{
         $this->log(__METHOD__);
+		
+		// Store status code
+		$this->statusCode = $statusCode;
 		
 		switch($statusCode)
 		{

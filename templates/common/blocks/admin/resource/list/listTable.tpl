@@ -3,7 +3,7 @@
 {$rModel 		= $data.dataModel[$resourceName]}
 {$rCount 		= $data[$resourceName]|@count}
 {$lowCapDevice 	= $data.device.hasLowCapacity|default:false}
-{$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
+{$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
 {$newPageURL 	= "{$curURLbase}?{http_build_query($data.current.urlParams)}"}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 

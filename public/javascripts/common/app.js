@@ -89,7 +89,7 @@ var ui =
        			self.setBlockToFullScreen($this.find('> .groups'));
        		});
 		
-		return this.handleIos().handleOrientation();
+		return this.handleIos().handleOrientation().notifications();
 	},
 	
 	setBlockToFullscreen: function($item)
@@ -143,7 +143,26 @@ var ui =
 			window.addEventListener('load',function() { setTimeout(function(){ window.scrollTo(0, 1); }, 0); }); }
 		
 		return this;
-	}
+	},
+	
+	
+	notifications: function()
+	{
+		var ctx = '#errorsBlock'; 
+		
+		$(document)
+			.on('click', '.notification', function(e)
+			{
+				var $this = $(this),
+					$ctnr = $this.closest('.notificationsBlock');
+				
+				$this.remove();
+				
+				if ( $ctnr.length && !$ctnr.find('.notification').length ){ $ctnr.remove(); }
+			})
+		
+		return this;
+	},
 }
 
 $(document).ready(function(){ app.init(); });

@@ -208,6 +208,7 @@ class Tools
 		if ( isset($irregular[$plural]) ){ return $irregular[$plural]; }
         
         if      ( $len >= 5 && substr($plural, -4) === 'uses' )     { $sing = preg_replace('/(.*)uses/','$1us', $plural); }
+		else if ( $len >= 4 && substr($plural, -4) === 'sses' )     { $sing = preg_replace('/(.*)sses/','$1ss', $plural); }
         else if ( $len >= 4 && substr($plural, -3) === 'ses' )      { $sing = preg_replace('/(.*)ses/','$1ss', $plural); }
         else if ( $len >= 4 && substr($plural, -3) === 'hes' )      { $sing = preg_replace('/(.*)hes/','$1h', $plural); }
         else if ( $len >= 4 && substr($plural, -3) === 'ies' )      { $sing = preg_replace('/(.*)ies$/','$1y', $plural); }
@@ -245,6 +246,7 @@ class Tools
                 array('`^[^A-Za-z0-9]+`', '`[^A-Za-z0-9]+$`', '`[^A-Za-z0-9]+`' ),
                 array('','','-'),
             $id);
+		$id = strtolower($id);
 
         return $id;
     }
@@ -618,8 +620,6 @@ if ( $k === 'Product' )
 			case 'tel':
 				$value = preg_replace('/\D/', '', $value); break;
 			case 'json':
-//var_dump('case json');
-//var_dump($value);
 				// TODO: how to validate json???
 				// use Json Schema PHP Validator???
 				//$value = $value;

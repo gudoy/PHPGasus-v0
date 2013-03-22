@@ -232,7 +232,8 @@ class AdminView extends View
 		$d 				= $this->data;
 		$r 				= $this->resourceName;
 		$letters 		= Tools::toArray($letters);
-		$crudability 	= !empty($d['_resources'][$r]['crudability']) ? $d['_resources'][$r]['crudability'] : 'CRUD';
+		//$crudability 	= !empty($d['_resources'][$r]['crudability']) ? $d['_resources'][$r]['crudability'] : 'CRUD';
+		$crudability 	= !empty($d['_resources'][$r]['crudability']) ? join('', (array) $d['_resources'][$r]['crudability']) : 'CRUD';
 		$result 		= true;
 		
 		// Loop over passed letter
@@ -603,9 +604,6 @@ $this->options['conditions'] = array_merge(
 		$evt 				= array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__));
 		
 		$this->resourceId 	= $rIds;
-		
-//$this->dump($rIds);
-//var_dump($args);
         
         $this->events->trigger('onBeforeRetrieve', $evt);
 		
@@ -616,12 +614,12 @@ $this->options['conditions'] = array_merge(
 		$d = array_merge($d, array(
 			//$rName  		=> $this->C->retrieve(array('by' => 'id', 'values' => $rIds)),
 			$rName  		=> $this->C->index(array('by' => 'id', 'values' => $rIds, 'limit' => count($rIds))),
+			'success' 		=> $this->C->success, 
+			'errors'		=> $this->C->errors,
+			'warnings' 		=> $this->C->warnings,
 			'resourceId' 	=> $rIds,
 		));
 		$d['total'][$rName] = count($d[$rName]);
-
-//$this->dump('here1');
-//$this->dump($d[$rName]);
 		
 		if ( count($d[$rName]) === 1 ) { $this->paginate(); }
 

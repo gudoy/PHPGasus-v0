@@ -1,5 +1,7 @@
 {extends file='specific/layout/page.tpl'}
 
+{block name='notifications'}{/block}
+
 {block name='aside'}{/block}
 
 {block name='mainContent'}

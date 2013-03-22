@@ -4,7 +4,7 @@
 {$nameField 	= $rProps.nameField|default:$rProps.defaultNameField}
 {$descField 	= $rProps.descField|default:null}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
-{$crudability 	= $rProps.crudability|default:'CRUD'}
+{$crudability 	= join('',$rProps.crudability)|default:'CRUD'}
 {$isCreatable 	= (strpos($crudability, 'C')>-1)?1:0}
 {$isReadable 	= (strpos($crudability, 'R')>-1)?1:0}
 {$isUpdatable 	= (strpos($crudability, 'U')>-1)?1:0}
@@ -16,10 +16,13 @@
     {$curURL 		= $data.current.url}
     {if strpos($curURL,'?') !== false}{$linker = '&amp;'}{else}{$linker = '?'}{/if}
     {$curURLbase 	= "{$curURL|regex_replace:'/(.*)\\?(.*)$/U':'$1'}"}
-    {$displayMode 	= $smarty.get.displayMode|default:$data._resources[$resourceName].displayMode|default:'grid'}
+    {$displayMode 	= $smarty.get.displayMode|default:$data._resources[$resourceName].displayMode|default:$smarty.const._APP_ADMIN_LIST_DEFAULT_DISPLAY_MODE}
     
     {$getFields = Tools::toArray($data.options.getFields)}
-    {$data.options.displayCols = array_merge(array_combine((array) $getFields, (array) $getFields), $data.options.displayCols)}
+    {$tmp = array()}
+    {if !empty($getFields)}{$tmp = array_combine((array) $getFields, (array) $getFields)}
+    {/if}
+    {$data.options.displayCols = array_merge($tmp, $data.options.displayCols)}
     
     {/strip}
     {block name='adminIndexContent'}

@@ -18,7 +18,7 @@
 
 {$rName 		= $rName|default:$data.current.resource}
 {$rModel 		= $rModel|default:$data.dataModel[$rName]}
-{$crudability 	= $data._resources[$resourceName].crudability|default:'CRUD'}
+{$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 {$lowCapDevice 	= $data.device.hasLowCapacity|default:false}
 

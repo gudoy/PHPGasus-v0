@@ -20,7 +20,7 @@
 		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
 	</th>
 	<th class="col {$field.relGetAs}Col typeVarchar fk{if $isSorted}{if $isDefaultNamefield} defaultNameField{/if}  activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$field.relGetAs}Col" scope="col" data-importance="{$field.list|default:0}">
-		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$field.relGetAs}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$field.relGetAs} {$orderBy}cending">{$field.displayName|default:$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relGetFields}</a>
+		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$field.relGetAs}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$field.relGetAs} {$orderBy}cending">{$field.displayName|default:$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relGetFields|replace:'_':' '|truncate:'20':'...':true}</a>
 		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
 	</th>
 	{else}

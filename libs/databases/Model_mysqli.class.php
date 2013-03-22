@@ -561,6 +561,7 @@ class Model extends Application
             case 'email':
             case 'enum':
 			case 'json':
+							$v = stripslashes($v); break;
 			case 'varchar':
 				// Try to get the subtype
 				$colProps = &$this->application->dataModel[$p['resource']][$p['colName']];
@@ -871,6 +872,8 @@ class Model extends Application
 		$o 					= array_merge($this->options, $options);
 		$rModel 			= &$this->application->dataModel[$this->resourceName];
 		
+//var_dump($rModel);
+		
 		$skipLimit 			= false;
 		$skipOffset 		= false;
 		
@@ -1128,13 +1131,16 @@ class Model extends Application
 							$which 			=  is_int($key) ? 2 : 1;
 							$tmpFieldName 	= $which === 2 ? $val : $key;
 							
-							// In case where the table has already been joined on, we need to use a new table alias for the current join
+							// In case where the table has already been joined on, or is the main queried table 
+							// we need to use a new table alias for the current join
 							//$tmpTableAlias 	= !in_array($field['relResource'], $alreadyJoinedTables) 
-							$tmpTableAlias 	= in_array($field['relResource'], $alreadyJoinedTables)
-													//? null
-													? $this->resources[$field['relResource']]['alias'] . $ljcount
-													//: $this->resources[$field['relResource']]['alias'] . $ljcount;
-													: $this->resources[$field['relResource']]['alias'];
+							//$tmpTableAlias 	= in_array($field['relResource'], $alreadyJoinedTables)
+							//$tmpTableAlias 	= in_array($field['relTable'], $alreadyJoinedTables)
+							$tmpTableAlias 	= in_array($field['relTable'], $alreadyJoinedTables) || $field['relTable'] === $this->table
+												//? null
+												? $this->resources[$field['relResource']]['alias'] . $ljcount
+												//: $this->resources[$field['relResource']]['alias'] . $ljcount;
+												: $this->resources[$field['relResource']]['alias'];
 							
 							$storingName 	= $which === 2 ? ( !empty($field['relGetAs']) ? $field['relGetAs'] : null) : $val;
 							$this->queryData['fields'][$storingName] = array(
@@ -1169,6 +1175,8 @@ class Model extends Application
 			$i = 0;
 			$finalFields = '';
 			
+//var_dump($this->queryData['fields']);
+			
 			foreach ($this->queryData['fields'] as $k => $field)
 			{
 				// Get the field type
@@ -1191,13 +1199,15 @@ class Model extends Application
 									? ( !empty($field['tableAlias']) ? $field['tableAlias'] : $field['table'] ) 
 									//: $this->dbTableShortName ) . "."
 									: $this->alias ) . "."
+									
 								. $field['name'] 
 								//. ( !empty($field['as']) ? $field['as'] : $field['name'] )
 								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
 								//. ( !empty($field['groupConcat']) ? " AS CHAR) SEPARATOR ',' )" : '' )
 								. ( !empty($field['groupConcat']) ? ") AS CHAR)" : '' )
-								. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
-								. ( $type === 'timestamp' ? ") as " . $field['name'] : '' )
+								//. ( !empty($field['as']) ? " AS " . $field['as'] : '' )
+								. ( $type !== 'timestamp' && !empty($field['as']) ? " AS " . $field['as'] : '' )
+								. ( $type === 'timestamp' ? ") AS " . $field['name'] : '' )
 								//. ( $type === 'int' ? "' AS UNSIGNED INTEGER)" : '' )
 								;
 				
@@ -2141,14 +2151,16 @@ $tmpVal = isset($d[$fieldName])
 		$o 			= array_merge($this->options, $options); 				// Shortcut for options 											// Shortcut for options
 
 		$where 		= $this->handleOperations($o);
-		$conditions = $this->handleConditions($o);
+		//$conditions = $this->handleConditions($o);
+		$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
 	
 		// Start writing request
 		// When using "AS", mysql seems to want to have it defined just before the FROM
-		$query 		= "DELETE " . $this->alias . " ";
+		//$query 		= "DELETE " . $this->alias . " ";
+		$query 		= "DELETE " . $this->alias . ".* ";
 		$query 		.= "FROM " . _DB_TABLE_PREFIX . $this->table . " AS `" . $this->alias . "` ";
 		$query 		.= 	$where . $conditions;
-		
+
 		//$this->launchedQuery = $query;
 		
 		return $query;
@@ -2815,10 +2827,29 @@ $tmpVal = isset($d[$fieldName])
 		return $this->safeWrapper . $name . $this->safeWrapper;
 	}
 	
+	public function requireDataModel()
+	{		
+		$isDef = !empty($this->application->dataModel[$this->resourceName]);
+		
+//var_dump('isDef ' . $this->resourceName . ': ' . $isDef);
+		
+		// If the dataModel for the current resource is missing
+		if ( !$isDef )
+		{			
+			$this->success = false;
+			$this->errors[21] = $this->resourceName; 
+		}
+		
+		return $isDef;
+	}
+	
 	
 	public function index($options = array())
-	{
+	{		
 		$this->data = null;
+		
+		// Test is dataModel is required
+		if ( !$this->requireDataModel() ){ return $this->data; }
 		
 		// Set default params
 		// TODO: use $this->options instead, and use array_merge
@@ -2862,6 +2893,9 @@ $tmpVal = isset($d[$fieldName])
 	{
 		$this->data = null;
 		
+		// Test is dataModel is required
+		if ( !$this->requireDataModel() ){ return $this->data; }
+		
 		// Do not continue if no data has been passed 
 		if ( empty($resourceData) ) { return; }
 		
@@ -2891,7 +2925,7 @@ $tmpVal = isset($d[$fieldName])
 		$o 			= &$options;
 		
 		$query = "
-			CREATE TABLE IF NOT EXISTS `" . $p['name'] . "` (
+			CREATE TABLE IF NOT EXISTS `" . $o['name'] . "` (
 			  `id` int(11) NOT NULL auto_increment,
 			  `creation_date` timestamp NOT NULL default '0000-00-00 00:00:00',
 			  `update_date` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
@@ -2915,6 +2949,9 @@ $tmpVal = isset($d[$fieldName])
 	public function retrieve($options = array())
 	{
 		$this->data = null;
+		
+		// Test is dataModel is required
+		if ( !$this->requireDataModel() ){ return $this->data; }
 		
 		// TODO: use $this->options instead, and use array_merge
 		$o 					= &$options;
@@ -2945,6 +2982,9 @@ $tmpVal = isset($d[$fieldName])
 	public function update($resourceData = null, $options = array())
 	{
 		$this->data = null;
+		
+		// Test is dataModel is required
+		if ( !$this->requireDataModel() ){ return $this; }
 		
 		// TODO: use $this->options instead, and use array_merge
 		$o 					= &$options;
@@ -2983,6 +3023,9 @@ $tmpVal = isset($d[$fieldName])
 	public function delete($options = array())
 	{
 		$this->data = null;
+		
+		// Test is dataModel is required
+		if ( !$this->requireDataModel() ){ return $this->data; }
 		
 		$o 					= &$options;
 		$o['by'] 			= !empty($o['by']) ? $o['by'] : 'id';

@@ -184,8 +184,6 @@ var_dump(__METHOD__);
 		// If the request failed, get the errors
 		if ( !$this->success )
 		{
-			//$this->model->errors;
-			
 			$this->handleModelErrors();
 		}
 		else
@@ -310,8 +308,6 @@ var_dump(__METHOD__);
 		// If the request failed, get the errors
 		if ( !$this->success )
 		{
-			//$this->model->errors;
-			
 			$this->handleModelErrors();
 		}
 		else
@@ -387,19 +383,26 @@ var_dump(__METHOD__);
 	
 	public function handleModelErrors()
 	{
+//var_dump($this->model->errors);
+		
 		foreach ((array) $this->model->errors as $errNb => $err )
 		{
+			// TODO: if error codes are known (not db error codes), just forward them
+			if 		( $errNb === 21 ){ $this->errors[] = 21; continue; } 			// Resource columns not defined
+			
 			//TODO: always display sql error message 4100 => $err??? 
-			if 		( $errNb === 1048 ){ $this->errors[4100] = $err; continue; } 	// Column(s) cannot be null
-			else if ( $errNb === 1054 ){ $this->errors[4100] = $err; continue; } 	// Unknown column
-			else if ( $errNb === 1062 ){ $this->errors[] = 4030; continue; } 		// Duplicate entry error (unique key constraint)
-			else if ( $errNb === 1066 ){ $this->errors[] = 4150; continue; } 		// Tables alias conflict
+			elseif 	( $errNb === 1048 ){ $this->errors[4100] = $err; continue; } 	// Column(s) cannot be null
+			elseif 	( $errNb === 1054 ){ $this->errors[4100] = $err; continue; } 	// Unknown column
+			elseif 	( $errNb === 1062 ){ $this->errors[] = 4030; continue; } 		// Duplicate entry error (unique key constraint)
+			elseif 	( $errNb === 1066 ){ $this->errors[] = 4150; continue; } 		// Tables alias conflict
 			elseif 	( $errNb === 1064 ){ $this->errors[] = 4020; continue; } 		// Request syntax error
 			elseif 	( $errNb === 1451 ){ $this->errors[] = 4110; continue; } 		// Creation/update error due to fk constraint(s)
 			elseif 	( $errNb === 1452 ){ $this->errors[] = 4050; continue; } 		// Deletion error due to fk constraint(s)
 			
 			$this->errors[] = 4010; 
 		}
+
+//var_dump($this->errors);
 		
 		return $this;
 	}

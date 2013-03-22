@@ -65,6 +65,22 @@ class ApiView extends View
 		return $this;
 	}
 
+	public function getMissingRequiredFields()
+	{
+		$missing 	= array();
+		
+		// Loop over resource columns to check for missing required fields
+		$rCols 		= $this->C->application->dataModel[$this->resourceName];
+		foreach( (array) $rCols as $colName => $colProps )
+		{
+			$isRequired = !empty($colProps['required']);
+							
+			if ( $isRequired  && ( !isset($_POST[$colName]) || $_POST[$colName] !== '' ) ){ $missing[] = $colName; }
+		}
+		
+		return $missing;
+	}
+
 	public function render()
 	{
 		$v = !empty($this->data['view']) ? $this->data['view'] : null; 	// Shortcut for view data
@@ -104,6 +120,23 @@ class ApiView extends View
 				
 				// We have to handle relations
 				$this->handleRelations();
+			}	
+		}
+		else
+		{
+			if ( defined('_APP_USE_EXTREMIST_REST_API') && _APP_USE_EXTREMIST_REST_API )
+			{
+				// TODO: get errors & warnings & send them via an http header instead
+			
+				//$this->data = !empty($this->data[$this->resourceName]) ? (array) $this->data[$this->resourceName] : array();
+				if ( isset($this->data[$this->resourceName]) )
+				{
+					$this->data = (array) $this->data[$this->resourceName];
+				}
+				else
+				{
+					unset($this->data);
+				}
 			}
 		}
 		
