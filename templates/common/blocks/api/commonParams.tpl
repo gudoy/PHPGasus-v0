@@ -7,7 +7,7 @@
 		<dl class="paramsList">
 			<dt class="name">accept</dt>
 			<dd class="details">
-				<span class="summary">returned data format (overload Accept header)</span>
+				<span class="summary">returned data format</span>
 				<ul class="acceptedValues">
 					<li><strong>text/html</strong>, <strong>application/xhtml+xml</strong></li>
 					<li><strong>text/xml</strong>, <strong>application/xml</strong></li>
@@ -30,15 +30,14 @@
 					<span class="summary">returned data format (overload Accept header)</span>
 					<ul class="acceptedValues">
 						<li><strong>.html</strong></li>
-						<li><strong>.xhtml</strong> (html served with application/xhtml+xml header)</li>
+						<li><strong>.xhtml</strong> (html served as application/xhtml+xml)</li>
 						<li><strong>.json</strong></li>
 						<li><strong>.xml</strong></li>
 						<li><strong>.plist</strong></li>
 						<li><strong>.yaml</strong></li>
-						<li><strong>.jsontxt</strong> (json served with a plain txt header)</li>
-						<li><strong>.plistxml</strong> (plist served with a xml header)</li>
-						<li><strong>.yamltxt</strong> (plist served with a plain txt header</li>
-						<li><strong>.jsonreport</strong></li>
+						<li><strong>.jsontxt</strong> (json served as text/plain)</li>
+						<li><strong>.plistxml</strong> (plist served as application/xml)</li>
+						<li><strong>.yamltxt</strong> (plist served as text/plain)</li>
 					</ul>
 				</div>
 				<div class="samples">Samples:</div>

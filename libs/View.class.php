@@ -1533,27 +1533,63 @@ class View extends Application implements ViewInterface
 		
 		switch($statusCode)
 		{
-			case 201: 	$h = '201 Created'; 				break;
-			case 202: 	$h = '202 Accepted'; 				break;
-			case 204: 	$h = '204 No Content'; 				break;
-			case 302: 	$h = '302 Found'; 					break;
-			case 400: 	$h = '400 Bad Request'; 			break;
-			case 401: 	$h = '401 Unauthorized'; 			break;
-			case 402: 	$h = '402 Payment Required'; 		break;
-			case 403: 	$h = '403 Forbidden'; 				break;
-			case 404: 	$h = '404 Not Found'; 				break;
-			case 405: 	$h = '405 Method Not Allowed'; 		break;
-			case 406: 	$h = '406 Not Acceptable'; 			break;
-			case 408: 	$h = '408 Request Timeout'; 		break;
-			case 409: 	$h = '409 Conflict'; 				break;
-			case 410: 	$h = '410 Gone'; 					break;
-			case 412: 	$h = '412 Precondition Failed'; 	break;
-			case 415: 	$h = '415 Unsupported Media Type'; 	break;
-			case 417: 	$h = '417 Expectation Failed'; 		break;
-			case 500: 	$h = '500 Internal server error'; 	break;
-			case 503: 	$h = '503 Service unavailable'; 	break;
-			case 200:
-			default: 	$h = '200 OK'; 						break;
+			// Information
+			case 100: 	$h = '100 Continue'; 						break;
+			case 101: 	$h = '101 Switching Protocols'; 			break;
+			case 118: 	$h = '118 Connection timed out'; 			break;
+			
+			// Success
+			case 200: 	$h = '200 OK'; 								break;
+			case 201: 	$h = '201 Created'; 						break;
+			case 202: 	$h = '202 Accepted'; 						break;
+			case 203: 	$h = '203 Non-Authoritative Information'; 	break;
+			case 204: 	$h = '204 No Content'; 						break;
+			case 205: 	$h = '205 Reset Content'; 					break;
+			case 206: 	$h = '206 Partial Content'; 				break;
+			
+			// Redirection
+			case 301: 	$h = '301 Moved Permanently'; 				break;
+			case 302: 	$h = '302 Found'; 							break;
+			case 303: 	$h = '303 See Other'; 						break;
+			case 304: 	$h = '304 Not Modified'; 					break;
+			case 305: 	$h = '305 Use Proxy'; 						break;
+			case 306: 	$h = '306 Temporary Redirect'; 				break;
+			case 310: 	$h = '310 Too Many Redirects'; 				break;
+			
+			// Error (client)
+			case 400: 	$h = '400 Bad Request'; 					break;
+			case 401: 	$h = '401 Unauthorized'; 					break;
+			case 402: 	$h = '402 Payment Required'; 				break;
+			case 403: 	$h = '403 Forbidden'; 						break;
+			case 404: 	$h = '404 Not Found'; 						break;
+			case 405: 	$h = '405 Method Not Allowed'; 				break;
+			case 406: 	$h = '406 Not Acceptable'; 					break;
+			case 407: 	$h = '407 Proxy Authentication Required'; 	break;
+			case 408: 	$h = '408 Request Timeout'; 				break;
+			case 409: 	$h = '409 Conflict'; 						break;
+			case 410: 	$h = '410 Gone'; 							break;
+			case 411: 	$h = '411 Length Required'; 				break;
+			case 412: 	$h = '412 Precondition Failed'; 			break;
+			case 413: 	$h = '413 Request Entity Too Large'; 		break;
+			case 414: 	$h = '414 Request-URI Too Long'; 			break;
+			case 415: 	$h = '415 Unsupported Media Type'; 			break;
+			case 416: 	$h = '416 Requested range unsatisfiable'; 	break;
+			case 417: 	$h = '417 Expectation Failed'; 				break;
+			case 418: 	$h = '418 I\'m a teapot'; 					break;
+			
+			// Error (server)
+			case 500: 	$h = '500 Internal server error'; 			break;
+			case 501: 	$h = '501 Not Implemented'; 				break;
+			case 502: 	$h = '502 Bad Gateway'; 					break;
+			//case 502: 	$h = '502 Proxy Error'; 					break;
+			case 503: 	$h = '503 Service unavailable'; 			break;
+			case 504: 	$h = '504 Gateway Time-out'; 				break;
+			case 505: 	$h = '505 HTTP Version not supported'; 		break;
+			case 506: 	$h = '506 Variant also negociate'; 			break;
+			case 509: 	$h = '509 Bandwidth Limit Exceeded'; 		break;
+			//case 509: 	$h = '509 Net extended'; 					break;
+			
+			default: 	$h = '200 OK'; 								break;
 		}
 		
 		// As long as the output format is not html and the code not 201

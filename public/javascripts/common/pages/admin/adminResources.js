@@ -14,6 +14,8 @@ var adminResources =
 	{
 		var self = this;
 
+		adminCreate.init();
+
 		this.autoFill();
 		
 		return this;
@@ -22,6 +24,8 @@ var adminResources =
 	update: function()
 	{
 		var self = this;
+		
+		adminUpdate.init();
 		
 		this.autoFill();
 		
@@ -32,14 +36,19 @@ var adminResources =
 	{
 		var self = this;
 		
+		$('#nameField').addClass('ignoreSlug');
+		
 		$('input#resourceTable')
 			.bind('keyup', function(e)
 			{
-				var curVal 	= $(this).val()
-					slug 	= Tools.slug(curVal);
+				var curVal 	= $(this).val(),
+					slug 	= Tools.slug(curVal),
+					name 	= slug.replace(/\-/g,'').toLowerCase(),
+					sing 	= Tools.singular(slug).replace(/\-/g,'').toLowerCase();
 				
-				$('input#resourceName').val(slug.replace(/\-/g,'').toLowerCase());
-				$('input#resourceSingular').val(Tools.singular(slug).replace(/\-/g,'').toLowerCase());
+				$('input#resourceName').val(name);
+				$('input#resourceSingular').val(sing);
+				$('input#resourcePlural').val(name);
 				$('input#resourceDisplayName').val(curVal.replace(/_/g,' '));
 				$('input#resourceAlias').val(self.guessAlias(curVal));
 			});
@@ -71,4 +80,4 @@ var adminResources =
 	}
 };
 
-$(document).ready(function(){ adminResources.init(); })
+//$(document).ready(function(){ adminResources.init(); })

@@ -269,7 +269,7 @@ class VAccount extends View
 			// Check if the user does not already exists
 			$email 		= !empty($_POST['userEmail']) ? filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL) : '';
 			$userExists = CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => $email, 'mode' => 'count'));
-			if ( $userExists >= 1 && strpos($email, '@clicmobile.com') === false ) { $this->data['errors'][] = 10021; $this->statusCode(409); }
+			if ( $userExists >= 1 ) { $this->data['errors'][] = 10021; $this->statusCode(409); }
 			
 			// Check if pass and its confirmation are identical
 			$pass 		= !empty($_POST['userPassword']) ? filter_var($_POST['userPassword'], FILTER_SANITIZE_STRING) : '';

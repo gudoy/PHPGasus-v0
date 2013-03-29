@@ -1,5 +1,5 @@
 {block name='mailContent'}
-Hello {$data.user.first_name}
+Hello {$data.user.firstname}
 
 Click on the following link to be able to reset your password
 

@@ -150,6 +150,8 @@ class VPassword extends View
 			$_POST 		= $curPOST;
 			$_POST 		= array(
 				'password' 				=> $_POST['userNewPassword'], 
+				'password_old_1' 		=> $user['password'],
+				'password_old_2' 		=> $user['password_old_1'],
 				'password_reset_key' 	=> '',
 				'password_expiration' 	=> _APP_PASSWORDS_EXPIRATION_TIME > 0 ? $curTime + _APP_PASSWORDS_EXPIRATION_TIME : null,
 			);
@@ -261,12 +263,18 @@ class VPassword extends View
 			
 			// We have to make the 'password_expiration' fields temporarily editable
 			$uDM 		= &$CUsers->application->dataModel['users'];
-			$curPassExpEditable = isset($uDM['password_expiration']['editable']) ? $uDM['password_expiration']['editable'] : null ;
-			$uDM['password_expiration']['editable'] = true;
+			if ( isset($uDM['password_expiration']['editable']) )
+			{
+				$curPassExpEditable = $uDM['password_expiration']['editable'];
+				$uDM['password_expiration']['editable'] = true;	
+			}
 			
 			// We have to prevent old passwords (that are already encrypted to be encrypted again)
 			unset($uDM['password_old_1']['subtype']);
 			unset($uDM['password_old_2']['subtype']);
+			if ( isset($uDM['password_old_1']) ){ $curPasswoldOld1Editable = $uDM['password_old_1']['editable']; $uDM['password_old_1']['editable'] = 1; }
+			if ( isset($uDM['password_old_2']) ){ $curPasswoldOld2Editable = $uDM['password_old_2']['editable']; $uDM['password_old_2']['editable'] = 1; }
+
 			
 			$opts 		= !$this->isLogged() 
 							? array('by' => 'email', 	'values' => $_POST['userEmail']) 
@@ -287,7 +295,6 @@ class VPassword extends View
 			){ $this->data['errors'][] = 10035; $this->render(); }
 			
 			// If pass does not match the stored one
-			//if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10016; $this->render(); }
 			if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->render(); }
 
 			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
@@ -323,12 +330,13 @@ class VPassword extends View
 				// Only then can the password be changed 
 				$_POST 		= array(
 					'password' 				=> $_POST['userNewPassword'], 
-					'password_old_2' 		=> !empty($user['password_old_1']) ? $user['password_old_1'] : null,
-					'password_old_1' 		=> !empty($user['password']) ? $user['password'] : null,
+					'password_old_1' 		=> $user['password'],
+					'password_old_2' 		=> $user['password_old_1'],
 					'password_reset_key' 	=> '',
 					'password_expiration' 	=> _APP_PASSWORDS_EXPIRATION_TIME > 0 ? $curTime + _APP_PASSWORDS_EXPIRATION_TIME : null,
 					'password_lastedit_date'=> $curTime,
 				);
+
 				$CUsers->update(array('isApi' => 1, 'conditions' => array('id' => $user['id'])));
 				
 				if ( !$this->isLogged() )
@@ -348,13 +356,13 @@ class VPassword extends View
 				$this->data['errors'] 	= $CUsers->errors;
 				$this->data['warnings'] = $CUsers->warnings;
 			}
-
+			
 			// We can now return 'password_expiration' editable property to its original value
-			$uDM['password_expiration']['editable'] 	= $curPassExpEditable;
+			if ( isset($uDM['password_expiration']['editable']) ){ $uDM['password_expiration']['editable'] = $curPassExpEditable; }
 			
 			// We can now return old passwords subtype property to their original value
-			$uDM['password_old_1']['subtype'] = 'password';
-			$uDM['password_old_2']['subtype'] = 'password';
+			if ( isset($uDM['password_old_1']) ){ $uDM['password_old_1']['subtype'] = 'password'; $uDM['password_old_1']['editable'] = $curPasswoldOld1Editable; }
+			if ( isset($uDM['password_old_2']) ){ $uDM['password_old_2']['subtype'] = 'password'; $uDM['password_old_2']['editable'] = $curPasswoldOld2Editable; }
 		}
 	}
 	

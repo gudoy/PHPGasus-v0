@@ -117,11 +117,6 @@ class Tools
     }
 
 
-    /* 
-     * This function gets, in an URL string, the value of the param given in the function call
-     * @author Guyllaume Doyer guyllaume@clicmobile.com
-     * @return {String|Boolean} The value if found, otherwise false
-     */
     // TODO: refactor using parse_str() ???
     static function getURLParamValue($requestedURL, $requestedParamName)
     {
@@ -183,7 +178,7 @@ class Tools
     {
         $cleaned = $string;
         
-        foreach ((array)$paramNames as $paramName)
+        foreach ((array) $paramNames as $paramName)
         {
             $cleaned = preg_replace('/(.*)[&]$/', '$1', preg_replace('/(.*)' . $paramName . '[=|%3D|%3d](.*)(&|$)/U','$1', $cleaned));
         }

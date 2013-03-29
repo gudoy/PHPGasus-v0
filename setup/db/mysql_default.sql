@@ -131,8 +131,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password_old_2` varchar(64) NOT NULL,
   `password_expiration` timestamp NULL,
   `password_lastedit_date` timestamp NULL,
-  `first_name` varchar(64) NOT NULL,
-  `last_name` varchar(64) NOT NULL,
+  `firstname` varchar(64) NOT NULL,
+  `lastname` varchar(64) NOT NULL,
   `name` varchar(128) default NULL,
   `prefered_lang` varchar(5) NULL,
   `prefered_timezone` ENUM('Europe/Amsterdam',  'Europe/Berlin',  'Europe/Brussels',  'Europe/London',  'Europe/Madrid',  'Europe/Paris',  'Europe/Rome',  'Europe/Zurich') NULL,
@@ -144,8 +144,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `update_date` timestamp NULL default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `email` (`email`),
-  KEY `first_name` (`first_name`),
-  KEY `last_name` (`last_name`),
+  KEY `firstname` (`firstname`),
+  KEY `lastname` (`lastname`),
   KEY `device_id` (`device_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -206,7 +206,7 @@ INSERT INTO `groups` (`id`, `name`, `slug`, `creation_date`, `update_date`) VALU
 ('', 'moderators', 'moderators', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
   
-INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `name`, `device_id`, `activated`, `activation_key`, `password_reset_key`, `private_key`, `creation_date`, `update_date`) VALUES
+INSERT INTO `users` (`id`, `email`, `password`, `firstname`, `lastname`, `name`, `device_id`, `activated`, `activation_key`, `password_reset_key`, `private_key`, `creation_date`, `update_date`) VALUES
 ('', 'gdoyer@mystudiofactory.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '', 1, '', '', '', '', '');
 
   

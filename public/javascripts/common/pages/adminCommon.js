@@ -1071,14 +1071,20 @@ Tools.log('newfocused h: ' + $newfocused.outerHeight());
 	{
 		$('.subtypeSlug', 'form').each(function()
 		{
-			var from 		= $(this).attr('data-from') || $(this).find('.from').text() || '',
+			var $line 		= $(this),
+				from 		= $line.attr('data-from') || $line.find('.from').text() || '',
 				fromContext = '#' + admin.resourceSingular + Tools.ucfirst(from),
-				input 		= $('input', this);
+				input 		= $line.find('input');
 			
 			$(fromContext)
-				.bind('keyup blur', function()
+				//.bind('keyup blur', function()
+				.on('keyup blur', function()
 				{
-					var val 	= $(this).val() || '',
+					var $this 	= $(this);
+						
+					if ( $line.hasClass('ignoreSlug') ){ return; }
+					
+					var val 	= $this.val() || '',
 						newSlug = Tools.slugify(val);
 					
 					input.val(newSlug);
@@ -1259,7 +1265,7 @@ Tools.log('newfocused h: ' + $newfocused.outerHeight());
 					if ( !$all.filter(':checked').length ){ $none.val('none'); }
 				})
 				.delegate('a.toggleAll', 'click', function(e)
-				{								
+				{
 					if ( $all.filter(':checked').length === allNb )	{ $all.removeAttr('checked'); $none.val('none'); }
 					else 											{ $all.attr('checked','checked'); $none.removeAttr('value'); } 		
 				})
@@ -1555,16 +1561,12 @@ var adminIndex =
 	        
 	        getConditions = function()
 	        {
-Tools.log('getConditions');
             	// Get current url conditions (if any)
             		urlConditions 		= unescape(decodeURI(Tools.getURLParamValue(reqURL, 'conditions'))) || '';
             		filterConditions 	= '';
             		
             	// Build new conditions
             	for (colName in conditions){ filterConditions += colName + '|' + conditions[colName][0] + '|' + conditions[colName][1] + ';'; }
-	            		
-Tools.log('urlConditions: ' + urlConditions);
-Tools.log('filterConditions: ' + filterConditions);
 
 				return {'conditions':filterConditions};
 	        },
@@ -1572,8 +1574,6 @@ Tools.log('filterConditions: ' + filterConditions);
 	        // Update selection
 	        updateSelection = function()
 	        {
-Tools.log('updateSeletion');
-
 				// Update selection filters
 				$.ajax(
 				{
@@ -1601,13 +1601,9 @@ Tools.log('updateSeletion');
 	            	//cache: false,
 	            	success: function(response)
 					{
-//Tools.log('global filter count success');
-					
 						var count 			= response[$(self.context).data('resource')] || 0,
 							urlQuery 		= $.param($.extend({}, reqData)) || '',
 							globalFilterUrl = reqURL + ( urlQuery ? '?' + urlQuery : '');
-							
-//Tools.log('global filter count: ' + count);
 
 						// Remove global filter notification if any
 						$('#globalFilterNotification').remove();
@@ -1619,9 +1615,6 @@ Tools.log('updateSeletion');
 							/*{type: 'view', text: 'view' + (count ? ' (' + count + ')' : ''), click: function() { location.href = globalFilterUrl; }},*/
 							{type: 'select', text: 'select' + (count ? ' (' +  count + ')' : ''), click: function()
 							{
-
-console.log('overall select clicked');			           
-alert('overall select clicked');
 
 								// TODO: add to selection?
 							}}
@@ -1641,9 +1634,6 @@ alert('overall select clicked');
 								} // Specificaly handle actions
 							})
 						});*/
-					
-Tools.log('buttons:');	
-Tools.log(buttons);
 						
 						// Prepare notification content
 						var txt = 'There\'s ' + (count ? count + ' ' : '') + 'elements on the other pages matching with your filter criteria.';
@@ -1652,8 +1642,6 @@ Tools.log(buttons);
 						//if ( $filtersNotif && $filtersNotif.length )
 						if ( $('#globalFilterNotification').length )
 						{
-Tools.log('update notification');
-							
 							// Update text
 							$('#globalFilterNotification').find('.noty_text').text(txt);
 							
@@ -1662,8 +1650,6 @@ Tools.log('update notification');
 							
 							return;
 						}
-
-Tools.log('create notification');
 							
 						// Otherwise create it 
 						noty(
@@ -1758,20 +1744,17 @@ Tools.log('create notification');
 	            //$tbody.css('visibility','visible');
 	            $tbody.appendTo(self.context);
 	            
-//Tools.log(conditions);
-	            
 	            // If the whole items of the resource are not displayed
 	            var showedCnt 	= $(':input', '#displayedResourcesCountBottom').val(),
 	            	totalCnt 	= $('.value', '#totalResourcesCountBottom').text();
-	            	
-//Tools.log('showedCnt: ' + showedCnt);
-//Tools.log('totalCnt: ' + totalCnt);
-//Tools.log('url: ' + location.href.replace(new RegExp("(\\?.*)?",''), ''));
 	            	
 	            if ( !showedCnt || !(showedCnt < totalCnt) ){ return } 
 	            
 				handleNotif();
 	    	};
+	    
+	    $tbody = $('tbody', self.context);
+    	$tr    = $tbody.find('tr'); 		// Store a jquery reference containing all the rows
 	    
 	    // Handle filter mode activation links
 		$('a').filter('.filter')
@@ -1782,9 +1765,6 @@ Tools.log('create notification');
 			    
 			    var $this 	= $(this),	
 			    	destId 	= $this.attr('href');
-			    
-			    $tbody = $('tbody', self.context);
-	        	$tr    = $tbody.find('tr'); 		// Store a jquery reference containing all the rows
 			    
 			    $(adminIndex.context).toggleClass('filterMode');
 	            
@@ -1807,11 +1787,12 @@ Tools.log('create notification');
 				e.stopPropagation();
 	        	
 	        	// Ignore alt, ctrl, shift, arrows, page up/down, home/end, F*, and some others
-	        	if ( e.keyCode < 48 || ( e.keyCode >= 112 && e.keyCode <= 123 ) ){ return }
+	        	//if ( e.keyCode < 48 || ( e.keyCode >= 112 && e.keyCode <= 123 ) ){ return }
+	        	if ( e.keyCode <= 16 && e.keyCode >= 45 || ( e.keyCode >= 112 && e.keyCode <= 123 ) ){ return }
 	        	
-Tools.log('e.keyCode: ' + e.keyCode);
+//Tools.log('e.keyCode: ' + e.keyCode);
 	        	
-Tools.log('keyup on filter');
+//Tools.log('keyup on filter');
 	        	
 	        	var $input = $(this);
 	        	
@@ -1821,9 +1802,11 @@ Tools.log('keyup on filter');
 	    	.filter('select')
 			.on('change', function(e)
 			{
-Tools.log('change on select filter');
+//Tools.log('change on select filter');
 				e.stopPropagation();
-	        	//filterCallback($(this));
+	        	
+	        	var $input = $(this);
+
 	        	clearTimeout(timeout);
 	        	timeout = setTimeout(function(){ filterCallback($input); }, 1);
 			});
@@ -1973,7 +1956,7 @@ Tools.log('change on select filter');
 			if 		( this.type === 'email' )									{ this.inputType = 'email'; }
 			else if ( this.type === 'tel' )										{ this.inputType = 'tel'; }
 			else if ( this.type === 'password' || this.subtype === 'password' )	{ this.inputType = 'password'; }
-			
+				
 			switch (this.type)
 			{
 				case 'bool':
@@ -2002,6 +1985,9 @@ Tools.log('change on select filter');
 				case 'float':
 				case 'int':
 					this.fieldHTML = '<input type="' + this.inputType + '" name="' + this.colName + '" id="' + this.colName + this.resId + '" value="' + this.curVal + '" />';
+					break;
+				case 'json':
+					this.fieldHTML = '<input type="' + this.inputType + '" name="' + this.colName + '" id="' + this.colName + this.resId + '" value=\'' + this.curVal + '\' />';
 					break;
 				default:
 					this.fieldHTML = false;

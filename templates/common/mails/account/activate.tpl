@@ -1,5 +1,5 @@
 {block name='mailContent'}
-Hello {$data.user.first_name}
+Hello {$data.user.firstname}
 
 Welcome to {$smarty.const._APP_TITLE}!
 

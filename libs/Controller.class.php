@@ -178,9 +178,6 @@ var_dump(__METHOD__);
 		$this->success    = $this->model->success;
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
-		//if ( $this->success ) { $this->extendsData($o); }
-		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
-		
 		// If the request failed, get the errors
 		if ( !$this->success )
 		{
@@ -188,10 +185,11 @@ var_dump(__METHOD__);
 		}
 		else
 		{
-			$this->extendsData($options);
+			$this->extendsData($o);	
 		}
 		
-		if ( !empty($o['reindexby']) ){ self::reindex($o); }
+		// Deprecated: use 'indexBy' or 'indexByUnique' options instead
+		//if ( !empty($o['reindexby']) ){ self::reindex($o); }
 		
 		return $this->data;
 	}
@@ -208,14 +206,9 @@ var_dump(__METHOD__);
 		$this->success    = $this->model->success;
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
-		//if ( $this->success ) { $this->extendsData($o); }
-		//if ( $this->success ) { $this->extendsData($o + array('method' => __FUNCTION__)); }
-		
 		// If the request failed, get the errors
 		if ( !$this->success )
 		{
-			//$this->model->errors;
-			
 			$this->handleModelErrors();
 		}
 		else
@@ -223,7 +216,8 @@ var_dump(__METHOD__);
 			$this->extendsData($o);
 		}
 		
-		if ( !empty($o['reindexby']) ){ self::reindex($o); }
+		// Deprecated: use 'indexBy' or 'indexByUnique' options instead
+		//if ( !empty($o['reindexby']) ){ self::reindex($o); }
 		
 		return $this->data;
 	}
@@ -325,7 +319,7 @@ var_dump(__METHOD__);
         $this->success    = false;
         $this->errors     = array();
         $this->warnings   = array();
-    
+	
 		$resourceData     = $this->filterPostData(array_merge($o, array('method' => 'update')));
         
 		//if ( !empty($resourceData) )
@@ -407,7 +401,8 @@ var_dump(__METHOD__);
 		return $this;
 	}
 	
-    // TODO: index on database fetch	
+    // TODO: index on database fetch
+    // Deprecated: to be removed
 	public function reindex($options = array())
 	{
 		// Shortcut for options and default options
@@ -458,6 +453,9 @@ var_dump(__METHOD__);
 			'extendsData' => true,
 		), $options);
 		
+		// Filter returned data to remove not exposed columns
+		$this->filterOutputData($options);
+		
 		// Do not continue if there's no data to process or if data is not an array( ie: for count operations)
 		if ( empty($this->data) || !is_array($this->data) || empty($o['extendsData']) ) { return $this; }
 		
@@ -482,20 +480,31 @@ var_dump(__METHOD__);
 		// Do not continue if the resource has not been defined
 		if ( empty($this->resourceName) ) { return; }
 		
-		$resourceData     = array();
-		$rName            = &$this->application->dataModel[$this->resourceName];
+		$resourceData 	= array();
+		//$rName 			= &$this->application->dataModel[$this->resourceName];
+		$_dm 			= &$this->application->dataModel[$this->resourceName];
 		
-		$isApi            = ( !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ) || ( isset($o['isApi']) && $o['isApi'] );
+		// TODO: rename isApi to something like 'fieldnamesPattern' ('column' or 'resourceColumn')
+		//$isApi            = ( !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ) || ( isset($o['isApi']) && $o['isApi'] );
+		$fromApi = isset($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false;
+		$isApi = (isset($o['isApi']) && $o['isApi']) || $fromApi;
 		
 		// Loop over the data model of the resource
-		foreach ((array) $rName as $fieldName => $field)
+		//foreach ((array) $rName as $fieldName => $field)
+		foreach ((array) $_dm as $fieldName => $field)
 		{
 			// Shortcut for the field name
 			// For the api, we use 'normal' forms fieldnames/$resource fields whitout prefix
 			// But for everywhere else, they are prefixed by the name of the resource (to avoid conflicts) [ex: userLogin, productSummary, entryExpirationtime]
 			$f = $isApi ? $fieldName : $this->resourceSingular . ucFirst($fieldName);
-            
-			// If the field is required
+			
+			// TODO: if column is not exposed is request is from API, remove passed column value
+			$isExposed = !isset($field['exposed']) || $field['exposed'];
+			//if ( $fromApi && !$isExposed && isset($_POST[$fieldName]) ){ unset($_POST[$fieldName]); }
+			if ( (isset($o['filterNotExposed']) && $o['filterNotExposed']) && !$isExposed && isset($_POST[$fieldName]) ){ unset($_POST[$fieldName]); }
+			
+			
+			// If the column is required
 			// TODO: continue looping over the fields to list all missing ones
 			if ( isset($field['required']) && $field['required'] 
 				&& empty($_FILES[$f]) && empty($_POST[$f])
@@ -755,6 +764,61 @@ var_dump('val after:' . $filteredData);
 		$returnVal = count($colNames) === 1 && isset($data[$colNames[0]]) ? $data[$colNames[0]] : $data;
 		
 		return $returnVal;
+	}
+
+	// TODO: Should this be done in the model? Either by preventing cols to be selected (in the query) or when fixing output data 
+	public function filterOutputData($options = array())
+	{		
+		// Do not continue if there's no data to filter
+		if ( empty($this->data) ){ return; }
+		
+		// 
+		$o = array_merge(array(
+		), $options, array(
+			'isApi' 		=> ( isset($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ),
+			'isCollection' 	=> ( isset($options['isCollection']) && $options['isCollection'] ) || ( is_array($this->data) && isset($this->data[0]) ),
+		));
+		
+		// Only filter data for API outputs
+		//if ( !$o['isApi'] ){ return; }
+		if ( !isset($o['filterNotExposed']) || !$o['filterNotExposed'] ){ return; }
+		
+		// Do not continue any longer if the datamodel cannot be found
+		if ( !isset($this->application->dataModel[$this->resourceName]) ){ return; } 
+		
+		// Shortcut for resource datamodel
+		$_dm = $this->application->dataModel[$this->resourceName];
+
+		// TODO: do not continue if the resource is not exposed????
+		
+		// TODO: Get from resources metadata under '_exposed' prop (when available) 
+		// Get columns not exposed
+		$notExposed = array();
+		foreach ((array) $_dm as $colName => $colProps){ $exposed = !isset($_dm[$colName]['exposed']) || $_dm[$colName]['exposed']; if ( !$exposed ){ $notExposed[] = $colName; } }
+		
+		// Do not continue any longer if all columns are exposed
+		if ( empty($notExposed) ){ return; }
+		
+		$o['notExposedCols'] = $notExposed;
+		
+		// For 1 resource/row only, directly handle it
+		if 	( !$o['isCollection'] ){ $this->filterOutputOne($this->data, $o); }
+		// Otherwise, for a collection, we have to loop over the items
+		else
+		{
+			foreach($this->data as &$item){ $this->filterOutputOne($item, $o); }
+		}
+	}
+	
+	public function filterOutputOne(&$row, $options = array())
+	{
+		$o = $options;
+		
+		// TODO: Get from resources metadata under '_exposed' prop (when available)
+		// Filter returned data to remove not exposed columns
+		$notExposed = $o['notExposedCols']; 
+		
+		foreach($notExposed as $colName){ unset($row[$colName]); }
 	}
 
 }

@@ -7,7 +7,7 @@ $errorsAssoc = array(
 	'22' => array('back' => 'Resource(s) columns not defined',
 					'front' => _('Columns for one or more of the queried resource(s) are not defined.')),
 
-	// NO error should be defined with error code under 1000 
+	// NO error should be defined with error between 100 & 1000 (assumed to be reserved to HTTP status codes)
 	'1000' => array('back' => 'Missing required params',
 					'front' => _('Missing required parameter(s).')),
 	'1001' => array('back' => 'Missing required param %s',
@@ -81,6 +81,7 @@ $errorsAssoc = array(
 	'9100' => array('back' => 'Invalid CSRF Token.',
 					'front' => _('We think you may not really wanted to do this. If we are wrong, please retry.')),
 
+	// TODO: Do some cleaning by using more generic messages instead 
 	'10000' => array('back' => 'Missing required fields',					// Deprecated: use 1002 instead
 					'front' => _('Please fill all the required fields')), 	// Deprecated: use 1002 instead
 	'10001' => array('back' => 'Invalid email',
@@ -101,11 +102,8 @@ $errorsAssoc = array(
 					'front' => _('Anti-spam filter not correct. Only numerics are allowed.')),
 	'10010' => array('back' => 'Incorrect captcha value',
 					'front' => _('Anti-spam filter value not correct. Figure of 2 numerics expected.')),
-	'10011' => array('back' => 'Terms of use not agreeded',
-					'front' => _('You have to accept the Terms of Use.')),
 
-	'10013' => array('back' => 'Birth year not valid',
-					'front' => _('The birth year you entered is not correct.')),
+
 	'10014' => array('back' => 'Incorrect old password format',
 					'front' => _('Old password not correct. Only letters and numbers are allowed.')),
 	'10015' => array('back' => 'Incorrect new password format',
@@ -138,12 +136,6 @@ $errorsAssoc = array(
 					'front' => _('Your password is expired. You have to change it to be able to login again.')),
 	'10035' => array('back' => 'Last password change too recent',
 					'front' => _('Your last password change is too recent. The minimun time between 2 password changes is: ') . _(_APP_PASS_MIN_TIME_BETWEEN_CHANGES_H)),
-	'10050' => array('back' => 'Parental codes not matching',
-					'front' => _('The parental code and it\'s confirmation are not identical')),
-	'10051' => array('back' => 'ParentalCodeOld not correct',
-					'front' => _('Your current parental code is not valid.')),
-	'10052' => array('back' => 'ParentalCode not correct',
-					'front' => _('Invalid parental code')),
 					
 	'10100' => array('back' => 'Session expired',
 					'front' => _('Your session has expired. Please login again.'),
@@ -155,8 +147,6 @@ $errorsAssoc = array(
 	'10101' => array('back' => 'Session corrupted',
 				'front' => _('Your session has been corrupted. Please login again.')),
 					
-	'10200' => array('back' => 'Unknown user',
-					'front' => _('This user does not seem to be registered')),
 	'10205' => array('back' => 'Unknown email',
 					'front' => _('Unknown email.')),
 					
@@ -166,26 +156,17 @@ $errorsAssoc = array(
 					'front' => _('Credit card number value not correct. Figure of 16 numerics expected.')),
 	'10320' => array('back' => 'Incorrect creditCardCryptogram value',
 					'front' => _('Credit card cryptogram value not correct. Figure of 3 numerics expected.')),
-
-	// TODO: change rule when decided
-					
-	'11000' => array('back' => 'No matching search result',
-					'front' => _('Your search didn\'t return any result.')),
 					
 	'12000' => array('back' => 'WS call exception',
-					'front' => _('An error occured during the request. Please retry later.')),
-					
-	'13000' => array('back' => 'Payment declined',
-					'front' => _('The payment has been declined.')),
-					
-					
+					'front' => _('An error occured during the request. Please retry later.')),	
+	
 	'15010' => array('back' => 'Controller folder unwritable.',
 					'front' => _('The file could not be created. The parent folder %s is not writable.')),
 	'15011' => array('back' => 'Controller file unwritable.',
 					'front' => _('The file %s is not writable.')),
 					
 	### APP SPECIFICS ###
-	// Required params
+	// TODO: use generic error code instead (1003?)
 	'20010' => array('back' => 'Missing email',
 					'front' => _('Please provide an email.')),
 	'20012' => array('back' => 'Missing password',
@@ -194,90 +175,7 @@ $errorsAssoc = array(
 					'front' => _('Please provide a new password.')),
 	'20014' => array('back' => 'Missing new password confirmation',
 					'front' => _('Please provide a new password confirmation.')),
-	'20016' => array('back' => 'Missing first_name',
-					'front' => _('Please provide a first_name.')),
-	'20017' => array('back' => 'Missing last_name',
-					'front' => _('Please provide a last_name.')),
-	'20020' => array('back' => 'Missing address',
-					'front' => _('Please provide an address.')),
-	'20021' => array('back' => 'Missing country',
-					'front' => _('Please provide a country.')),
-	'20022' => array('back' => 'Missing city',
-					'front' => _('Please provide a city.')),
-	'20023' => array('back' => 'Missing zipcode',
-					'front' => _('Please provide a zipcode.')),
-	'20051' => array('back' => 'Missing application id',
-					'front' => _('Please select an application.')),
-	'20052' => array('back' => 'Missing application version id',
-					'front' => _('Please select an application version.')),
-	'20053' => array('back' => 'Missing file environment',
-					'front' => _('Please select a file environment.')),
-	'20054' => array('back' => 'Missing product pack id',
-					'front' => _('Please select a product pack.')),
-	'20055' => array('back' => 'Missing device id',
-					'front' => _('Please select a device.')),
-	'20056' => array('back' => 'Missing message id',
-					'front' => _('Please select/provide a message.')),
-	'20057' => array('back' => 'Missing coupon coode',
-					'front' => _('Please provide a coupon code.')),
-	'20058' => array('back' => 'Missing product id',
-					'front' => _('Please provide product id.')),
-	'20061' => array('back' => 'Missing token',
-					'front' => _('Please provide a token.')),
-	'20080' => array('back' => 'Missing recipient_email',
-					'front' => _('Please provide a recipient email.')),
-	'20081' => array('back' => 'Missing msg_object',
-					'front' => _('Please provide a message object.')),
-	'20082' => array('back' => 'Missing msg_text',
-					'front' => _('Please provide a message text.')),
 					
-	
-	// Coupon codes
-	'20100' => array('back' => 'User already requested a free coupon code',
-					'front' => _('Sorry but you\'re not allowed to request more than 1 free coupon code')),
-	'20200' => array('back' => 'Already existing promotion code',
-					'front' => _('This promotion code already exists')),
-	'20201' => array('back' => 'One or more already existing promotion code(s)',
-					'front' => _('One or several of this promotion code(s) seems to already exist. Please chose another name prefix.')),
-	'20202' => array('back' => 'All already existing promotion codes',
-					'front' => _('All this promotion codes seems to already exist. Please chose another name prefix.')),
-	'20205' => array('back' => 'Invalid coupon code',
-					'front' => _('This coupon code is not valid.')),
-	'20210' => array('back' => 'Coupon not allowed for device id',
-					'front' => _('You cannot use couponcodes you have shared.')),
-
-	'20260' => array('back' => 'Already registered device',
-					'front' => _('This device seems to already have registered for this app\'s push messages')),
-	'20270' => array('back' => 'Too long push message',
-					'front' => _('Push would be %d characters long. Only 256 allowed.')),
-	'20280' => array('back' => 'Push connection error.',
-					'front' => _('The push server returned an error: %')),
-					
-	'20300' => array('back' => 'Already purchased content',
-					'front' => _('This device seems to already have purchased this content')),
-	'20301' => array('back' => 'Already purchased content [account]',
-					'front' => _('This account seems to already have purchased this content')),					
-	'20310' => array('back' => 'Invalid apple transaction receipt',
-					'front' => _('The passed apple transaction receipt is not valid')),
-	'20330' => array('back' => 'Productpack not found',
-					'front' => _('The product pack could not be found.')),
-
-	'20350' => array('back' => 'No purchased content for this device id',
-					'front' => _('There is no purchased content for the passed device id')),
-
-	'20400' => array('back' => 'No remaining sharing rights left',
-					'front' => _('This device has no more remaining sharing rights left')),
-					
-	'20430' => array('back' => 'No shared contents for this device ID',
-					'front' => _('There is no shared content for the passed device id')),
-					
-	'20440' => array('back' => 'Coupon code already used with this device ID.',
-					'front' => _('You cannot use this coupon code more than once for this device.')),
-
-
-	// Products
-	'21001' => array('back' => 'Unknown product %s',
-					'front' => _('The requested product \'%s\' could not be find')),
 
 );
 ?>

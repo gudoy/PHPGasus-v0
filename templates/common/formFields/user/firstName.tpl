@@ -1,4 +1,4 @@
-{if $mode=='api'}{$postValName='first_name'}{else}{$postValName='userFirst_name'}{/if}
+{if $mode=='api'}{$postValName='firstname'}{else}{$postValName='userFirstname'}{/if}
 <div class="line">
 	<div class="labelBlock">
 		<label class="span" for="{$postValName}">{t}first name{/t}{* <span class="required">*</span>*}</label>

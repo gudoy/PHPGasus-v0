@@ -9,7 +9,7 @@
 #5c6062 grey (icons active)
 #8f8f8f grey (icons inactive)
 */
-* { -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box;  -webkit-transition:all .25s ease; transition:all .25s ease; }
+* { -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; /*-webkit-transition:all .25s ease; transition:all .25s ease;*/ }
 
 html,
 body { margin:0; padding:0; }
@@ -488,6 +488,7 @@ form .buttonsLine a { text-shadow:1px 1px 0 rgba(255,255,255,0.8); }
 .api form fieldset .line:not(.disabled) { margin-top:10px; }
 .line.typeOneToOne input[type="search"]:not([list]) { padding-left:3px; background-image:none; }
 .line.typeOneToOne .relItemSearchBtn button { padding:0; }
+.line.typeSet .info { padding-left:20px; background-repeat:no-repeat; }
 
 input:focus::-webkit-input-placeholder,
 input:focus::-webkit-placeholder,
@@ -783,7 +784,7 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .adminTable thead th.typeTimestamp,
 .adminTable tbody td.typeTimestamp { width:8em; text-align:center; }
 .adminTable tbody td.typeSet .value { vertical-align:middle; } 
-.adminTable tbody td.typeSet .item { margin:1px 3px 2px 0; padding:0 5px 0 5px; display:inline-block; background:#DDD; background:-webkit-linear-gradient(white, #DDD); background:-moz-linear-gradient(white, #DDD); background:-o-linear-gradient(white, #DDD); background:-ms-linear-gradient(white, #DDD); background:linear-gradient(white, #DDD); border:1px solid #AAA; border-radius:3px; vertical-align:middle; }
+.adminTable tbody td.typeSet .item { margin:1px 3px 2px 0; padding:0 5px 0 5px; display:inline-block; background:#DDD; background:-webkit-linear-gradient(white, #DDD); background:-moz-linear-gradient(white, #DDD); background:-o-linear-gradient(white, #DDD); background:-ms-linear-gradient(white, #DDD); background:linear-gradient(white, #DDD); color:#7f7f7f; border:1px solid #AAA; border-radius:3px; vertical-align:middle; }
 .adminTable tbody td.typeSet .item > a { width:12px; min-height:18px; padding:0 0 0 5px; display:none; content:''; background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAAAAADhZOFXAAAARElEQVR4XgVAQQqAIBCc589FdvMNhkLPSljZzlK3CbznLT19Y7DMPNgQzmL0gJaRFoLSyDKFrDSnTXR6rMqB3ZaU1/cDlHou1DZI6fcAAAAASUVORK5CYII=") no-repeat 50% 5px; vertical-align:middle; cursor:pointer; }
 .adminTable tbody td.typeSet details {}
 .adminTable tbody td.typeSet details .item { display:none; }
@@ -822,6 +823,7 @@ div.actionBtn button { padding:5px 10px; background:none; border:none; text-shad
 .myAccountNav .nav { overflow:hidden; padding-left:10px; padding-top:2em; display:block; }
 .myAccountNav .nav a { display:block; clear:both; background:none; color:#3C65D7; text-decoration:underline; cursor:pointer; }
 .myAccountNav.active .details { display:block; }
+.admin .myAccountNav .n { display:none; }
 
 #mainNavTitle { margin:10px 10px 0 10px; display:inline-block; cursor:pointer; }
 /* TODO: replace nav.main by nav.resources */
@@ -1319,7 +1321,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	html:not(#adminHome) #headerFooter { display:block; position:relative; }
 	
 	#headerContent,
-	#asideContent { position:relative; box-shadow:3px 0 6px rgba(0, 0, 0, 0.2); }
+	#asideContent { position:relative; overflow-y:auto; box-shadow:3px 0 6px rgba(0, 0, 0, 0.2); }
 	
 	#headerHeader,
 	#headerFooter { float:none; }
@@ -1520,7 +1522,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 	::-webkit-scrollbar { width:10px; height:10px; }
 	::-webkit-scrollbar-thumb { border-radius:5px; }
 	
-	#adminLogsBlock { width:100%; max-width:600px; float:left; }
+	#adminHome #adminLogsBlock { width:100%; max-width:600px; float:left; }
 	#adminActiveUsersBlock { width:100%; max-width:240px; float:left; }
 	
 	.listMode .resource .data .col { width:33%; }
@@ -1529,7 +1531,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 /* 1600 x 1200 */
 @media screen and (min-width:1560px) 
 {
-	#adminLogsBlock { max-width:720px; }
+	#adminHome #adminLogsBlock { max-width:720px; }
 	#adminActiveUsersBlock { max-width:320px; }
 	#adminActiveUsersBlock .content { margin-top:30px; }
 }
@@ -1539,7 +1541,7 @@ section[data-density="normal"] .thumbsMode .resource .cover { max-width:120px; m
 {	
 	.ui-dialog { max-width:920px; }
 	
-	#adminLogsBlock { max-width:940px; }
+	#adminHome #adminLogsBlock { max-width:940px; }
 	#adminActiveUsersBlock { max-width:320px; }
 	
 	.listMode .resource .data .col { width:25%; }

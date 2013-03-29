@@ -36,8 +36,8 @@
  
 
 /*
- * Version: 1.1.2
- * Build: 2010032722
+ * Version: 1.1.4
+ * Build: 2010100721
  */
 
 
@@ -810,7 +810,7 @@
                 <style>
                     .m { background-color: white; }
                 </style>
-                <?
+                <?php
                     echo '<pre><tt><br/ ><br/ ><br/ >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
                     echo join("<br/ >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $frame);
                     echo '</tt></pre><br/ ><br/ ><br/ ><br/ ><br/ ><br/ >';
@@ -842,7 +842,7 @@
                     .x { background-color: pink; }
                     .f { background-color: gold; }
                 </style>
-                <?
+                <?php
                 echo "<pre><tt>";
                 echo join("<br/ >", $frame);
                 echo "</tt></pre>";
@@ -1507,7 +1507,7 @@
          * Validation
          **********************************************************************/
 
-        public function check($mode, $size, $data)
+        public static function check($mode, $size, $data)
         {
             if($size <= 0) 
                 return false;

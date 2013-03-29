@@ -143,6 +143,77 @@ class Application
 		// Store the current lang
 		$_SESSION['lang'] 	= $language . '_' . $territory;
 	}
+
+	public function handleHttpAuth()
+	{
+//var_dump(base64_encode('doyer.guyllaume@gmail.com:cmc7g6ah'));
+		// ZG95ZXIuZ3V5bGxhdW1lQGdtYWlsLmNvbToxMjM0NTY=
+		// ZG95ZXIuZ3V5bGxhdW1lQGdtYWlsLmNvbTpjbWM3ZzZhaA
+//var_dump($_SERVER['HTTPS']);
+//die();
+//var_dump($_SERVER['PHP_AUTH_USER']);
+//var_dump($_SERVER['PHP_AUTH_PW']);
+		if ( !_APP_ALLOW_HTTP_AUTH ){ return false; }
+
+		if ( empty($_SERVER['HTTPS']) 
+			|| $_SERVER['HTTPS'] !== 'on' 
+			|| !isset($_SERVER['PHP_AUTH_USER']) 
+			|| !isset($_SERVER['PHP_AUTH_PW']) ) { return false; }
+		
+//Digest: 
+		
+		// Handle Digest Authentication
+		if ( !empty($_SERVER['PHP_AUTH_DIGEST']) )
+		{
+			// TODO
+			//$tmpUser = http_digest_parse($_SERVER['PHP_AUTH_DIGEST']);
+//var_dump($tmpUser);
+//die();
+		}
+		// Handle Basic Authentication 
+		else
+		{
+			// Get user
+			$userMail 	= filter_var($_SERVER['PHP_AUTH_USER'], FILTER_VALIDATE_EMAIL);
+			
+			// Do not continue any longer if the email is not valid
+			if ( !$userMail ){ return false; }
+			
+			$user 		= CUsers::getInstance()->retrieve(array(
+				'getFields' 	=> array('id', 'password'),
+				'conditions' 	=> array('email' => $userMail)
+			));
+			
+//var_dump($user);
+//var_dump(sha1($_SERVER['PHP_AUTH_PW']));
+//die();
+			
+			// If the user has not been found or if the 
+			if ( !$user || empty($user['password']) || sha1($_SERVER['PHP_AUTH_PW']) !== $user['password'] ){ return false; }
+			
+			$sid = session_id(); 
+			
+// 6ef7imbqs74r0lu72q86vuea96			
+//var_dump($sid);
+//die();
+			
+			// If the session does not already exists
+			if ( $sid === '' )
+			{
+				// Start a new session
+				session_start();
+				$sid = session_id();
+				$_SESSION['user_id'] = $user['id'];
+//var_dump($sid);
+//die();
+			}	
+		}
+		
+//var_dump($_SERVER);
+//die();
+
+		return true;
+	}
 	
 	public function handleSession()
 	{
@@ -158,20 +229,11 @@ class Application
 		// Set the session name accordingly to the conf
 		session_name(_SESSION_NAME);
 		
-		// Specific case for session forwarding from iphone/ipod/ipad app to safari where the session id is 
-		// passed in the URL.
-		$ua = !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
-		if ( _APP_ALLOW_GET_SID_FROM_URL && ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) )
-		{
-			// Get the data of the passed session id
-			$sid 	= ( !empty($_GET[_SESSION_NAME]) || !empty($_POST[_SESSION_NAME]) ) 
-						? filter_var( !empty($_POST[_SESSION_NAME]) ? $_POST[_SESSION_NAME] : $_GET[_SESSION_NAME], FILTER_SANITIZE_STRING)
-						: null;
-			
-			session_id($sid);
-			session_start(); 
-			$_SESSION['id'] = $sid;
-		}
+		// Get current (for later use)
+		$curTime = !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+		
+		// Test for HTTP authentication 
+		$isHttpAuthenticated = $this->handleHttpAuth();
 		
 		// Start the session if not already started
 		if ( session_id() === '') { session_start(); }
@@ -179,6 +241,7 @@ class Application
 		// Get the current session id
 		$sid = session_id();
 		
+		// Try to find the session data in db
 		$CSessions 	= new CSessions();
 		$session 	= $CSessions->retrieve(array( 
 			'getFields' 	=> 'id,name,user_id,ip,expiration_time',
@@ -189,46 +252,94 @@ class Application
 		));
 		
 //var_dump($session);
-
-//var_dump($this->isSessionValid($session['expiration_time']));
-//die();
 		
 		// Get user ip & clean it
 		$clientIp = !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ( !empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null );
 		$clientIp = filter_var($clientIp, FILTER_VALIDATE_IP) ? $clientIp : false;
 		
-		// If the client ip match the passed session's one, set it as the current session id
-		if ( empty($session) || !empty($session['ipg']) || $clientIp !== $session['ip'] )
+		// If no session has been found but user has been successfully authenticated with http autenthication, create a new session
+		$sessionJustCreated = false;
+		if ( !$session && $isHttpAuthenticated )
+		{
+			// Create a new session
+			$curPOST 	= $_POST;
+			$_POST 		= array(
+				'name' 				=> $sid,
+				'user_id' 			=> $_SESSION['user_id'], 
+				'expiration_time' 	=> $curTime + _APP_SESSION_DURATION,
+				'ip' 				=> $_SERVER['REMOTE_ADDR']
+			);
+			$CSessions->create();
+			
+			// Store session dat, restore POST data and flag session has just created (for later use)
+			$_SESSION['id'] 	= $sid;
+			$_POST 				= $curPOST;
+			$sessionJustCreated = $CSessions->success;
+		}
+		
+//var_dump($session['ip']);
+//var_dump($clientIp);
+		
+		// If no session was found or if the client ip does not match the passed session's one, deny login
+		//if ( empty($session) || !empty($session['ipg']) || $clientIp !== $session['ip'] )
+		if ( !$session || empty($session['ip']) || $clientIp !== $session['ip'] )
 		{
 			$this->logged = false;
 			return $this;
 		}
 		
-		// Do not continue any longer is the session is no longer valid
-		if ( !$this->isSessionValid($session['expiration_time']) )
+//var_dump('is valid: ' . $this->isSessionValid($session['expiration_time']));
+//die();
+		
+		// Is the session expired?
+		$isExpired = !$this->isSessionValid($session['expiration_time']);
+		
+//var_dump('expired: ' . $isExpired);
+//var_dump('session just created: ' . $sessionJustCreated);
+//die();
+		
+		// Do not continue any longer if the session is no longer valid
+		//if ( !$this->isSessionValid($session['expiration_time']) )
+		if ( $isExpired )
 		{
 			$this->logged = false;
 			return $this;
 		}
 		
+		// TODO 
 		// Store the user id in session
-		$_SESSION['user_id'] 	= $session['user_id'];
+		//$_SESSION['user_id'] 	= $session['user_id'];
 		
-		$curPOST 	= $_POST;
-		$_POST 		= array(
-			'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + _APP_SESSION_DURATION,
-			'last_url' 			=> $this->currentURL(),
-		);
+		// Prolong the session, but only if it has not just been created (in case of a valid http auth)
+		if ( !$sessionJustCreated )
+		{
+//var_dump('case 1');
+			// Prolong session
+			$curPOST 	= $_POST;
+			$_POST 		= array(
+				'expiration_time' 	=> $curTime + _APP_SESSION_DURATION,
+				'last_url' 			=> $this->currentURL(),
+			);
+			
+			// Try to update the session in db, if exists and not already expired
+			$CSessions->update(array('isApi' => 1, 'conditions' => array('id' => $session['id'])));
+
+			// Once this is done, restore POST data
+			unset($_POST);
+			$_POST = $curPOST;
+			
+			// If rows have been affected, it means that the user is properly logged (cause the session exists and is not expired)
+			$this->logged = $CSessions->success && $CSessions->model->affectedRows > 0;
+		}
+		else
+		{
+//var_dump('case 2');
+			
+			$this->logged = true;
+		}
 		
-		// Try to update the session in db, if exists and not already expired
-		$CSessions->update(array('isApi' => 1, 'conditions' => array('id' => $session['id'])));
-		
-		// If rows have been affected, it means that the user is properly logged (cause the session exists and is not expired)
-		$this->logged = $CSessions->success && $CSessions->model->affectedRows > 0;
-		
-		// Once this is done, unset previously setted POST
-		unset($_POST);
-		$_POST = $curPOST;
+//var_dump($this->logged);
+//die();
 		
 		return $this;
 	}

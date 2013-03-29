@@ -8,7 +8,7 @@
             <img class="photo {if !$user.profile_pics_url}default{/if}" src="{$user.profile_pics_url|default:"{$smarty.const._URL_STYLESHEETS}images/pix.png"}" alt="{t}Avatar{/t}: {$user.screen_name}" />
         </a>
         <figcaption class="figcaption">
-            {if $user.first_name || $user.lastname}
+            {if $user.firstname || $user.lastname}
             <span class="login fn n">{if $user.firstname}<span class="firstname">{$user.firstname}</span>{/if} {if $user.lastname}<span class="lastname">{$user.lastname}</span>{/if}</span>
             {/if}
             {if $user.email}

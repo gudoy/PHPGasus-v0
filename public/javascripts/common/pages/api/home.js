@@ -29,7 +29,10 @@ var apiHome =
 			{
 				e.preventDefault();
 
-				$(e.target).closest('.apiGroupBlock', this.apis).not('.active').addClass('active').siblings('.active').removeClass('active');
+				var $group 		= $(e.target).closest('.apiGroupBlock', this.apis);
+
+				//$group.not('.active').addClass('active').siblings('.active').removeClass('active');
+				$group.toggleClass('active');
 			})
 		
 		return this;	

@@ -50,6 +50,7 @@ class DataModel
 		'_siblings', 							// array of resource names (default = empty)
 		'_children', 							// array of resource names (default = empty)
 		'_related', 							// array of resource names (default = empty)
+		'_requiredColumns', 					// array of column names (default = empty) 
 		'_exposedColumns', 						// array of column names (default = empty) 
 		'_searchableColumns', 					// array of column names (default = empty)
 		
@@ -497,6 +498,7 @@ class DataModel
 				'_siblings' 			=> array(), // will be populated by parseColumns()
 				'_children' 			=> array(), // will be populated by parseColumns()
 				'_related' 				=> array(), // will be populated by parseColumns()
+				'_requiredColumns' 		=> array(), // will be populated by parseColumns()
 				'_exposedColumns' 		=> array(), // will be populated by parseColumns() 
 				'_searchableColumns' 	=> array(), // will be populated by parseColumns()
 				

@@ -9,6 +9,8 @@ class ApiView extends View
 	    $this->application = &$application;
         
 		parent::__construct($application);
+		
+		$this->options['filterNotExposed'] = true;
 	}
 	
 	public function dispatchMethods($args = array(), $params = array())
@@ -67,15 +69,21 @@ class ApiView extends View
 
 	public function getMissingRequiredFields()
 	{
+		// Do not continue if the resource's datamodel is not defined 
+		if ( empty($this->C->application->dataModel[$this->resourceName]) );
+		
 		$missing 	= array();
 		
 		// Loop over resource columns to check for missing required fields
 		$rCols 		= $this->C->application->dataModel[$this->resourceName];
+//var_dump($rCols);
 		foreach( (array) $rCols as $colName => $colProps )
 		{
+			// Is the column required
 			$isRequired = !empty($colProps['required']);
 							
-			if ( $isRequired  && ( !isset($_POST[$colName]) || $_POST[$colName] !== '' ) ){ $missing[] = $colName; }
+			// If the column is required, and not passed or empty, mark it has missing
+			if ( $isRequired  && ( !isset($_POST[$colName]) || $_POST[$colName] === '' ) ){ $missing[] = $colName; }
 		}
 		
 		return $missing;
