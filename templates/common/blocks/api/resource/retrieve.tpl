@@ -1,7 +1,7 @@
 <div class="resourceDetailBlock apiResourceDetailBlock">
 	<dl>
 	{foreach $item as $colName => $value}
-		{$colProps = $data.dataModel[$resourceName][$colName]}
+		{$colProps = $data._columns[$resourceName][$colName]}
 		{* Do not display fields that are not defined in the dataModel *}
 		{* except for admin views *}
 		{if $isAdminView || !empty($colProps)}

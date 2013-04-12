@@ -27,9 +27,8 @@ class Model extends Application
 	{		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-		//$this->dataModel 	= $dataModel;
 		$this->application    = &$application;
-		$this->resources      = &$resources;
+		$this->resources      = &$_resources;
 		$rProps               = &$this->resources[$this->resourceName];
 		
         // Handle filter resources
@@ -192,15 +191,12 @@ class Model extends Application
 	    $o = &$options;
         $o = array_merge(array(
             //'resource' => $this->resourceName,
-            'rModel'        => &$this->application->dataModel[$this->resourceName],
+            'rModel'        => &$this->application->_columns[$this->resourceName],
             'fixOneToOne'   => defined('_APP_TYPEFIX_ONETOONE_GETFIELDS') && _APP_TYPEFIX_ONETOONE_GETFIELDS,
             'fixManyToMany' => defined('_APP_TYPEFIX_MANYTOMANY_GETFIELDS') && _APP_TYPEFIX_MANYTOMANY_GETFIELDS,
         ), $options);
         
 		if ( !is_array($dataRow) && !is_object($dataRow) ){ return $dataRow; }
-
-		//$rModel 	= &$this->application->dataModel[$this->resourceName];
-        //$rModel     = &$this->application->dataModel[$o['resource']];
 		
 		//foreach( $rModel as $name => $field )
 		foreach( $o['rModel'] as $name => $field )
@@ -321,7 +317,7 @@ class Model extends Application
                     //                     
                     if ( $item === $relField ){ $uniqueKeys = $tmp; }
 					
-                    $relFieldModel[$item] = &$this->application->dataModel[$relResource][$item];   
+                    $relFieldModel[$item] = &$this->application->_columns[$relResource][$item];   
 					
 					// Loop over the splited value and reassign into the proper final array
 					foreach ( $tmp as $k => $v )
@@ -375,7 +371,7 @@ class Model extends Application
         $p 		= array_merge(array(
             'resource' => $this->resourceName,
         ), $params);
-        $rModel = &$this->application->dataModel[$p['resource']];      // Shortcut for current resource dataModel
+        $rModel = &$this->application->_columns[$p['resource']];      // Shortcut for current resource dataModel
         
         // Do not continue if the passed colname does not exist if the datamodel
         if ( !isset($rModel[$colName]) ) { return $type; }
@@ -703,7 +699,7 @@ class Model extends Application
         
 		// Set default params
 		$o 					= array_merge($this->options, $options);
-		$rModel 			= &$this->application->dataModel[$this->resourceName];
+		$rModel 			= &$this->application->_columns[$this->resourceName];
 		
 		$this->queryData 	= array(
 			'fields' => array(),
@@ -945,7 +941,7 @@ class Model extends Application
 			{	
 				// Get the field type
 				$resName 	= !empty($field['resource']) ? $field['resource'] : $this->resourceName;
-				$res 		= &$this->application->dataModel[$resName];
+				$res 		= &$this->application->_columns[$resName];
 				$type 		= !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
 				//$type 		= isset($field['name']) && !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
 				
@@ -1033,7 +1029,7 @@ class Model extends Application
 //$this->dump($options);
 		
 		$rName 		= &$this->resourceName;
-		$rModel 	= &$this->application->dataModel[$this->resourceName];
+		$rModel 	= &$this->application->_columns[$this->resourceName];
 		
 		$fieldsNb 	= count($rModel);		// Get the number of fields for this resource
 		$after 		= array();
@@ -1392,7 +1388,7 @@ class Model extends Application
 		$fieldsNb 	= count($d);											// Get the number of fields for this resource
 		
 		$rName 		= &$this->resourceName;
-		$rModel 	= &$this->application->dataModel[$this->resourceName];
+		$rModel 	= &$this->application->_columns[$this->resourceName];
 		
 		// Start writing request
 		$query 		= "UPDATE ";
@@ -2027,10 +2023,10 @@ class Model extends Application
                 $col        = !$useAlias ? $colParts[1] : $col;
 				
 				// Handle special case where passed value can be a column name
-				$isValColname = is_string($values) && isset($this->application->dataModel[$this->resourceName][$values]);
+				$isValColname = is_string($values) && isset($this->application->_columns[$this->resourceName][$values]);
 				
                 // Do not continue if the column is not a known one or if the resource does not belong to the queried ones for this request
-                if ( !isset($this->application->dataModel[$res][$col]) ){ continue; }
+                if ( !isset($this->application->_columns[$res][$col]) ){ continue; }
                 
                 // TODO: how to handle joined columns????                
 				
@@ -2133,7 +2129,7 @@ class Model extends Application
 		$output       = '';
 		$res          = $o['resource'];
 		$col          = $o['column'];
-		$colModel     = !empty($res) && !empty($col) && !empty($this->application->dataModel[$res][$col]) ? $this->application->dataModel[$res][$col] : null;
+		$colModel     = !empty($res) && !empty($col) && !empty($this->application->_columns[$res][$col]) ? $this->application->_columns[$res][$col] : null;
 		$defType      = !empty($colModel['type']) ? $colModel['type'] : null;
 		$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby')) ? '%' : '';
 		$valSuffix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','startsby','doesnotstartsby')) ? '%' : '';
@@ -2219,7 +2215,7 @@ class Model extends Application
 	public function handleOrder($options = array())
 	{
 		$o 			= &$options; 		// Shortcut for options
-        $rModel     = &$this->application->dataModel[$this->resourceName];
+        $rModel     = &$this->application->_columns[$this->resourceName];
 		
 		// Build ORDER BY
 		$orderBy = $tmpOrderBy = '';

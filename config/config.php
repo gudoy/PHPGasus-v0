@@ -10,6 +10,7 @@ define("_SUBDOMAIN", 					str_replace('.' . _DOMAIN, '', $_SERVER['HTTP_HOST']))
 
 if ( _APP_CONTEXT === 'local' )
 {
+	error_reporting(0);
 	define("_SMARTY_COMPILE_CHECK", 	true); 
 	define("_SMARTY_FORCE_COMPILE", 	true); 
 	

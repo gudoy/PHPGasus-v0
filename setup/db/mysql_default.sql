@@ -124,30 +124,42 @@ CREATE TABLE IF NOT EXISTS `tasks` (
 
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL auto_increment,
-  `email` varchar(255) default NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) DEFAULT NULL,
   `password` varchar(64) NOT NULL,
   `password_old_1` varchar(64) NOT NULL,
   `password_old_2` varchar(64) NOT NULL,
-  `password_expiration` timestamp NULL,
-  `password_lastedit_date` timestamp NULL,
+  `password_expiration` timestamp NULL DEFAULT NULL,
+  `password_lastedit_date` timestamp NULL DEFAULT NULL,
   `firstname` varchar(64) NOT NULL,
   `lastname` varchar(64) NOT NULL,
-  `name` varchar(128) default NULL,
-  `prefered_lang` varchar(5) NULL,
-  `prefered_timezone` ENUM('Europe/Amsterdam',  'Europe/Berlin',  'Europe/Brussels',  'Europe/London',  'Europe/Madrid',  'Europe/Paris',  'Europe/Rome',  'Europe/Zurich') NULL,
-  `activated` tinyint(1) NOT NULL default '0',
+  `birthdate` date NOT NULL,
+  `prefered_lang` varchar(5) DEFAULT NULL,
+  `prefered_timezone` enum('Europe/Amsterdam','Europe/Berlin','Europe/Brussels','Europe/London','Europe/Madrid','Europe/Paris','Europe/Rome','Europe/Zurich') DEFAULT NULL,
+  `activated` tinyint(1) NOT NULL DEFAULT '0',
   `activation_key` varchar(32) NOT NULL,
   `password_reset_key` varchar(32) NOT NULL,
   `private_key` varchar(16) NOT NULL,
-  `creation_date` timestamp NULL default NULL,
-  `update_date` timestamp NULL default NULL,
-  PRIMARY KEY  (`id`),
+  `country_id` int(11) DEFAULT NULL,
+  `avatar_url` varchar(256) DEFAULT NULL,
+  `has_newsletter` tinyint(1) NOT NULL DEFAULT '0',
+  `facebook_id` int(20) DEFAULT NULL,
+  `facebook_access_token` varchar(255) DEFAULT NULL,
+  `twitter_id` int(11) DEFAULT NULL,
+  `twitter_access_token` varchar(255) DEFAULT NULL,
+  `google_id` int(11) DEFAULT NULL,
+  `google_access_token` varchar(255) DEFAULT NULL,
+  `creation_date` timestamp NULL DEFAULT NULL,
+  `update_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
-  KEY `firstname` (`firstname`),
-  KEY `lastname` (`lastname`),
-  KEY `device_id` (`device_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+  KEY `first_name` (`firstname`),
+  KEY `last_name` (`lastname`),
+  KEY `facebook_id` (`facebook_id`),
+  KEY `twitter_id` (`twitter_id`),
+  KEY `google_id` (`google_id`),
+  KEY `country_id` (`country_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
 
 
 CREATE TABLE IF NOT EXISTS `users_groups` (
@@ -207,7 +219,7 @@ INSERT INTO `groups` (`id`, `name`, `slug`, `creation_date`, `update_date`) VALU
 
   
 INSERT INTO `users` (`id`, `email`, `password`, `firstname`, `lastname`, `name`, `device_id`, `activated`, `activation_key`, `password_reset_key`, `private_key`, `creation_date`, `update_date`) VALUES
-('', 'gdoyer@mystudiofactory.com', '4d11ca0509003bd78184ed0dcff0b5250b6072a2', 'guyllaume', 'doyer', 'Guyllaume Doyer', '', 1, '', '', '', '', '');
+('', 'admin@example.org', '7c4a8d09ca3762af61e59520943dc26494f8941b', '', '', '2013-04-10 09:15:58', NULL, 'John', 'Do', '0000-00-00', '', '', 1, '', '', '', null, '', 0, 0, '', 0, '', 0, '', '2013-03-18 14:10:37', '2013-04-10 09:26:00'),
 
   
 INSERT INTO `users_groups` (`id`, `user_id`, `group_id`, `creation_date`, `update_date`) VALUES

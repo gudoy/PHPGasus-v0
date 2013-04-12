@@ -10,8 +10,8 @@ $errorsAssoc = array(
 	// NO error should be defined with error between 100 & 1000 (assumed to be reserved to HTTP status codes)
 	'1000' => array('back' => 'Missing required params',
 					'front' => _('Missing required parameter(s).')),
-	'1001' => array('back' => 'Missing required param %s',
-					'front' => _('Missing required parameter: %s.')),
+	'1001' => array('back' => 'Missing required params',
+					'front' => _('Missing required params: %s.')),
 	'1002' => array('back' => 'Missing required fields: %s',
 					'front' => _('Please fill all the required fields: %s')),
 	'1003' => array('back' => 'Missing required field(s): %s',

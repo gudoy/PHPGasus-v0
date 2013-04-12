@@ -27,6 +27,15 @@ class View extends Application implements ViewInterface
 		return $this->init();
 	}
 	
+	public function loadDataModel()
+	{
+		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
+		
+		$this->_resources 	= &$_resources;
+		$this->_columns 	= &$_columns;
+		$this->_groups 		= &$_groups;
+	}
+	
 	public function index(){}
 	
 	public function init()
@@ -84,8 +93,6 @@ class View extends Application implements ViewInterface
 		}
 		
 		$this->getPlatformData();
-		//$this->configSmarty();
-		//$this->getPlatformData();
         $this->getBrowserData();
         $this->getDeviceData();
 		$this->handleOptions();
@@ -96,9 +103,6 @@ class View extends Application implements ViewInterface
 		$this->isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
 								&& strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
 								&& ( !isset($_GET['tplSelf']) || !in_array($_GET['tplSelf'], array('0','false')) );
-								
-//$this->dump('isAjax:');			
-//$this->dump($this->isAjaxRequest);
 		
 		$this->inited = true;
 		
@@ -193,7 +197,7 @@ class View extends Application implements ViewInterface
         
 		// If the method is not index and belongs to the allowed methods, call it
 		//if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
-		if ( $m !== 'index' && in_array($m, $allowed) ) { return call_user_func_array(array($this, $m), $args); }
+		if ( $m !== 'index' && in_array($m, (array) $allowed) ) { return call_user_func_array(array($this, $m), $args); }
 		// Otherwise, just continue
 		else if ( $m === 'index' ) { /* just continue */ }
 		// The following case should not append
@@ -228,10 +232,8 @@ class View extends Application implements ViewInterface
 //var_dump($_r);
 //var_dump('params');
 //var_dump($params);
-		$_res 	= $this->data['_resources'];
-		$_dm 	= $this->data['dataModel'];
-		
-//var_dump($this->application->resources);
+		$_res 	= $this->_resources;
+		$_dm 	= $this->_columns;
 		
 //var_dump($_dm);
 		
@@ -550,16 +552,13 @@ class View extends Application implements ViewInterface
 		
 		$d 				= &$this->data; 												// Shortcut for data		 
 		$relResources 	= array(); 														// Array of related resource for the current resource
-		//$hr 			= array(); 														// Handled resources
-		//$rModel  		= &$this->dataModel['resourcesFields'][$this->resourceName]; 	// Set shortcut to resource columns
-		$rModel  		= &$this->data['dataModel'][$this->resourceName]; 	// Set shortcut to resource columns
+		$rModel  		= $this->_columns[$this->resourceName]; 	// Set shortcut to resource columns
 		
 		// Loop over the resource colums
-		//foreach ( $this->dataModel['resourcesFields'][$this->resourceName] as $name => $f )
 		foreach ( array_keys((array) $rModel) as $colName )
 		{
 			// Get col properties
-			$p = &$rModel[$colName];
+			$p = $rModel[$colName];
 			
 			// Do not continue if the type is not found and the field is not a foreign key
 			if ( empty($p['type']) && empty($p['fk']) ){ continue; }
@@ -581,16 +580,12 @@ class View extends Application implements ViewInterface
 				$ctrlrName 		= 'C' . ucfirst($relResName);								// Build its controller name
 				$ctrlr 			= new $ctrlrName(); 										// Instanciate it
 				$count 			= $ctrlr->index(array('mode' => 'count'));					// Count the records for the resource
-				//$d[$relResName] = $count < 100 ? $ctrlr->index() : null;
 				$d[$relResName] = ( $count < 100 || ( !empty($p['uiWidget']) && in_array($p['uiWidget'], array('select','datalist')) ) )  
 										? $ctrlr->index() 
 										: null;
 				
 				// Store the related resource count
 				$d['total'][$relResName] = $count;
-				 
-				// Store that we handled this related resource
-				//$hr[] = $this->resourceName;
 			}
 		}
 		
@@ -936,7 +931,8 @@ class View extends Application implements ViewInterface
 		{
 			$this->headers[] = 'Content-type: application/json; charset=utf-8;';
 			$this->writeHeaders();
-			$json = json_encode($this->data);
+			//$json = json_encode($this->data);
+			$json = json_encode(isset($this->data) ? $this->data : array());
 			//$json = htmlspecialchars_decode($json, ENT_QUOTES); 
 			//$json = html_entity_decode($json, ENT_QUOTES, 'UTF-8');
 			//$json = utf8_encode(str_replace(array('&#39;','&#34;'),array("'", '"'), $json));
@@ -1049,121 +1045,23 @@ class View extends Application implements ViewInterface
 		}
 		else if ( $of === 'csv' )
 		{
-			$output 	= '';
-			$sep 		= !empty($_GET['separator']) && in_array($_GET['separator'], array(',',';','\n','\t')) ? $_GET['separator'] : ",";
-			$eol 		= PHP_EOL;
-			$comment 	= "#";
-			
-			//$buffer = fopen('php://temp', 'r+');
-			
-			// Loop over the data
-			foreach (array_keys((array) $this->data) as $k)
-			{
-				// Skip everything that is not the current resource
-				if ( !empty($this->data['current']['resource']) && $k !== $this->data['current']['resource'] ){ continue; }
-				
-				$rows = $this->data[$k];
-				 
-				// Add a 1st line with column names
-				if ( !empty($this->data['dataModel'][$k]) )
-				{
-					$output .= $comment . join($sep, array_keys($this->data['dataModel'][$k])) . $eol;
-				}
-				
-				// Loop of the the rows
-				foreach (array_keys((array) $rows) as $i)
-				{
-					$row = $rows[$i];
-					
-					//foreach ($row as $col => $value) { $output .= $value . $sep . $eol; }
-					//$output .= join($sep,$row) . $eol;
-					
-					$buffer = fopen('php://temp', 'r+');
-					fputcsv($buffer, array_values((array) $row), $sep);
-					rewind($buffer);
-					$csv = fgets($buffer);
-					$output .= $csv;
-					fclose($buffer);
-				}
-			}
+			require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
+			$php2CSV 	= new php2CSV();
+			$output 	= $php2CSV->process($this->data);
 			
 			$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
-			//$this->headers[] = 'plain/txt; charset=utf-8;';
 			$this->writeHeaders();
-			exit($output);			
-			
-			/*
-			class_exists('php2CSV') || require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
-			
-			foreach(array('success','errors','warnings') as $item) { if ( isset($this->data[$item]) ) { unset($this->data[$item]); } }
-			
-			$php2CSV = new php2CSV();
-			$output = $php2CSV->process($this->data);
-			//$output = $php2CSV->process($this->data['entries']);
-						
-			//$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
-			//$this->writeHeaders();
-			//exit($output);
-			*/
+			exit($output);
 		}
 		else if ( $of === 'csvtxt' )
 		{
-			$output 	= '';
-			$sep 		= !empty($_GET['separator']) && in_array($_GET['separator'], array(',',';','\n','\t')) ? $_GET['separator'] : ",";
-			$eol 		= PHP_EOL;
-			$comment 	= "#";
+			require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
+			$php2CSV 	= new php2CSV();
+			$output 	= $php2CSV->process($this->data);
 			
-			//$buffer = fopen('php://temp', 'r+');
-			
-			// Loop over the data
-			foreach (array_keys((array) $this->data) as $k)
-			{
-				// Skip everything that is not the current resource
-				if ( !empty($this->data['current']['resource']) && $k !== $this->data['current']['resource'] ){ continue; }
-				
-				$rows = $this->data[$k];
-				 
-				// Add a 1st line with column names
-				if ( !empty($this->data['dataModel'][$k]) )
-				{
-					$output .= $comment . join($sep, array_keys($this->data['dataModel'][$k])) . $eol;
-				}
-				
-				// Loop of the the rows
-				foreach (array_keys((array) $rows) as $i)
-				{
-					$row = $rows[$i];
-					
-					//foreach ($row as $col => $value) { $output .= $value . $sep . $eol; }
-					//$output .= join($sep,$row) . $eol;
-					
-					$buffer = fopen('php://temp', 'r+');
-					fputcsv($buffer, array_values((array) $row), $sep);
-					rewind($buffer);
-					$csv = fgets($buffer);
-					$output .= $csv;
-					fclose($buffer);
-				}
-			}
-			
-			$this->headers[] = 'Content-type: plain/text; charset=utf-8;';
-			//$this->headers[] = 'plain/txt; charset=utf-8;';
+			$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
 			$this->writeHeaders();
-			exit($output);			
-			
-			/*
-			class_exists('php2CSV') || require(_PATH_LIBS . 'converters/php2CSV/php2CSV.class.php');
-			
-			foreach(array('success','errors','warnings') as $item) { if ( isset($this->data[$item]) ) { unset($this->data[$item]); } }
-			
-			$php2CSV = new php2CSV();
-			$output = $php2CSV->process($this->data);
-			//$output = $php2CSV->process($this->data['entries']);
-						
-			//$this->headers[] = 'Content-type: text/csv; charset=utf-8;';
-			//$this->writeHeaders();
-			//exit($output);
-			*/
+			exit($output);
 		}
 		else if ( $of === 'qr' )
 		{
@@ -1267,11 +1165,6 @@ class View extends Application implements ViewInterface
 		{
 			$this->getCSSgroup($defCssGroup);
 		}
-		
-		// Specific case
-		if 		( _SUBDOMAIN === 'iphone' || $this->platform['name'] === 'iphone' ){ $this->getCSSgroup('iphone'); }
-		else if ( _SUBDOMAIN === 'ipad' || $this->platform['name'] === 'ipad' ){ $this->getCSSgroup('ipad'); }
-		else if ( _SUBDOMAIN === 'android' || $this->platform['name'] === 'android' ){ $this->getCSSgroup('android'); }
 		
 		return $this->css;
 	}
@@ -1715,9 +1608,6 @@ class View extends Application implements ViewInterface
 			unset($user['password']);
 			$this->data['current']['user'] = $user;
 		}
-		
-//$this->dump($this->data);
-//$this->dump($this->data['_resources']);
 		
 		if ( isset($v['cache']) && !$v['cache'] ){ $this->Smarty->caching = 0; }  
 

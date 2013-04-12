@@ -18,8 +18,7 @@
 </header>
 {/block}
 
-{block name='mainContent'}	
-{$resources	= $data._resources}
+{block name='mainContent'}
 	
 	<section class="activity latestActivity" id="latestActivitySection">
 		{include file='common/blocks/admin/dashboard/latest/actions.tpl'}

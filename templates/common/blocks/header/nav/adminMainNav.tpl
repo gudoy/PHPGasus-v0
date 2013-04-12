@@ -1,13 +1,11 @@
 {$useGroups         = $smarty.const._APP_USE_RESOURCESGROUPS|default:false}
-{$resources         = $data._resources}
-{$resourcesGroups   = $data._resourcesGroups}
-{if $useGroups && $resourcesGroups}
+{if $useGroups && $data._groups}
 <ul class="nav main nav-lv1 resourceGroups" id="adminMainNav">
     {block name='adminMainNavItems'}
     <li id="dashboardNavItem" class="item item-lv1 resourceGroup resourceGroupItem{if empty($data.current.menu) || $data.current.menu === 'dashboard'} current{/if}">
         <a class="view" href="{$smarty.const._URL_ADMIN}"><span class="value name">{t}dashboard{/t}</span></a>
     </li>
-    {foreach $resourcesGroups as $gpName => $gpProps}
+    {foreach $data._groups as $gpName => $gpProps}
     {$gpDisplayName     = $gpProps.displayName|default:$gpName}
     {$gpAuthResources   = array_intersect((array) $gpProps.resources, (array) $data.current.user.auths.__can_display)}
     {if $gpProps.resources && !empty($gpAuthResources)}
@@ -21,7 +19,7 @@
         
             {$rName         = "{if is_numeric($k)}$v{else}$k{/if}"}
             {$rAdminURL     = "{$smarty.const._URL_ADMIN}{$rName}/"}
-            {$rProps        = $resources[$rName]}
+            {$rProps        = $data._resources[$rName]}
             {$rType         = $rProps.type|default:'native'}
             {$rDisplayName  = $rProps.displayName|default:$rName}
             {$rUsed         = "{if $rType === 'filter' && $rProps.extends}$rProps.extends{else}$rName{/if}"}
@@ -44,7 +42,7 @@
     <li class="item item-lv1 {if empty($data.current.menu) || $data.current.menu === 'dashboard'}current{/if}">
         <a href="{$smarty.const._URL_ADMIN}">{t}dashboard{/t}</a>
     </li>
-    {foreach $resources as $k => $v}
+    {foreach $data._resources as $k => $v}
     {if is_numeric($k) && isset($v['name'])}{$k=$v.name}{/if}
     {$type = $v.type|default:'native'}
     {*if $type === 'filter'}{$usedResource=$v.extends}{else}{$usedResource=$k}{/if*}

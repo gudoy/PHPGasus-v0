@@ -25,7 +25,7 @@ var apiHome =
 				$dt.toggleClass('expanded');
 				$dd.toggleClass('expanded');
 			})
-			.on('click', this.api, function(e)
+			.on('click', 'header.groupTitle', function(e)
 			{
 				e.preventDefault();
 

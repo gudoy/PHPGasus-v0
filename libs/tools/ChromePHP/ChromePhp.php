@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ class ChromePhp
     /**
      * @var string
      */
-    const VERSION = '3.0';
+    const VERSION = '3.0.1';
 
     /**
      * @var string
@@ -139,7 +139,7 @@ class ChromePhp
     public static function getInstance()
     {
         if (self::$_instance === null) {
-            self::$_instance = new ChromePhp();
+            self::$_instance = new self();
         }
         return self::$_instance;
     }

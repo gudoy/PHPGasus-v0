@@ -29,6 +29,7 @@
 #apisBlock .prop .values { width:100%; display:inline-block; vertical-align:top; word-wrap:break-word; }
 #apisBlock .prop .samples { display:block; }
 #apisBlock .samplesURI a { display:block; }
+#apisBlock .expectedInputData .required:after { margin-left:2px; display:inline; content:'*'; color:red; }
 #apisBlock .expectedInputData dt,
 #apisBlock .possibleErrors dt { width:40%; display:inline-block; }
 #apisBlock .expectedInputData dd,
@@ -41,19 +42,6 @@
 
 .apiGroupBlock .groupTitle,
 #apisBlock .api .title { position:relative; }
-/*
-#apisBlock .api .title:before,
-.apiGroupBlock .groupTitle:before { display:inline-block; position:absolute; left:0; top:0; bottom:0; content:''; background-color:transparent; vertical-align:middle; }
-.apiGroupBlock .groupTitle:before,
-#apisBlock .api .title:before,
-.apiGroupBlock[data-status="notready"] .groupTitle:before { background-color:red; }
-#apisBlock .api[data-status="pending"] .title:before,
-.apiGroupBlock[data-status="pending"] .groupTitle:before { background-color:orange; }
-#apisBlock .api[data-status="almostready"] .title:before,
-.apiGroupBlock[data-status="almostready"] .groupTitle:before { background-color:orange; }
-#apisBlock .api[data-status="ready"] .title:before,
-.apiGroupBlock[data-status="ready"] .groupTitle:before { background-color:green; }
-*/
 .apiGroupBlock .groupTitle { border-left:10px solid; }
 .apiGroupBlock.notready .groupTitle { border-left-color:red; }
 .apiGroupBlock.pending .groupTitle { border-left-color:orange; }
@@ -70,12 +58,6 @@
 
 #apisBlock .api .title {  }
 #apisBlock .api .title:before { width:12px; height:12px; margin-right:10px; position:static; border-radius:6px; }
-
-
-/*
-.api .ui-accordion-header { border-radius:inherit; }
-.api .ui-accordion-header .ui-icon { display:none; }
-.api .ui-accordion-content { border:inherit; border-radius:inherit; }*/
 /* End API */
 
 

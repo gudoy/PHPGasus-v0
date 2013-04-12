@@ -226,12 +226,12 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 .adminTable tr:hover td.colSelectResources input,
 .adminTable tr.ui-selected td.colSelectResources input { opacity:1; }
 .adminTable .colsManagerBlock { width:10px; height:10px; margin:0 auto; position:relative; }
-.adminTable .colsBlock { width:200px; height:20px; overflow:hidden; overflow-y:scroll; padding:10px; display:none; position:absolute; z-index:10000; right:0; top:10px; background:white; border:1px solid black; text-align:left; }
+.adminTable .colsBlock { width:200px; height:240px; overflow:hidden; overflow-y:scroll; padding:5px 0 5px 5px; display:none; position:absolute; z-index:10000; right:-13px; top:22px; background:white; border:1px solid black; text-align:left; letter-spacing:-4px; }
 .adminTable .colsManagerBlock.active .colsBlock { display:block; }
 .adminTable #colsManagerLink { width:10px; height:10px; overflow:hidden; display:block; background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAJCAQAAAChr3WYAAAAK0lEQVR42mPw/Y8O/zMwgAgQRKYZSFGJRxAZIgkiTGVAGA9jA1WiaoRIAgCF7WZJcmmpRwAAAABJRU5ErkJggg==') no-repeat 0 0; text-align:left; }
-.adminTable .colsBlock li { width:150px; margin-bottom:5px; display:block; float:left; }
-.adminTable .colsBlock input { margin:0; padding:0; }
-.adminTable .colsBlock label { display:inline-block; }
+.adminTable .colsBlock li { margin-bottom:5px; display:block; }
+.adminTable .colsBlock input { margin:0 5px 0 0; display:inline-block; }
+.adminTable .colsBlock label { width:100%; max-width:156px; margin:0; display:inline-block; vertical-align:middle; letter-spacing:normal; background:yellow; }
 .macos.webkit .adminTable { max-width:100%; overflow-x:auto; } /* fix bad table layout when contents overflows */
 .macos.chrome .adminTable .idCol { max-width:5em; } /* fix not applied width */
 

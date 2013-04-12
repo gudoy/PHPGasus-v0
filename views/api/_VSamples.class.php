@@ -5,7 +5,6 @@ class VSamples extends ApiView
     public function __construct(&$application)
     {
         $this->setResource(array('class' => __CLASS__));
-		$this->filePath 		= dirname(__FILE__);
 		
 		parent::__construct($application);
 		
@@ -56,7 +55,7 @@ class VSamples extends ApiView
 		// If POST data have been passed
 		if ( !empty($_POST) )
 		{
-			// Try to update the resource & get the create resource
+			// Try to update the resource & get the created resource
 			$rid 					= $this->C->create(array('returning' => 'id'));
 			
 			// Get the output data
@@ -72,8 +71,9 @@ class VSamples extends ApiView
 		{
 			unset($_POST);
 			
-			// Get the created resource
-			$this->data[$rName] = $this->C->retrieve(array('by' => 'id', 'values' => $rid));
+			// Returns the created resource id
+			$this->data[$rName] = array('id' => $rid);
+			//$this->data[$rName] = array(array('id' => $rid));
 			
 			return $this->statusCode(201);
 		}

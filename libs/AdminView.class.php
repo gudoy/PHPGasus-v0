@@ -7,20 +7,12 @@ class AdminView extends View
 		// User levels authorized to access the current view (overload in proper view(s) for specific authorizations
 		$this->authFailureRedirect 	= _URL_ADMIN;
 		
-		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
-		
-		$this->data = array_merge($this->data, array(
-			'dataModel' 		=> &$dataModel, 			// TODO: rename in _columns
-			'_resources' 		=> &$resources,
-			'_resourcesGroups' 	=> &$_resourcesGroups,
-		));
+		$this->loadDataModel();
 		
 		parent::__construct($application);
 		
 		$this->requireLogin(); 	// Require that the user is logged
-		$this->requireAuth(); 	// and has admin rights for the current view						
-		
-		//$this->data['meta'] = !empty($this->resourceName) ? $this->meta($this->resourceName) : null;	
+		$this->requireAuth(); 	// and has admin rights for the current view							
 		
 		$this->data['search'] 			= array();
         $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
@@ -42,48 +34,9 @@ class AdminView extends View
 		$this->Smarty->caching = 0;
 		
 		return $this;
-	}
+	}		
 	
-	// deprecated
-	public function meta($resourceName = null)
-	{
-        $this->log(__METHOD__);
-        
-		if ( empty($resourceName) ){ return array(); }
-		
-		$r 							= &$resourceName;
-		//$dmR 						= &$this->dataModel['resources'];
-		$dmR 						= &$this->data['_resources'];
-		$m 							= array();
-		$m['name'] 					= $r;
-		$m['displayName'] 			= !empty($dmR[$r]['displayName']) ? $dmR[$r]['displayName'] : $m['name'];
-		$m['singular'] 				= $dmR[$r]['singular'];
-		$m['hasAncestors'] 			= !empty($dmR[$r]['childOf']);
-		$m['hasChildren'] 			= !empty($dmR[$r]['children']);
-		$m['hasParentGroups'] 		= !empty($dmR[$r]['parentGroups']);
-		$m['mainParentGroup'] 		= $m['hasParentGroups'] ? $dmR[$r]['parentGroups'][0] : '';
-		$m['parent'] 				= $m['hasAncestors'] ? $dmR[$r]['childOf'][0] : '';
-		$m['parentSingular']		= !empty($m['parent']) ? $dmR[$m['parent']]['singular'] : '';
-		$m['ancestors'] 			= $m['hasAncestors'] ? $dmR[$r]['childOf'] : array();
-		$m['children'] 				= $m['hasChildren'] ? $dmR[$r]['children'] : array();
-		$m['shortname'] 			= $m['hasAncestors'] ? str_replace($m['parentSingular'], '', $r) : $m['name'];
-		$m['ancestorsPath'] 		= $m['hasAncestors'] ? join('/', $m['ancestors']) : '';
-		$m['shortPath'] 			= $m['ancestorsPath'] . (!empty($m['ancestorsPath']) ? '/' : '')  . $m['shortname'];
-		$m['fullAdminPath'] 		= _URL_ADMIN . ( !empty($m['mainParentGroup']) ? $m['mainParentGroup'] . '/' : '' ) . $m['shortPath'] . '/';
-		$m['breadcrumbs'] 			= !empty($this->resourceGroupName) 
-										? array_merge(array($this->resourceGroupName), $m['ancestors'], array($m['name']))
-										: array_merge($m['ancestors'], array($m['name']));
-		$m['controllerName'] 		= 'C' . ucfirst($m['name']);
-		$m['controllerFilename'] 	= 'C' . ucfirst($m['shortname']) . '.class.php';
-		$m['controllerPath'] 		= ( $m['hasAncestors'] ? join('/', $m['ancestors']) . '/' : ( $m['hasChildren'] ? $m['name'] . '/' : '' ) ) . $m['controllerFilename'];
-		$m['defaultNameField'] 		= !empty($dmR[$r]['defaultNameField']) ? $dmR[$r]['defaultNameField'] : '';
-		$m['crudability'] 			= !empty($dmR[$r]['crudability']) ? $dmR[$r]['crudability'] : 'CRUD';
-		
-		return $m;
-	}
-		
-	
-	public final function requireAuth($options = null)
+	public function requireAuth($options = null)
 	{
 		$this->log(__METHOD__);
 		
@@ -127,8 +80,7 @@ class AdminView extends View
             // Gods are allmighty
             if ( $isGod )
             {
-                //$resList = array_keys($this->dataModel['resources']);
-                $resList = array_keys($this->data['_resources']);
+                $resList = array_keys($this->_resources);
                 
                 foreach ($knownActions as $action)
                 {
@@ -150,8 +102,7 @@ class AdminView extends View
                     
                     // Special case for search action that should be allowed if retrieve action is allowed
                     // AND if the resource is searchable
-					//if ( $action === 'search' && !empty($this->dataModel['resources'][$rName]['searchable']) )
-					if ( $action === 'search' && !empty($this->data['_resources'][$rName]['searchable']) )
+					if ( $action === 'search' && !empty($this->_resources[$rName]['searchable']) )
                     {
                         $uAuths[$rName][$aN]        = true;
                         $uAuths['__can_search'][]   = $rName;
@@ -181,8 +132,7 @@ class AdminView extends View
                         
                         // Special case for search action that should be allowed if retrieve action is allowed
                         // AND if the resource is searchable                        
-                        //if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->dataModel['resources'][$rName]['searchable']) )
-                        if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->data['_resources'][$rName]['searchable']) )
+                        if ( $action === 'search' && $uAuths[$rName]['allow_retrieve'] && !empty($this->_resources[$rName]['searchable']) )
                         {
                             $uAuths[$rName][$aN]    = true;
                             $uAuths[$cN][]          = $rName;
@@ -229,11 +179,9 @@ class AdminView extends View
 	*/
 	public function _isCRUDable($letters)
 	{
-		$d 				= $this->data;
 		$r 				= $this->resourceName;
 		$letters 		= Tools::toArray($letters);
-		//$crudability 	= !empty($d['_resources'][$r]['crudability']) ? $d['_resources'][$r]['crudability'] : 'CRUD';
-		$crudability 	= !empty($d['_resources'][$r]['crudability']) ? join('', (array) $d['_resources'][$r]['crudability']) : 'CRUD';
+		$crudability 	= !empty($this->_resources[$r]['crudability']) ? join('', (array) $this->_resources['_resources'][$r]['crudability']) : 'CRUD';
 		$result 		= true;
 		
 		// Loop over passed letter
@@ -282,10 +230,10 @@ class AdminView extends View
         foreach ( $rList as $resource )
         {
             // For contextual search
-            if ( $s['type'] === 'global' && empty($this->data['_resources'][$resource]['searchable']) ){ continue; }
+            if ( $s['type'] === 'global' && empty($this->_resources[$resource]['searchable']) ){ continue; }
             
-            $r              = &$resource;                       // Shortcut for the current resource name
-            $rModel         = &$this->data['dataModel'][$r];    // Shortcut for the current resource model
+            $r              = $resource;                       // Shortcut for the current resource name
+            $rModel         = $this->_columns[$r]; 	// Shortcut for the current resource model
             $sCols          = array();                          // Initialise the searchable colums array for the current resource
             
             // Loop ovet the resource columns
@@ -458,8 +406,7 @@ class AdminView extends View
             $this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));    
         }
         
-        $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
-		
+        $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));	
 	
 /*	
 $this->options['conditions'] = array_merge(
@@ -654,8 +601,7 @@ $this->options['conditions'] = array_merge(
 		if ( !empty($_GET['forceFileDeletion']) && !empty($args[1]) )
 		{
 			$fName 			= $args[1]; 					// Shortcut for file field name
-			//$rFields 		= !empty($rName) ? $this->dataModel['resourcesFields'][$rName] : null;
-			$rFields 		= !empty($rName) ? $this->data['dataModel'][$rName] : null;
+			$rFields 		= !empty($rName) ? $this->_columns[$rName] : null;
 			
 			if ( isset($rFields[$fName]) && $rFields[$fName]['subtype'] === 'file' )
 			{
@@ -817,19 +763,6 @@ $this->options['conditions'] = array_merge(
 	{
 		$this->log(__METHOD__);
 		
-		if ( !in_array($this->options['output'], array('html','xhtml')) )
-		{
-			unset(
-                $this->data['_dataModel'],
-                $this->data['_resources'],
-                $this->data['dataModel'],
-                $this->data['_resourcesGroups'],
-				
-				$this->data['search'],
-				$this->data['current']
-            );
-		}
-		
 		return parent::beforeRender($options);
 	}
 	
@@ -854,7 +787,38 @@ $this->options['conditions'] = array_merge(
 	{		
 		$this->log(__METHOD__);
 
-//$this->dump($this->data);
+//var_dump($this->data);
+
+		// TODO: Merge this with ApiView same code and move this into a method in the View class. Maybe cleanOutput() ??????
+		// Except for (X)HTML output, prevents dataModel from being returned
+		if ( in_array($this->options['output'], array('html','xhtml')) )
+		{			
+			// TODO: Remove not exposed columns
+			$this->data['_groups'] 		= $this->_groups;
+			$this->data['_resources'] 	= $this->_resources;
+			$this->data['_columns'] 	= $this->_columns;
+		}
+		else
+		{
+			unset(
+				$this->data['search'], $this->data['current'], 
+				$this->data['warnings'], $this->data['errors'], $this->data['success'],
+				$this->data['total']
+			);		
+			
+			/*
+			if ( isset($this->resourceName) && isset($this->data[$this->resourceName]) )
+			{
+				$this->data = (array) $this->data[$this->resourceName];
+			}
+			else
+			{
+				unset($this->data);
+			}*/
+		}
+
+//var_dump($this->data);
+
 				
 		return parent::render();
 	}
@@ -1086,7 +1050,7 @@ $this->options['conditions'] = array_merge(
 					$rName = $key;
 				
 					// Do not continue if the current resource is not selectable
-					if ( isset($this->data['_resources'][$rName]['selectable']) && !$this->data['_resources'][$rName]['selectable'] ){ return; }
+					if ( isset($this->_resources[$rName]['selectable']) && !$this->_resources[$rName]['selectable'] ){ return; }
 					
 					// Init the current resources filters array and create a shortcut for it
 					$_sel[$rName]['filters'] 	= isset($_sel[$rName]['filters']) ? $_sel[$rName]['filters'] : array();

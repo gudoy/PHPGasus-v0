@@ -25,11 +25,12 @@ class Model extends Application
 	
 	public function __construct(&$application)
 	{
-		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
+		//isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-		$this->application    = &$application;
-		$this->resources      = &$resources;
-		$rProps               = &$this->resources[$this->resourceName];
+		$this->application 	= &$application;
+		//$this->resources 	= &$_resources; 
+		$this->resources 	= &$this->application->_resources;
+		$rProps 			= $this->resources[$this->resourceName];
 		
         // Handle filter resources
 		if ( !empty($rProps['extends']) && isset($this->resources[$rProps['extends']]) )
@@ -42,7 +43,7 @@ class Model extends Application
         else
         {
             $this->alias    = !empty($rProps['alias']) ? $rProps['alias'] : $this->resourceName;
-            $this->table    = !empty($rProps['table']) ? $rProps['table']: $this->resourceName;            
+            $this->table    = !empty($rProps['table']) ? $rProps['table'] : $this->resourceName;            
         }
 								
 		//  
@@ -170,7 +171,7 @@ class Model extends Application
 		foreach ($this->fetchRelated as $rName => $item)
 		{
 			$_r 		= &$this->resources; 								// Shortcut for datamodel resources
-			$_c 		= &$this->application->dataModel; 					// Shortcut for datamodel resources columns
+			$_c 		= &$this->application->_columns; 					// Shortcut for datamodel resources columns
 			$as 		= ( !empty($_r[$rName]['alias']) 					// Related resource alias
 							? $_r[$rName]['alias'] 
 							: $rName ); 								
@@ -243,15 +244,12 @@ class Model extends Application
 	    $o = &$options;
         $o = array_merge(array(
             //'resource' => $this->resourceName,
-            'rModel'        => &$this->application->dataModel[$this->resourceName],
+            'rModel'        => &$this->application->_columns[$this->resourceName],
             'fixOneToOne'   => defined('_APP_TYPEFIX_ONETOONE_GETFIELDS') && _APP_TYPEFIX_ONETOONE_GETFIELDS,
             'fixManyToMany' => defined('_APP_TYPEFIX_MANYTOMANY_GETFIELDS') && _APP_TYPEFIX_MANYTOMANY_GETFIELDS,
         ), $options);
         
 		if ( !is_array($dataRow) && !is_object($dataRow) ){ return $dataRow; }
-
-		//$rModel 	= &$this->application->dataModel[$this->resourceName];
-        //$rModel     = &$this->application->dataModel[$o['resource']];
 		
 		//foreach( $rModel as $name => $field )
 		foreach( $o['rModel'] as $name => $field )
@@ -298,7 +296,7 @@ class Model extends Application
                     if ( empty($dataRow[$item]) ){ $i++; continue; }
                     
                     $tmp            = array($item => $dataRow[$item]);
-                    $relFieldModel  = array($item => &$this->application->dataModel[$relResource][$relGetFields[$i]]);
+                    $relFieldModel  = array($item => &$this->application->_columns[$relResource][$relGetFields[$i]]);
                     $fixed          = $this->fixSpecificsSingle($tmp, array('rModel' => $relFieldModel));
                     $dataRow[$item] = $fixed[$item];
                     
@@ -373,7 +371,7 @@ class Model extends Application
                     //                     
                     if ( $item === $relField ){ $uniqueKeys = $tmp; }
 					
-                    $relFieldModel[$item] = &$this->application->dataModel[$relResource][$item];   
+                    $relFieldModel[$item] = &$this->application->_columns[$relResource][$item];   
 					
 					// Loop over the splited value and reassign into the proper final array
 					foreach ( $tmp as $k => $v )
@@ -427,7 +425,7 @@ class Model extends Application
         $p 		= array_merge(array(
             'resource' => $this->resourceName,
         ), $params);
-        $rModel = &$this->application->dataModel[$p['resource']];      // Shortcut for current resource dataModel
+        $rModel = &$this->application->_columns[$p['resource']];      // Shortcut for current resource dataModel
         
         // Do not continue if the passed colname does not exist if the datamodel
         if ( !isset($rModel[$colName]) ) { return $type; }
@@ -564,7 +562,7 @@ class Model extends Application
 							$v = stripslashes($v); break;
 			case 'varchar':
 				// Try to get the subtype
-				$colProps = &$this->application->dataModel[$p['resource']][$p['colName']];
+				$colProps = &$this->application->_columns[$p['resource']][$p['colName']];
 				if ( isset($colProps['subtype']) && $colProps['subtype'] === 'file' )
 				{
 //var_dump('colName: ' . $p['colName']);
@@ -695,33 +693,6 @@ class Model extends Application
 	{
 		$o = &$options;
 		
-		// Handle unique indexing
-		// and if this column has been retrieved
-
-		/*
-		if ( !empty($o['injectInto']) && !empty($o['injectUsing']) )
-		{
-//$this->dump('add to array with injectInto');
-//$this->dump($o);
-//$this->dump($this->options);
-//$this->dump($item);
-			$dest = explode('.', $o['injectInto']);
-
-//$this->dump($this->data);			
-//$this->dump($dest);
-//$this->dump($item[$o['injectUsing']]);
-
-			// TODO: find a way to not have to do this?
-			// We need that the data be indexed by unique id
-			//if ( empty($o['indexByUnique']) ){ return; }
-			
-			if ( isset($this->data[$item[$o['injectUsing']]]) )
-			{
-				$this->data[$item[$o['injectUsing']]][$dest[1]][] = $item;
-			}
-		}
-		
-		else*/ //if ( !empty($o['indexByUnique']) && !empty($item[$o['indexByUnique']]) )
 		// Handle unique indexes
 		if ( $this->resultsUniqueIndexCount > 1 )
 		{			
@@ -738,7 +709,7 @@ class Model extends Application
 			$this->data[$key] 	= $item;
 		}
 		// Handle non-unique indexes
-		//else if ( !empty($o['indexBy']) && isset($this->application->dataModel[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
+		//else if ( !empty($o['indexBy']) && isset($this->application->_columns[$this->resourceName][$o['indexBy']]) && !empty($item[$o['indexBy']]) )
 		//else if ( !empty($o['indexBy']) && !empty($item[$o['indexBy']]) )
 		elseif ( $this->resultsIndexCount > 1 )
 		{
@@ -870,9 +841,7 @@ class Model extends Application
         
 		// Set default params
 		$o 					= array_merge($this->options, $options);
-		$rModel 			= &$this->application->dataModel[$this->resourceName];
-		
-//var_dump($rModel);
+		$rModel 			= &$this->application->_columns[$this->resourceName];
 		
 		$skipLimit 			= false;
 		$skipOffset 		= false;
@@ -974,11 +943,8 @@ class Model extends Application
 		}
 		// Otherwise, do normal select
 		else
-		{			
+		{
 			// Get tables to use in the query
-			//$queryTables             	= array();
-			//$this->queryData['tables'] 	= array();
-			//$queryTables 				= &$this->queryData['tables'];
 			$queryTables 				= &$this->queryData['tables'];
 			$leftJoins               	= array();
 			$alreadyJoinedTables     	= array();
@@ -1057,7 +1023,7 @@ class Model extends Application
 					{
 						// Do not process fields that are not existing resource fields
 						//if ( empty($relResource) || empty($relResource[$item]) ) { continue; }
-						if ( empty($relResource) || !isset($this->application->dataModel[$relResource][$item]) ) { continue; }
+						if ( empty($relResource) || !isset($this->application->_columns[$relResource][$item]) ) { continue; }
 						
 						// Build the storing name
 						// ie: in a table 'users', a 'groups' with getFields('id,name')
@@ -1156,7 +1122,7 @@ class Model extends Application
 						}
 
 						//$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relResource']) . "." . $field['relField'];
-						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relTable ']) . "." . $field['relField'];
+						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relTable']) . "." . $field['relField'];
 						//$ljoin 					= "LEFT JOIN " . $field['relResource'];
 						$ljoin 					= "LEFT JOIN " . $field['relTable'];
 						$ljoin 					.= (!empty($tmpTableAlias) ? " AS " . $tmpTableAlias : '');
@@ -1175,13 +1141,11 @@ class Model extends Application
 			$i = 0;
 			$finalFields = '';
 			
-//var_dump($this->queryData['fields']);
-			
 			foreach ($this->queryData['fields'] as $k => $field)
 			{
 				// Get the field type
 				$resName 	= !empty($field['resource']) ? $field['resource'] : $this->resourceName;
-				$res 		= &$this->application->dataModel[$resName];
+				$res 		= &$this->application->_columns[$resName];
 				$type 		= !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
 				//$type 		= isset($field['name']) && !empty($res[$field['name']]['type']) ? $res[$field['name']]['type'] : '';
 				
@@ -1199,7 +1163,6 @@ class Model extends Application
 									? ( !empty($field['tableAlias']) ? $field['tableAlias'] : $field['table'] ) 
 									//: $this->dbTableShortName ) . "."
 									: $this->alias ) . "."
-									
 								. $field['name'] 
 								//. ( !empty($field['as']) ? $field['as'] : $field['name'] )
 								//. ( !empty($field['relation']) && $field['relation'] === 'onetomany' ? " AS CHAR) SEPARATOR ',' )" : '' )
@@ -1285,7 +1248,7 @@ class Model extends Application
 //$this->dump($options);
 		
 		$rName 		= &$this->resourceName;
-		$rModel 	= &$this->application->dataModel[$this->resourceName];
+		$rModel 	= &$this->application->_columns[$this->resourceName];
 		
 		$fieldsNb 	= count($rModel);		// Get the number of fields for this resource
 		$after 		= array();
@@ -1683,7 +1646,7 @@ class Model extends Application
 		$fieldsNb 	= count($d);											// Get the number of fields for this resource
 		
 		$rName 		= &$this->resourceName;
-		$rModel 	= &$this->application->dataModel[$this->resourceName];
+		$rModel 	= &$this->application->_columns[$this->resourceName];
 		
 		// Start writing request
 		$query 		= "UPDATE ";
@@ -2076,18 +2039,12 @@ $tmpVal = isset($d[$fieldName])
 			}
 			else if ( $field['type'] === 'enum' )
 			{
-//var_dump($d[$fieldName]);
-
-//var_dump('default: ' . $field['default']);
-				
 				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$tmpVal = isset($d[$fieldName]) && ( !isset($field['possibleValues']) || in_array($d[$fieldName], (array) Tools::toArray($field['possibleValues'])) ) 
 							? $d[$fieldName] 
 							: ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";  
 				//$value = "'" . $this->escapeString(trim($tmpVal)) . "'";
-				
-//var_dump('sql: ' . $value);
 			}
 			else if ( $field['type'] === 'set' )
 			{
@@ -2127,18 +2084,12 @@ $tmpVal = isset($d[$fieldName])
         
         $where      = $this->handleOperations($o);
         $conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
-		$orderBy = $this->handleOrder($o);
+		$orderBy 	= $this->handleOrder($o);
 		
-		// Finish writing the request
-		//$query 		.= !empty($o['conditions'])
-		//				? " " . $this->handleConditions($o)
-		//				: " WHERE " . $this->safeWrapper . $o['by'] . $this->safeWrapper . " = '" . $this->escapeString($o['values']) . "'";
         $query      .= ' ' . $where . $conditions;
 		$query 		.= 	( !empty($orderBy) ? $orderBy . " " : '' );
 		$query 		.= 	( !empty($o['limit']) && $o['limit'] != -1 ? " LIMIT " . $o['limit'] . " " : '' );
 		$query 		.= 	( !empty($o['offset']) ? " OFFSET " . $o['offset'] . " " : '' );
-		
-		//$this->launchedQuery = $query;
 		
 		return $query;
 	}
@@ -2151,7 +2102,6 @@ $tmpVal = isset($d[$fieldName])
 		$o 			= array_merge($this->options, $options); 				// Shortcut for options 											// Shortcut for options
 
 		$where 		= $this->handleOperations($o);
-		//$conditions = $this->handleConditions($o);
 		$conditions = $this->handleConditions($o + ( !empty($where) ? array('extra' => true) : array() ));
 	
 		// Start writing request
@@ -2309,7 +2259,7 @@ $tmpVal = isset($d[$fieldName])
             $oParenthesis   = isset($condition[4]) && strtolower($condition[4]) === 'first' ? '( ' : '';
 			$cParenthesis   = (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
             //$cParenthesis   = !empty($oParenthesis) || (isset($condition[4]) && strtolower($condition[4]) === 'last') ? ' ) ' : '';
-           
+
             // Clean 'before' and 'after' to only allow parenthesis
             $before 		= isset($condition['before']) ? preg_replace('/[^\(\)]/', '', $condition['before']) : '';
 			$after 			= isset($condition['after']) ? preg_replace('/[^\(\)]/', '', $condition['after']) : '';
@@ -2348,7 +2298,6 @@ $tmpVal = isset($d[$fieldName])
 			
 			if ( in_array($usedOperator, array('IN','NOT IN')) )
 			{
-				
 				// Try to get the queried fields data
 				// TODO: what if the fields is like 'users.name' or 'u.name' (aka contains '.')
 				// TODO: what if the field is not queried
@@ -2366,7 +2315,6 @@ $tmpVal = isset($d[$fieldName])
 			}
 			elseif ( in_array($usedOperator, array('BETWEEN','NOT BETWEEN')) )
 			{
-//var_dump('between cond');
 				// Try to get the queried fields data
 				// TODO: what if the fields is like 'users.name' or 'u.name' (aka contains '.')
 				// TODO: what if the field is not queried
@@ -2377,11 +2325,6 @@ $tmpVal = isset($d[$fieldName])
 				$output .= $condKeyword . $before . $oParenthesis;
 				$output .= $this->handleConditionsColumns(array('columns' => $fields));
 				$output .= ' ' . $usedOperator . ' ' . $this->handleTypes($values[0], $opts) . ' AND ' . $this->handleTypes($values[1], $opts) . ' ';
-				
-
-//var_dump($opts);
-//var_dump($fields);
-//var_dump($this->queryData['fields']);
 			}
 			elseif ( in_array($usedOperator, array('MATCH')) )
 			{
@@ -2407,7 +2350,7 @@ $tmpVal = isset($d[$fieldName])
 			}
 			// Case for single field & single value operators
 			else
-			{				
+			{
 				// Try to get the queried fields data
 				$qf     = !$multiFields && !empty($this->queryData['fields'][$fields]) ? $this->queryData['fields'][$fields] : null;
 				$res    = !empty($qf) && isset($qf['resource']) ? $qf['resource'] : $this->resourceName;
@@ -2432,9 +2375,6 @@ $tmpVal = isset($d[$fieldName])
 			
 			$i++;
 		}
-		
-
-
 		
 		return $output;
 	}
@@ -2487,7 +2427,7 @@ $tmpVal = isset($d[$fieldName])
 							
 			// Check if the column exists
 			$column 		= $hasDot ? $colParts[1] : $col;
-			$columnExists 	= isset($this->application->dataModel[$res][$column]) || isset($this->queryData['fields'][$column]);
+			$columnExists 	= isset($this->application->_columns[$res][$column]) || isset($this->queryData['fields'][$column]);
 
 //$this->dump($qf);
 //$this->dump('res: ' . $res);
@@ -2504,7 +2444,7 @@ $tmpVal = isset($d[$fieldName])
 			&& $resExists && $res !== $this->resourceName
 			&& !empty($this->queryData)
 			&& !in_array($res, (array) $this->queryData['tables']) ) { $this->warnings[4212] = $col; continue; } // Unknow resource/table
-			
+
 			// Skip the condition and raise a warning if either the resource & the columns are unknown
 			// but only when we are handling conditions in a select request 
 			// since there's no queryData for update & insert requests 
@@ -2521,6 +2461,7 @@ $tmpVal = isset($d[$fieldName])
 		return $output;
 	}
 
+	// TODO: use DataModel class instead
 	public function getResourceFromTableColum($colName)
 	{
 		$res 	= null;
@@ -2550,12 +2491,14 @@ $tmpVal = isset($d[$fieldName])
 		return $res;
 	}
 	
+	// TODO: use DataModel class instead
 	public function getResourceFromTable($table)
 	{		
 		// TODO: how to properly find resource? use query data????
 		return $this->searchResource(Tools::resourcize($table));
 	}
 	
+	// TODO: use DataModel class instead
 	// Search for a mispelled resource
 	static function searchResource($name)
 	{
@@ -2630,8 +2573,8 @@ $tmpVal = isset($d[$fieldName])
 		$output       = '';
 		$res          = $o['resource'];
 		$col          = $o['column'];
-		//$colModel     = !empty($res) && !empty($col) && !empty($this->application->dataModel[$res][$col]) ? $this->application->dataModel[$res][$col] : null;
-		$colModel     = !empty($res) && !empty($col) && isset($this->application->dataModel[$res][$col]) ? $this->application->dataModel[$res][$col] : null;
+		//$colModel     = !empty($res) && !empty($col) && !empty($this->application->_columns[$res][$col]) ? $this->application->_columns[$res][$col] : null;
+		$colModel     = !empty($res) && !empty($col) && isset($this->application->_columns[$res][$col]) ? $this->application->_columns[$res][$col] : null;
 		//$defType      = !empty($colModel['type']) ? $colModel['type'] : null;
 		$defType      = isset($colModel['type']) ? $colModel['type'] : null;
 		//$valPrefix    = !empty($o['operator']) && in_array($o['operator'], array('contains','like','doesnotcontains','notlike','endsby','doesnotendsby','doesnotendby')) ? '%' : '';
@@ -2734,7 +2677,7 @@ $tmpVal = isset($d[$fieldName])
 	public function handleOrder($options = array())
 	{
 		$o 			= &$options; 		// Shortcut for options
-        $rModel     = &$this->application->dataModel[$this->resourceName];
+        $rModel     = &$this->application->_columns[$this->resourceName];
 		
 		// Build ORDER BY
 		$orderBy = $tmpOrderBy = '';
@@ -2829,7 +2772,7 @@ $tmpVal = isset($d[$fieldName])
 	
 	public function requireDataModel()
 	{		
-		$isDef = !empty($this->application->dataModel[$this->resourceName]);
+		$isDef = !empty($this->application->_columns[$this->resourceName]);
 		
 //var_dump('isDef ' . $this->resourceName . ': ' . $isDef);
 		
@@ -2845,7 +2788,7 @@ $tmpVal = isset($d[$fieldName])
 	
 	
 	public function index($options = array())
-	{		
+	{
 		$this->data = null;
 		
 		// Test is dataModel is required
@@ -2864,15 +2807,12 @@ $tmpVal = isset($d[$fieldName])
         $o['mode']      	= !empty($o['mode']) ? $o['mode'] : '';         // can be '','count','distinct','onlyOne'
         $o['getFields'] 	= !empty($o['getFields']) ? Tools::toArray($o['getFields']) : array(); //
 		
-//var_dump($o);
-		
 		// If a manual query has not been passed, build the proper one
 		$query 	= !empty($o['manualQuery']) ? $o['manualQuery'] : $this->buildSelect($o);
 		
 		//$this->log($query);
 		$this->dump($query);
-		
-//var_dump($query);
+
 		// Do no execute the query if the dry-run option has been passed
 		if ( isset($o['dry-run']) ){ return $this->data; }
 

@@ -1,6 +1,6 @@
 {strip}
 
-{$rModel 		= $data.dataModel[$resourceName]}
+{$rModel 		= $data._columns[$resourceName]}
 {$rCount 		= $data[$resourceName]|@count}
 {$lowCapDevice 	= $data.device.hasLowCapacity|default:false}
 {$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}

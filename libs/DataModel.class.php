@@ -1,19 +1,15 @@
 <?php
 
-//( isset($_resources) && isset($_columns) ) || require(_PATH_CONFIG . 'dataModel.generated.php');
-if ( !isset($resources) || !isset($dataModel) )
-{
-	require(_PATH_CONFIG . 'dataModel.php');
-	$_resources = $resources;
-	$_columns 	= $dataModel;
-}
+//require_once(_PATH_CONFIG . 'dataModel' . ( $useGenerated ? 'generated' : '' ) . '.php');
+require_once(_PATH_CONFIG . 'dataModel.php');
 
-//class DataModel extends Core
-class DataModel
+class DataModel extends Core
 {
-	public static $resources 	= array();
-	public static $groups 		= array();
-	public static $columns 		= array();
+	public static $useGenerated = false;
+	
+	public static $_resources 	= array();
+	public static $_groups 		= array();
+	public static $_columns 	= array();
 	
 	// TODO: $propName => array('default' => null|[true|false]|{$value}, 'comment' => null, 'deprecated' => true|false)
 	static $resourceProperties 				= array(
@@ -292,8 +288,49 @@ class DataModel
 	
 	);
 	
-	public function _construct()
+	// TODO: should use global on $_groups, $_resources &and $_columns (would avoid having to include the dataModel file on every static call)?
+	// TODO: should prevent static access to DataModel?
+	// TODO: load dataModel file in memory with Memcached or something like this? 
+	// TODO: should let things like this? 
+	public static function loadDataModel()
 	{
+		$useGenerated = false;	
+		require(_PATH_CONFIG . 'dataModel' . ( self::$useGenerated ? 'generated' : '' ) . '.php');
+		
+		self::loadGroups();
+		self::loadResources();
+		self::loadColumns();
+	}
+	
+	public static function loadGroups()
+	{
+		$useGenerated = false;	
+		require(_PATH_CONFIG . 'dataModel' . ( self::$useGenerated ? 'generated' : '' ) . '.php');
+		
+		self::$_groups 	= self::$useGenerated ? $_groups : array('items' => $_groups);
+	}
+	
+	public static function loadResources()
+	{
+		global $_resources;
+		
+		require(_PATH_CONFIG . 'dataModel' . ( self::$useGenerated ? 'generated' : '' ) . '.php');
+		
+		self::$_resources 	= self::$useGenerated ? $_resources : array('items' => $_resources);
+	}
+	
+	public static function loadColumns()
+	{	
+		require(_PATH_CONFIG . 'dataModel' . ( self::$useGenerated ? 'generated' : '' ) . '.php');
+		
+		if 	( !self::$useGenerated ){ foreach($_columns as $k => $v){ self::$_columns[$k] = array('items' => $v); } }
+		else 						{ self::$_columns = $_columns; }
+	}
+	
+	public function __construct()
+	{
+		self::loadDataModel();
+		
 		parent::__construct();
 	}
 	
@@ -331,8 +368,8 @@ class DataModel
 
 //echo $fileContent;
 //var_dump($fileContent);
-//var_dump(self::$resources);
-//var_dump(self::$columns);
+//var_dump(self::$_resources);
+//var_dump(self::$_columns);
 
 //var_dump(__METHOD__);
 
@@ -353,8 +390,8 @@ class DataModel
 		$zip->close();
 		
 //var_dump($added);
-//var_dump(self::$resources);
-//var_dump(self::$columns);
+//var_dump(self::$_resources);
+//var_dump(self::$_columns);
 //die();
 
 		
@@ -376,8 +413,8 @@ class DataModel
 		//$this->parseGroups();
 		$this->parseColumns();
 		
-//var_dump(self::$resources);
-//var_dump(self::$columns);
+//var_dump(self::$_resources);
+//var_dump(self::$_columns);
 	}
 	
 	// Merge order: database, dataModel (generated), dataModel (manual)
@@ -395,7 +432,7 @@ class DataModel
 		), $params);
 		
 		// Init temp resources var 
-		$tmpRes = $p['mode'] === 'update' ? self::$resources : array();
+		$tmpRes = $p['mode'] === 'update' ? self::$_resources : array();
 		
 		// Loop over passed resources files
 		foreach(Tools::toArray($p['from']) as $item)
@@ -432,7 +469,6 @@ class DataModel
 			//$dbResources = MResources->find();
 			//$dbResources = Resources::getInstance()->find();
 			//$dbResources = $this->resources->find();
-			//$dbResources = $this->resources->find();
 			//$dbResources = $Resources->find();
 			
 			//$dbResources 	= array();	
@@ -444,7 +480,7 @@ class DataModel
 		// Init final resources
 		if ( $p['mode'] === 'rewrite' )
 		{
-			self::$resources = array(
+			self::$_resources = array(
 				'items' 		=> array(),
 				'_aliases' 		=> array(),
 				'_searchable' 	=> array(),
@@ -464,7 +500,7 @@ class DataModel
 			$exposed 	= !empty($res['exposed']) ? $res['exposed'] : 0;
 			$alias 		= !empty($res['alias']) ? $res['alias'] : self::getDbTableAlias($realName);
 			
-			self::$resources['items'][$realName] = array(
+			self::$_resources['items'][$realName] = array(
 				// Metadata
 				'type' 				=> !empty($res['type']) ? $res['type'] : $this->guessResourceType($name),
 				'name' 				=> $realName,
@@ -507,18 +543,18 @@ class DataModel
 				'related' 			=> !empty($res['related']) ? $res['related'] : null,
 			);
 			
-			self::$resources['_aliases'][$alias] 	= $realName;
-			//self::$resources['_plurals'][$realName] = self::$resources['items'][$realName]['plural'];
+			self::$_resources['_aliases'][$alias] 	= $realName;
+			//self::$_resources['_plurals'][$realName] = self::$_resources['items'][$realName]['plural'];
 			
 			// 
-			if ( $searchable )	{ self::$resources['_searchable'][] = $realName; }
-			if ( $exposed )		{ self::$resources['exposed'][] 	= $realName; }
+			if ( $searchable )	{ self::$_resources['_searchable'][] = $realName; }
+			if ( $exposed )		{ self::$_resources['exposed'][] 	= $realName; }
 
 			ksort($res);
 		}
 
 		// Sort resources by alphabetical order
-		//asort(self::$resources);
+		//asort(self::$_resources);
 	}
 	
 	public function parseGroups()
@@ -541,7 +577,7 @@ class DataModel
 		), $params);
 		
 		// Init temp columns var 
-		$tmpColumns = $p['mode'] === 'update' ? self::$columns : array();
+		$tmpColumns = $p['mode'] === 'update' ? self::$_columns : array();
 		
 		// Loop over passed columns files
 		foreach(Tools::toArray($p['from']) as $item)
@@ -570,7 +606,7 @@ class DataModel
 		// Init final resources
 		if ( $p['mode'] === 'rewrite' )
 		{
-			self::$columns = array(
+			self::$_columns = array(
 				//'items' 		=> array(),
 				//'_exposed' 		=> array(),
 				//'_searchable' 	=> array(),
@@ -582,8 +618,7 @@ class DataModel
 		{
 //var_dump($rName);
 			
-			//$rProps = self::resource($rName);
-			$rProps = self::$resources['items'][$rName];
+			$rProps = self::$_resources['items'][$rName];
 				
 			// Shortcut for current resource columns
 			$rCols = &$tmpColumns[$rName];
@@ -600,15 +635,15 @@ class DataModel
 				$p = array_intersect_key((array) $rCols[$cName], (array) array_flip((array) self::$columnProperties));
 				
 				// Shortcut for final column properties
-				//$cProps = &self::$columns['items'][$rName][$cName];
-				$cProps = &self::$columns[$rName]['items'][$cName];
+				//$cProps = &self::$_columns['items'][$rName][$cName];
+				$cProps = &self::$_columns[$rName]['items'][$cName];
 //var_dump($p);
 //var_dump('-----------: ' . $cName);
 
 				// Init final resource columns metas
 				if ( $p['mode'] === 'rewrite' )
 				{
-					self::$columns[$rName] = array_merge(self::$columns[$rName], array('_exposed','_searchable'));
+					self::$_columns[$rName] = array_merge(self::$_columns[$rName], array('_exposed','_searchable'));
 				}
 				
 				// Loop over known columns names 
@@ -810,9 +845,7 @@ class DataModel
 						// Populater proper resource relation related properties
 						if ( $cProps['relResource'] )
 						{
-							//self::$resources['items'][$rName]['_related'][] = $cProps['relResource'];
 							if ( !in_array($cProps['relResource'], $rProps['_related']) ){ array_push($rProps['_related'], $cProps['relResource']); }
-							//self::$resources['items'][$rName]['_children'][] = $cProps['relResource'];
 							if ( !in_array($cProps['relResource'], $rProps['_children']) ){ array_push($rProps['_children'], $cProps['relResource']); }
 						}
 					}
@@ -827,7 +860,7 @@ class DataModel
 						$cProps['relColumn'] = isset($p['relColumn']) && !empty($cProps['relResource']) 
 												&& self::isColumn($cProps['relResource'], $p['relColumn']) 
 													? $p['relColumn'] 
-													: self::$resources['items'][$cProps['relResource']]['nameField'];
+													: self::$_resources['items'][$cProps['relResource']]['nameField'];
 					} 							
 					// Handle 'getFields','relGetFields', 			
 					// Handle 'relGetAs', 							
@@ -847,7 +880,7 @@ class DataModel
 			if ( !$rProps['nameField'] ) { $rProps['nameField'] = 'id'; }
 
 //var_dump($rName);
-//var_dump(self::$columns['items'][$rName]);
+//var_dump(self::$_columns['items'][$rName]);
 		}
 	}
 	
@@ -868,7 +901,7 @@ class DataModel
 		foreach(array_keys($resources) as $key)
 		{
 			// Set a shortcut to current resource data & resource name
-			$resource 	= &self::$resources[$key];
+			$resource 	= &self::$_resources[$key];
 			$rName 		= &$resource['name'];
 			
 			// Get resource DB columns data using proper query  
@@ -926,7 +959,7 @@ $dbColumns = array();
 		$longer 		= null;
 		
 		// Build an array or resource names only (for perf issues)
-		$resNames 		= array_keys(self::$resources['items']);
+		$resNames 		= array_keys(self::$_resources['items']);
 		
 		// Get the longest resource name and use it to get position used to verticaly align the resource code (indentation)
 		$longRes 		= Tools::longestValue($resNames);
@@ -947,7 +980,7 @@ $dbColumns = array();
 			if ( !empty($o['filters']) && !in_array($rName, $o['filters']) ){ continue; }
 			
 			// Shortcut for resource props
-			$p 		= &self::$resources['items'][$rName];
+			$p 		= &self::$_resources['items'][$rName];
 			
 			$tabs 	= '';
 			
@@ -1007,7 +1040,7 @@ $dbColumns = array();
 		$code .= ")," . $o['lb'];
 		
 		// TODO: handle meta values
-		foreach(self::$resources as $propName => $propValue)
+		foreach(self::$_resources as $propName => $propValue)
 		{
 			// Skip 'items'
 			if ( $propName === 'items' ){ continue; }
@@ -1061,7 +1094,7 @@ $dbColumns = array();
 		$code 			= '<?php' . $lb . $lb . '$_columns = array(' . $lb;
 		
 		// Build an array or resource names only (for perf issues)
-		$resNames 		= array_keys(self::$columns);
+		$resNames 		= array_keys(self::$_columns);
 		
 		// Get the longest resource name and use it to get position used to verticaly align the resource code (indentation)
 		$longRes 		= Tools::longestValue($resNames);
@@ -1071,8 +1104,8 @@ $dbColumns = array();
 		foreach ( $resNames as $rName )
 		{
 			// Shortcut for resource name & resource cols
-			//$rName 		= &self::$resources[$rKey]['name'];
-			$rCols 		= &self::$columns[$rName]['items'];
+			//$rName 		= &self::$_resources[$rKey]['name'];
+			$rCols 		= &self::$_columns[$rName]['items'];
 			
 			// Do not continue if the resource has no columns
 			//if ( !$rCols ){ continue; }
@@ -1085,8 +1118,8 @@ $dbColumns = array();
 
 //var_dump($rColNames);
 //Core::dump('here1');			
-//Core::dump(self::$columns);
-//$this->log(self::$columns);
+//Core::dump(self::$_columns);
+//$this->log(self::$_columns);
 //die();
 //continue;
 			
@@ -1140,7 +1173,7 @@ $dbColumns = array();
 				$code .= ")," . $lb;
 			}*/
 			
-			$cProps = array_keys(self::$columns[$rName]);
+			$cProps = array_keys(self::$_columns[$rName]);
 			
 var_dump($cProps);
 			
@@ -1150,7 +1183,7 @@ var_dump($cProps);
 				// Skip 'items'
 				if ( $propName === 'items' ){ continue; }
 				
-				$propValue = self::$columns[$rName][$propName];
+				$propValue = self::$_columns[$rName][$propName];
 				
 				$tabs 	= '';
 				
@@ -1192,25 +1225,21 @@ die();
 	// Checks that a resource exists
 	static function isResource($string)
 	{
-		global $_resources;
-
-//var_dump(__METHOD__);		
-//var_dump($string);
-//var_dump($_resources);
-//die();
+		// Load resources list (if not already)
+		if ( isset(self::$_resources) ){ self::loadResources(); }
 		
-		//return !empty(self::$resources[$string]);
-		//return !empty($_resources[(string) $string]);
-		return !empty($_resources['items'][(string) $string]);
+		return !empty(self::$_resources['items'][(string) $string]); 	// PHPGasus V1
 	}
 	
 	// Search for a mispelled resource
 	static function searchResource($name)
 	{
+		// Load resources list (if not already)
+		if ( isset(self::$_resources) ){ self::loadResources(); }
+		
 		// Do not continue any longer if the $name as is is an existing resource
 		if 	( self::isResource($name) ){ return $name; }
 		
-//var_dump(__METHOD__ . ' -> ' . $name);
 		// Otherwise, try to get its singular & plural forms
 		$sing = Tools::singular($name);
 		$plur = Tools::plural($name);
@@ -1220,9 +1249,9 @@ die();
 		elseif 	( self::isResource($plur) ){ return $plur; }
 		
 		// Compare string with resource names
-		// TODO: use levenshtein(), similar_text(), soundex(), metaphone() ???
+		// TODO: use levenshtein(), similar_text(), soundex(), metaphone()???
 		$results = array();
-		foreach (array_keys($_resources) as $rName)
+		foreach (array_keys(self::$_resources['items']) as $rName)
 		{
 			$percent 			= null;
 			similar_text($name, $rName, $percent);
@@ -1240,64 +1269,46 @@ die();
 	
 	static function columns($resource)
 	{
-//var_dump(__METHOD__);
-//$this->log(__METHOD__);
-		global $_columns;
+		if ( isset(self::$_columns) ){ self::loadColumns(); }
 		
-//var_dump('resource: ' . $resource);
-//$this->log('resource: ' . $resource);
-//var_dump($_columns);
-//die();
-		
-		return isset($_columns[$resource]['items']) ? $_columns[$resource]['items'] : false;
+		return isset(self::$_columns[$resource]['items']) ? self::$_columns[$resource]['items'] : false;
 	}
 	
 	static function resource($string)
 	{
-		global $_resources;
+		if ( isset(self::$_resource) ){ self::loadResources(); }
 		
-		//return self::isResource($string) ? $_resources[$string] : false;
-		//return self::isResource($string) ? $_resources['items'][$string] : false;
-		return isset($_resources['items'][$string]) ? $_resources['items'][$string] : false;
+		return isset(self::$_resources['items'][$string]) ? self::$_resources['items'][$string] : false;
 	}
 	
 	static function resources()
 	{
-		global $_resources;
-		
-		return $_resources;
+		if ( isset(self::$_resources) ){ self::loadResources(); }
+
+		return self::$_resources;
 	}
 	
 	/*
 	static function resourceProp($resource, $prop)
 	{
-		global $_resources;
-		
-		return isset($_resources['items'][$resource][$prop]) ? $_resources['items'][$resource][$prop] : null;		
+		if ( isset(self::$_resources) ){ self::loadResources(); }
+				
+		return isset(self::$_resources['items'][$resource][$prop]) ? self::$_resources['items'][$resource][$prop] : null;
 	}*/
 	
 	
 	// Checks that a column existing in a given resource
 	static function isColumn($resource, $column)
 	{
-		global $_columns;
-		
-//var_dump(__METHOD__);
-//var_dump($resource);
-//var_dump($column);
-//var_dump($_columns);
-		
-//var_dump(__METHOD__ . " -> $resource.$column");
-		
-		//return !empty($_columns[$resource]['items'][$colName]);
-		return isset($_columns[$resource]['items'][$column]);
+		if ( isset(self::$_columns) ){ self::loadColumns(); }
+
+		return isset(self::$_columns[$resource]['items'][$column]);
 	}
 	
 	// Returns the singular of a resource
 	static function singular($resource)
 	{
-		//return self::isResource($resource) ? self::$resources[$resource]['singular'] : false;
-		return self::isResource($resource) ? $_resources[$resource]['singular'] : false;
+		return self::isResource($resource) ? self::$_resources[$resource]['singular'] : false;
 	}
 	
 	
@@ -1327,7 +1338,7 @@ die();
 		$tableName = $resource;
 		
 		// For relation resources, create names like '{$resource1}_{$resource2}' 
-		if ( self::$resources[$resource]['type'] === 'relation' )
+		if ( self::$_resources[$resource]['type'] === 'relation' )
 		{
 			// TODO
 		}
@@ -1354,11 +1365,10 @@ die();
 		if ( !self::isResource($resource) ) { return $tableAlias; }
 		
 		// Shortcut to resource properties
-		//$rProps = &$_resources['items'][$resource];
 		$rProps = self::resource($resource);
 		
 		// For relation resources, create names like '{$resource1}_{$resource2}' 
-		//if ( self::$resources[$resource]['type'] === 'relation' )
+		//if ( self::$_resources[$resource]['type'] === 'relation' )
 		
 		// admin logs 		=> admlog 		(compouned word ==> concat both aliases)
 		// bans 			=> ban 			(> singular 4 chars ==> |singular)
@@ -1454,8 +1464,6 @@ die();
 	static function guessAlias($resource)
 	{
 		// TODO: use resource resource table
-		//$table = self::$resources[$resource]['table'] ? self::$resources[$resource]['table'] : self::getDbTableName($resource); 
-		//$table = self::$resources[$resource]['table'] ? self::$resources[$resource]['table'] : self::guessDbTableName($resource);
 		$table = $resource;
 		
 		// Split the resource name on _ chars
@@ -1478,9 +1486,9 @@ die();
 		// 3rd possibility: use the full resource name
 		$poss3 = $resource;
 		
-		return !empty(self::$resources['_aliases'][$poss1]) 
+		return !empty(self::$_resources['_aliases'][$poss1]) 
 				? $poss1 
-				: ( !empty(self::$resources['_aliases'][$poss2]) ? $poss2 : $poss3 );
+				: ( !empty(self::$_resources['_aliases'][$poss2]) ? $poss2 : $poss3 );
 	}
 	
 	

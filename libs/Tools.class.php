@@ -17,6 +17,14 @@ class Tools
 		}
 	}
 	
+	static function isCollection($var)
+	{
+		if 		( !is_array($var) ) 							{ return false; }
+		else if ( isset($var[0]) && is_array($var[0]) )			{ return true; }
+		else if ( ($key = key($var)) && is_array($var[$key]) )	{ return true; }
+		
+		return false;
+	}
     
     static function deaccentize($str)
     {

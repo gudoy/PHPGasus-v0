@@ -22,6 +22,8 @@ http://www.google.com/support/news_pub/bin/answer.py?answer=191283
 <meta name="original-source" content="{$smarty.const._URL}{* current url *}{*">
 <meta name="syndication-source" content="http://www.example.com/wire_story_1.html">
 *}
+{block name='sharingMeta'}{block name='facebookOpenGraphMeta'}{/block}{/block}
+
 {*<meta http-equiv="X-UA-Compatible" content="IE=edge{if $smarty.const._APP_USE_CHROME_FRAME},chrome=1{/if}" />*}
 {/strip}
 {if $smarty.const._APP_IOS_WEBAPP_CAPABLE}<meta name="apple-mobile-web-app-capable" content="yes" />{/if}

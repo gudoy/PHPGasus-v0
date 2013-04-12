@@ -1,10 +1,9 @@
-{$resources=$data._resources}
 {if $resourceName}
 <div class="block resourceDataModelBlock" id="resourceDataModelBlock">
 	<h2>{t}dataModel{/t}{t}:{/t} {$resourceName}</h2>
-	{if $resources[$resourceName]}
+	{if $data._resources[$resourceName]}
 	<ul>
-	{foreach $data.dataModel[$resourceName] as $fieldName => $field}
+	{foreach $data._columns[$resourceName] as $fieldName => $field}
 		{if !isset($field.exposed) || $field.exposed}
 		<li>
 			{$fieldName}

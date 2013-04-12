@@ -1,1 +1,0 @@
-{extends file='common/pages/about/credits.tpl'}

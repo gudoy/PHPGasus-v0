@@ -119,10 +119,6 @@ class CUsers extends Controller
 		$today 		= new DateTime('today');
 		$curDate 	= $today->format('Y-m-d');
 		
-//var_dump($curDate);
-//var_dump($today);
-//die();
-		
 		// Groups that are exempted from password expiration
 		$exmptGps = Tools::toArray(_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS);
 		
@@ -198,6 +194,63 @@ class CUsers extends Controller
 		$_SESSION['lang'] = $curSessLang;
 		
 		return $Mailer->success;
+	}
+
+	// https://developers.facebook.com/docs/howtos/login/extending-tokens/
+	public function getExtendedToken($token)
+	{	
+		$params = array(
+			'grant_type' 		=> 'fb_exchange_token',
+			'client_id' 		=> _FACEBOOK_APP_ID,
+			'client_secret' 	=> _FACEBOOK_APP_SECRET,
+			'fb_exchange_token' => $token,
+		);
+		$url = _FACEBOOK_API_URL . 'oauth/access_token' . '?' . http_build_query($params);
+		$res = $this->request($url, array('method' => 'get', 'output' => 'txt'));
+		$data = array();
+		parse_str($res['body'], $data);
+		
+		return isset($data['access_token']) ? $data['access_token'] : null;
+	}
+
+	public function getFacebookUserProfile($facebookUserId, $token, $options = array())
+	{
+		$who 		= isset($facebookUserId) ? $facebookUserId : 'me';
+		$params  	= array(
+			'access_token' 	=> $token,
+			'fields' 		=> isset($options['fields']) ? $options['fields'] : '',
+		);
+		$url 	= _FACEBOOK_API_URL . $who . '?' . http_build_query($params);
+		
+		// Send the request
+		$res 	= $this->request($url, array(
+			'method' 		=> 'get',
+			'output' 		=> 'json',
+		));
+		$profile = $res['body'];
+		
+		return $profile;
+	}
+
+	public function getFacebookFriends($facebookUserId, $token, $options = array())
+	{
+		$who 		= isset($facebookUserId) ? $facebookUserId : 'me';
+		$params  	= array(
+			'access_token' 	=> $token,
+			'fields' 		=> isset($options['fields']) ? $options['fields'] : '',
+		);		
+		$url 	= _FACEBOOK_API_URL . $who . '/friends' . '?' . http_build_query($params);
+		
+//var_dump($url);
+		
+		// Send the request
+		$res 	= $this->request($url, array(
+			'method' 		=> 'get',
+			'output' 		=> 'json',
+		));
+		$friends = isset($res['body']['data']) ? $res['body']['data'] : false;
+		
+		return $friends;
 	}
 }
 ?>

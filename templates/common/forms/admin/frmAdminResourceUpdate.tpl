@@ -5,7 +5,7 @@
 		<legend><span class="value">{t}Edit resource data{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
-		{foreach $data.dataModel[$resourceName] as $fieldName => $field}
+		{foreach $data.$_columns[$resourceName] as $fieldName => $field}
 		{include file='common/forms/admin/fieldLine/index.tpl'}
 		{/foreach}
 		{/block}

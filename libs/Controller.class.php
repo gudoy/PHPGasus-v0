@@ -13,7 +13,8 @@ class Controller extends Application
 	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-		$this->application->dataModel = &$dataModel;
+		$this->application->_columns 	= &$_columns;
+		$this->application->_resources 	= &$_resources;
 		
 		if ( isset($this->resourceName) )
 		{
@@ -22,7 +23,6 @@ class Controller extends Application
 			// Instanciate the resource model
 			$mName  	= 'M' . ucfirst($this->resourceName);
 			$this->model 		= new $mName($this->application);
-			//$this->m 			= &$this->model; 						// Shortcut for model 
 		}
 		
 		return $this;
@@ -30,7 +30,7 @@ class Controller extends Application
     
 	public function __call($method, $args)
     {
-var_dump(__METHOD__);
+//var_dump(__METHOD__);
 //var_dump($method);
 //var_dump($args);
 
@@ -286,6 +286,10 @@ var_dump(__METHOD__);
 		return !empty($o['returning']) && isset($this->data) ? $this->data : null;
 	}
 	
+	public function findOrCreate()
+	{
+		// TODO
+	}
 	
 	public function retrieve($options = array())
 	{
@@ -313,7 +317,7 @@ var_dump(__METHOD__);
 	}
 	
 	
-	public function update($options = null)
+	public function update($options = array())
 	{
         $o                = &$options;
         $this->success    = false;
@@ -346,7 +350,7 @@ var_dump(__METHOD__);
 	}
 	
 	
-	public function delete($options = null)
+	public function delete($options = array())
 	{
         $o                = &$options;
         $this->success    = false;
@@ -407,7 +411,7 @@ var_dump(__METHOD__);
 	{
 		// Shortcut for options and default options
 		$o 					= &$options;
-		$rModel 			= &$this->application->dataModel[$this->resourceName];
+		$rModel 			= &$this->application->_columns[$this->resourceName];
 		$o['indexModifier'] = !empty($o['indexModifier']) ? $o['indexModifier'] : null;
 		
 		// Handle deprecate param name (incorrect camelCase)
@@ -481,8 +485,7 @@ var_dump(__METHOD__);
 		if ( empty($this->resourceName) ) { return; }
 		
 		$resourceData 	= array();
-		//$rName 			= &$this->application->dataModel[$this->resourceName];
-		$_dm 			= &$this->application->dataModel[$this->resourceName];
+		$_dm 			= &$this->application->_columns[$this->resourceName];
 		
 		// TODO: rename isApi to something like 'fieldnamesPattern' ('column' or 'resourceColumn')
 		//$isApi            = ( !empty($_SERVER['PATH_INFO']) && strpos($_SERVER['PATH_INFO'], '/api/') !== false ) || ( isset($o['isApi']) && $o['isApi'] );
@@ -784,10 +787,10 @@ var_dump('val after:' . $filteredData);
 		if ( !isset($o['filterNotExposed']) || !$o['filterNotExposed'] ){ return; }
 		
 		// Do not continue any longer if the datamodel cannot be found
-		if ( !isset($this->application->dataModel[$this->resourceName]) ){ return; } 
+		if ( !isset($this->application->_columns[$this->resourceName]) ){ return; } 
 		
 		// Shortcut for resource datamodel
-		$_dm = $this->application->dataModel[$this->resourceName];
+		$_dm = $this->application->_columns[$this->resourceName];
 
 		// TODO: do not continue if the resource is not exposed????
 		

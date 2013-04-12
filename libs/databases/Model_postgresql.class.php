@@ -18,8 +18,8 @@ class Model extends Application
 	{
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
-		$this->dataModel 	= $dataModel;
-		$this->resources 	= $resources;
+		$this->dataModel 	= $_columns;
+		$this->resources 	= $_resources;
 		
 		$this->alias 		= !empty($this->resources[$this->resourceName]['alias']) 
 								? $this->resources[$this->resourceName]['alias']

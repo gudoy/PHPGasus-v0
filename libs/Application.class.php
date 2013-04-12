@@ -389,9 +389,6 @@ class Application
 		// Do not continue if the accounts system (and so db sessions) is not used
 		if ( !_APP_USE_ACCOUNTS ){ return $this; }
 		
-		// Force timezone
-		//date_default_timezone_set('UTC');
-		
 		// Get current page url
 		$curURL = $this->currentURL();
 		
@@ -399,10 +396,12 @@ class Application
 		$curURL = str_replace(_URL, '', $curURL);
 		
 		$t 		= parse_url($curURL);
-		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
-		//$redir 	= $t['scheme'] . '://' . $t['host'] . $t['path'] . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : '');
-		
-		$redir = ltrim(rtrim($t['path'], '/') . '/' . ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') . (!empty($t['fragment']) ? $t['fragment'] : ''), '/');
+		$redir 	= ltrim(
+			rtrim($t['path'], '/') 
+			//. '/' 
+			. ( !empty($t['query']) ? urlencode('?' . $t['query']) : '') 
+			. (!empty($t['fragment']) ? $t['fragment'] : '')
+		, '/');
 
 		$isLogged = $this->isLogged();
 		
@@ -809,11 +808,13 @@ class Application
 			'content-type' 	=> 'application/x-www-form-urlencoded', // default output format
 			'accept' 		=> 'text/html;', 						//
 			'body' 			=> '',
+			'output' 		=> 'html'
 		);
 		$known = array(
 			'methods' 	=> array('get','post','put','delete'),
 			'accept' 	=> array(),
 			'output' 	=> array(
+				'txt' 		=> 'text/plain;',
 				'json' 		=> 'application/json;',
 				'xml' 		=> 'text/xml; application/xml;',
 				'html' 		=> 'text/html;',
@@ -824,13 +825,11 @@ class Application
 		// Init final request params
 		$rqP = array();
 		
-		// Output data
-		$data = array();
-		
+		$data = isset($p['data']) ? $p['data'] : null;
 		
 		# Handle method
 		// Get passed one of set it to default value
-		$rqP['method'] = !empty($p['method']) && in_array(strtolower($p['method']), $kown['methods']) 
+		$rqP['method'] = !empty($p['method']) && in_array(strtolower($p['method']), $known['methods']) 
 							? strtolower($p['method']) 
 							: $default['method'];
 							
@@ -842,7 +841,12 @@ class Application
 		// otherwise get passed 'accept' params or set it to default value 
 		$rqP['accept'] = !empty($p['output']) && isset($known['output'][strtolower($p['output'])])
 							? $known['output'][strtolower($p['output'])]
-							: (!empty($p['accept']) ? $p['accept'] : $default['method']);
+							: (!empty($p['accept']) ? $p['accept'] : $default['accept']);
+							
+		// TODO: handle this properly depending of the setted accept header (in any)
+		$rqP['output'] = !empty($p['output']) && isset($known['output'][strtolower($p['output'])])
+							? strtolower($p['output'])
+							: $default['output'];
 		
 		// Try to use HttpRequest extension (PECL extension)
 		if ( extension_loaded('http') )
@@ -850,11 +854,11 @@ class Application
 			// Init the request
 			$req = new HttpRequest($url, constant('HttpRequest::METH_' . strtoupper($rqP['method'])));
 			
-			$req->addHeaders(array('Content-Type'=> $p['content-type']));
-			$req->addHeaders(array('Accept'=> $p['accept']));
+			$req->addHeaders(array('Content-Type'=> $rqP['content-type']));
+			$req->addHeaders(array('Accept'=> $rqP['accept']));
 			
-			if 		( $rqP['method'] === 'post' ) 	{ $request->setBody( is_string($data) ? $data : http_build_query((array) $data) ); }
-			elseif 	( $rqP['method'] === 'put' ) 	{ $request->setPutData($data); }
+			if 		( $rqP['method'] === 'post' ) 	{ $req->setBody( is_string($data) ? $data : http_build_query((array) $data) ); }
+			elseif 	( $rqP['method'] === 'put' ) 	{ $req->setPutData($data); }
 			
 			// Send the request
 		    $req->send();
@@ -921,10 +925,12 @@ class Application
 		# Handle response
 		//return; // data? object?
 		//return $response;
-		if ( $response['statusCode'] === 200 )
+		if ( $response['statusCode'] >= 200 && $response['statusCode'] <= 299 )
 		{			
-			if 		( $p['output'] === 'json' )	{ $response['body'] = json_decode($response['body'], true); }
-			else if ( $p['output'] === 'xml' )	{ $response['body'] = Tools::XML2array(simplexml_load_string($response['body']), true); }
+			if 		( $rqP['output'] === 'json' )	{ $response['body'] = json_decode($response['body'], true); }
+			else if ( $rqP['output'] === 'xml' )	{ $response['body'] = Tools::XML2array(simplexml_load_string($response['body']), true); }
+			//else if ( $rqP['output'] === 'txt' )	{ $response['body'] = $response['body']; }
+			else									{ $response['body'] = $response['body']; }
 			
 			return $response; 
 		}

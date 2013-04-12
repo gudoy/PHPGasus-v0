@@ -83,7 +83,8 @@ define('_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS', 'gods,superadmins'); // Coma
 define('_APP_PASSWORD_FORBID_LAST_TWO', 			false); 			// Prevents the user to use one of its previous two passwords when changing it.
 define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES', 		0); 			// In seconds. Min time between 2 password changes for the same user. (0 = no limit)
 define('_APP_PASS_MIN_TIME_BETWEEN_CHANGES_H', 		''); 			// (Humanly readable value for above conf).
-define('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN', 		false); 		//  
+define('_APP_PASS_FORCE_DEFINE_ON_1ST_LOGIN', 		false); 		//
+define('_APP_ALLOW_HTTP_AUTH', 						true); 			//
 
 
 define('_APP_DEFAULT_TIMEZONE', 					'UTC'); 		// http://php.net/manual/en/timezones.php
@@ -93,6 +94,25 @@ define('_APP_DEFAULT_TIMEZONE', 					'UTC'); 		// http://php.net/manual/en/timez
 define('_AWS_ACCESSKEY', 							'yourAccessKeyHere');
 define('_AWS_SECRET_KEY', 							'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 							'yourBucketName');
+
+### FACEBOOK
+define('_APP_USE_FACEBOOK_SDK', 					true);
+define('_APP_USE_FACEBOOK_LOGIN', 					true);
+define('_FACEBOOK_APP_ID', 							'');
+define('_FACEBOOK_APP_SECRET', 						'');
+define('_FACEBOOK_APP_DOMAIN', 						_SUBDOMAIN . _DOMAIN);
+define('_FACEBOOK_API_URL', 						'https://graph.facebook.com/');
+
+### TWITTER
+define('_APP_USE_TWITTER_LOGIN', 					true);
+define('_TWITTER_CONSUMER_KEY', 					'PcIPBp22R5bAA08naTngQ');
+define('_TWITTER_CONSUMER_SECRET', 					'6CUl1RM0sniZRAJNHPPI4XVCS1Rbnd6wC430p5bDmlA');
+
+### GOOGLE
+define('_APP_USE_GOOGLE_LOGIN', 					true);
+define('_GOOGLE_CLIENT_ID', 						'536398260008.apps.googleusercontent.com');
+define('_GOOGLE_CLIENT_SECRET', 					'90YlG4V-oox3WLPb8O3dgajr');
+
 
 ### FEATURES
 define('_ADMIN_RESOURCES_NB_PER_PAGE', 				50);

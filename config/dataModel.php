@@ -1,7 +1,10 @@
 <?php 
 
-### RESOURCES GROUPS ###
-$_resourcesGroups = array(
+// TODO: Using global would avoid DataModel class to include file on every static call
+//global $_groups, $_resources, $_columns;
+
+// RESOURCES GROUPS 
+$_groups = array(
 	// App specific
 
 	// PHPGasus default
@@ -10,8 +13,8 @@ $_resourcesGroups = array(
 );
 
 
-### DATAMODEL: RESOURCES ###
-$resources = array(
+// RESOURCES
+$_resources = array(
 // PHPGasus default
 'adminlogs' 				=> array('singular' => 'adminlog', 'table' => 'admin_logs', 'alias' => 'admlog', 'defaultNameField' => 'slug', 'displayName' => 'admin logs', 'icon' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEbElEQVR4XrWXy28bVRyFkYAuKhChhQhKVyCxYcVDYgEIKBLiD4BlAHUBiMaUtEVpiEBUqopUEIgi13ESaJXUNmn8QoRX1AQ/CG2TFAKqSGkgz4fjOPF4ZmzPy/bh/qbWyO14HE+UHunTXFtz7/nu9czCt7DcFgiFBgLhMPzBIPptE9CvbA2c9fvDtB6jWrb9eXwYEx//DBozjNxJk7ciyWQSHp8vyApuvbF88lgUC98u42/fVYy3918ncS/tnDI9M4uZ2Tlb0BxKr8cDSiKRgLevL1JxEttOe7w40e3GVM8UfndPIPb5BYy+e8qQaOwvC8zOzWNufgHzC4t1QffSHMoZnw8clwFlObGCvmB4nhVsP9XzDS5PXsHSSgJHjh/DxU9HMXg0igv7Okjg7koBvXxhcckWJMFCRw9ZUbC2zoGSSEsYO3AfvP6fML+URCQWR0d3Fw581I5Lb3dS+ZMmAdrV4tKyHWiOIUCRCwAnAXHHLuDfVkCZxJdf98PlPo39LQfRfPg9Kn+Gsdv0EywsLmNpOWELOgXK6PgleM4G4QkP4tf9DwBTh4H8NPDLa0DndrR8+AlaWttN5WWBACiLrIB+PzuQhCBkUQ4r3w3826aXY2gv0HEP0L0T3nceM5cbAgFdAAlWsLKSRDK5akCfa8PuSXFYyWiINt9v7Nwo72pEl+MpU3lVgdXVlBUkY2Z1DavrPFJCEVEHK79aUe5i5e4dcL/1hKncUmB9PW1JKrVGGEKp1DpSaRFrWSDmuGHnrp2MBjj3PoLQufMk8KBRXksgw/OWcJmMTprjGGws5JGWqHyXUW7s/ORd+KLpYVCC3/0A6qCiDQWEbBadnZ36dXh4mMaV6N8NMficgq5ev/7AYaqtajmvQY8/FLIhIIqW8IIAnq5ZCYIGetXKT/uMqVwoAJyYB4XWrleASiyh488ITEAG4s2NwFQrkP/PVC4WgQyTTGcymxEQLcnwon70E0O9+OfHQ4CWAs41seIdRnm2BP0ejidh3r5ANpurgYS8CkS/2gcUOWjTfdAGXgacd+jlEs2XNAhiFjwvEPYFZFm1RC0A06NBJIfeBObOQL3YjvHPnsPJVx9CgeZqQF6SkcvlITIJQRDtCxSLoKedrqa3oKfXi7Y3XsL7jleQGHgdnoOP48QRB34b+wvxkfOIRqOIRCI0z5CwK1CTy2ODePrZF9HS9DyujPRDA6AWAUUtlk9JgSQR+inQz2ZfoFSDox8cwh8j3wPlYknRkJdl5CXpOnJSHrm8jn0BrVCwpFAsQWMoqgZJVqhsI+wLFKjIAlVVdRRFqY4sG2OZxowtfQZKpRKKxaIuU2LX8mfCkKRxhezmBOiJB8xvgdPpRCwWA8XlciEejxP0nf4GUOgeGpOEpmmbEqjnJKp9RxhjEiC2UqDyuOlqghWaxvULBIP17r5uygGtvaEA/S+8WaG1NxQIhsNiIBQiWzqyrcD4w0prbyTQwHiUsYfxwhazh9bWO2rk9rJE402iQe+wyP+1u0+7j4RMdAAAAABJRU5ErkJggg=='),
 'bans' 						=> array('singular' => 'ban', 'table' => 'bans', 'alias' => 'b', 'defaultNameField' => 'ip', 'descField' => 'reason', 'displayName' => 'bans', 'icon' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAI9ElEQVR4Xq2WCXDU5RnGdWjrwAwWtKAcCgo5NpubJLvZnAdsNjcJd0QuIeFUFKGI90BREQ8QWq3Uam1V7NjKEQXFnGBgYBQTkiIEIldAkmx2N9l7k1+/VzZOk2ktOj4z7/x3vu/9nt+z3/+84Xr1auS4m/frNQ+V64K+qtAFUREbQFVSOAeNOvmNjMmc9EjvDT+Tbnw3JmhcuT6ovjo5nK8fXMCVVzbiLNuJp3z3tfpslxxlTOakB+mVNbJWPH4qfMCnes1rAr74/ON4Kvfi+sdf6Hr5SSwPzca8IIf22elylJIxOl96QnrwVOyVNRIE8RCvHwv/Zbk+uOWreYW4Pv4A51tbsSyfRltmCE3JARyPHUNtxCg+DxupagSfh4/keMydNCWNp80YQsfyqbJG1iIe4iWe1w3/LC7o0vn1a/Ds/wDbY4sxZ4dzIjGIz7SjOPm7R2kt3w8eN/8py7HDNL2yiSq9hvr4cbSbtGptqXggXuIp3v//n+uCL5/fsBb37ncwzzPRYgrnYNx4Tm1eD93ddAIt7WZOnztP0zfnVJ3nzLkLtLSZsXp7EF18ewc1EaO5OFHthvJw73kH8RTvHwox4CNd8I66+VPxlr1H25R42gpi6Nq0lhOLZnLi6bV8cvQLPqmq4WLLFS5cauHbq620mc20mzukaOuw0Gq14QPo6uRIdiKXjGGYi/TiiXgL479dEzc+px2rqU6JwFX2PpZFuVzOj8OsQlhK8vF++iEn50/hpdhQYtONtCqQAFNS08k05ZCVndtbmLJyyS+aypvvvo/oaG4SLaYILAtzxBthCKv/3fGrA7rgxpaXN2DfsBJLoY5D8cF8kRqKpSgeqwrkO/AhpxdNY3N0EK1uLzanm4yJmeRPLmJy4RQpCtRvqbyCQjJVkJIVK8Hl5Gh6FJaCOOzrVyIMYQnze3rRyFtHVqdG4Nv9N6wK3piq5ezr26hb/yhfJgRhLdJjLSmg58Au/jW/iC9XL8UBpEw0kptfQE5eHsZMkwo0SR0zyc7JJTs3j3RjJu/u2sPVnW/RmKKRPyYMhCXM78/9+zGBj5367RLsTy3Dqra9KkGL6Irbx7E193M8IRDbVAO20gJ8n/6ThrmFnHxiFfFqB4xZOaSlZ1BXV8/Ro8eorq4hKyubTBXIqAKkG02IapSneNufXIawhNl7LQzcpw9uvLr9WWzTk2g2RdO4/hHswGWzhW9dXr545AFOpGixz0ymc3Eh3WonTi+awbb4CPTpRmJ1BrzdPVhsnTicLqoPHiIlOZWM9InExukRnd32PM2ZUcJAWMIUtgQYWmEIwfmqCjArhbokDR3HajHbHXzb1k6rxYYNeCYykFPGKBzFaXQtKYKKvTQvKWZLXCiBkTG4e8Da2YXL46Wm5hAJhkQJQVTkBHoA+5lT1CUGY5uZIiyEKWwJMKzCoMW98WE6i1OpnTAW0VVzB62tbXK14+mBu8KieNkQxdmsWJz3pGNfNgUqyjhbOouN2rvoBiwqdGV1DcmJyRjiE1UloIvV4fbJLNRGjxGGsBCmsCXA8IoELc5HS+manUFt1J2I5J5ubzdjsVgRBQWHEKozqBCRnJoUheO7ENOgsoymkhls1IxljEZLWESkgsahj9MRERbO1i1bcbg8AOKtGBOFhTCFfS1AYhjO+2fRde8kjkyKQ9RutWLu6MBqsyEKGB9AVHQM48KjaN70FPXJWuzFEmKGhJDTwYsTggmKmkBEVDQhmhCyMk2IrHY7osMpYcLA+cAshNk3wH052OcYOZKXjMjSZceiQnR2dSG6a8xY+UfcPS4AUcOTq2lIC8U1ZxKOFTOh+mPOLZvN5shAFSKaLdu2I3I4neIFoLyThCGsfgGSVLIFKsBcE43L5mA+XIPd242tswu73YFo9MhRaDUh3DHqDnr1WOAdNGXF4ZmfhUvtIFX7OFMykzPr1yJyKY/OLgd2jw9bYz2NS+8VhrAQZm+AYWUG7amWmRk45mVx5dl1NDy+Ch/Q5XDgdDoRjRh+G8EBgXKkV4N+cxvPTdDwTZ4e7/xstbXFcjpomDeZujUrcAEOr49ukJcZV55ZJwyEJczei3Do9sjxL3ydn4hLJet+cytVBi0gi724PB5Ew4YMZbw6DXLs1RA1NnzM3TwXHUSTKRb3PJMKcQ89FWXUzyng+JrluBEhnsp7izAQljB7b8OB2psHRVcnR+AumYzn6ftpWl1K8+uvSHJ5wCAaPHAQo28fIUdEvWMjRoxk0K3DufDiBupTQ3HOzcK5cjZUfqRCTKbhiYc59/brNK1ZLN6KUYCwhNn7IBqgatRH8dozl2ZMxH1frjzzOZikzC5foleqh5sG/EKO/3Os4ak1HE/S4l6Qjeuhe6FKhZg/hUMZMeIp3ghDWML8z9fykOzbb8mtTgrHuagA77rF2Ha+QaUuCFfLJX6MTqjr53iyFtfCXFyr5tBT9TGOPX/HozzFWxg5t9+SJ8w+r2NVY96KCfywLkuPt7SQ7h0v0LnzT9dCXO4boqcH5Mz0GfOXqFF9ttWlR+JemI9r9Tx8f3hWPBFvxdilWGOF2eeDRNVgVeH7E7RtF6Zn4CudTM/b2+l87w0OJmhpfm0L1yl1zndwyBSP7cG5uEsK8S2dyvkZGYi3MITlZ/bRAP99qd9nCGk9LyEWF9HzxktwuIKmVQtlNzix7gHaD1XSXzImc9Jz5uESOFpN9x8341s+nbPTMthn0LaKtzB+6DNdPhhHqDKoBe3XTkcR3U+ugAN7oLaC1q0bOVk6iyNGHUcmxUrJbxmTOemRXlmDd/EU6rLj2ZegbRdP8b6uL2N/o/7P0QF7q5PDuFycCUunwTOr4a+/h/LdcKSyT8mYzEmP9MoaWSse4tUffj0hZKvC04b9uniPPqS5OimM04XJXJ1twrdkGiyb3qdkTOakR3pljawVD/G6Xnj/a2Kw/4qNHT3wptxNoWNf263XnJVXabkhhNq0SLmt5DcyJnPSI72yxr92sN/rJ+lG/+0yxP/g0Pi3M01VRr9K889p/L1DZK3f42fRAP+jc6j/JTK8Xw3zzw38Mf/430nj+m+aTAbjAAAAAElFTkSuQmCC'), 
@@ -27,8 +30,8 @@ $resources = array(
 // App specific
 );
 
-### DATAMODEL: RESOURCES COLUMNS ###
-$dataModel = array(
+// RESOURCES COLUMNS
+$_columns = array(
 // PHPGasus default
 'adminlogs' => array(
     'id'                    => array('type' => 'int', 'pk' => 1, 'AI' => 1, 'list' => 0, 'editable' => 0),
@@ -135,9 +138,16 @@ $dataModel = array(
 	'activated' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'exposed' => 0),
 	'activation_key' 		=> array('type' => 'varchar', 'subtype' => 'uniqueID', 'length' => 32, 'editable' => 1, 'exposed' => 0),
 	'password_reset_key' 	=> array('type' => 'varchar', 'length' => 32, 'exposed' => 0, 'editable' => 1, 'exposed' => 0),
-	//'device_id' 			=> array('type' => 'varchar', 'length' => 64, 'list' => 1),
 	//'private_key' 			=> array('type' => 'varchar', 'subtype' => 'uniqueID', 'lenth' => 16, 'editable' => 0, 'exposed' => 0),
-	'has_newsletter' 		=> array('type' => 'bool', 'default' => 0, 'list' => 1),	
+	'country_id' 			=> array('type' => 'int', 'fk' => 1, 'required' => 1, 'relResource' => 'countries', 'relField' => 'id', 'relGetFields' => 'slug', 'relGetAs' => 'country_slug', 'displayName' => 'country'),
+    'avatar_url'			=> array('type' => 'varchar', 'subtype' => 'url',),
+	'has_newsletter' 		=> array('type' => 'bool', 'default' => 0, 'list' => 1),
+	'facebook_id' 			=> array('type' => 'int', 'null' => 1),
+	'facebook_access_token' => array('type' => 'varchar', 'length' => 128, 'null' => 1, 'exposed' => 0),
+	'twitter_id' 			=> array('type' => 'int'),
+	'twitter_access_token' => array('type' => 'varchar', 'length' => 128, 'null' => 1, 'exposed' => 0),
+	'google_id' 			=> array('type' => 'int'),
+	'google_access_token' => array('type' => 'varchar', 'length' => 128, 'null' => 1, 'exposed' => 0),	
 	'creation_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now'),
 	'update_date'			=> array('type' => 'timestamp', 'editable' => 0, 'default' => 'now', 'forceUpdate' => 1),
 ),
@@ -163,5 +173,4 @@ $dataModel = array(
 ),
 );
 
-// App specific
 ?>

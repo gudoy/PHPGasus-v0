@@ -75,7 +75,6 @@ var adminResources =
 		poss3 = resource;
 		
 		// TODO: how to check that alias is not already in use? Make JS DataModel?
-		//return !empty(self::$resources['_aliases'][poss1]) ? poss1 : ( !empty(self::$resources['_aliases'][poss2]) ? poss2 : poss3 );
 		return poss1;
 	}
 };

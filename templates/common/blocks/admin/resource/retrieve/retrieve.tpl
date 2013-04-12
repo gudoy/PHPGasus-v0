@@ -1,8 +1,8 @@
 {$resourceSingular = $data._resources[$resourceName].singular|default:$resourceName}
 <dl>
 {strip}
-	{foreach array_keys($data.dataModel[$resourceName]) as $fieldName}
-	{$field 				= $data.dataModel[$resourceName][$fieldName]}
+	{foreach array_keys($data._columns[$resourceName]) as $fieldName}
+	{$field 				= $data._columns[$resourceName][$fieldName]}
 	{$type 					= $field.type}
 	{$value 				= $resource[$fieldName]}
 	{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $fieldName)}

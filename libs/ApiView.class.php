@@ -8,6 +8,8 @@ class ApiView extends View
 	{
 	    $this->application = &$application;
         
+		$this->loadDataModel();
+		
 		parent::__construct($application);
 		
 		$this->options['filterNotExposed'] = true;
@@ -70,12 +72,12 @@ class ApiView extends View
 	public function getMissingRequiredFields()
 	{
 		// Do not continue if the resource's datamodel is not defined 
-		if ( empty($this->C->application->dataModel[$this->resourceName]) );
+		if ( empty($this->C->application->_columns[$this->resourceName]) );
 		
 		$missing 	= array();
 		
 		// Loop over resource columns to check for missing required fields
-		$rCols 		= $this->C->application->dataModel[$this->resourceName];
+		$rCols 		= $this->C->application->_columns[$this->resourceName];
 //var_dump($rCols);
 		foreach( (array) $rCols as $colName => $colProps )
 		{
@@ -95,49 +97,33 @@ class ApiView extends View
 		$m = !empty($v['method']) ? $v['method'] : 'index'; 			// Shortcut for view method
 		
 		$this->data['view']['template'] 	= !empty($v['template']) ? $v['template'] : 'specific/pages/api/resource/' . $m . '.tpl';
-		// DEPRECATED: use $data.current.resource instead
-		//$this->data['view']['resourceName'] = !empty($this->resourceName) ? $this->resourceName : null;
 		$this->data['view']['css'] 			= array('api');
 		
-		// Only for html/xhtml output, we want to be able to build a 'smart' form from the resource datamodel 
-		//if ( in_array($this->options['output'], array('html','xhtml')) )
-		if ( in_array($this->options['output'], array('html','xhtml')) 
-			&& ($this->application->env['type'] === 'dev' || !empty($this->data['view']['allowApiHTMLFormView'])) )
+		// TODO: Merge this with AdminView same code and move this into a method in the View class. Maybe cleanOutput() ??????
+		// Except for (X)HTML output, prevents dataModel from being returned
+		if ( in_array($this->options['output'], array('html','xhtml'))
+			&& ($this->application->env['type'] === 'dev' || !empty($this->data['view']['allowApiHTMLFormView']))
+		)
 		{
-			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
+			// For create and update views, We have to handle relations
+			if ( in_array($m, array('create','update')) ){ $this->handleRelations(); }	
 			
-			$this->data['dataModel'] = $dataModel;
-			$this->data['_resources'] = $resources;
-			
-			// For create and update views
-			if ( in_array($m, array('create','update')) )
-			{
-		        // TODO: used? doubloon with $this->data['_resources'] & $this->data['resourcesFields']?
-				$this->dataModel = array(
-					'resources' 		=> &$resources,
-					'resourcesFields' 	=> &$dataModel,
-					//'resourceGroups' 	=> $resourceGroups,
-				);
-				
-				$this->data = array_merge($this->data, array(
-					'dataModel' 			=> &$this->dataModel['resourcesFields'], // TODO: deprecate in favor of _colums
-					#'_dataModel'          	=> &$this->dataModel['resourcesFields'],
-					//'_resources'             => &$this->dataModel['resources'],
-					//'_resourcesGroups'       => &$_resourcesGroups,
-				));
-				
-				// We have to handle relations
-				$this->handleRelations();
-			}	
+			// TODO: Remove not exposed columns
+			$this->data['_groups'] = $this->_groups;
+			$this->data['_resources'] = $this->_resources;
+			$this->data['_columns'] = $this->_columns;
 		}
 		else
 		{
-			if ( defined('_APP_USE_EXTREMIST_REST_API') && _APP_USE_EXTREMIST_REST_API )
-			{
-				// TODO: get errors & warnings & send them via an http header instead
+			// Prevent datamodel 
+			unset($this->data['_groups'], $this->data['_resources'], $this->data['_columns']);
 			
+			if ( defined('_APP_USE_EXTREMIST_REST_API') && _APP_USE_EXTREMIST_REST_API )
+			{	
+				// TODO: get errors & warnings & send them via an http header instead???
 				//$this->data = !empty($this->data[$this->resourceName]) ? (array) $this->data[$this->resourceName] : array();
-				if ( isset($this->data[$this->resourceName]) )
+				//if ( isset($this->data[$this->resourceName]) )
+				if ( isset($this->resourceName) && isset($this->data[$this->resourceName]) )
 				{
 					$this->data = (array) $this->data[$this->resourceName];
 				}
@@ -146,7 +132,8 @@ class ApiView extends View
 					unset($this->data);
 				}
 			}
-		}
+		}		
+
 		
 		return parent::render();
 	}

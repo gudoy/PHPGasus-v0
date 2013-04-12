@@ -1,5 +1,5 @@
 {$rProps 		= $data._resources[$resourceName]}
-{$rModel 		= $data.dataModel[$resourceName]}
+{$rModel 		= $data._columns[$resourceName]}
 {$imageField 	= $rProps.imageField}
 {$nameField 	= $rProps.nameField|default:$rProps.defaultNameField}
 {$descField 	= $rProps.descField|default:null}

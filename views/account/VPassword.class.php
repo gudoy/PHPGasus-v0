@@ -5,7 +5,6 @@ class VPassword extends View
     public function __construct(&$application)
     {
         //$this->setResource(array('class' => __CLASS__, 'singular' => 'sample'));
-		$this->filePath 		= dirname(__FILE__);
 		
 		parent::__construct($application);
 		
@@ -76,7 +75,7 @@ class VPassword extends View
 		$CUsers 			= new CUsers();
 		
 		// We have to make the 'password_expiration' fields temporarily editable
-		$uDM 				= &$CUsers->application->dataModel['users'];
+		$uDM 				= &$CUsers->application->_columns['users'];
 		if ( isset($uDM['password_expiration']) )
 		{
 			$curPassExpEditable =  isset($uDM['password_expiration']['editable']) 
@@ -177,7 +176,7 @@ class VPassword extends View
 		if ( in_array($this->options['output'], array('html','xhtml')) )
 		{
 			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
-			$this->data['dataModel']['users'] = $dataModel['users'];
+			$this->data['_columns']['users'] = $_columns['users'];
 		}
 
 		$this->render();
@@ -226,7 +225,7 @@ class VPassword extends View
 		if ( in_array($this->options['output'], array('html','xhtml')) )
 		{
 			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
-			$this->data['dataModel']['users'] = $dataModel['users'];
+			$this->data['_columns']['users'] = $_columns['users'];
 		}
 		
 		if ( !empty($_POST) )
@@ -262,7 +261,7 @@ class VPassword extends View
 			$CUsers 	= new CUsers();
 			
 			// We have to make the 'password_expiration' fields temporarily editable
-			$uDM 		= &$CUsers->application->dataModel['users'];
+			$uDM 		= &$CUsers->application->_columns['users'];
 			if ( isset($uDM['password_expiration']['editable']) )
 			{
 				$curPassExpEditable = $uDM['password_expiration']['editable'];

@@ -17,7 +17,7 @@
 {if strpos($curURL,'?') !== false}{$linker='&amp;'}{else}{$linker='?'}{/if}
 
 {$rName 		= $rName|default:$data.current.resource}
-{$rModel 		= $rModel|default:$data.dataModel[$rName]}
+{$rModel 		= $rModel|default:$data._columns[$rName]}
 {$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
 {$userResPerms 	= $data.current.user.auths[$resourceName]}
 {$lowCapDevice 	= $data.device.hasLowCapacity|default:false}

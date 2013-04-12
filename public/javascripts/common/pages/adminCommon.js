@@ -930,7 +930,7 @@ $('#header').removeClass('active');
 	
 	handleOneToManyFields2: function()
 	{
-Tools.log('handle oneToMany fields 2')
+//Tools.log('handle oneToMany fields 2')
 		
 		var self 			= this,
 			$searchInputs  	= $('input').filter('.oneToManySearch');
@@ -1132,32 +1132,45 @@ Tools.log('newfocused h: ' + $newfocused.outerHeight());
 		if ( $.datetimepicker ){ return this; }
 		
 		$('input.datetime')
-            .datetimepicker(
-            { 
-				duration: '',
-				dateFormat: 'yy-mm-ddT',
-				timeFormat: 'hh:mm:ss',
-				separator: '',
-				showTime: true,  
-				constrainInput: false,  
-				stepMinutes: 1,  
-				stepHours: 1,  
-				altTimeField: '',  
-				time24h: true,
-				ampm:false
-			})
-			// On value change, add the timezone 
-			.change(function()
+			.each(function()
 			{
-				var $this 	= $(this)
-					val 	= $this.val();
+				var $this 	= $(this),
+					type 	= $this.attr('type');
+					
+				// Do not handle date fields when the browser has a built in calendar widget
+				if 		( type === 'datetime' && app.support.builtInDatetimeWidget() ){ return; }
+				else if ( type === 'date' && app.support.builtInDateWidget() ){ return; }
 				
-				if ( !val || val.match(/\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:d{2}/) ){ return; }
+				$this
+					[ type === 'date' ? 'datepicker' : 'datetimepicker' ](
+		            //.datetimepicker(
+		            { 
+						duration: '',
+						dateFormat: 'yy-mm-ddT',
+						timeFormat: 'hh:mm:ss',
+						separator: '',
+						showTime: true,  
+						constrainInput: false,  
+						stepMinutes: 1,  
+						stepHours: 1,  
+						altTimeField: '',  
+						time24h: true,
+						ampm:false
+					})
+					// On value change, add the timezone 
+					.change(function()
+					{
+						var $this 	= $(this)
+							val 	= $this.val();
+						
+						if ( !val || val.match(/\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:d{2}/) ){ return; }
+						
+						$this.val($this.val() + '.0Z');
+					})
+					.prev('.inputIcon')
+					.click(function(){ $(this).next('input').trigger('click'); });				
 				
-				$this.val($this.val() + '.0Z');
-			})
-			.prev('.inputIcon')
-			.click(function(){ $(this).next('input').trigger('click'); });	
+			})	
 
 		return this;
 	},
@@ -1453,7 +1466,7 @@ var adminIndex =
 		return this;
 	},
 	
-	handleTableCols: function()
+	handleTableCols0: function()
 	{
 		var self      = this,
 		    list      = $('#colsHandlerManagerBlock');
@@ -1513,6 +1526,39 @@ var adminIndex =
 		});
 		
 		return this;
+	},
+	
+	handleTableCols: function()
+	{
+		var self      		= this,
+		    $colsManagers 	= $('#colsManagerBlock'),
+		    getColname 		= function($input){ return $input.attr('id').replace(/Display/,'') || '' };
+		    
+		$(document)
+		
+			// Toggle columns visibility management pop over
+			.on('click', 'th.colsCol', function(e){ e.preventDefault(); $(this).find('#colsManagerBlock').toggleClass('active'); })
+			
+			// Handle columns toggling
+			.on('click', '#colsBlock li', function(e)
+			{
+				e.stopPropagation();
+				
+				var $input 	= $(this).find('input'), 
+					checked = $input.prop('checked'),
+					colName = getColname($input);
+
+console.log(getColname($input));					
+console.log(checked);
+					
+				// Toggle related column
+				$('th.' + colName + ', td.' + colName, self.context)
+					.addClass( checked ? 'displayed' : 'hidden')
+					.removeClass(checked ? 'hidden' : 'displayed')
+			})
+			
+	    // Check currently displayed cols
+	    $colsManagers.find('input').each(function(){ var $this = $(this); $this.prop('checked', $('th#' + getColname($this)).is(':visible')); });
 	},
 	
 	handleSelection: function()

@@ -3,7 +3,7 @@
 {$filterId 		= "{$colName}FilterCondition"}
 {if ($type === 'onetonone' || $column.fk) && $data[$column.relResource]}
     {$defNameCol=$resources.defaultNameField}
-    {$relNameField=$column.relGetFields|default:$resources[$column.relResource]['defaultNameField']}
+    {$relNameField=$column.relGetFields|default:$data._resources[$column.relResource]['defaultNameField']}
     <select name="{$filterName}" id="{$filterId}">
         <option></option>
         {foreach $data[$column.relResource] as $item}

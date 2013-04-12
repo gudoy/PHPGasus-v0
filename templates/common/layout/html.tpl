@@ -14,12 +14,14 @@
 <body>
 {block name='bodyContent'}
 	{include file='common/config/flush/onBodyStart.tpl'}
+	{include file='common/config/js/facebookSDK.tpl'}
 	{include file='common/config/js/detectjs.tpl'}
 	{include file='common/config/ienomore.tpl'}
 	{include file='common/config/js/googleChromeFrameLoad.tpl'}
 	{include file='common/config/js/googleChromeFrameInit.tpl'}
 	{block name='notifications'}{include file='common/blocks/notifications.tpl'}{/block}
 	<div id="layout">{block name='layout'}{/block}</div>
+	{include file='common/config/js/googleplusSDK.tpl'}
 	{include file='common/config/js/js.tpl'}
 {/block}
 </body>

@@ -5,7 +5,6 @@ class VAccount extends View
     public function __construct(&$application)
     {
 		$this->resourceName 	= 'users';
-		$this->filePath 		= dirname(__FILE__);
 		
 		parent::__construct($application);
 		
@@ -313,7 +312,7 @@ class VAccount extends View
 		if ( in_array($this->options['output'], array('html','xhtml')) )
 		{
 			isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
-			$this->data['dataModel']['users'] = $dataModel['users'];
+			$this->data['_columns']['users'] = $_columns['users'];
 		}
 		
 		// Redirect to home page if the activation_key is not found
@@ -354,7 +353,8 @@ class VAccount extends View
 			if ( $_POST['userNewPassword'] !== $_POST['userNewPasswordConfirm'] ) { $this->data['errors'][] = '10004'; $this->render(); }
 			
 			// We have to make the 'password_expiration' fields temporarily editable
-			$uDM 		= &$CUsers->application->dataModel['users'];
+			//$uDM 		= &$CUsers->application->dataModel['users'];
+			$uDM 		= &$CUsers->application->_columns['users'];
 			$curPassExpEditable = isset($uDM['password_expiration']['editable']) ? $uDM['password_expiration']['editable'] : null ;
 			$uDM['password_expiration']['editable'] = true;
 			

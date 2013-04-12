@@ -1,4 +1,3 @@
-{$resources		= $data._resources}
 {$logs 			= $data.adminlogs}
 {$today = $smarty.now|date_format:'%B %d'}
 {$yesterday = {$smarty.now-3600*24}|date_format:'%B %d'}

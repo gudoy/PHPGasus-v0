@@ -6,7 +6,7 @@
 		<legend><span class="value">{t 1=$data._resources[$resourceName].singular|default:$resourceName}create new %1{/t}</span></legend>
 		
 		{block name='resourceFieldsRows'}
-		{foreach $data.dataModel[$resourceName] as $fieldName => $field}
+		{foreach $data._columns[$resourceName] as $fieldName => $field}
 		{include file='common/forms/admin/fieldLine/index.tpl'}
 		{/foreach}
 		{/block}

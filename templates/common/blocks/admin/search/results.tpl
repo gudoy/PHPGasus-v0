@@ -38,7 +38,7 @@
         </header>
         {if $group.results}
         <div class="adminBlock adminListingBlock resultsTableBlock">
-        	{include file='common/blocks/admin/resource/list/table.tpl' rows=$group.results rName=$groupResource rModel=$data.dataModel[$groupResource] options=['addHiddenCols' => false]}
+        	{include file='common/blocks/admin/resource/list/table.tpl' rows=$group.results rName=$groupResource rModel=$data._columns[$groupResource] options=['addHiddenCols' => false]}
         	<a class="allResultsLink" href="{$resultsURL}">{t}all results{/t} >></a>
         </div>
         {/if}
