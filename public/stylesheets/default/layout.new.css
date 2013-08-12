@@ -1,0 +1,217 @@
+@-webkit-viewport { width:device-width; zoom:1; }
+@-moz-viewport { width:device-width; zoom:1; }
+@-ms-viewport { width:device-width; zoom:1; }
+@viewport { width:device-width; zoom:1; }
+
+* { 
+	-webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;
+	/*-webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;*/
+	/*-webkit-user-drag:none;*/
+	/*-webkit-tap-highlight-color:rgba(0,0,0,0);*/
+}
+
+
+/* Layout (start) */
+html, body { width:100%; overflow:hidden; overflow-x:hidden; -webkit-text-size-adjust:none; }
+html { height:100%; overflow-y:hidden; }
+body { margin:0; padding:0; }/* on iOS, using a height:100% has a side effect when an element (#bodyContent) contains video elements and has -webkit-overflow-scrolling:touch; */
+html.desktop body { height:100%; }
+html.mobile:not(ios) body { height:100%; } 
+
+.page { width:100%; height:100%; overflow-y:hidden; overflow-x:hidden; position:relative; -webkit-transform:translate3d(0, 0, 0); transform:translate3d(0, 0, 0); }
+
+html.fullscreenfix { overflow-y:auto; }
+
+.page > .body { position:relative; }
+
+html.loading,
+.page.loading,
+#mainContent.loading { background-position:50% 50%; background-repeat:no-repeat; }
+html.loading body > .page,
+.page.loading > .header,
+.page.loading > .body,
+.page.loading > .footer { opacity:0 } /* On iOS > 6 Using visibility hidden here has side effects on scrolling behavior (http://travisjbeck.com/blog/browsers/webkit-overflow-scroll-touch-vertical-scrolling-only-responds-to-horizontal-swiping/) */
+/* Layout (end) */
+
+
+/* Flexbox legacy (start) */ 
+.no-flexbox .page,
+.no-flexbox .page > .body,
+.no-flexbox .body > .bodyContent,
+.no-flexbox .bodyContent > .main { display:-webkit-box; display:-moz-box; }
+
+.no-flexbox .page,
+.no-flexbox .page > .body { -webkit-box-orient:horizontal; -moz-box-orient:horizontal; }
+.no-flexbox .body > .bodyContent,
+.no-flexbox .bodyContent > .main { -webkit-box-orient:vertical; -moz-box-orient:vertical; /*-moz-box-pack:start; -moz-box-align:start;*/ }
+
+.no-flexbox .page > .body,
+.no-flexbox .body > .bodyContent,
+.no-flexbox .bodyContent > .main,
+.no-flexbox .mainContent { -webkit-box-flex:1; -moz-box-flex:1; }
+
+/*.no-flexbox.gecko .page > .body { width:100%; height:100%; }*/ /* Required to force Gecko using the full page dimensions */
+/* Flexbox legacy (end) */
+
+/* Flexbox (start) */
+.page,
+.page > .body,
+.body > .bodyContent,
+.bodyContent > .main { display:-webkit-flex; display:-ms-flexbox; display:flex; }
+
+.page,
+.page > .body { -webkit-flex-direction:row; -ms-flex-direction:row; flex-direction:row; }
+
+.body > .bodyContent,
+.bodyContent > .main { -webkit-flex-direction:column; -ms-flex-direction:column; flex-direction:column; }
+
+.page > .body,
+.body > .bodyContent,
+.bodyContent > .main,
+.mainContent { -webkit-flex:1; -ms-flex:1; flex:1; }
+
+/*.mainContent { min-height:1px; }*/ /* Fix required to force webkit displaying the scrollbar (if any) */
+/* Flexbox (end) */
+
+/* No Flexbox (start) */
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener body { height:100%;  }
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener .page { overflow-y:auto; }
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener #body { overflow:auto; }
+
+html.ie.mobile.no-flexbox.no-flexboxlegacy.no-flexboxtweener { height:auto; }
+.ie.mobile.no-flexbox.no-flexboxlegacy.no-flexboxtweener body { height:auto; }
+.ie.mobile.no-flexbox.no-flexboxlegacy.no-flexboxtweener .page { height:auto; position:relative; }
+/* No Flexbox (end) */
+
+
+/* Main Nav : Offcanvas pattern (start) */
+#header { width:100%; max-width:270px; height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; position:absolute; left:0; top:0; /*z-index:3;*/ }
+#body { min-height:100%; max-height:100%; z-index:2; }
+#header,
+#body { -webkit-transition:.28s -webkit-transform cubic-bezier(0.000, 0.720, 0.320, 1.000); transition:.28s transform cubic-bezier(0.000, 0.720, 0.320, 1.000); }
+
+
+#header.active + #body 			{ -webkit-transform:translateX(270px); transform:translateX(270px); }
+#header.active 					{ -webkit-transform:translateX(0); transform:translateX(0); }
+
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener #body,
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener #header.active { left:0; }
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener #header,
+.no-flexbox.no-flexboxlegacy.no-flexboxtweener #body.active { left:270px; }
+/* Main Nav : Offcanvas pattern (end) */
+
+
+
+/* Pages Transitions / Animations (start) */
+body { position:relative; }
+.page { position:absolute; top:0; bottom:0; left:0; right:0; }
+.gecko .page { transform:none; } /* Fix a bug where fixed positions are not correct when translate transforms are used */
+.page.animating { -webkit-transition:1s ease-out; transition:1s ease-out; -webkit-transition-property:-webkit-transform, opacity; transition-property:transform, opacity; }
+.page.current { z-index:1; }
+.page.off {  }
+
+.slideupin.off 		{ -webkit-transform:translateY(100%); transform:translateY(100%); z-index:1; }
+.slideupin 			{ -webkit-transform:translateY(0); transform:translateY(0); }
+
+.slidedownin.off 	{ -webkit-transform:translateY(-100%); transform:translateY(-100%); }
+.slidedownin 		{ -webkit-transform:translateY(0); transform:translateY(0); }
+
+.slidedownout.off,
+.slideupout.off 	{ -webkit-transform:translateY(0); transform:translateY(0);  }
+.slidedownout,
+.slideupout 		{ -webkit-transform:translateY(100%); transform:translateY(100%); z-index:1; }
+
+.fadein,
+.fadeout.off { opacity:1; }
+.fadeout,
+.fadein.off { opacity:0; }
+/* Pages transitions (end) */ 
+
+
+/* For blackberry & likes width a screen resolution smaller than 320*240px */
+@media screen and (max-width:320px) and (max-height:240px)
+{
+	html { height:auto; }
+	body { height:auto; position:static;  }
+	.page { height:auto; position:static; }
+}
+
+
+
+
+
+
+
+
+#bodyHeader { display:none; }
+#mainHeader { position:relative; }
+#mainContent { overflow-y:scroll; -webkit-overflow-scrolling:touch; }
+.no-flexbox .mainContent { min-height:1px; } /* Fix required to force webkit displaying the scrollbar (if any) */
+
+
+#header #branding { display:none; }
+
+#mainBreadcrumbs { float:left; }
+
+.api #mainContent { overflow-y:visible; }
+
+
+@media screen and (min-width:480px) 
+{
+	.login .loginBlock { width:100%; max-width:400px; }
+}
+
+@media screen and (min-width:960px)
+{
+	.no-flexbox .page > .header { display:-webkit-box; display:-moz-box; }
+	.no-flexbox .page > .header { -webkit-box-orient:vertical; -moz-box-orient:vertical; -moz-box-pack:start; -moz-box-align:start; }
+	.no-flexbox .headerContent { -webkit-box-flex:1; -moz-box-flex:1; }
+
+	.page > .header { display:-webkit-flex; display:-ms-flexbox; display:flex; }
+	.page > .header { -webkit-flex-direction:column; -ms-flex-direction:column; flex-direction:column; }
+	.headerContent { -webkit-flex:1; -ms-flex:1; flex:1; }
+
+	.no-flexbox.api .body > .bodyContent { -webkit-box-orient:horizontal; -moz-box-orient:horizontal; }
+	.api .body > .bodyContent { -webkit-flex-direction:row; -ms-flex-direction:row; flex-direction:row; }
+
+	
+
+	
+	
+	#header { width:270px; overflow:hidden; position:static; -webkit-transform:0; transform:0; }
+	#body { -webkit-transform:0; transform:0; }
+	
+	
+
+
+	.api #main { overflow:hidden; } 
+	.api #aside { width:270px; }
+	.api #mainContent { overflow-y:auto; }
+	
+	
+	
+	
+	
+	 .no-flexbox.login #mainContent { display:-webkit-box; display:-moz-box; -webkit-box-orient:horizontal; -moz-box-orient:horizontal; -webkit-box-pack:center; -moz-box-pack:center; -webkit-box-align:center; -moz-box-align:center; }
+	.login #mainContent { -webkit-flex-direction:column; -ms-flex-direction:column; flex-direction:column; -webkit-justify-content:center; -ms-flex-align:center; justify-content:center; -webkit-align-items:center; -ms-flex-pack:center; align-items:center; }
+}
+
+
+/*
+html { border:2px solid blue; }
+body { border:2px solid orange; }
+#layout { border:2px solid red; }
+#header { border:2px solid yellow; }
+#body { border:2px solid green; }
+*/
+
+#mainContent { border:2px solid red; }
+#loginBlock { border:2px solid blue; }
+
+.login #mainContent,
+.login .loginForm { display:-webkit-flex; display:-ms-flexbox; display:flex; }
+.login .loginForm { -webkit-flex-direction:column; -ms-flex-direction:column; flex-direction:column; }
+.login #loginBlock,
+.login #loginBlock { -webkit-flex:1; -ms-flex:1; flex:1; }
+.login #mainContent { overflow:hidden; }
+.login #loginBlock { margin:0; }

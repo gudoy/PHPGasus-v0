@@ -29,7 +29,7 @@
 {/if} 
 
 {if $displayLine}
-<div id="{$fieldName}Field" class="line type{$field.type|ucfirst}{if $field.fk} typeOneToOne{/if}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}"{if $field.from} data-from="{$field.from}"{/if}>
+<div id="{$fieldName}Field" class="line type{$field.type|ucfirst}{if $field.fk} typeOneToOne{/if}{if $field.subtype} subtype{$field.subtype|ucfirst}{/if}{if !$editable} disabled{/if}" data-type="{$field.type}" {if $field.from}data-from="{$field.from}"{/if} {if $field.required}data-required="1"{/if}>
 	
 	<div class="labelBlock{if $field.comment} hasInfos{/if}">
 		{strip}

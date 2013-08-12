@@ -9,7 +9,7 @@
 {/if}
 
 {if $data.success}
-<div class="notifierBlock">
+<div class="notificationsBlock">
 	<p class="notification success">
 		{t}The resource has been successfully created!{/t}
 	</p>

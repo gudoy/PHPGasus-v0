@@ -69,7 +69,7 @@ define('_SESSION_NAME', 							'token'); 		// Name of the sessions
 define('_APP_ALLOW_GET_SID_FROM_URL', 				false); 		// For security issues, it's recommanded not to allow passing session id in URLs, unless you use https and/or are sure of what you do 
 define('_APP_USE_ACCOUNTS', 						true); 			// Disable this prevent app from trying to update sessions table on each page load
 define('_APP_ALLOW_SIGNUP', 						false); 		// Allow users to sign up by themselves
-define('_APP_SESSION_DURATION', 					60*15); 			// In seconds. (ex: 900s = 15 minutes)
+define('_APP_SESSION_DURATION', 					60*15); 		// In seconds. (ex: 900s = 15 minutes)
 define('_APP_IS_SESSION_CROSS_SUBDOMAIN', 			true); 			// 
 define('_APP_HTTPSONLY_LOGIN', 						true); 			// Only allow login on HTTPS (add 'httpOnly' & 'secure' params to session/cookies)
 define('_APP_KEEP_OLD_SESSIONS', 					false); 		// By default, when a user login, its sessions older than 1 day are deleted
@@ -96,22 +96,27 @@ define('_AWS_SECRET_KEY', 							'yourSecretKeyHere');
 define('_AWS_BASE_BUCKET', 							'yourBucketName');
 
 ### FACEBOOK
-define('_APP_USE_FACEBOOK_SDK', 					true);
-define('_APP_USE_FACEBOOK_LOGIN', 					true);
+define('_APP_USE_FACEBOOK_LOGIN', 					false);
+define('_FACEBOOK_API_URL', 						'https://graph.facebook.com/');
 define('_FACEBOOK_APP_ID', 							'');
 define('_FACEBOOK_APP_SECRET', 						'');
 define('_FACEBOOK_APP_DOMAIN', 						_SUBDOMAIN . _DOMAIN);
-define('_FACEBOOK_API_URL', 						'https://graph.facebook.com/');
+
 
 ### TWITTER
-define('_APP_USE_TWITTER_LOGIN', 					true);
-define('_TWITTER_CONSUMER_KEY', 					'PcIPBp22R5bAA08naTngQ');
-define('_TWITTER_CONSUMER_SECRET', 					'6CUl1RM0sniZRAJNHPPI4XVCS1Rbnd6wC430p5bDmlA');
+define('_APP_USE_TWITTER_LOGIN', 					false);
+define('_TWITTER_API_URL', 							'https://api.twitter.com/1.1/');
+define('_TWITTER_CONSUMER_KEY', 					'');
+define('_TWITTER_CONSUMER_SECRET', 					'');
+define('_TWITTER_ACCESS_TOKEN', 					'');
+define('_TWITTER_TOKEN_SECRET', 					'');
+
+
 
 ### GOOGLE
-define('_APP_USE_GOOGLE_LOGIN', 					true);
-define('_GOOGLE_CLIENT_ID', 						'536398260008.apps.googleusercontent.com');
-define('_GOOGLE_CLIENT_SECRET', 					'90YlG4V-oox3WLPb8O3dgajr');
+define('_APP_USE_GOOGLE_LOGIN', 					false);
+define('_GOOGLE_CLIENT_ID', 						'');
+define('_GOOGLE_CLIENT_SECRET', 					'');
 
 
 ### FEATURES

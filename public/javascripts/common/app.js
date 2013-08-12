@@ -24,6 +24,7 @@ var app =
 		var self = this;
 		
 		this.sniff();
+		this.notifier.init();
 		ui.init();
 		
 		return this;
@@ -54,7 +55,6 @@ var app =
 		
 		return this;
 	},
-	
 	
     conf:
     {
@@ -313,7 +313,41 @@ var app =
         })
         
         return this;
-    }
+    },
+    
+	notifier: 
+	{
+		init: function()
+		{
+			$(document)
+				.on('click', '.notification', function(e)
+				{
+					var $this = $(this),
+						$ctnr = $this.closest('.notificationsBlock');
+					
+					$this.remove();
+					
+					if ( $ctnr.length && !$ctnr.find('.notification').length ){ $ctnr.remove(); }
+				})
+			
+			return this;
+		},
+		
+		add: function(msg)
+		{
+			var args 	= arguments,
+				msg 	= args[0] || 'An error occured',
+				o 		= $.extend(
+				{
+					type: 'info' // 'success | error | warning | info'
+				}, args[1] || {}),
+				$notifier = $('body').children('.notificationsBlock');
+			
+			if ( !$notifier.length ){ $notifier = $('<div class="notificationsBlock">').appendTo('body'); }
+			
+			$notifier.append('<p class="notification ' + o.type + '">' + msg + '</p>');
+		}
+	}
 };
 
 var ui =
@@ -345,7 +379,7 @@ var ui =
        		});
 		
 		//return this.handleIos().handleOrientation().notifications();
-		return this.notifications();
+		return this;
 	},
 	
 	setBlockToFullscreen: function($item)
@@ -362,25 +396,7 @@ var ui =
 		}
 		
 		return this;
-	},
-	
-	notifications: function()
-	{
-		var ctx = '#errorsBlock'; 
-		
-		$(document)
-			.on('click', '.notification', function(e)
-			{
-				var $this = $(this),
-					$ctnr = $this.closest('.notificationsBlock');
-				
-				$this.remove();
-				
-				if ( $ctnr.length && !$ctnr.find('.notification').length ){ $ctnr.remove(); }
-			})
-		
-		return this;
-	},
+	}
 }
 
 app.onLoginWith = function(serviceName)

@@ -1,9 +1,9 @@
 {block name='header'}
 {if $view.header !== false}
-<header class="col" id="header" role="banner">
+<header id="header" class="col header" role="banner">
 	
 	{block name='headerHeader'}
-	<header id="headerHeader">
+	<header class="headerHeader" id="headerHeader">
 		{block name='headerHeaderContent'}
 		{block name='logoAndBaseline'}
 		{block name='logo'}
@@ -20,7 +20,7 @@
 	{/block}
 	
 	{block name='headerContent'}
-	<div id="headerContent">
+	<div id="headerContent" class="headerContent">
 		{block name='headerContentContent'}
 		{block name='headerNav'}{include file='common/blocks/header/nav.tpl'}{/block}
 		{/block}
@@ -28,7 +28,7 @@
 	{/block}
 	
 	{block name='headerFooter'}
-	<footer id="headerFooter">
+	<footer id="headerFooter" class="headerFooter">
 		{block name='headerFooterContent'}
 		{block name='languageSelection'}{include file='common/blocks/header/languages.tpl'}{/block}
     	{block name='loggedUserBlock'}{include file='common/blocks/header/account/myProfile.tpl'}{/block}

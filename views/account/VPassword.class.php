@@ -293,13 +293,18 @@ class VPassword extends View
 					&& ($curTime - $user['password_lastedit_date']) < _APP_PASS_MIN_TIME_BETWEEN_CHANGES  
 			){ $this->data['errors'][] = 10035; $this->render(); }
 			
+			// Hash the passed password
+			$hashedCurPass 	= isset($uDM['password']['hash']) && is_callable($uDM['password']['hash']) ? $uDM['password']['hash']($_POST['userOldPassword']) : sha1($_POST['userOldPassword']);
+			$hashedNewPass 	= isset($uDM['password']['hash']) && is_callable($uDM['password']['hash']) ? $uDM['password']['hash']($_POST['userNewPassword']) : sha1($_POST['userNewPassword']);
+			$hashedOldPass1 = !empty($user['password_old_1']) ? $user['password_old_1'] : null;
+			$hashedOldPass2 = !empty($user['password_old_2']) ? $user['password_old_2'] : null;
+			
 			// If pass does not match the stored one
-			if ( sha1($_POST['userOldPassword']) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->render(); }
+			if ( $hashedCurPass !== $user['password'] ){ $this->data['errors'][] = 10003; $this->render(); }
 
 			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
 			if ( defined('_APP_PASSWORD_FORBID_LAST_TWO') && _APP_PASSWORD_FORBID_LAST_TWO 
-				&& !empty($user['password_old_1']) && !empty($user['password_old_2'])
-				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2']))
+				&& $hashedOldPass1 && $hashedOldPass2 && in_array($hashedNewPass, array($hashedCurPass, $hashedOldPass1, $hashedOldPass2))
 			){ $this->data['errors'][] = 10019; $this->render(); }
 			
 			// If everything is ok, update the user password

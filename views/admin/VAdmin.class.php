@@ -3,9 +3,7 @@
 class VAdmin extends AdminView
 {
     public function __construct(&$application)
-    {		
-		$this->filePath 		= dirname(__FILE__);
-		
+    {	
 		parent::__construct($application);
 		
 		return $this;

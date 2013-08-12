@@ -6,7 +6,7 @@
 {/block}
 
 {block name='headerNav'}
-<nav class="main mainNav resources resourcesNav" id="mainNav" role="navigation">
+<nav id="mainNav" class="main mainNav resources resourcesNav" role="navigation">
 	<h2 class="title" id="mainNavTitle"><span class="value">{t}Menu{/t}</span></h2>
 	{include file='common/blocks/header/nav/adminMainNav.tpl'}
 </nav>
@@ -21,18 +21,18 @@
 {block name='accountNavLogoutLink'}{/block}
 
 {block name='headerFooter'}
-<footer class="menu" id="headerFooter">
+<footer id="headerFooter" class="headerFooter menu">
 	<ul>
-		<li class="toggler colToggler" id="asideToggler">
+		<li id="asideToggler" class="toggler colToggler">
 			{*<a class="toggle plus" id="showAside"><span class="value">{t}show{/t}</span></a>
 			<a class="toggle minus" id="hideAside"><span class="value">{t}hide{/t}</span></a>*}
 			<a class="toggle" id="asideToggleBtn"><span class="value">{t}show/hide{/t}</span></a>
 		</li>
 		{*
-		<li class="more" id="asideMoreOptions">
+		<li id="asideMoreOptions" class="more">
 			<a id="asideMoreOptionsLink"><span class="value">{t}more{/t}</span></a>
 		</li>*}
-		<li class="group account accountActions myAccountNav" id="accountActions">
+		<li id="accountActions" class="group account accountActions myAccountNav">
 			<span class="title">{t}account{/t}</span>
 			<div class="groups">
 			{include file='common/blocks/header/account/detail.tpl' user=$data.current.user}
@@ -51,9 +51,9 @@
 
 
 {block name='mainFooter'}
-	<footer class="menu" id="mainFooter">
-		{block name="mainFooterContent"}{/block}
-	</footer>
+<footer id="mainFooter" class="mainFooter menu">
+	{block name="mainFooterContent"}{/block}
+</footer>
 {/block}
 
 

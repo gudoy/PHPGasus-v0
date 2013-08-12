@@ -23,6 +23,91 @@ class VApi extends ApiView
 		return $this->render();
 	}
 	
+	public function doc()
+	{		
+		// Prevent public access to api reference
+		$this->requireLogin();
+		
+		$this->requireAuth();
+		
+		$this->data['view']['name'] 	= 'apiDocumentation';
+		$this->data['view']['template'] = 'specific/pages/api/doc.tpl';
+		
+		include(_PATH_CONF . 'apis.php');
+		//$DataModel = new DataModel();
+
+		
+		$apis 		= isset($apis) ? $apis : array();
+		//$apiData 	= array();
+		
+		// Loop over apis groups
+		foreach($apis as $gpName => &$gpProps)
+		{
+var_dump('groupName: ' . $gpName);
+var_dump('found res:' . DataModel::searchResource(Tools::slug($gpName)));
+			
+			// Get current group name
+			$gpProps['apis'] 	= isset($gpProps['apis']) ? $apis[$gpName]['apis'] : array();
+			$gpApis 			= &$gpProps['apis'];
+			
+			$gpProps['displayName'] = !empty($gpProps['displayName']) ? $gpProps['displayName'] : $gpName;
+			//$gpProps['resource'] 	= !empty($gpProps['resource']) ? $gpProps['resource'] : str_replace(array('-'), (''), Tools::slug($gpName));
+			$gpProps['resource'] 	= !empty($gpProps['resource']) 
+				? $gpProps['resource'] 
+				//: str_replace(array('-'), (''), $DataModel->searchResource(Tools::slug($gpName)));
+				: str_replace(array('-'), (''), DataModel::searchResource(Tools::slug($gpName)));
+
+//var_dump($gpProps);
+var_dump('resource1: ' . $gpProps['resource']);
+//die();
+
+			// Loop over group apis
+			//$apiData = array();
+			/*
+			foreach ($gpProps['apis'] as &$api)
+			{
+//var_dump($api);
+				$api['method'] 			= strtoupper($api['method']);
+				$api['summary'] 		= !empty($api['summary']) ? $api['summary'] : null;
+				$api['status'] 			= !empty($api['status']) ? $api['status'] : 'ready';
+				
+				$url 					= !empty($api['url']) ? $api['url'] : $gpProps['resource'] . '/';
+				$api['url'] 			= str_replace('$resource', $gpProps['resource'], $url);
+				
+				$api['requireLogin'] 	= isset($api['requireLogin']) ? Tools::sanitizeBool($api['requireLogin']) : true;
+				
+				// Handle required fields
+				$required = array();
+				if ( $api['method'] === 'POST' )
+				//if ( $api['method'] === 'POST' && !empty($gpProps['resource']) )
+				{
+//var_dump('resource2: ' . $gpProps['resource']);
+					foreach((array) $this->_columns[$gpProps['resource']] as $columns)
+					{
+						// Is the column required
+						$isRequired = !empty($colProps['required']);
+										
+						// If the column is required, and not passed or empty, mark it has missing
+						if ( $isRequired  && ( !isset($_POST[$colName]) || $_POST[$colName] === '' ) ){ $missing[] = $colName; }
+					}
+				}
+					
+				$api['expects'] 		= isset($api['expects']) 
+				? Tools::toArray(str_replace('$default', join(',',$required), join(',',Tools::toArray($api['expects']))))
+				: $required;
+				
+				
+			}*/
+			
+		}
+		
+var_dump($apis);
+		
+		$this->data['apis'] = $apis;
+		
+		return $this->render();
+	}
+	
 	
 	public function sha1()
 	{

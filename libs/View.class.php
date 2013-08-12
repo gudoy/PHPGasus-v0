@@ -9,7 +9,6 @@ class View extends Application implements ViewInterface
 {
 	public $controller 		= null;
 	public $headers 		= array();
-	public $events 			= null;
 	public $data 			= array(
 		'success' 		=> false,
 		'errors' 		=> array(), 
@@ -23,7 +22,7 @@ class View extends Application implements ViewInterface
 	    $this->application = &$application;
 		
 		$this->env = $this->application->env;
-        
+		
 		return $this->init();
 	}
 	
@@ -44,32 +43,6 @@ class View extends Application implements ViewInterface
         
 		if ( $this->inited ) { return $this; }
 		
-		// If events are enabled
-		if ( _APP_USE_EVENTS )
-		{
-			$this->requireLibs('Events');
-			$this->events = new Events();
-			
-			// Triggered events:
-			// onBeforeRender
-			// onBeforeDisplay
-			// onBeforeUpdate (admin)
-			// onUpdateSuccess (admin)
-			// onUpdateError (admin)
-			// onAfterUpdate (admin)
-			// onBeforeDelete (admin)
-			// onAfterDelete (admin)
-			// onDeleteSuccess (admin)
-			// onDeleteError (admin)
-			// onBeforeIndex (admin)
-			// onAfterIndex (admin)
-			// onBeforeRetrieve (admin)
-			// onBeforeCreate (admin)
-			// onCreateSuccess (admin)
-			// onCreateError (admin)
-			// onAfterCreate(admin)
-		} 
-		
 		//$this->configEnv();
 		
 		// TODO: use get_called_class if PHP 5.3
@@ -89,6 +62,7 @@ class View extends Application implements ViewInterface
 			// Instanciate the resource controller
 			$controllerClassname 	= 'C' . ucfirst($this->resourceName);
 			$this->controller 		= new $controllerClassname();
+			//$this->controller 		= new $controllerClassname($this->application);
 			$this->C 				= &$this->controller;
 		}
 		
@@ -873,7 +847,7 @@ class View extends Application implements ViewInterface
 	{
         $this->log(__METHOD__);
 		
-		$this->events->trigger('onBeforeDisplay', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		//$this->events->trigger('onBeforeDisplay', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		if ( !empty($this->options['output']) ){ $this->outputFormat(); }
 		
@@ -1340,8 +1314,10 @@ class View extends Application implements ViewInterface
 			//$this->data['errors'][] = array('id' => $errCode, 'message' => $errorsAssoc[$errCode]);
 			$this->data['errors'][] = array(
 				'id' 		=> $errCode, 
-				'log' 		=> sprintf($err['back'], ($hasParams ? $val : null)),
-				'message' 	=> sprintf($err['front'], ($hasParams ? $val : null)),
+				//'log' 		=> sprintf($err['back'], ($hasParams ? $val : null)),
+				'log' 		=> is_array($val) ? vsprintf($err['back'], ($hasParams ? $val : null)) : sprintf($err['back'], ($hasParams ? $val : null)),
+				//'message' 	=> sprintf($err['front'], ($hasParams ? $val : null)),
+				'message' 	=> is_array($val) ? vsprintf($err['front'], ($hasParams ? $val : null)) : sprintf($err['front'], ($hasParams ? $val : null)),
 				// TODO: replace buttons by actions = (label => url)*
 				'buttons' 	=> !empty($err['buttons']) ? $err['buttons'] : null, 
 			);
@@ -1656,7 +1632,7 @@ class View extends Application implements ViewInterface
 	{
         $this->log(__METHOD__);
 		
-		$this->events->trigger('onBeforeRender', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		//$this->events->trigger('onBeforeRender', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		return $this->display();
 	}

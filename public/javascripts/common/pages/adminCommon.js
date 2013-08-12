@@ -264,7 +264,10 @@ $('#header').removeClass('active');
 	// TODO: handle multiple duplicate
 	duplicate: function(jqObj)
 	{
-		var self = this;
+		if ( jqObj.length > 1 ){ alert('Sorry, currently you can only duplicate 1 element at a time'); return; }
+		
+		var self 		= this,
+			url 		= jqObj.find('td.actionsCol a.editLink').attr('href').replace('=update', '=duplicate'); // 
 		
 		// Ask for confirmation
 		if ( !confirm('Duplicate resource?') ) { return; }
@@ -272,42 +275,52 @@ $('#header').removeClass('active');
 		// Launch ajax request
 		$.ajax(
 		{
-			url: jqObj.attr('href'),
-			data: '&confirm=1',
+			url: url,
 			dataType: 'json',
 			type: 'GET',
 			success: function(response)
 			{
-				var r 			= response || {}, 					// Shortcut for the response
-					success 	= r.success || false,				// Did the request did what it was expected to?
-					createdId 	= r[self.resourceName].id || '', 	// Get the id of the created item
-					jTR 		= jqObj.closest('tr'),
-					cloneId 	= adminIndex.getResourceId(jTR) || '';
+				var createdId 	= response[self.resourceName].id || null, 	// Get the id of the created item
+					$jTR 		= jqObj.closest('tr'),
+					cloneId 	= adminIndex.getResourceId($jTR) || '';
 				
 				// If the request did not succeed, we do not continue
-				if ( !success ){ return; }
+				if ( !createdId ){ return; }
 				
-				// Get the parent TR of the clicked element
-				jTR
-					.removeClass('lastRow')
-					.clone(true)
-					.insertAfter('table.adminTable tbody tr.dataRow:last')
-					.addClass('lastRow')
-					.toggleClass('odd')
-					.toggleClass('even')
+				var $newTR = $jTR.removeClass('ui-selected even odd').clone(true); 
+				
+				// 
+				$newTR
+					.on('webkitTransitionEnd transitionend', function(e){ $(this).removeClass('highlight'); })
+					.insertAfter('tr.dataRow:last')
 					.attr('id','row' + createdId)
-					.find('td.colSelectResources :checkbox').val(createdId).attr('checked','false').end()
-					.find('td.actionsCol a')
-						.attr('href', function(i,value){ return value.replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); }).end()
-					.find('td.idCol .value')
-						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); })
-						.text(createdId).attr('data-exactvalue','createdId')
-					.find('td.dataCol .value')
-						.attr('id', function(i,value){ return value.replace(new RegExp(cloneId), createdId); }).end()
-					.find('> td').effect('highlight', {}, 5000)
-						.find('.fullAdminPath')
-							.text(function(i,value){ Tools.log('createdId'); return value.replace(new RegExp('\/'+ cloneId + '([\/|\?.*|$])?'),'/' + createdId + '$1'); })
-					;
+					.data('id', createdId)
+					.find('td').each(function()
+					{
+						var $this = $(this),
+							fixId = function(i,txt){ if ( txt === 'undefined' ){ return; } return (txt || '').replace('Col' + cloneId, 'Col' + createdId); };
+						
+						$this.attr('id', fixId);
+						
+						if ( $this.hasClass('actionsCol') || $this.hasClass('goToCol') )
+						{
+							$this.find('a').attr('href', function(i,txt){ return txt.replace(new RegExp('\/'+ cloneId + '\\?'),'/' + createdId + '?'); })
+						}
+						else if ( $this.hasClass('idCol') )
+						{
+							$this.attr('data-exactvalue',createdId).find('.value').text(createdId)
+						}
+						
+						$this.find('.value').attr('id', fixId);
+					}).end()
+					.find(':checkbox').attr('checked','false').prop('checked',false).val(createdId)
+					
+				// Force reflow (required for the transition end event to occur???)
+				$newTR.css('left');
+				$newTR.addClass('highlight');
+				
+				// Uncheck the source resource
+				$jTR.find(':checkbox').attr('checked','false').prop('checked',false).val(createdId)
 			}
 		});
 		
@@ -346,27 +359,19 @@ $('#header').removeClass('active');
 			url: url,
 			data: 'confirm=1&output=json',
 			dataType: 'json',
-			//type: 'GET',
 			type: 'DELETE',
-			success: function(response)
+			complete: function(xhr, textStatus)
 			{
-				var r 		= response || {},		// Shortcut for the response
-					success = r.success || false; 	// Did the request did what it was expected to?
-				
 				// If the request did not succeed, we do not continue
-				if ( !success )
+				if ( !xhr.status || xhr.status !== 200 )
 				{
-					$('table').filter('.adminTable')
-						.parents('.adminListBlock')
-						.insertBefore('<div class="notificationsBlock errorsBlock"></div>')
-					
-					return;
+					app.notifier.add('Resource(s) could not be deleted.', {type:'error'});
 				}
-				
+			},
+			success: function(response, textStatus, xhr)
+			{	
 				// Delete the row
-				$(jqObj)
-					.closest('tr')
-					.animate({ opacity:0.2}, 300, 'swing', function(){ $(this).remove(); } );
+				$(jqObj).closest('tr').animate({ opacity:0.2}, 300, 'swing', function(){ $(this).remove(); } );
 			}
 		});
 		
@@ -390,13 +395,48 @@ $('#header').removeClass('active');
         return this;  
 	},
 	
+	handleFormActions: function()
+	{
+		var $formActions 	= $('fieldset.formActions'),
+			$dest 			= $('<div class="actions formActions" />').appendTo('#mainFooter');
+		
+		$formActions.each(function()
+		{
+			var $this 		= $(this),
+				$actions 	= $(this).children().not('.closeBtn');
+			
+			if 	( !$dest.children().length ){ $actions.appendTo($dest); }
+			else 							{ $actions.remove(); }
+		})
+		 
+		$(document)
+			.on('submit', 'form', function(e)
+			{
+				$(this).addClass('submited');
+			})
+			.on('click', '.formActions .closeBtn', function(e)
+			{
+				e.preventDefault(); 
+				
+				// TODO: how to handle this if this is the last adminSection
+				$(this).closest('.adminSection').remove();
+			})
+			.on('click', '#validateAndBackBtn', function(e){ e.preventDefault(); $('form').filter('.adminForm').submit(); })
+			.on('click', '#validateBtn', function(e){ e.preventDefault(); $('form').filter('.adminForm').submit(); })
+			
+		return this;	
+	},
+	
 	handleOneToOneFields: function()
 	{
 		var self = this;
 		
+//return this;
+		
 		yepnope(
 		{
-	      test : (!Modernizr.input.list || (parseInt($.browser.version) > 400)),
+	      //test : (!Modernizr.input.list || (parseInt($.browser.version) > 400)),
+	      test : true,
 	      yep : [
 	          '/public/javascripts/common/libs/relevantDropdown/jquery.relevant-dropdown.js',
 	          '/public/javascripts/common/libs/relevantDropdown/load-fallbacks.js'
@@ -1095,33 +1135,22 @@ Tools.log('newfocused h: ' + $newfocused.outerHeight());
 	},
 	
 	handlePasswordFields: function()
-	{
-		$('.changePassBtn', 'form')
-			.click(function(e)
+	{			
+		$(document)
+			.on('click', '.changePassBtn', function(e)
 			{
 				e.preventDefault();
 				
 				var $this 	= $(this),
-					input 	= $this.closest('.fieldBlock').find('input[type=password]'),
-					curVal 	= input.val() || '';
+					$input 	= $this.closest('.fieldBlock').find('input[type=password]'),
+					state 	= $this.hasClass('cancel') ? 'cancel' : 'edit',
+					$btn 	= $this.find('button');
+					
+				$input.removeAttr('disabled').prop('disabled', false);
 				
-				$this.addClass('hidden').prev('.cancelChangePassBtn').removeClass('hidden');
-				
-				input.removeAttr('disabled').attr({'value':''});
-			})
-			.prev('.cancelChangePassBtn')
-			.bind('click', function(e)
-			{
-				e.preventDefault();
-				
-				var $this 	= $(this),
-					input 	= $this.closest('.fieldBlock').find('input[type=password]');
-				
-				input.attr('disabled','disabled');
-				
-				$this.addClass('hidden').next('.changePassBtn').removeClass('hidden');
-			})
-			;
+				if 	( state === 'cancel' )	{ $this.removeClass('cancel').addClass('edit'); $btn.text($this.data('defaultstate-label')); $input.attr('disabled','disabled').prop('disabled', true); }
+				else 						{ $this.removeClass('edit').addClass('cancel'); $btn.text($this.data('altstate-label')); }
+			});
 		
 		return this;
 	},
@@ -1466,68 +1495,6 @@ var adminIndex =
 		return this;
 	},
 	
-	handleTableCols0: function()
-	{
-		var self      = this,
-		    list      = $('#colsHandlerManagerBlock');
-		    
-		$('#colsManagerLink', self.context).closest('th').each(function()
-		{
-		    var $this 		= $(this),
-                $cBlock 	= $this.find('.colsBlock'),   			// jQuery reference to the columns handler block
-		        tbodyH 		= $('tbody', self.context).outerHeight(),
-		        vPadding 	= (parseInt($cBlock.css('padding-top')) + parseInt($cBlock.css('padding-bottom'))) || 0,
-		        vBorders 	= (parseInt($cBlock.css('border-top-width')) - parseInt($cBlock.css('border-bottom-width'))) || 0,
-		        newH 		= (tbodyH - vPadding - vBorders) || $cBlock.css('height'),
-		        //maxH  	= (($cBlock.find('li:first').outerHeight() * ($cBlock.find('li').length + 2)) + vPadding + vBorders;
-		        // Fix jQuery 1.6.1 bug where outerHeight for children of hidden elements is inaccurate
-		        // TODO: replace by previous line when bug will have been fixed in the next release 
-		        maxH  		= ($cBlock.parent().addClass('active').end().find('li:first').outerHeight() 
-		        				* ($cBlock.parent().removeClass('active').end().find('li').length + 2)) 
-		        				+ vPadding + vBorders; 
-		    ;
-		    
-		    // Check currently displayed cols
-		    $(':checkbox', $this).each(function()
-		    {		    	
-				var $this 	= $(this),
-					colName = $this.attr('id').replace(/Display/,'') || '';            // Get the related column name
-				
-				$this.prop('checked', $('th#' + colName).is(':visible'));
-		    }); 
-		    
-		    // Display the block
-		    //$this.click(function(e){ e.preventDefault(); e.stopPropagation(); $this.parent().toggleClass('active') });
-		    $this.click(function(e){ e.preventDefault(); e.stopPropagation(); $this.find('#colsManagerBlock').toggleClass('active') });
-		    
-		    $cBlock
-		      // TODO: open a dialog instead of handling height dynamically 
-		      // (will prevents overflow issues when the table only contains few results)
-		      //.height(newH)
-		      .css({height: (newH > maxH ? maxH : newH) + 'px'})
-		      .bind('click', function(e)
-		    {
-		        //e.preventDefault();
-		        e.stopPropagation();
-		        
-		        var t         = e.target,     // Get the target
-		            $t        = $(t);         // jQuery reference to the target
-		            
-		        // Do not continue if the target is neither an input nor a label element
-		        if ( !$t.is('label') && !$(t).is('input') ){ return; }
-		        
-		        var $input    = $(t).is('input') ? $t : $t.parent().find('input'),        // jQuery reference to the input
-		            colName   = $input.attr('id').replace(/Display/,'') || '',            // Get the related column name
-		            $cols     = $('th.' + colName + ', td.' + colName, self.context);     // Get the matching cols and store the jQuery reference 
-		            
-		        if    ( $input.is(':checked') ){ $cols.removeClass('hidden').addClass('displayed'); }
-		        else  { $cols.addClass('hidden').removeClass('displayed'); }
-		    });
-		});
-		
-		return this;
-	},
-	
 	handleTableCols: function()
 	{
 		var self      		= this,
@@ -1536,8 +1503,16 @@ var adminIndex =
 		    
 		$(document)
 		
+			// When ESC key is pressed, close the columns manager
+			.on('keyup', function(e){ console.log(e.keyCode); if ( e.keyCode == 27 ){ $colsManagers.removeClass('active'); } })
+			
+		
 			// Toggle columns visibility management pop over
-			.on('click', 'th.colsCol', function(e){ e.preventDefault(); $(this).find('#colsManagerBlock').toggleClass('active'); })
+			.on('click', 'th.colsCol', function(e)
+			{
+				e.preventDefault();   
+				$colsManagers.toggleClass('active');
+			})
 			
 			// Handle columns toggling
 			.on('click', '#colsBlock li', function(e)
@@ -1547,9 +1522,6 @@ var adminIndex =
 				var $input 	= $(this).find('input'), 
 					checked = $input.prop('checked'),
 					colName = getColname($input);
-
-console.log(getColname($input));					
-console.log(checked);
 					
 				// Toggle related column
 				$('th.' + colName + ', td.' + colName, self.context)
@@ -1993,7 +1965,8 @@ console.log(checked);
 			this.boolVal		= this.valCtnr.find('.validity').hasClass('valid') || false;					// Get the column name
 			this.colName 		= admin.resourceSingular + Tools.ucfirst(this.context.attr('headers').split(' ')[1] || '').replace(/(.*)Col/,'$1'); 							// Get the column name
 			this.resId 			= this.context.closest('tr').attr('id').replace(/row/,'') || '';
-			this.url 			= window.location.href.replace(/(.*)[\?|$](.*)/,'$1').replace(/(.*)\/$/,'$1') + '/' + this.resId;
+			//this.url 			= window.location.href.replace(/(.*)[\?|$](.*)/,'$1').replace(/(.*)\/$/,'$1') + '/' + this.resId;
+			this.url 			= window.location.href.replace(/^(.*)?\?.*/,'$1').replace(/(.*)\/$/,'$1') + '/' + this.resId;
 			this.saving 		= false;
 			this.inputType 		= 'text';
 
@@ -2044,7 +2017,8 @@ console.log(checked);
 									+ '<button class="action save adminLink saveLink" type="submit" id="saveLink' + this.resId +'">save</button>'
 									+ '<button class="action cancel adminLink cancelLink" type="cancel" id="cancelLink' + this.resId +'">cencel</button>'
 								+ '</div>';
-			this.HTML 			= '<div class="ui-inlineedit-form"><form>' + this.fieldHTML + this.buttonsHTML + '</form></div>';
+			//this.HTML 			= '<div class="ui-inlineedit-form"><form>' + this.fieldHTML + this.buttonsHTML + '</form></div>';
+			this.HTML 			= '<div class="ui-inlineedit-form">' + this.fieldHTML + '</div>';
 
 			// Do not continue if the data type is not a varchar
 			if ( !this.fieldHTML ) { return this; }
@@ -2062,44 +2036,34 @@ console.log(checked);
 		this.create = function()
 		{
 			var self 	= this;
-			
+				
 			self.context
 				.addClass('ui-inlineedit-active')
 				.append(this.HTML)
-				.find(':input')
-				.not('button')
-					.each(function(){ self.inputField = $(this); })
-					.bind('click', function(e){ e.stopPropagation(); $(this).focus(); })
-					.bind('focus', function(e)
+				.find('input').focus();
+				
+			// Prevent the following listeners to be bound on each inline edit call
+			if ( app.inlineEditListenersBound ){ return this; }
+				
+			app.inlineEditListenersBound = true;
+				
+			$(document)
+				// Select the text when the input is focused
+				.on('focus', '.ui-inlineedit-active input', function(e){ $(this)[0].select(); })
+				//.on('keyup', '.ui-inlineedit-active input', function(e)
+				.on('keyup', function(e)
+				{
+					//console.log(e.keyCode); self.destroy();
+					// On ESC
+					if 		( e.keyCode === 27 ){ self.destroy(); }
+					// ON ENTER
+					else if ( e.keyCode === 13 )
 					{
-						//e.preventDefault()
-						e.stopPropagation();
-						
-						// Select the text
-						if ( $(this).is('input') ){ $(this)[0].select(); }
-					})
-					.bind('keypress', function(e)
-					{
-						//e.preventDefault()
-						e.stopPropagation();
-						
-						var input 	= $(this),
-							k 		= e.keyCode; 			// Shortcut for pressed keycode
-	
-						// If 'esc' key has been pressed, we have to destroy the inlineeditor for this field
-						if 		( k === 27 ){ self.destroy(); }
-						// Since when enter is hit, the focus goes on the save button which is clicked by the way
-						// We no longer need to fire save() from here
-						//else if ( k === 13 ){ self.save(); }
-					})
-					.focus()
-				.end()
-				.siblings('.actions')
-					.find('.saveLink')
-					.bind('click', function(e){ e.preventDefault(); e.stopPropagation(); self.save(); })
-					.siblings('.cancelLink')
-					.bind('click', function(e){ e.preventDefault(); e.stopPropagation(); self.destroy(); })
-				;
+						$('.ui-inlineedit-form', self.context).addClass('loading');
+						this.saving = true; 
+						self.save();
+					}
+				})
 			
 			return this;
 		};
@@ -2122,25 +2086,18 @@ console.log(checked);
 		};
 		
 		this.save = function()
-		{
-			// Prevent the saving request from being called twice
-			//if ( this.saving ) { return this; }
-			
+		{			
 			var self 			= this,
-				//input 		= $('.ui-inlineedit-form :input', self.context),
 				input 			= $('.ui-inlineedit-form :input:not(button)', self.context);
 			
 			// Do not continue if the url if empty
 			if ( !self.url ){ return self; }
 			
-			if ( self.type === 'float' )
-			{
-				var newVal = parseFloat(input.val().replace(/\,/,'.')) || 0;
-				
-				input.val(newVal);
-					
-				//self.valCtnr.text(newVal);
-			}
+			var url = self.url + (self.url.indexOf('?') === -1 ? '?' : '&' ) + 'method=update&tplSelf=1';
+console.log(self.url);
+console.log(url);
+			
+			if 		( self.type === 'float' ){ input.val( parseFloat(input.val().replace(/\,/,'.')) || 0 ); }
 			else if ( self.type === 'tel' )
 			{
 				var newVal = input.val().replace(/\D/,'') || '';
@@ -2150,32 +2107,37 @@ console.log(checked);
 				self.valCtnr.text(newVal);
 			}
 			
+			if ( self.subtype === 'slug' ){ input.val(Tools.slugify(input.val())); }
+			
 			 $.ajax(
 			 {
-			 	url: self.url + '?method=update&tplSelf=1',
+			 	//url: self.url + '?method=update&tplSelf=1',
+			 	url: url,
 				data: input.serialize(),
 				type: 'POST',
 				dataType: 'json',
+				/*
 				beforeSend: function()
 				{
 					this.saving = true;
 					
 					$('.ui-inlineedit-form', self.context).addClass('loading');
-				},
+				},*/
 				error: function(xhr, txtStatus, err)
 				{
 					//$('.ui-inlineedit-form', self.context).removeClass('loading').addClass('status ' + status);
 				},
 				success: function(response)
 				{
+					// TODO: use proper status codes to handle
+					
 					var r 			= response,
 						warnings 	= r.warnings || [],
 						errors		= r.errors || [],
-						status 		= warnings.length ? 'warning' : (r.success ? 'valid' : 'error');
+						//status 		= warnings.length ? 'warning' : (r.success ? 'valid' : 'error');
+						status 		= warnings.length ? 'warning' : ( errors.length ? 'error' : 'valid');
 					
-					$('.ui-inlineedit-form', self.context)
-						.removeClass('loading')
-						.addClass('status ' + status);
+					$('.ui-inlineedit-form', self.context).removeClass('loading').addClass('status ' + status);
 					
 					if ( warnings.length )
 					{						
@@ -2218,7 +2180,8 @@ console.log(checked);
 						self.context.addClass('error').removeClass('error', 500, function(){ self.destroy(); window.location.href = '#body'; });
 					}
 					
-					if ( r.success )
+					//if ( r.success )
+					if ( status === 'valid' )
 					{
 						if ( self.type === 'bool' )
 						{
@@ -2232,16 +2195,6 @@ console.log(checked);
 								.text(newVal == 1 ? 'yes' : 'no')
 							;
 						}
-						// buggy <=== why? TODO : debug
-						/*
-						else if ( self.type === 'float' )
-						{
-							//input.attr('value', function(){ var test = parseFloat($(this).attr('value').replace(/\,/,'.')) || 0; alert(test); })
-							input.attr('value', function(i,value){ parseFloat(value.replace(/\,/,'.')) || 0; })
-							
-							
-							self.valCtnr.text(newVal);
-						}*/
 						/*
 						else if ( self.type === 'varchar' && self.subtype === 'url' )
 						{
@@ -2300,6 +2253,7 @@ var adminCreate =
 		admin.init();
 		
 		admin
+			.handleFormActions()
 			.handleSlugFields()
 			.handleDateFields()
 			.handleOneToOneFields()
@@ -2322,6 +2276,7 @@ var adminUpdate =
 		admin.init();
 		
 		admin
+			.handleFormActions()
 			.handleSlugFields()
 			.handleDateFields()
 			.handlePasswordFields()

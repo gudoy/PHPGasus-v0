@@ -25,7 +25,7 @@ class VAccount extends View
 	}
 	
 	public function login($options = null)
-	{		
+	{
 		// Shortcut for options
 		$o 			= $options;
 		
@@ -51,7 +51,7 @@ class VAccount extends View
 			return $this->redirect($redirURL);
 		}
 		
-		// If max login attemps feature has beend activated
+		// If max login attemps feature has been activated
 		if ( defined('_APP_MAX_LOGIN_ATTEMPTS') && _APP_MAX_LOGIN_ATTEMPTS >= 1 )
 		{
 			$ban = CBans::getInstance()->retrieve(array('by' => 'ip', 'values' => $_SERVER['REMOTE_ADDR']));
@@ -73,6 +73,11 @@ class VAccount extends View
 		// If data have been posted
 		if ( !empty($_POST) )
 		{
+			// Get current time & user IP (for later use);
+			$curTime 	= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+			$clientIp 	= !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ( !empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null );
+			$clientIp 	= filter_var($clientIp, FILTER_VALIDATE_IP) ? $clientIp : false;
+			
 			// If the user login attemps reached the max allowed one
 			// and if its IP it not in the whitelist
 			if ( defined('_APP_MAX_LOGIN_ATTEMPTS') 
@@ -119,13 +124,17 @@ class VAccount extends View
 			
 			// Get the user data
 			$CUsers 		= new CUsers();
+			$uDM 			= $CUsers->application->_columns['users'];
 			$user 			= $CUsers->retrieve(array('by' => 'email', 'values' => $email));
 			
 			// If user mail is not found
 			if ( !$user ){ $this->data['errors'][] = 10002; $this->statusCode(401); return $this->render(); }
 			
+			// Hash the passed password
+			$hashedPass = isset($uDM['password']['hash']) && is_callable($uDM['password']['hash']) ? $uDM['password']['hash']($pass) : sha1($pass);
+		
 			// If pass does not match the stored one
-			if ( empty($pass) || sha1($pass) !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); return $this->render(); }
+			if ( empty($pass) || $hashedPass !== $user['password'] ){ $this->data['errors'][] = 10003; $this->statusCode(401); return $this->render(); }
 
 			// If user is not confirmed
 			if ( defined('_APP_USE_ACCOUNTS_CONFIRMATION') 
@@ -136,25 +145,42 @@ class VAccount extends View
 			// and user does not belong to a groups who is exempted of password expiration
 			if ( defined('_APP_PASSWORDS_EXPIRATION_TIME') 
 				&& _APP_PASSWORDS_EXPIRATION_TIME > 0 
-				&& ( !$user['password_expiration'] || $user['password_expiration'] < (!empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time()) )
+				&& ( !$user['password_expiration'] || $user['password_expiration'] < $curTime )
 				&& ( !($uGps = array_intersect((array) Tools::toArray(_APP_PASSWORDS_EXPIRATION_EXEMPTED_GROUPS), (array) Tools::toArray($user['group_slugs']))) && empty($uGps) )
 			)
 			{ $this->data['errors'][] = 10033; $this->redirect(_URL_ACCOUNT_PASSWORD_EXPIRED . '?errors=10033'); }
 			
-			// Build session data (after saving current post data)
-			$savePOST = $_POST;
-			$newPOST = array(
-				'name' 				=> session_id(), 
-				'user_id' 			=> $user['id'], 
-				'expiration_time' 	=> ( !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time() ) + (int) _APP_SESSION_DURATION,
-				'ip' 				=> $_SERVER['REMOTE_ADDR'],
-				//TODO, add this to session datamodel & to sessions db table
-				'resolution'        => $resolution,
-			);
-			foreach ($newPOST as $key => $val) { $_POST['session' . ucfirst($key)] = $val; }
-						
-			// Launch the creation
-			$CSessions->create();
+			$sid = session_id();
+			
+			// Check if the session id already exists for this user
+			$session = $CSessions->retrieve(array(
+				'conditions' 	=> array('user_id' => $user['id'], 'name' => $sid, 'ip' => $clientIp), 
+				'limit' 		=> 1,
+			));
+			
+			// If it exists, just prolong it 
+			if ( $session )
+			{
+				// Build session data (after saving current post data)
+				$_POST = array( 
+					'expiration_time' 	=> $curTime + (int) _APP_SESSION_DURATION,
+					'resolution'        => $resolution,
+				);
+				$CSessions->update(array('isApi' => 1, 'conditions' => array('id' => $session['id'])));
+			}
+			// Otherwise, create a new one
+			else
+			{
+				// Build session data (after saving current post data)
+				$_POST = array(
+					'name' 				=> $sid, 
+					'user_id' 			=> $user['id'], 
+					'expiration_time' 	=> $curTime + (int) _APP_SESSION_DURATION,
+					'ip' 				=> $clientIp,
+					'resolution'        => $resolution,
+				);
+				$CSessions->create(array('isApi' => 1));
+			}
 		}
 		
 		// Set output data		
@@ -166,17 +192,17 @@ class VAccount extends View
 		
 		// If the operation succeed, reset the $_POST
 		if ( $this->data['success'] )
-		{
-			// Clean the POST
-			unset($_POST);
-			
+		{			
 			// Remove remaning attempts warning by deleting all warnings
 			unset($this->data['warnings']);
 			
+			// Clean the POST
+			unset($_POST);
+			
 			// Store the session data
 			$_SESSION = array_merge((array) $_SESSION, array(
-			     'id'            => $newPOST['name'], 
-			     'user_id'       => $newPOST['user_id'],
+			     'id'            => $sid, 
+			     'user_id'       => $user['id'],
 			     'resolution'    => $resolution,
 			     'orientation'   => $orientation,
 			     'login_attemps' => 0, // reset login attemps
@@ -193,7 +219,7 @@ class VAccount extends View
 			));
 			
 			// Return them as proper data session object
-			$this->data[$this->resourceSingular] = array('id' => $newPOST['name'], 'user_id' => $newPOST['user_id']);
+			$this->data[$this->resourceSingular] = array('id' => $sid, 'user_id' => $user['id']);
 			
 			//if ( !empty($redir) ) { $this->redirect($redir); }
 			//if ( !empty($redir) ) { $this->redirect(_URL . $redir); }
@@ -370,10 +396,14 @@ class VAccount extends View
 				//	&& ($curTime - $user['password_lastedit_date']) < _APP_PASS_MIN_TIME_BETWEEN_CHANGES  
 			//){ $this->data['errors'][] = 10035; $this->render(); }
 
+			//$hashedPass = sha1($_POST['userNewPassword']);
+			$hashedPass 	= isset($uDM['password']['hash']) && is_callable($uDM['password']['hash']) ? $uDM['password']['hash']($pass) : sha1($pass);
+			
 			// If the feature is activated, check that the new password is neither one of the last 2 used passwords nor the current one
 			if ( defined('_APP_PASSWORD_FORBID_LAST_TWO') && _APP_PASSWORD_FORBID_LAST_TWO 
 				&& !empty($user['password_old_1']) && !empty($user['password_old_2'])
-				&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2']))
+				//&& in_array(sha1($_POST['userNewPassword']), array($user['password'], $user['password_old_1'], $user['password_old_2']))
+				&& in_array($hashedPass, array($user['password'], $user['password_old_1'], $user['password_old_2']))
 			){ $this->data['errors'][] = 10019; $this->render(); }
 			
 			// If everything is ok, update the user password

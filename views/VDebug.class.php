@@ -63,7 +63,6 @@ class VDebug extends View
     {
         return $this->info();
     }
-	
 };
 
 ?>

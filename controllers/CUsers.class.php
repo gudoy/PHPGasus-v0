@@ -196,8 +196,175 @@ class CUsers extends Controller
 		return $Mailer->success;
 	}
 
+	public function handleCreateFromServices()
+	{
+		$ret = null;
+		
+		if ( !empty($_POST['google_oauth_token']) )
+		{
+			$ret = $this->createFromGoogle() ? 'google' : false;
+		}
+
+		else if ( !empty($_POST['twitter_oauth_token']) && !empty($_POST['twitter_oauth_token_secret']) )
+		{
+			$ret = $this->createFromTwitter() ? 'twitter' : false;
+		}
+		
+		// Handle login with facebook
+		else if ( !empty($_POST['facebook_oauth_token']) )
+		{
+			$ret = $this->createFromFacebook() ? 'facebook' : false;
+		}
+		
+		return $ret;
+	}
+	
+	
+	private function createFromFacebook()
+	{
+		// Get token
+		$token = Tools::sanitizeString($_POST['facebook_oauth_token']);
+		
+		// Do not continue any longer if the token is invalid
+		if ( !$token ){ $this->errors[5001] = array('_ERR_INVALID_TOKEN'); return false; }
+		
+		// Request an extended token (valid 2 month instead of just 2 hours)
+		$exToken = $this->getFacebookExtendedToken($token);
+		
+		// Get user profile
+		$profile = $this->getFacebookUserProfile(null, $exToken, array('fields' => 'id,name,first_name,last_name,email,birthday,picture.width(300)'));
+
+		// If no profile has been retrieved
+		if ( !$profile || !empty($profile['error']) || !isset($profile['id']) )
+		{
+			if 		( isset($profile['error']['message']) )	{ $this->errors[5002] = array('_ERR_FACEBOOK', $profile['error']['message']); }
+			else 											{ $this->errors[5001] = array('_ERR_FACEBOOK'); }
+			 
+			return false;
+		}
+	
+		// Check if the passed email already exists in the DB
+		$emailExists = $this->retrieve(array('getFields' => 'id', 'conditions' => array('email' => $_POST['email'])));
+	
+		// Do not continue any longer if the email already exists 
+		if ( $emailExists ){ $this->errors[] = 4030; return false; }
+	
+		// Disassociate any existing users already paired with this account  
+		$curPOST 	= $_POST;
+		$_POST 		= array('facebook_id' => '', 'facebook_oauth_token' => ''); 
+		$this->update(array('conditions' => array('facebook_id' => $profile['id'])));
+		$_POST 		= $curPOST;
+		
+		// Complete POST data with retrieved info
+		$_POST['facebook_id'] 			= $profile['id'];		
+		$_POST['facebook_oauth_token'] 	= $exToken;
+		$_POST['birthdate'] 			= DateTime::createFromFormat('m/d/Y', $profile['birthday'])->format('Y-m-d');
+		$_POST['firstname'] 			= isset($profile['first_name']) ? $profile['first_name'] : '';
+		$_POST['lastname'] 				= isset($profile['last_name']) ? $profile['last_name'] : '';
+		$_POST['avatar_url'] 			= isset($profile['picture']['data']['url']) ? $profile['picture']['data']['url'] : '';
+		$_POST['password'] 				= sha1(time());
+		
+		return true;
+	}
+
+	private function createFromTwitter()
+	{		
+		// Get token
+		$token 			= Tools::sanitizeString($_POST['twitter_oauth_token']);
+		$tokenSecret 	= Tools::sanitizeString($_POST['twitter_oauth_token_secret']);
+		
+		// Do not continue any longer if the token is invalid
+		if ( !$token )		{ $this->errors[5001] = array('_ERR_INVALID_TOKEN'); return false; }
+		if ( !$tokenSecret ){ $this->errors[5001] = array('_ERR_INVALID_TOKEN_SECRET'); return false; }
+		
+		// Get user profile
+		$profile = $this->getTwitterUserProfile(null, $token, $tokenSecret);
+
+		// If no profile has been retrieved
+		if ( !$profile || !empty($profile['errors']) || !isset($profile['id']) )
+		{
+			if 		( isset($profile['errors'][0]['message']) )	{ $this->errors[5002] = array('_ERR_TWITTER', $profile['errors'][0]['message']); }
+			else 												{ $this->errors[5001] = array('_ERR_TWITTER'); }
+			 
+			return false;
+		}
+
+		// Check if the passed email already exists in the DB
+		$emailExists = $this->retrieve(array('getFields' => 'id', 'conditions' => array('email' => $_POST['email'])));
+	
+		// Do not continue any longer if the email already exists 
+		if ( $emailExists ){ $this->errors[] = 4030; return false; }
+	
+		// Disassociate any existing users already paired with this account
+		$curPOST 	= $_POST;
+		$_POST 		= array('twitter_id' => '', 'twitter_oauth_token' => '', 'twitter_oauth_token_secret' => ''); 
+		$this->update(array('conditions' => array('twitter_id' => $profile['id'])));
+		$_POST 		= $curPOST;
+		
+		// Complete POST data with retrieved info
+		if ( !empty($profile['name']) )
+		{
+			$parts = explode(' ', $profile['name'], 2);
+			$_POST['firstname'] = isset($parts[0]) ? $parts[0] : '';
+			$_POST['lastname'] 	= isset($parts[1]) ? $parts[1] : '';
+		}
+		$_POST['twitter_id'] 					= $profile['id'];
+		$_POST['twitter_oauth_token'] 			= $token;
+		$_POST['twitter_oauth_token_secret'] 	= $tokenSecret;
+		$_POST['avatar_url'] 					= isset($profile['profile_image_url_https']) ? $profile['profile_image_url_https'] : '';
+		$_POST['password'] 						= sha1(time());
+		
+		return true;
+	}
+
+	private function createFromGoogle()
+	{
+		// Get token
+		$refreshToken = Tools::sanitizeString($_POST['google_oauth_token']);
+		
+		// Do not continue any longer if the token is invalid
+		if ( !$refreshToken ){ $this->errors[5001] = array('_ERR_INVALID_REFRESH_TOKEN'); return false; }
+		
+		// Request an access token from the refresh token
+		$token = null;
+		try 					{ $token = $this->getGoogleRefreshedToken($refreshToken); }
+		catch (Exception $ex) 	{ $this->errors[5002] = array('_ERR_GOOGLE', $ex->getMessage()); return false; }
+		
+		// Get user profile
+		$profile = null;
+		try 					{ $profile = $this->getGoogleUserProfile(null, $token); }
+		catch (Exception $ex) 	{ $this->errors[5002] = array('_ERR_GOOGLE', $ex->getMessage()); return false; }
+		
+		// Do not continue if the profile has not been found or if the email has not been returned
+		if ( !$profile || !isset($profile['id']) ){ $this->errors[5001] = array('_ERR_GOOGLE'); return false;}
+
+		// Check if the passed email already exists in the DB
+		$emailExists = $this->retrieve(array('getFields' => 'id', 'conditions' => array('email' => $_POST['email'])));
+	
+		// Do not continue any longer if the email already exists 
+		if ( $emailExists ){ $this->errors[] = 4030; return false; }
+
+		// Disassociate any existing users already paired with this account
+		$curPOST 	= $_POST;
+		$_POST 		= array('google_id' => '', 'google_oauth_token' => ''); 
+		$this->update(array('conditions' => array('google_id' => $profile['id'])));
+		$_POST 		= $curPOST;
+		
+		// Complete POST data with retrieved info
+		$_POST['google_id'] 			= $profile['id'];
+		$_POST['google_oauth_token'] 	= $refreshToken;
+		$_POST['birthdate'] 			= isset($profile['birthday']) ? DateTime::createFromFormat('Y-m-d', $profile['birthday'])->format('Y-m-d')  : '0000-00-00';
+		$_POST['firstname'] 			= isset($profile['given_name']) ? $profile['given_name'] : '';
+		$_POST['lastname'] 				= isset($profile['family_name']) ? $profile['family_name'] : '';
+		$_POST['avatar_url'] 			= isset($profile['picture']) ? $profile['picture'] : '';
+		$_POST['password'] 				= sha1(time());
+
+		return true;
+	}
+	
+
 	// https://developers.facebook.com/docs/howtos/login/extending-tokens/
-	public function getExtendedToken($token)
+	public function getFacebookExtendedToken($token)
 	{	
 		$params = array(
 			'grant_type' 		=> 'fb_exchange_token',
@@ -205,9 +372,9 @@ class CUsers extends Controller
 			'client_secret' 	=> _FACEBOOK_APP_SECRET,
 			'fb_exchange_token' => $token,
 		);
-		$url = _FACEBOOK_API_URL . 'oauth/access_token' . '?' . http_build_query($params);
-		$res = $this->request($url, array('method' => 'get', 'output' => 'txt'));
-		$data = array();
+		$url 	= _FACEBOOK_API_URL . 'oauth/access_token' . '?' . http_build_query($params);
+		$res 	= $this->request($url, array('method' => 'get', 'output' => 'txt'));
+		$data 	= array();
 		parse_str($res['body'], $data);
 		
 		return isset($data['access_token']) ? $data['access_token'] : null;
@@ -241,8 +408,6 @@ class CUsers extends Controller
 		);		
 		$url 	= _FACEBOOK_API_URL . $who . '/friends' . '?' . http_build_query($params);
 		
-//var_dump($url);
-		
 		// Send the request
 		$res 	= $this->request($url, array(
 			'method' 		=> 'get',
@@ -251,6 +416,144 @@ class CUsers extends Controller
 		$friends = isset($res['body']['data']) ? $res['body']['data'] : false;
 		
 		return $friends;
+	}
+	
+	public function getTwitterUserProfile($twitterUserId, $token, $tokenSecret, $options = array())
+	{
+		// Verify Credentials
+		$method 		= 'GET';
+		$queryParams 	= !empty($twitterUserId) ? array('id' => $twitterUserId) : array();
+		$queryString 	= http_build_query($queryParams);
+		$url 			= !empty($twitterUserId) 
+							? _TWITTER_API_URL . 'users/show.json'
+							: _TWITTER_API_URL . 'account/verify_credentials.json';
+		$calledUrl		= $url . (!empty($queryString) ? '?' . $queryString : '');
+		$bodyParams 	= array();
+		$oAuthParams 	= array('oauth_token' => $token);
+		$sigingOptions 	= array('token_secret' => $tokenSecret);
+		$authHeader 	= $this->buildOauthAuthHeader($method, $url, $queryParams, $bodyParams, $oAuthParams, $sigingOptions);			
+		$res 			= $this->request($calledUrl, array(
+			'method' 	=> $method,
+			'headers' 	=> array(
+				'Authorization' => $authHeader,
+			),
+			'output' 	=> 'json',
+		));
+		$profile = $res['body'];
+		
+		return $profile;
+	}
+	
+	// https://developers.google.com/accounts/docs/OAuth2WebServer?hl=fr#refresh
+	public function getGoogleRefreshedToken($refreshToken)
+	{
+		class_exists('Google_Client') || require(_PATH_LIBS . 'services/google/google_api_client/Google_Client.php');
+		
+		// Instanciate Google Client if not already done
+		if ( !isset($this->Google_Client) ){ $this->Google_Client = new Google_Client(); }
+
+		$this->Google_Client->setApplicationName('Sipstir');
+		$this->Google_Client->setClientId(_GOOGLE_CLIENT_ID);
+		$this->Google_Client->setClientSecret(_GOOGLE_CLIENT_SECRET);
+		
+		// Get access token from the refresh token
+		$this->Google_Client->refreshToken($refreshToken);
+		$accessToken = $this->Google_Client->getAccessToken();
+		
+		return !empty($accessToken) ? $accessToken : null;
+	}
+	
+	public function getGoogleUserProfile($googleUserId, $token, $options = array())
+	{
+		$who 		= isset($googleUserId) ? $googleUserId : 'me';
+		$params  	= array(
+		);
+		$scopes 	= array(
+			'https://www.googleapis.com/auth/userinfo.email', 
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/plus.me',
+			//'https://www.googleapis.com/auth/plus.login﻿',
+		);
+		
+		class_exists('Google_Client') || require(_PATH_LIBS . 'services/google/google_api_client/Google_Client.php');
+		
+		// Instanciate Google Client if not already done
+		if ( !isset($this->Google_Client) ){ $this->Google_Client = new Google_Client(); }
+		
+		$this->Google_Client->setApplicationName(_GOOGLE_APPLICATION_NAME);
+		$this->Google_Client->setClientId(_GOOGLE_CLIENT_ID);
+		$this->Google_Client->setClientSecret(_GOOGLE_CLIENT_SECRET);
+		$this->Google_Client->setAccessToken($token);
+		
+		// Special case for currend logged user (from which we want to get the email)
+		if ( $who = 'me' )
+		{
+			class_exists('Google_Oauth2Service') || require(_PATH_LIBS . 'services/google/google_api_client/contrib/Google_Oauth2Service.php');
+			
+			$this->Google_Client->setScopes($scopes);
+			
+			$oauth2 	= new Google_Oauth2Service($this->Google_Client);
+			$profile 	= $oauth2->userinfo->get();	
+		}
+		// Otherwise, get the user google plus profile
+		else
+		{
+			class_exists('Google_PlusService') || require(_PATH_LIBS . 'services/google/google_api_client/contrib/Google_PlusService.php');
+			
+			$plus 		= new Google_PlusService($client);
+			$profile 	= $plus->people->get('me');	
+			$profile 	= $plus->people->get($who);
+		}
+		
+		return $profile;
+	}
+
+	public function getGoogleUserProfile2($googleUserId, $token, $options = array())
+	{
+		$who 		= isset($googleUserId) ? $googleUserId : 'me';
+		$params  	= array(
+		);
+		
+		class_exists('Google_Client') || require(_PATH_LIBS . 'services/google/google_api_client/Google_Client.php');
+		
+		// Instanciate Google Client if not already done
+		if ( !isset($this->Google_Client) ){ $this->Google_Client = new Google_Client(); }
+		
+		$key 	= file_get_contents(_PATH_LIBS . 'services/google/' . 'd451e61a55256ca20ad94bed57544f6533749122-privatekey.p12');
+		$scopes = array(
+			'https://www.googleapis.com/auth/userinfo.email', 
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/plus.me',
+			//'https://www.googleapis.com/auth/plus.login﻿',
+		);
+		
+		$this->Google_Client->setApplicationName('Sipstor');
+		$this->Google_Client->setClientId(_GOOGLE_CLIENT_ID);
+		//$this->Google_Client->setAssertionCredentials(new Google_AssertionCredentials(_GOOGLE_EMAIL_ADDRESS, $scopes, $key));
+		$this->Google_Client->setClientSecret(_GOOGLE_CLIENT_SECRET);
+		$this->Google_Client->setAccessToken($token);
+		
+		// Special case for currend logged user (from which we want to get the email)
+		if ( $who = 'me' )
+		{
+			class_exists('Google_Oauth2Service') || require(_PATH_LIBS . 'services/google/google_api_client/contrib/Google_Oauth2Service.php');
+			
+			$this->Google_Client->setScopes($scopes);
+			
+			$oauth2 	= new Google_Oauth2Service($this->Google_Client);
+			$profile 	= $oauth2->userinfo->get();	
+		}
+		// Otherwise, get the user google plus profile
+		else
+		{
+			class_exists('Google_PlusService') || require(_PATH_LIBS . 'services/google/google_api_client/contrib/Google_PlusService.php');
+			
+			$plus 		= new Google_PlusService($client);
+			$profile 	= $plus->people->get('me');	
+			$profile 	= $plus->people->get($who);
+		}
+		
+		return $profile;
 	}
 }
 ?>

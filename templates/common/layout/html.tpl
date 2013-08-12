@@ -10,9 +10,8 @@
 {include file='common/config/js/googleAnalytics.tpl'}
 </head>
 
-{block name='body'}
 <body>
-{block name='bodyContent'}
+{block name='body'}
 	{include file='common/config/flush/onBodyStart.tpl'}
 	{include file='common/config/js/facebookSDK.tpl'}
 	{include file='common/config/js/detectjs.tpl'}
@@ -20,12 +19,11 @@
 	{include file='common/config/js/googleChromeFrameLoad.tpl'}
 	{include file='common/config/js/googleChromeFrameInit.tpl'}
 	{block name='notifications'}{include file='common/blocks/notifications.tpl'}{/block}
-	<div id="layout">{block name='layout'}{/block}</div>
+	<div class="page layout" id="layout">{block name='layout'}{/block}</div>
 	{include file='common/config/js/googleplusSDK.tpl'}
 	{include file='common/config/js/js.tpl'}
 {/block}
 </body>
-{/block}
 </html>
 {else}
 {block name='mainContent'}{/block}

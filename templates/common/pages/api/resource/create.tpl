@@ -6,7 +6,7 @@
 	{$isAdminView = in_array('admin', explode(' ',$view.smartclasses))}
 	
 	{if $data.env.type === 'dev' || $data.view.allowApiHTMLFormView}
-	<section class="apiDataSection" id="apiDataSection">
+	<section class="apiDataSection adminBlock" id="apiDataSection">
 		<header class="titleBlock">
 			<h2 class="title">{t}data{/t}</h2>
 		</header>
