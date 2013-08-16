@@ -542,14 +542,15 @@ class Model extends Application
 				 				//$v = !empty($v) && !empty($p[$colProps]['destBaseURL'])
 			                            //? $p[$colProps]['destBaseURL'] . ltrim($v, '/')
 			                            //: $v; break;
+			case 'date':
             case 'datetime':
             case 'time':
             case 'year':
-            case 'month':
-            case 'day':
-            case 'hours':
-            case 'minutes':
-            case 'seconds':
+            //case 'month':
+            //case 'day':
+            //case 'hours':
+            //case 'minutes':
+            //case 'seconds':
             
             case 'html':
             case 'text':
@@ -1123,7 +1124,7 @@ class Model extends Application
 						}
 
 						//$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relResource']) . "." . $field['relField'];
-						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relTable ']) . "." . $field['relField'];
+						$joinCondition 			= $this->alias . "." . $fieldName . " = " . (!empty($tmpTableAlias) ? $tmpTableAlias : $field['relTable']) . "." . $field['relField'];
 						//$ljoin 					= "LEFT JOIN " . $field['relResource'];
 						$ljoin 					= "LEFT JOIN " . $field['relTable'];
 						$ljoin 					.= (!empty($tmpTableAlias) ? " AS " . $tmpTableAlias : '');

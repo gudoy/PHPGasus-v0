@@ -68,7 +68,7 @@ form .buttonsLine .action { width:auto; }
 
 .toolbar .settings .groups { margin-bottom:10px; padding:0 20px 0; background:#fff; box-shadow:1px 1px 5px rgba(0,0,0,0.5); border-radius:5px; }
 .toolbar .settings .group { overflow:hidden; margin:0; padding:20px 0; display:block; clear:both; border-bottom:1px solid #5F5F5F; box-shadow:0 1px 1px rgba(255,255,255,0.6); }
-.toolbar .settings .group:last-of-type { border-bottom:none; box-shadow:none; }
+.toolbar .settings .group:last-of-type { padding-bottom:0; border-bottom:none; box-shadow:none; }
 .toolbar .settings .group > .title { display:inline-block; float:left; text-transform:capitalize; }
 .toolbar .settings .group > .actions { float:right; }
 .toolbar .settings .group > fieldset { float:right; }
@@ -77,11 +77,11 @@ form .buttonsLine .action { width:auto; }
 
 .toolbar .groups.others { background-color:#DEE4EA; border:1px solid #999; }
 
-.adminListToolbar > .createButtons,
+/*.adminListToolbar > .createButtons,*/
 .adminListToolbar > .actionsButtons { display:none; }
 .editMode .adminListToolbar .filterButtons,
 .editMode .adminListToolbar .settings { display:none; }
-.editMode .adminListToolbar .createButtons { display:inline-block; }
+/*.editMode .adminListToolbar .createButtons { display:inline-block; }*/
 
 /*a.relResourceLink 		{ background-size:6px; }*/
 
@@ -95,33 +95,7 @@ form .buttonsLine .action { width:auto; }
 .ui-inlineedit-form.invalid { padding-right:20px; background-position:100% 50%; }
 
 
-/* Forms (start) */
-form .line.subtypeFile .actionBtn { margin-right:10px; text-transform:capitalize; }
-form .line.subtypeFile .or { display:none; }
-form .line.subtypeFile .actions { display:inline-block; }
-form .line.subtypeFile input { display:none; }
-form .line.subtypeFile .cancelFileActionLink { display:none; }
-form .line.subtypeFile .replaceFileMode input.file { display:inline-block; }
-form .line.subtypeFile .replaceFileMode .actionBtn { display:none; }
-form .line.subtypeFile .replaceFileMode .actionBtn.cancelFileActionLink { display:inline-block; }
-form .line.subtypeFile .replaceFileMode .currentItem,
-form .line.subtypeFile .editFileUrlMode .currentItem { display:none; }
-form .line.subtypeFile .editFileUrlMode input[type='text'] { width:50%; margin-right:10px; display:inline-block; float:none; }
-form .line.subtypeFile .editFileUrlMode .actionBtn { display:none; }
-form .line.subtypeFile .editFileUrlMode .actionBtn.cancelFileActionLink { display:inline-block; }
-form .line.subtypeFile .emptyValueMode input.file { display:inline-block; }
-form .line.subtypeFile .editFileUrlMode .emptyValueMode input.file { display:none; }
-form .line.subtypeFile .emptyValueMode .actionBtn { display:none; }
-form .line.subtypeFile .emptyValueMode .actionBtn.editFileLink { display:inline-block; }
-form .line.subtypeFile .emptyValueMode.editFileUrlMode input.file { display:none; }
 
-.filtersRow input,
-.filtersRow select { display:block; -moz-box-flex:1; -webkit-box-flex:1; -o-box-flex:1; -ms-box-flex:1; box-flex:1; font-family:inherit; font-size:inherit; }
-.filtersRow input.filter { padding-left:16px; background-repeat:no-repeat; background-position:0 50%; }
-.filtersRow select { min-width:1em; background-image:none; }
-.fieldBlock .current .empty { display:none; }
-.fieldBlock .actions { display:inline-block; } 
-/* Forms (end) */
 
 
 
@@ -150,16 +124,16 @@ table thead .sort:before { width:8px; height:5px; display:inline-block; content:
 .adminTable td.fk.typeInt { width:1em; }
 .adminTable td.namefield,
 .adminTable td.defaultNameField { padding-left:4px; }
-.adminTable thead th.firstCol,
-.adminTable thead td.firstCol,
-.adminTable tbody th.firstCol,
-.adminTable tbody td.firstCol { border-left:0; }
-.adminTable thead th.lastCol,
-.adminTable thead td.lastCol,
-.adminTable tbody th.lastCol,
-.adminTable tbody td.lastCol { border-right:0; }
-.adminTable tbody tr.lastRow th,
-.adminTable tbody tr.lastRow td { border-bottom:0; }
+.adminTable thead th:first-of-type,
+.adminTable thead td:first-of-type,
+.adminTable tbody th:first-of-type,
+.adminTable tbody td:first-of-type { border-left:0; }
+.adminTable thead th:last-of-type,
+.adminTable thead td:last-of-type,
+.adminTable tbody th:last-of-type,
+.adminTable tbody td:last-of-type { border-right:0; }
+.adminTable tbody tr:last-of-type th,
+.adminTable tbody tr:last-of-type td { border-bottom:0; }
 .adminTable thead th.actionsCol span.title { display:none; }
 .commonTable thead th.typeBool,
 .commonTable tbody th.typeBool,
@@ -192,13 +166,13 @@ table thead .sort:before { width:8px; height:5px; display:inline-block; content:
 .adminTable tr.filtersRow td.goToCol { padding:0; }
 .adminTable tr.filtersRow td input,
 .adminTable tr.filtersRow td select { min-height:0; border-width:0; padding-top:0; padding-bottom:0; }
-.adminTable tr.filtersRow td span.filterCtnr { width:100%; height:0; max-width:100%; overflow:hidden; display:block; display:-moz-box; display:-webkit-box; display:box; }
+.adminTable tr.filtersRow td span.filterCtnr { width:100%; height:0; max-width:100%; overflow:hidden; display:block; /*display:-moz-box; display:-webkit-box; display:box;*/ }
 .adminTable tr.filtersRow:target,
 .adminTable tr.filtersRow.active { height:auto; font-size:inherit; display:table-row; visibility:visible; }
 .adminTable tr.filtersRow:target td span.filterCtnr,
 .adminTable tr.filtersRow.active td span.filterCtnr { height:auto; }
 .adminTable tr.filtersRow:target td input,
-.adminTable tr.filtersRow.active td input { min-height:24px; padding-top:2px; padding-bottom:2px; margin:2px; border:1px solid #ABADB3; background-position-x:2px; background-color:#fff; }
+.adminTable tr.filtersRow.active td input { width:100%; height:24px; display:block; margin:2px 0; padding:1px; border:1px solid #ABADB3; background-position-x:2px; background-color:#fff; font-size:small; }
 .adminTable tr.filtersRow:target td select,
 .adminTable tr.filtersRow.active td select { height:24px; border-width:1px; }
 .adminTable tr.filtersRow:target td option,
@@ -231,7 +205,7 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 .adminTable #colsManagerLink { width:10px; height:10px; overflow:hidden; display:block; background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAJCAQAAAChr3WYAAAAK0lEQVR42mPw/Y8O/zMwgAgQRKYZSFGJRxAZIgkiTGVAGA9jA1WiaoRIAgCF7WZJcmmpRwAAAABJRU5ErkJggg==') no-repeat 0 0; text-align:left; }
 .adminTable .colsBlock li { margin-bottom:5px; display:block; }
 .adminTable .colsBlock input { margin:0 5px 0 0; display:inline-block; }
-.adminTable .colsBlock label { width:100%; max-width:156px; margin:0; display:inline-block; vertical-align:middle; letter-spacing:normal; background:yellow; }
+.adminTable .colsBlock label { width:100%; max-width:156px; margin:0; display:inline-block; vertical-align:middle; letter-spacing:normal; }
 .macos.webkit .adminTable { max-width:100%; overflow-x:auto; } /* fix bad table layout when contents overflows */
 .macos.chrome .adminTable .idCol { max-width:5em; } /* fix not applied width */
 
@@ -335,7 +309,7 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 	.toolbar .settings { display:inline-block; }
 
 	.action { width:auto; /*min-width:16px; min-height:16px;*/ /*min-width:32px; min-height:24px;*/ background-position:0 50%; }
-	.actions .action { margin-right:10px; }
+	.actions .action { margin-right:7px; }
 	.actions .action:last-child { margin-right:0; }
 	.toolbar .actions .action { margin-right:0; padding-left:20px; }
 	.titleBlock .actions .action { margin-right:15px; padding-left:20px; }
@@ -347,6 +321,4 @@ section[data-density="normal"] .adminTable tbody td.goToCol { padding:32px; }
 	.api .resourceDetailBlock { max-width:300px; width:100%; float:left; border:1px solid; }
 	.api .resourceDetailBlock dt,
 	.api .resourceDetailBlock dd { min-height:1em; padding-top:0; padding-bottom:0; }
-	.adminCreateBlock form,
-	.adminUpdateBlock form { margin:10px; max-width:640px; }
 }

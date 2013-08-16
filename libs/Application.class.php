@@ -146,13 +146,6 @@ class Application
 
 	public function handleHttpAuth()
 	{
-//var_dump(base64_encode('doyer.guyllaume@gmail.com:cmc7g6ah'));
-		// ZG95ZXIuZ3V5bGxhdW1lQGdtYWlsLmNvbToxMjM0NTY=
-		// ZG95ZXIuZ3V5bGxhdW1lQGdtYWlsLmNvbTpjbWM3ZzZhaA
-//var_dump($_SERVER['HTTPS']);
-//die();
-//var_dump($_SERVER['PHP_AUTH_USER']);
-//var_dump($_SERVER['PHP_AUTH_PW']);
 		if ( !_APP_ALLOW_HTTP_AUTH ){ return false; }
 
 		if ( empty($_SERVER['HTTPS']) 
@@ -160,15 +153,11 @@ class Application
 			|| !isset($_SERVER['PHP_AUTH_USER']) 
 			|| !isset($_SERVER['PHP_AUTH_PW']) ) { return false; }
 		
-//Digest: 
-		
 		// Handle Digest Authentication
 		if ( !empty($_SERVER['PHP_AUTH_DIGEST']) )
 		{
 			// TODO
 			//$tmpUser = http_digest_parse($_SERVER['PHP_AUTH_DIGEST']);
-//var_dump($tmpUser);
-//die();
 		}
 		// Handle Basic Authentication 
 		else
@@ -183,19 +172,11 @@ class Application
 				'getFields' 	=> array('id', 'password'),
 				'conditions' 	=> array('email' => $userMail)
 			));
-			
-//var_dump($user);
-//var_dump(sha1($_SERVER['PHP_AUTH_PW']));
-//die();
-			
+
 			// If the user has not been found or if the 
 			if ( !$user || empty($user['password']) || sha1($_SERVER['PHP_AUTH_PW']) !== $user['password'] ){ return false; }
 			
 			$sid = session_id(); 
-			
-// 6ef7imbqs74r0lu72q86vuea96			
-//var_dump($sid);
-//die();
 			
 			// If the session does not already exists
 			if ( $sid === '' )
@@ -204,13 +185,8 @@ class Application
 				session_start();
 				$sid = session_id();
 				$_SESSION['user_id'] = $user['id'];
-//var_dump($sid);
-//die();
 			}	
 		}
-		
-//var_dump($_SERVER);
-//die();
 
 		return true;
 	}
@@ -251,8 +227,6 @@ class Application
 			'limit' 		=> 1, 
 		));
 		
-//var_dump($session);
-		
 		// Get user ip & clean it
 		$clientIp = !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ( !empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null );
 		$clientIp = filter_var($clientIp, FILTER_VALIDATE_IP) ? $clientIp : false;
@@ -277,9 +251,6 @@ class Application
 			$sessionJustCreated = $CSessions->success;
 		}
 		
-//var_dump($session['ip']);
-//var_dump($clientIp);
-		
 		// If no session was found or if the client ip does not match the passed session's one, deny login
 		//if ( empty($session) || !empty($session['ipg']) || $clientIp !== $session['ip'] )
 		if ( !$session || empty($session['ip']) || $clientIp !== $session['ip'] )
@@ -288,15 +259,8 @@ class Application
 			return $this;
 		}
 		
-//var_dump('is valid: ' . $this->isSessionValid($session['expiration_time']));
-//die();
-		
 		// Is the session expired?
 		$isExpired = !$this->isSessionValid($session['expiration_time']);
-		
-//var_dump('expired: ' . $isExpired);
-//var_dump('session just created: ' . $sessionJustCreated);
-//die();
 		
 		// Do not continue any longer if the session is no longer valid
 		//if ( !$this->isSessionValid($session['expiration_time']) )
@@ -313,7 +277,6 @@ class Application
 		// Prolong the session, but only if it has not just been created (in case of a valid http auth)
 		if ( !$sessionJustCreated )
 		{
-//var_dump('case 1');
 			// Prolong session
 			$curPOST 	= $_POST;
 			$_POST 		= array(
@@ -333,13 +296,8 @@ class Application
 		}
 		else
 		{
-//var_dump('case 2');
-			
 			$this->logged = true;
 		}
-		
-//var_dump($this->logged);
-//die();
 		
 		return $this;
 	}
@@ -369,13 +327,6 @@ class Application
 		));
 		
 		// Has the session been found and is it always valid (not expired)
-		/*
-		$sessExp	 	= !empty($session) 
-							? (is_numeric($session['expiration_time']) ? $session['expiration_time'] : strtotime($session['expiration_time']) )
-							: null;
-		$time 			= !empty($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
-		$this->logged 	= !empty($sessExp) && $sessExp > $time && ( !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'] );
-		*/
 		$this->logged 	= $this->isSessionValid($session['expiration_time']) && !empty($_SESSION['id']) && $_SESSION['id'] === $session['name'];
 		
 		return $this->logged;
@@ -662,6 +613,9 @@ class Application
 			error_reporting(E_ERROR | E_PARSE);
 		}
 
+		// Set session duration time
+		ini_set('session.cache_expire', 	(_APP_SESSION_DURATION / 60));
+
 		// Prevent cookie manipulation via javascript
 		ini_set('session.cookie_httponly', 	1);
 		
@@ -793,6 +747,48 @@ class Application
 		return $this;	
 	}
 
+
+	public function buildOauthAuthHeader($method, $url, $getParams = array(), $postParams = array(), $oAuthParams = array(), $options = array())
+	{
+		$oAuthParams = array_merge(array(
+			'oauth_consumer_key' 		=> _TWITTER_CONSUMER_KEY,
+			'oauth_nonce' 				=> md5(microtime() . mt_rand()),
+			'oauth_signature_method' 	=> 'HMAC-SHA1',
+			'oauth_timestamp' 			=> time(),
+			'oauth_version' 			=> '1.0',
+		), (array) $oAuthParams);
+		
+		$sign = $this->getOauthSign($method, $url, $getParams, $postParams, $oAuthParams, $options);
+
+		$oAuthParams['oauth_signature'] = $sign;
+		ksort($oAuthParams);
+		$authHeader = 'OAuth ' . str_replace(array('&', '='), array('", ', '="'), http_build_query($oAuthParams)) . '"';
+
+		return $authHeader;
+	}
+
+	public function getOauthSign($method, $url, $getParams = array(), $postParams = array(), $oAuthParams = array(), $options = array())
+	{
+		// Default options
+		$o = array_merge(array(
+			'consumer_secret' 	=> _TWITTER_CONSUMER_SECRET,
+			'token_secret' 		=> '',
+		), $options);
+		
+		// Encode all the query params (query string params, body params & oauth params) & sort them by keys
+		$signParams = array();			
+		foreach(array_merge($getParams,$postParams,$oAuthParams) as $k => $v){ $signParams[rawurlencode($k)] = $v; }
+		ksort($signParams);
+		
+		// Build the signature base string
+		$signBase 		= str_replace(array('+'), array('%20'), http_build_query($signParams));
+		$signString 	= (strtoupper($method) . '&' . rawurlencode($url) . '&' . rawurlencode($signBase) );
+		$signingKey 	= $o['consumer_secret'] . '&' . $o['token_secret']; 
+		$sign 			= base64_encode(hash_hmac('sha1', $signString, $signingKey, true));
+
+		return $sign;
+	}
+
 	// TODO: rename to send()????
 	// TODO: move to Request class
 	public function request($url, $params = array())
@@ -808,7 +804,8 @@ class Application
 			'content-type' 	=> 'application/x-www-form-urlencoded', // default output format
 			'accept' 		=> 'text/html;', 						//
 			'body' 			=> '',
-			'output' 		=> 'html'
+			'output' 		=> 'html',
+			'headers' 		=> array(),
 		);
 		$known = array(
 			'methods' 	=> array('get','post','put','delete'),
@@ -823,7 +820,8 @@ class Application
 		);
 		
 		// Init final request params
-		$rqP = array();
+		$rqP 		= array();
+		$response 	= null;
 		
 		$data = isset($p['data']) ? $p['data'] : null;
 		
@@ -834,19 +832,24 @@ class Application
 							: $default['method'];
 							
 		# Handle content-type header
-		$rqP['content-type'] = !empty($p['content-type']) ? $p['content-type'] : $default['content-type']; 
+		//$rqP['content-type'] = !empty($p['content-type']) ? $p['content-type'] : $default['content-type']; 
+		$rqP['content-type'] = !empty($p['content-type']) 
+			? $p['content-type'] 
+			: ( isset($headers['Content-Type']) ? $headers['Content-Type'] : $default['content-type'] );
 		
 		# Handle accept header (accepted output(s))
 		// if 'output' param passed an if it's a known output, use id
 		// otherwise get passed 'accept' params or set it to default value 
 		$rqP['accept'] = !empty($p['output']) && isset($known['output'][strtolower($p['output'])])
-							? $known['output'][strtolower($p['output'])]
-							: (!empty($p['accept']) ? $p['accept'] : $default['accept']);
+			? $known['output'][strtolower($p['output'])]
+			: (!empty($p['accept']) ? $p['accept'] : $default['accept']);
 							
 		// TODO: handle this properly depending of the setted accept header (in any)
 		$rqP['output'] = !empty($p['output']) && isset($known['output'][strtolower($p['output'])])
-							? strtolower($p['output'])
-							: $default['output'];
+			? strtolower($p['output'])
+			: $default['output'];
+							
+		$rqP['headers'] = !empty($p['headers']) ? array_merge($default['headers'], $p['headers']) : array();
 		
 		// Try to use HttpRequest extension (PECL extension)
 		if ( extension_loaded('http') )
@@ -854,20 +857,48 @@ class Application
 			// Init the request
 			$req = new HttpRequest($url, constant('HttpRequest::METH_' . strtoupper($rqP['method'])));
 			
-			$req->addHeaders(array('Content-Type'=> $rqP['content-type']));
-			$req->addHeaders(array('Accept'=> $rqP['accept']));
+//var_dump($req);
 			
-			if 		( $rqP['method'] === 'post' ) 	{ $req->setBody( is_string($data) ? $data : http_build_query((array) $data) ); }
-			elseif 	( $rqP['method'] === 'put' ) 	{ $req->setPutData($data); }
+			//$req->addHeaders(array('Content-Type'=> $rqP['content-type']));
+			//$req->addHeaders(array('Accept'=> $rqP['accept']));
+			
+			foreach($rqP['headers'] as $k => $v){ $req->addHeaders(array($k => $v)); }
+			
+			//$req->setSslOptions(array('verifypeer' => false, 'verifyhost' => 1));
+			//$tmp = $req->setSslOptions(array('verifypeer' => false));
+//var_dump('ssl opt set: ' . (int) $tmp);
+			
+//var_dump($rqP['content-type']);
+//var_dump($data);
+//var_dump($p['postFields']);
+
+			//if ( isset($p['postFields']) ){ $tmp = $req->setPostFields($p['postFields']); var_dump('post set: ' . (int) $tmp); }
+			if ( isset($p['data']) ){ $req->setPostFields($p['data']); }
+			//if 		( !empty($p['file']) ) { $req->addPostFiles (array(file_get_contents($p['file']))); }
+			
+//var_dump($req);
+			
+			//if 		( $rqP['method'] === 'post' ) 	{ $req->setBody( is_string($data) ? $data : http_build_query((array) $data) ); }
+			//elseif 	( $rqP['method'] === 'put' ) 	{ $req->setPutData($data); }
+			
+//var_dump($req);
 			
 			// Send the request
-		    $req->send();
-			
-			// Get the status code
-			$response = array(
-				'statusCode' 	=> $req->getResponseCode(),
-				'body' 			=> $req->getResponseBody()
-			);
+			try
+			{
+			    $req->send();
+				
+				// Get the status code
+				$response = array(
+					'statusCode' 	=> $req->getResponseCode(),
+					'body' 			=> $req->getResponseBody()
+				);
+			} catch (HttpException $ex)
+			{
+//var_dump($ex);
+			    //echo $ex->getMessage();
+				return false;
+			}
 		}
 		// Otherwise try to use CURL extension
 		else if ( extension_loaded('curl') )
@@ -883,10 +914,22 @@ class Application
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($rqP['method']));
 			
 			// Set Headers
+			// Separate response headers & body (if CURLOPT_HEADER set to true)
+			// TODO: parse headers		
+			//$tmp = curl_exec($ch); 
+			//list($headers, $body) = explode("\r\n\r\n", $tmp, 2);
+			$headers = array();
+			foreach ( $rqP['headers'] as $k => $v){ $headers[] = $k . ': ' . $v; }
+//var_dump($headers);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			/*
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 				'Content-Type: ' . $rqP['content-type'],
 				'Accept: ' . $rqP['accept'],
-			));
+			));*/
+			
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+			//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			
 			curl_setopt($ch, CURLOPT_HEADER, false);  			// Do we want to have response headers in the output
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 	// Get result instead of displaying it
@@ -897,19 +940,21 @@ class Application
 			// Set post data if any
 			if ( in_array($rqP['method'], array('post','put','delete')) )
 			{
-				 curl_setopt ($Curl_Session, CURLOPT_POSTFIELDS, is_string($data) ? $data : http_build_query((array) $data));
+				//curl_setopt ($ch, CURLOPT_POSTFIELDS, is_string($data) ? $data : http_build_query((array) $data));
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 			}
-				
-			// Separate responde headers & body (if CURLOPT_HEADER set to true)
-			// TODO: parse headers		
-			//$tmp = curl_exec($ch); 
-			//list($headers, $body) = explode("\r\n\r\n", $tmp, 2);
 						
 			// Get the response data
 			$response = array(
 				'body' 			=> curl_exec($ch),
 				'statusCode' 	=> curl_getinfo($ch, CURLINFO_HTTP_CODE),
 			);
+			
+			if ( $response['body'] === false )
+			{
+				$error = curl_error($ch);
+//var_dump($error);
+			}
 			
 			curl_close($ch);
 		}
@@ -930,10 +975,17 @@ class Application
 			if 		( $rqP['output'] === 'json' )	{ $response['body'] = json_decode($response['body'], true); }
 			else if ( $rqP['output'] === 'xml' )	{ $response['body'] = Tools::XML2array(simplexml_load_string($response['body']), true); }
 			//else if ( $rqP['output'] === 'txt' )	{ $response['body'] = $response['body']; }
-			else									{ $response['body'] = $response['body']; }
-			
-			return $response; 
+			//else									{ $response['body'] = $response['body']; }
 		}
+		else
+		{			
+			if 		( $rqP['output'] === 'json' )	{ $response['body'] = json_decode($response['body'], true); }
+			else if ( $rqP['output'] === 'xml' )	{ $response['body'] = Tools::XML2array(simplexml_load_string($response['body']), true); }
+			//else if ( $rqP['output'] === 'txt' )	{ $response['body'] = $response['body']; }
+			//else									{ $response['body'] = $response['body']; }
+		}
+		
+		return $response;
 	}
 
 	public function wsCall($uri, $options = array())

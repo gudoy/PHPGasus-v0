@@ -297,7 +297,9 @@ class Tools
             case 'integer': 
             case 'double':
             case 'boolean':     $value = array($value); break;
-            case 'null':        $value = array(); break;
+            case 'NULL':
+			default:        
+            					$value = array(); break;
         }
 
         return $value;
@@ -612,10 +614,11 @@ if ( $k === 'Product' )
 				//$value = floatval($value); break;
 				$value = is_string($value) && strpos($value,',') !== false ? str_replace(',','.', $value) : $value;
 				$value = floatval($value); break;
+			
 			// Booleans
 			case 'bool':
 			case 'boolean':
-				$value = in_array($value, array(1,true,'1','true','t'), true) ? 1 : 0; break;
+				$value = in_array($value, array(1,true,'1','true','t', 'yes', 'YES', 'Yes'), true) ? 1 : 0; break;
 				
 			// Strings
 			case 'email':
@@ -627,15 +630,22 @@ if ( $k === 'Product' )
 				// use Json Schema PHP Validator???
 				//$value = $value;
 				$value = addslashes($value);
-//var_dump($value);
 				break;
 			case 'timestamp';
 				$value = is_numeric($value) ? (int) $value : strtotime((string) $value); break;
+			case 'datetime':
+				// TODO: DateTime::createFromFormat is only available since php 5.3. Handle fallback???
+				$value = is_numeric($value) ? DateTime::createFromFormat('U', (int) $value)->format(DateTime::W3C) : $value; break;
 			case 'date':
-				$value = is_numeric($value) ? strftime('%Y-%m-%d', (int) $value) : (string) $value; break;
+				// TODO: DateTime::createFromFormat is only available since php 5.3. Handle fallback???
+				//$value = is_numeric($value) ? strftime('%Y-%m-%d', (int) $value) : (string) $value; break;
+				$value = is_numeric($value) ? DateTime::createFromFormat('U', (int) $value)->format('Y-m-d') : $value; break;
+			case 'time': // TODO
+			case 'year': // TODO
 			case 'string':
 			default:	
-				$value = filter_var($value, FILTER_SANITIZE_STRING); break;
+				//$value = filter_var($value, FILTER_SANITIZE_STRING); break;
+				$value = addslashes(filter_var($value, FILTER_SANITIZE_STRING)); break;
 		}
 		
 		return $value;

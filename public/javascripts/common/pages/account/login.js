@@ -11,19 +11,19 @@ var accountLogin =
         $('#deviceOrientation').val(app.orientation || '');
         
         //$('input:first', '#frmLogin').focus();
-
-        // Do not continue if the device is not a blackberry or if we are not on the login page
-        //if ( !isBlackberry || !$('body').hasClass('accountLogin') ){ return this; }
         
         // Try to get the login from the cookie
         $login.val($.cookie('userLogin') || '');
         
-        // On form submit, store the login into a cookie
-        $('#frmLogin').bind('submit', function()
-        {
-            $.cookie('userLogin', ($login.val() || ''), {expires: 18, path: '/'})
-        });
-    }
-}
+        $(document)
+        	// When the form is submited
+			.on('submit', '#frmLogin', function(e)
+			{
+				// Mark is as submited (for css invalid forms proper styling)
+				$(this).addClass('submited');
 
-//$(document).ready(function(){ accountLogin.init(); })
+				// Store the login into a cookie
+				$.cookie('userLogin', ($login.val() || ''), {expires: 18, path: '/'})
+			})
+    } 
+}

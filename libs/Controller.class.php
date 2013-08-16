@@ -2,15 +2,15 @@
 
 class Controller extends Application
 {
-	//public $application;
-	public $model					= null;
-	public $errors					= null;
-	public $success					= null;
-	public $warnings				= null;
-	public $data 					= array();
+	public $model		= null;
+	public $errors		= null;
+	public $success		= null;
+	public $warnings	= null;
+	public $events 		= null;
+	public $data 		= array();
 	
 	public function __construct()
-	{
+	{		
 		isset($dataModel) || include(_PATH_CONFIG . 'dataModel.php');
 		
 		$this->application->_columns 	= &$_columns;
@@ -21,9 +21,36 @@ class Controller extends Application
 			class_exists('Model') || require(_PATH_LIBS . 'databases/Model_' . _DB_SYSTEM . '.class.php');
             
 			// Instanciate the resource model
-			$mName  	= 'M' . ucfirst($this->resourceName);
-			$this->model 		= new $mName($this->application);
-		}
+			$mName  		= 'M' . ucfirst($this->resourceName);
+			$this->model 	= new $mName($this->application);
+		}		
+		
+		// If events are enabled
+		if ( _APP_USE_EVENTS )
+		{			
+			$this->requireLibs('Events');
+			$this->events = new Events();
+			
+			// Triggered events:
+			// onBeforeUpdate 		(controller)
+			// onUpdateSuccess 		(controller)
+			// onUpdateError 		(controller)
+			// onAfterUpdate 		(controller)
+			// onBeforeDelete 		(controller)
+			// onAfterDelete 		(controller)
+			// onDeleteSuccess 		(controller)
+			// onDeleteError 		(controller)
+			// onBeforeIndex 		(controller)
+			// onAfterIndex 		(controller)
+			// onBeforeRetrieve 	(controller)
+			// onBeforeCreate 		(controller)
+			// onCreateSuccess 		(controller)
+			// onCreateError 		(controller)
+			// onAfterCreate 		(controller)
+			
+			// onBeforeRender 		(view)
+			// onBeforeDisplay 		(view)
+		} 
 		
 		return $this;
 	}
@@ -166,6 +193,11 @@ class Controller extends Application
 		return $this->$method($opts);
     }
 
+	public function triggerEvent($event, $data)
+	{
+		if ( _APP_USE_EVENTS ){ return $this->events->trigger($event, $data); }
+	}
+
 	
 	public function index($options = array())
 	{
@@ -174,7 +206,18 @@ class Controller extends Application
 		$this->errors     = array();
 		$this->warnings   = array();
 		
+		if ( empty($o['mode']) || $o['mode'] !== 'count' )
+		{
+			$this->triggerEvent('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));	
+		}
+		
 		$this->data       = $this->model->index($o);
+
+		if ( empty($o['mode']) || $o['mode'] !== 'count' )
+		{
+			$this->triggerEvent('onAfterIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		}		
+		
 		$this->success    = $this->model->success;
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
 		
@@ -185,7 +228,8 @@ class Controller extends Application
 		}
 		else
 		{
-			$this->extendsData($o);	
+			//$this->extendsData($o);
+			if ( !isset($o['extendsData']) || $o['extendsData'] ) { $this->extendsData($o); }	
 		}
 		
 		// Deprecated: use 'indexBy' or 'indexByUnique' options instead
@@ -232,11 +276,17 @@ class Controller extends Application
 		
 		$resourceData     = $this->filterPostData(array_merge($o,array('method' => 'create')));
 
+//var_dump($resourceData);
+
 		//if ( !empty($resourceData) )
 		if ( !empty($resourceData) && empty($this->errors) )
 		{
+			$this->triggerEvent('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));			
+			
 			// Launch the creation
 			$this->data = $this->model->create($resourceData, $o);
+			
+			$this->triggerEvent('onAfterCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 			
 			// Get the success of the request
 			$this->success 	= $this->model->success;
@@ -248,6 +298,11 @@ class Controller extends Application
 			{
 				$this->extendsData();
 				$this->handleModelErrors();
+				$this->triggerEvent('onCreateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			}
+			else
+			{
+				$this->triggerEvent('onCreateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 			}
 		}
 		
@@ -278,7 +333,6 @@ class Controller extends Application
 			// If the request failed, get the errors
 			if ( !$this->success )
 			{
-				$this->extendsData();
 				$this->handleModelErrors();
 			}
 		}
@@ -298,7 +352,11 @@ class Controller extends Application
         $this->errors     = array();
         $this->warnings   = array();
 		
+		$this->triggerEvent('onBeforeRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		
 		$this->data       = $this->model->retrieve($o);
+		
+		$this->triggerEvent('onAfterRetrieve', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 
 		$this->success    = $this->model->success;		
 		$this->warnings   = array_merge($this->warnings, (array) $this->model->warnings);
@@ -310,7 +368,7 @@ class Controller extends Application
 		}
 		else
 		{
-			$this->extendsData(array('isCollection' => false));
+			if ( !isset($o['extendsData']) || $o['extendsData'] ) { $this->extendsData(array_merge($o, array('isCollection' => false))); }
 		}
 		
 		return $this->data;
@@ -328,9 +386,13 @@ class Controller extends Application
         
 		//if ( !empty($resourceData) )
 		if ( !empty($resourceData) && empty($this->errors) )
-		{			
+		{
+			$this->triggerEvent('onBeforeUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			
 			// Launch the creation
 			$this->data = $this->model->update($resourceData, $o);
+			
+			$this->triggerEvent('onAfterUpdate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 			
 			// Get the success of the request
 			$this->success 	= $this->model->success;
@@ -341,8 +403,12 @@ class Controller extends Application
 			if ( !$this->success )
 			{
 				//$this->model->errors;
-				
 				$this->handleModelErrors();
+				$this->triggerEvent('onUpdateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			}
+			else
+			{
+				$this->triggerEvent('onUpdateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 			}
 		}
 		
@@ -357,8 +423,12 @@ class Controller extends Application
         $this->errors     = array();
         $this->warnings   = array();
 
+		$this->triggerEvent('onBeforeDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+
 		// Launch the creation
 		$this->model->delete($o);
+		
+		$this->triggerEvent('onAfterDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Get the success of the request
 		$this->success    = $this->model->success;
@@ -369,8 +439,12 @@ class Controller extends Application
 		if ( !$this->success )
 		{
 			//$this->model->errors;
-			
 			$this->handleModelErrors();
+			$this->triggerEvent('onDeleteError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		}
+		else
+		{
+			$this->triggerEvent('onDeleteSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
 		
 		//if ( !$this->data['success'] ) { $this->data['errors'] = '11100'; } // Common object deletion error
@@ -405,8 +479,7 @@ class Controller extends Application
 		return $this;
 	}
 	
-    // TODO: index on database fetch
-    // Deprecated: to be removed
+	// TODO: refactor & split in 2 methods: reIndexBy([$column(s)]) & reIndexByUnique([$column(s)], $options array()) 
 	public function reindex($options = array())
 	{
 		// Shortcut for options and default options
@@ -449,6 +522,8 @@ class Controller extends Application
 		
 		return $this->data;
 	}
+
+	
 	
 	
 	public function extendsData($options = array())
@@ -496,16 +571,16 @@ class Controller extends Application
 		//foreach ((array) $rName as $fieldName => $field)
 		foreach ((array) $_dm as $fieldName => $field)
 		{
+			
 			// Shortcut for the field name
 			// For the api, we use 'normal' forms fieldnames/$resource fields whitout prefix
 			// But for everywhere else, they are prefixed by the name of the resource (to avoid conflicts) [ex: userLogin, productSummary, entryExpirationtime]
 			$f = $isApi ? $fieldName : $this->resourceSingular . ucFirst($fieldName);
 			
-			// TODO: if column is not exposed is request is from API, remove passed column value
+			// TODO: if column is not exposed and request is from API, remove passed column value
 			$isExposed = !isset($field['exposed']) || $field['exposed'];
 			//if ( $fromApi && !$isExposed && isset($_POST[$fieldName]) ){ unset($_POST[$fieldName]); }
 			if ( (isset($o['filterNotExposed']) && $o['filterNotExposed']) && !$isExposed && isset($_POST[$fieldName]) ){ unset($_POST[$fieldName]); }
-			
 			
 			// If the column is required
 			// TODO: continue looping over the fields to list all missing ones
@@ -526,6 +601,7 @@ class Controller extends Application
             }
 			
 			// if the POST data for each field exists
+			// TODO: also test with array_key_exists for values that whould have been setted to null?????
 			if ( isset($_FILES[$f]) || isset($_POST[$f]) )
 			{
 				// Set the proper super global to use: $_FILES for posted files, otherwise $_POST
@@ -548,7 +624,7 @@ class Controller extends Application
 				}
 				// Case single item
 				else
-				{
+				{				
 					// If a validation pattern has been defined for this field
 					// Check the passed value against
 					$checkPattern 	= defined('_APP_USE_PATTERN_VALIDATION') && _APP_USE_PATTERN_VALIDATION;
@@ -604,6 +680,13 @@ class Controller extends Application
 		{
 			$filteredData = filter_var($f, FILTER_VALIDATE_EMAIL);
 		}
+		/*
+		else if ( $field['type'] === 'url' || (!empty($field['subtype']) && $field['subtype'] === 'url') )
+		{
+var_dump($f);
+			$filteredData = $f;
+			//$filteredData = filter_var($f, FILTER_VALIDATE_URL);
+		}*/
 		else if ( $field['type'] === 'password' || (!empty($field['subtype']) && $field['subtype'] === 'password') )
 		{
 			$filteredData = $f;
@@ -665,7 +748,18 @@ var_dump('val after:' . $filteredData);
 		}*/
 		else if ( $field['type'] === 'varchar' )
 		{
-			$filteredData = filter_var($f, FILTER_SANITIZE_STRING);
+			//$filteredData = filter_var($f, FILTER_SANITIZE_STRING);
+			$filteredData = addslashes(filter_var($f, FILTER_SANITIZE_STRING));
+		}
+		else if ( $field['type'] === 'datetime' )
+		{
+			// TODO: DateTime::createFromFormat is only available since php 5.3. Handle fallback???
+			$filteredData = is_numeric($f) ? DateTime::createFromFormat('U', (int) $f)->format(DateTime::W3C) : $f;
+		}
+		else if ( $field['type'] === 'date' )
+		{
+			// TODO: DateTime::createFromFormat is only available since php 5.3. Handle fallback???
+			$filteredData = is_numeric($f) ? DateTime::createFromFormat('U', (int) $f)->format('Y-m-d') : $f;
 		}
 		else if ( $field['type'] === 'timestamp' )
 		{
@@ -728,6 +822,8 @@ var_dump('val after:' . $filteredData);
 		}*/
 		else
 		{
+			// addslashes()???
+			// FILTER_SANITIZE_STRING???
 			$filteredData = $f;
 		}
 			
@@ -819,7 +915,9 @@ var_dump('val after:' . $filteredData);
 		
 		// TODO: Get from resources metadata under '_exposed' prop (when available)
 		// Filter returned data to remove not exposed columns
-		$notExposed = $o['notExposedCols']; 
+		$notExposed = $o['notExposedCols'];
+		
+		if ( !is_array($row) ){ return; }
 		
 		foreach($notExposed as $colName){ unset($row[$colName]); }
 	}

@@ -118,7 +118,7 @@ class DataModel extends Core
 				'slug' 			=> 'varchar', 		// + length = 64
 				//'tag' 			=> 'string', 		// alias of slug
 				'email' 		=> 'varchar', 		// + validator pattern
-				'password'		=> 'varchar', 		// + modifiers = sha1 + length(will depend of the algorithm)
+				'password'		=> 'varchar', 		// + length = 128 + hash = hash || function($str){ /* default hashing function here */ }
 				'url' 			=> 'varchar', 		// + max = 2083 + FILTER_VALIDATE_URL?
 				'tel' 			=> 'varchar', 		// + length = 20???, + pattern ? 
 				'color'			=> 'varchar', 		// + length = 32, + validator pattern (#hex, rgb(), rgba(), hsl(), ... ?)
@@ -260,6 +260,9 @@ class DataModel extends Core
 		'algo', 								// for password. TODO: implement md5,sha1
 		'prefix', 								// TODO?????
 		'suffix', 								// TODO?????
+		'prefilter', 							// TODO: lambda or anonymous function
+		'postfilter', 							// TODO: lambda or anonymous function
+		'hash', 								// TODO: string (algorythm) or lambda or anonymous function
 		
 		// Files related
 		'forceUpload', 

@@ -9,8 +9,7 @@ class VResources extends AdminView
         parent::__construct($application);
 		
 		//$this->events->register('onAfterIndex', array('class' => &$this, 'method' => 'handleDatamodelCode'));
-		$this->events->register('onCreateSuccess', array('class' => &$this, 'method' => 'createResourceExtra'));
-		//$this->events->register('onAfterCreate', array('class' => &$this, 'method' => 'createResourceFiles'));
+		$this->C->events->register('onCreateSuccess', array('class' => &$this, 'method' => '_onCreate'));
 		
 		return $this;
 	}
@@ -79,7 +78,7 @@ class VResources extends AdminView
 		call_user_func(array('parent', 'update'), $args);		
 	}
 	
-	public function createResourceExtra()
+	public function _onCreate()
 	{
     	// Do not continue if the resource name is not found
     	if ( empty($_POST['resourceName']) ){ return $this; }
@@ -90,13 +89,13 @@ class VResources extends AdminView
 			'table' 	=> !empty($_POST['resourceTable']) ? filter_var($_POST['resourceTable'], FILTER_SANITIZE_STRING) : null,
 		);
 		
-		$this->createResourceTable();
-		$this->createResourceFiles();
+		$this->_createResourceTable();
+		$this->_createResourceFiles();
 		
 		return;
 	}
 	
-	public function createResourceTable()
+	public function _createResourceTable()
 	{
 		$r = &$this->tmp['resource'];
 		
@@ -104,12 +103,10 @@ class VResources extends AdminView
 		
 		$this->controller->model->createTable(array('name' => $name));
 		
-//$this->C->delete(array('conditions' => array('name' => 'usersactivities')));
-		
 		return;
 	}
 	
-    public function createResourceFiles()
+    public function _createResourceFiles()
     {		
 		$r = &$this->tmp['resource'];
 

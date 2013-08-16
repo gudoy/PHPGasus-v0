@@ -34,8 +34,9 @@
 	{/if}
 {elseif $field.subtype === 'url'}
 	{if $value}
-	<a class="url" href="{if strpos($value, $smarty.const._APP_PROTOCOL) === false}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">
-		<span class="value">../{$value|regex_replace:"/.*\//":""}</span>
+	<a class="url" href="{if strpos('/', $smarty.const._APP_PROTOCOL) === 0}{$field.prefix|default:$smarty.const._URL}{/if}{$value}">
+		{* <span class="value">../{$value|regex_replace:"/.*\//":""}</span>*}
+		<span class="value">{$value|regex_replace:"/.*\//":""}</span>
 	</a>
 	{else}
 		&nbsp;

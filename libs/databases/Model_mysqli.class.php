@@ -78,7 +78,6 @@ class Model extends Application
 	public function connect()
 	{
 		// Open a connection on the db server
-		//$this->db 			= @mysqli_connect(_DB_HOST, _DB_USER, _DB_PASSWORD);
 		$this->db 			= new mysqli(_DB_HOST, _DB_USER, _DB_PASSWORD, _DB_NAME);
 		
 		// Set the timeout
@@ -541,14 +540,15 @@ class Model extends Application
 				 				//$v = !empty($v) && !empty($p[$colProps]['destBaseURL'])
 			                            //? $p[$colProps]['destBaseURL'] . ltrim($v, '/')
 			                            //: $v; break;
+			case 'date':
             case 'datetime':
             case 'time':
             case 'year':
-            case 'month':
-            case 'day':
-            case 'hours':
-            case 'minutes':
-            case 'seconds':
+            //case 'month':
+            //case 'day':
+            //case 'hours':
+            //case 'minutes':
+            //case 'seconds':
             
             case 'html':
             case 'text':
@@ -740,7 +740,8 @@ class Model extends Application
 
 	public function escapeString($string)
 	{
-		$string = !empty($string) ? (string) $string : '';
+		//$string = !empty($string) ? (string) $string : '';
+		$string = (string) $string;
 		
 		return $this->db->real_escape_string($string);
 	}
@@ -1507,8 +1508,18 @@ class Model extends Application
 			}
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
 			{
-				$tmpVal = !empty($d[$fieldName]) ? sha1($this->escapeString($d[$fieldName])) : '';
-				$value = "'" . $this->escapeString($tmpVal) . "'";
+				// If the hash property is a function (lamdba or closure)
+				//if ( isset($field['hash']) && gettype($field['hash']) === 'object' && $field['hash'] instanceof Closure )
+				if ( isset($field['hash']) && is_callable($field['hash']) ) 
+				{
+					$tmpVal = !empty($d[$fieldName]) ? $field['hash']($d[$fieldName]) : '';
+					$value = "'" . $this->escapeString($tmpVal) . "'";	
+				}
+				else
+				{
+					$tmpVal = !empty($d[$fieldName]) ? sha1($d[$fieldName]) : '';
+					$value = "'" . $this->escapeString($tmpVal) . "'";	
+				}
 			}
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
 			{
@@ -1544,10 +1555,15 @@ class Model extends Application
 			}
 			else if ( $field['type'] === 'varchar' )
 			{
-				$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				//$tmpVal = !empty($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
+				$tmpVal = isset($d[$fieldName]) ? $d[$fieldName] : ( !empty($field['default']) ? $field['default'] : '' );
 				$value = "'" . $this->escapeString(trim(stripslashes($tmpVal))) . "'";   
 			}
-			else if ( $field['type'] === 'bool' ) { $value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : 0; }
+			else if ( $field['type'] === 'bool' )
+			{
+				//$value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : 0;
+				$value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : ( !empty($field['default']) ? $field['default'] : "''" );
+			}
 			// Otherwise, just take the posted data value
 			//else { $value = $d[$fieldName]; }
 			else if ( $field['type'] === 'float' )
@@ -1652,8 +1668,6 @@ class Model extends Application
 		$query 		= "UPDATE ";
 		$query 		.=  _DB_TABLE_PREFIX . $this->table . " AS `" . $this->alias . "` ";
 		$query 		.= "SET ";
-		
-//$this->dump($d);
 		
 		// Loop over the passed resource data (filtered and validated POST data)
 		$i 			= 0;
@@ -1942,7 +1956,12 @@ class Model extends Application
 				//$value = "'" . trim($d[$fieldName])) . "'";
 			}
 			//else if ( $field['type'] === 'bool' ) { $value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 'true' : 'false'; }
-			else if ( $field['type'] === 'bool' ) { $value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : 0; }
+			else if ( $field['type'] === 'bool' )
+			{
+				//$value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : 0;
+				$value = ( isset($d[$fieldName]) && $d[$fieldName]) ? 1 : 0;
+				//$value = ( !empty($d[$fieldName]) && $d[$fieldName]) ? 1 : ( !empty($field['default']) ? $field['default'] : '' );
+			}
 			else if ( $field['type'] === 'float' )
 			{
 				//$value = "'" . $this->escapeString(  str_replace(',','.',(string)($d[$fieldName]))) . "'";
@@ -2025,8 +2044,18 @@ $tmpVal = isset($d[$fieldName])
 			//else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' )
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'password' && !empty($d[$fieldName]) )
 			{
-				$tmpVal = !empty($d[$fieldName]) ? sha1($d[$fieldName]) : '';
-				$value 	= "'" . $tmpVal . "'";
+				// If the hash property is a function (lamdba or closure)
+				//if ( isset($field['hash']) && gettype($field['hash']) === 'object' && $field['hash'] instanceof Closure )
+				if ( isset($field['hash']) && is_callable($field['hash']) ) 
+				{
+					$tmpVal = !empty($d[$fieldName]) ? $field['hash']($d[$fieldName]) : '';
+					$value = "'" . $this->escapeString($tmpVal) . "'";	
+				}
+				else
+				{
+					$tmpVal = !empty($d[$fieldName]) ? sha1($d[$fieldName]) : '';
+					$value = "'" . $this->escapeString($tmpVal) . "'";	
+				}
 			}
 			else if ( $field['type'] === 'varchar' && !empty($field['subtype']) && $field['subtype'] === 'uniqueID' )
 			{
@@ -2199,8 +2228,6 @@ $tmpVal = isset($d[$fieldName])
 		// Loop over the passed conditions
 		foreach ($o['conditions'] as $key => $condition)
 		{
-//var_dump($key);
-//var_dump($condition);
 			// If the key is numeric, assume that the conditions array is associative
 			// matching the following pattern array($field1 => $values1, [...])
 			// and then reformat it into array(array($field1,$values1), [...])
@@ -2208,6 +2235,9 @@ $tmpVal = isset($d[$fieldName])
 			
 			// Do not continue if the current item is not an array, throwing a warning by the way
 			if ( !is_array($condition) ){ $this->warnings[4210] = $condition; continue; } // 'Wrong condition format
+			
+			// Do not continue if the current item is a malformed condition array (containing only 1 element), throwing a warning by the way
+			//if ( is_array($condition) && count($condition) === 1 ){ $this->warnings[4210] = $key . ' => ' . "array(" . join(",",$condition) . ")"; continue; } // 'Wrong condition format
 			
 			$fields        = $condition[0];
 			$values        = count($condition) > 2 ? $condition[2] : $condition[1];
@@ -2217,7 +2247,7 @@ $tmpVal = isset($d[$fieldName])
 			$operator      = count($condition) > 2 ? strtolower(str_replace(' ', '', $condition[1])) : '=';
 			$usedOperator  = $knownOps[$operator];
 			$usedOperator  = isset($knownOps[$operator]) ? $knownOps[$operator] : '=';
-            
+			
             // Do not continue if the current operator does not belong to the known ones, throwing a warning by the way
             if ( !isset($knownOps[$operator]) ){ $this->warnings[4215] = $operator; continue; } // Unknown operator
       
@@ -2982,7 +3012,7 @@ $tmpVal = isset($d[$fieldName])
 		$this->dump($query);
 		
 		// Do no execute the query if the dry-run option has been passed
-		if ( isset($o['dry-run']) ){ return $this; }
+		if ( isset($o['dry-run']) ){ var_dump($query); return $this; }
 
 		// Execute the query and store the returned data
 		$this->query($query, $o);

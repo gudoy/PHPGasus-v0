@@ -19,83 +19,179 @@ class CSessions extends Controller
 	}
 	
 	public function handleLoginWithServices()
-	{
-		$ret = false;
+	{		
+		$ret = null;
 		
-		if ( isset($_POST['google_access_token']) )
+		if ( !empty($_POST['google_oauth_token']) )
 		{
-			$googLogged = $this->loginWithGoogle();
-			
-			if ( $googLogged ){ $ret = 'google'; }
+			$ret = $this->loginWithGoogle() ? 'google' : false;
 		}
 
-		if ( isset($_POST['twitter_access_token']) )
+		else if ( !empty($_POST['twitter_oauth_token']) && !empty($_POST['twitter_oauth_token_secret']) )
 		{
-			$twLogged = $this->loginWithTwitter();
-			
-			if ( $twLogged ){ $ret = 'twitter'; }
+			$ret = $this->loginWithTwitter() ? 'twitter' : false;
 		}
 		
 		// Handle login with facebook
-		if ( isset($_POST['facebook_access_token']) )
+		else if ( !empty($_POST['facebook_oauth_token']) )
 		{
-			$fbLogged = $this->loginWithFacebook();
-			
-			if ( $fbLogged ){ $ret = 'facebook'; }
+			$ret = $this->loginWithFacebook() ? 'facebook' : false;
 		}
 		
 		return $ret;
 	}
 	
 	private function loginWithFacebook()
-	{		
+	{
 		// Get token
-		$token = Tools::sanitizeString($_POST['facebook_access_token']);
+		$token = Tools::sanitizeString($_POST['facebook_oauth_token']);
 		
 		// Do not continue any longer if the token is invalid
-		if ( !$token ){ return false; }
+		if ( !$token ){ $this->errors[5001] = array('_ERR_INVALID_TOKEN'); return false; }
 		
 		// Instanciate users controller (for later use)
 		$this->CUsers = new CUsers();
 		
 		// Request an extended token (valid 2 month instead of just 2 hours)
-		$exToken = $this->CUsers->getExtendedToken($token);
+		$exToken = $this->CUsers->getFacebookExtendedToken($token);
 		
 		// Get user profile
-		$fbProfile = $this->CUsers->getFacebookUserProfile(null, $exToken, array('fields' => 'email,birthday'));
+		$profile = $this->CUsers->getFacebookUserProfile(null, $exToken, array('fields' => 'id,name,first_name,last_name,email,birthday,picture.width(300)'));
 
-		// Do not continue if the profile has not been found or if the email has not been returned
-		if ( !$fbProfile || !isset($fbProfile['email']) ){ return false; }
+		// If no profile has been retrieved
+		if ( !$profile || !empty($profile['error']) || !isset($profile['id']) )
+		{
+			if 		( isset($profile['error']['message']) )	{ $this->errors[5002] = array('_ERR_FACEBOOK', $profile['error']['message']); }
+			else 											{ $this->errors[5001] = array('_ERR_FACEBOOK'); }
+			 
+			return false;
+		}
 		
-		// Get current user data
-		$this->user = $this->CUsers->retrieve(array('conditions' => array('email' => $fbProfile['email'])));
+		// First, try to find the user from the profile id
+		$this->user = $this->CUsers->retrieve(array('conditions' => array('facebook_id' => $profile['id'])));
 		
-		// If the user has not been found
-		if ( !$this->user ){ return false; } 
+		if ( !$this->user ){ $this->errors[5001] = array('_ERR_USER_NOT_FOUND'); return false; }
+
+		// Complete user data with retrieved info
+		$bDate 							= $this->user['birthdate'];
+		$curPOST 						= $_POST;
+		$_POST['facebook_oauth_token'] 	= $exToken;
 		
-		// Complete user data
-		$curPOST 	= $_POST;
-		$_POST 		= array('facebook_access_token' => $exToken);
-		if ( empty($this->user['birthdate']) )	{ $_POST['birthdate'] 	= DateTime::createFromFormat('m/d/Y', $fbProfile['birthday'])->format('U'); }
-		if ( empty($this->user['facebook_id']) ){ $_POST['facebook_id'] = $fbProfile['id']; }
+		if ( !$bDate || $bDate === '0000-00-00' )	{ $_POST['birthdate'] 	= DateTime::createFromFormat('m/d/Y', $profile['birthday'])->format('Y-m-d'); }
+		if ( empty($this->user['facebook_id']) )	{ $_POST['facebook_id'] = $profile['id']; }
+		if ( empty($this->user['firstname']) )		{ $_POST['firstname'] 	= isset($profile['first_name']) ? $profile['first_name'] : ''; }
+		if ( empty($this->user['lastname']) )		{ $_POST['lastname'] 	= isset($profile['last_name']) ? $profile['last_name'] : ''; }
+		if ( empty($this->user['avatar_url']) ) 	{ $_POST['avatar_url'] 	= isset($profile['picture']['data']['url']) ? $profile['picture']['data']['url'] : ''; }
 		
 		$this->CUsers->update(array('conditions' => array('id' => $this->user['id'])));
-		$_POST 		= $curPOST;
 		
-		// Complete POST data for session creation
-		$_POST['email'] = $fbProfile['email'];
+		// Restaure previous POST content
+		$_POST 			= $curPOST;
+		$_POST['email'] = $this->user['email'];
 		
 		return true;
 	}
 
 	private function loginWithGoogle()
 	{
-		return false;
+		// Get token
+		$refreshToken = Tools::sanitizeString($_POST['google_oauth_token']);
+		
+		// Do not continue any longer if the token is invalid
+		if ( !$refreshToken ){ $this->errors[5001] = array('_ERR_INVALID_REFRESH_TOKEN'); return false; }
+
+		// Instanciate users controller (for later use)
+		$this->CUsers = new CUsers();
+		
+		// Request an access token from the refresh token
+		$token = null;
+		try 					{ $token = $this->CUsers->getGoogleRefreshedToken($refreshToken); }
+		catch (Exception $ex) 	{ $this->errors[5002] = array('_ERR_GOOGLE', $ex->getMessage()); return false; }
+		
+		// Get user profile
+		$profile = null;
+		try 					{ $profile = $this->CUsers->getGoogleUserProfile(null, $token); }
+		catch (Exception $ex) 	{ $this->errors[5002] = array('_ERR_GOOGLE', $ex->getMessage()); return false; }
+		
+		// Do not continue if the profile has not been found or if the email has not been returned
+		if ( !$profile || !isset($profile['id']) ){ $this->errors[5001] = array('_ERR_GOOGLE'); return false;}
+		
+		// First, try to find the user from the profile id
+		$this->user = $this->CUsers->retrieve(array('conditions' => array('google_id' => $profile['id'])));
+		
+		if ( !$this->user ){ $this->errors[5001] = array('_ERR_USER_NOT_FOUND'); return false; }		
+
+		// Complete user data with retrieved info
+		$bDate 							= $this->user['birthdate'];
+		$curPOST 						= $_POST;
+		$_POST['google_oauth_token'] 	= $refreshToken;
+		
+		if ( !$bDate || $bDate == '0000-00-00' )	{ $_POST['birthdate'] 	= isset($profile['birthday']) ? DateTime::createFromFormat('Y-m-d', $profile['birthday'])->format('Y-m-d')  : '0000-00-00'; }
+		if ( empty($this->user['google_id']) )		{ $_POST['google_id'] 	= $profile['id']; }
+		if ( empty($this->user['firstname']) )		{ $_POST['firstname'] 	= isset($profile['given_name']) ? $profile['given_name'] : ''; }
+		if ( empty($this->user['lastname']) )		{ $_POST['lastname'] 	= isset($profile['family_name']) ? $profile['family_name'] : ''; }
+		if ( empty($this->user['avatar_url']) ) 	{ $_POST['avatar_url'] 	= isset($profile['picture']) ? $profile['picture'] : ''; }
+		
+		$this->CUsers->update(array('conditions' => array('id' => $this->user['id'])));
+		
+		// Restaure previous POST content
+		$_POST 			= $curPOST;
+		$_POST['email'] = $this->user['email'];
+
+		return true;
 	}
 	
 	private function loginWithTwitter()
 	{
-		return false;
+		// Get token
+		$token 			= Tools::sanitizeString($_POST['twitter_oauth_token']);
+		$tokenSecret 	= Tools::sanitizeString($_POST['twitter_oauth_token_secret']);
+		
+		// Do not continue any longer if the token is invalid
+		if ( !$token )		{ $this->errors[5001] = array('_ERR_INVALID_TOKEN'); return false; }
+		if ( !$tokenSecret ){ $this->errors[5001] = array('_ERR_INVALID_TOKEN_SECRET'); return false; }
+		
+		// Instanciate users controller (for later use)
+		$this->CUsers = new CUsers();
+		
+		// Get user profile
+		$profile = $this->CUsers->getTwitterUserProfile(null, $token, $tokenSecret);
+
+		// If no profile has been retrieved
+		if ( !$profile || !empty($profile['errors']) || !isset($profile['id']) )
+		{
+			if 		( isset($profile['errors'][0]['message']) )	{ $this->errors[5002] = array('_ERR_TWITTER', $profile['errors'][0]['message']); }
+			else 												{ $this->errors[5001] = array('_ERR_TWITTER'); }
+			 
+			return false;
+		}
+		
+		// First, try to find the user from the profile id
+		$this->user = $this->CUsers->retrieve(array('conditions' => array('twitter_id' => $profile['id'])));
+
+		if ( !$this->user ){ $this->errors[5001] = array('_ERR_USER_NOT_FOUND'); return false; }
+
+		// Complete user data
+		$curPOST 								= $_POST;
+		$_POST['twitter_oauth_token'] 			= $token;
+		$_POST['twitter_oauth_token_secret'] 	= $tokenSecret;
+		
+		if ( empty($this->user['twitter_id']) )		{ $_POST['twitter_id'] = $profile['id']; }
+		if ( empty($this->user['firstname']) || empty($this->user['firstname']) && !empty($profile['name']) )
+		{
+			$parts = explode(' ', $profile['name'], 2);
+			$_POST['firstname'] = isset($parts[0]) ? $parts[0] : '';
+			$_POST['lastname'] 	= isset($parts[1]) ? $parts[1] : '';
+		}
+		if ( empty($this->user['avatar_url']) ) 	{ $_POST['avatar_url'] 	= isset($profile['profile_image_url_https']) ? $profile['profile_image_url_https'] : ''; }
+		
+		$this->CUsers->update(array('conditions' => array('id' => $this->user['id'])));
+		
+		// Restaure previous POST content
+		$_POST 			= $curPOST;
+		$_POST['email'] = $this->user['email'];
+		
+		return true;
 	}
 }
 ?>

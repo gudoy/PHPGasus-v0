@@ -1,7 +1,7 @@
 {strip}
 {foreach $rModel as $fieldName => $field}
 {$isSorted 				= ($sortBy === $fieldName)}
-{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $fieldName)}
+{$isDefaultNamefield 	= ($data._resources[$resourceName].defaultNameField === $fieldName || $data._resources[$resourceName].nameField === $fieldName)}
 {$value                 = $resource[$fieldName]}
 {$relResource 			= $field.relResource}
 {$displayed 			= false}

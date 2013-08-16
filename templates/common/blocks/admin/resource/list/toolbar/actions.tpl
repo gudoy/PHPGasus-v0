@@ -43,9 +43,11 @@
         <a class="action actionBtn filter filterLink" href="#{$resourceName}FiltersRow">
             <span class="value">{t}filter{/t}</span>
         </a>
+        {*
         <div class="group others" id="userSpecificFilters">
-        	{block name='userSpecificFilters'}{*<span class="title">{t}others{/t}</span><div class="content">{t}others{/t}</div>*}{/block}
+        	{block name='userSpecificFilters'}<span class="title">{t}others{/t}</span><div class="content">{t}others{/t}</div>{/block}
         </div>
+        *}
     </div>
 </div>
 <div class="group settings">

@@ -3,7 +3,7 @@
 {$orderBy 				= "{if $data.current.urlParams.orderBy === 'asc'}desc{else}asc{/if}"}
 {$newPageURL 			= {$curURL|regex_replace:'/(.*)\?(.*)$/U':'$1'}|cat:'?'|cat:{http_build_query($queryParams)}}
 <tr>
-	<th class="col firstCol colSelectResources" id="toggleAllCel"><input type="checkbox" id="toggleAll" name="toggleAll" /></th>
+	<th class="col colSelectResources" id="toggleAllCel"><input type="checkbox" id="toggleAll" name="toggleAll" /></th>
 	<th class="col actionsCol"><span class="title">{t}Actions{/t}</span></th>
 	{foreach $rModel as $fieldName => $field}
 	{$isSorted 				= ($data.current.urlParams.sortBy === $fieldName)}
@@ -17,21 +17,18 @@
 	{if $field.type === 'onetoone' || $field.fk}
 	<th class="col {$fieldName}Col typeInt fk{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$fieldName}Col" scope="col" data-importance="{$field.list|default:0}">
 		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relField}</a>
-		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
 	</th>
 	<th class="col {$field.relGetAs}Col typeVarchar fk{if $isSorted}{if $isDefaultNamefield} defaultNameField{/if}  activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$field.relGetAs}Col" scope="col" data-importance="{$field.list|default:0}">
 		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$field.relGetAs}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$field.relGetAs} {$orderBy}cending">{$field.displayName|default:$data._resources[$field.relResource].singular|default:$field.relResource} {$field.relGetFields|replace:'_':' '|truncate:'20':'...':true}</a>
-		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
 	</th>
 	{else}
 	<th class="col {$fieldName}Col type{$field.type|ucfirst}{if $isDefaultNamefield} defaultNameField{/if}{if $isSorted} activeSort{/if}{* if !$displayed} hidden{/if *}" id="{$fieldName}Col" scope="col" data-importance="{$field.list|default:0}">
 		<a class="title {if $isSorted}sort {$orderBy}{/if}" href="{$newPageURL}&amp;sortBy={$fieldName}&amp;orderBy={$orderBy}" title="{t}Sort by{/t}{t}:{/t} {$fieldName} {$orderBy}cending">{if $field.fk}{$field.displayName|default:$data._resources[$field.relResource].singular}{else}{$field.displayName|default:$fieldName|replace:'_':' '|truncate:'20':'...':true}{/if}{if $field.comment}<span class="comment infos"><span class="detail value">{$field.comment}</span></span>{/if}</a>
-		{include file='common/blocks/actionBtn.tpl' class='action filter' id="{$fieldName}ToggleFilter" label="{t}filter{/t}" href="#{$resourceName}FiltersRow"}
 	</th>
 	{/if}
 	{/if}
 	{/foreach}
-	<th class="col colsCol goToCol last lastCol">
+	<th class="col colsCol goToCol">
 		<div class="colsManagerBlock" id="colsManagerBlock">
 			<a id="colsManagerLink" href="#"><span class="label">{t}show/hide columns{/t}</span></a>
 			<ul class="colsBlock" id="colsBlock">

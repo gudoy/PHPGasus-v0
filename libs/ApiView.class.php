@@ -119,17 +119,18 @@ class ApiView extends View
 			unset($this->data['_groups'], $this->data['_resources'], $this->data['_columns']);
 			
 			if ( defined('_APP_USE_EXTREMIST_REST_API') && _APP_USE_EXTREMIST_REST_API )
-			{	
+			{
 				// TODO: get errors & warnings & send them via an http header instead???
 				//$this->data = !empty($this->data[$this->resourceName]) ? (array) $this->data[$this->resourceName] : array();
 				//if ( isset($this->data[$this->resourceName]) )
 				if ( isset($this->resourceName) && isset($this->data[$this->resourceName]) )
+				//if ( isset($this->resourceName) && isset($this->data[$this->resourceName]) && $this->data['success'] )
 				{
 					$this->data = (array) $this->data[$this->resourceName];
 				}
 				else
 				{
-					unset($this->data);
+					if ( $this->data['success'] == true ){ unset($this->data); }
 				}
 			}
 		}		

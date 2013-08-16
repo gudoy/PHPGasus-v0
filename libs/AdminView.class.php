@@ -18,7 +18,8 @@ class AdminView extends View
         $this->data['search']['type'] 	= isset($this->resourceName) && ( !defined('_APP_SEARCH_ALWAYS_GLOBAL') || !_APP_SEARCH_ALWAYS_GLOBAL ) 
 											? 'contextual' : 'global';
 											
-		$this->events->register('onBeforeDisplay', array('class' => &$this, 'method' => '_onBeforeDisplay'));
+		//$this->events->register('onBeforeDisplay', array('class' => &$this, 'method' => '_onBeforeDisplay'));
+		//$this->events->register('onBeforeDisplay', array('class' => $this, 'method' => '_onBeforeDisplay'));
 		
 		return $this;
 	}
@@ -181,7 +182,7 @@ class AdminView extends View
 	{
 		$r 				= $this->resourceName;
 		$letters 		= Tools::toArray($letters);
-		$crudability 	= !empty($this->_resources[$r]['crudability']) ? join('', (array) $this->_resources['_resources'][$r]['crudability']) : 'CRUD';
+		$crudability 	= !empty($this->_resources[$r]['crudability']) ? join('', (array) $this->_resources[$r]['crudability']) : 'CRUD';
 		$result 		= true;
 		
 		// Loop over passed letter
@@ -247,15 +248,11 @@ class AdminView extends View
             
             $searchable[$r] = array( 'resource' => $r, 'columns' => $sCols, );
         }
-        
-        $this->events->trigger('onBeforeSearch', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 
         // First case, contextual search on a defined resource
         if ( $s['type'] === 'contextual' )
         {
             $rName          = $this->resourceName;
-
-            $this->events->trigger('onBeforeSearch' . ucfirst($rName), array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 
             // Get searchable cols for the current resource
             $cols       = !empty($searchable[$rName]['columns']) ? $searchable[$rName]['columns'] : array();
@@ -336,8 +333,6 @@ class AdminView extends View
 	                $this->options['conditions'][]  = $cond;
 	                $i++;
 	            }
-             
-                $this->events->trigger('onBeforeSearch' . ucfirst($rName), array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 
                 $count      = $$cName->index(array_merge($this->options, array('mode' => 'count')));
                 $results    = $$cName->search(array_merge($this->options, array('limit' => 25)));
@@ -366,10 +361,6 @@ class AdminView extends View
         }
         
         $hasRes     = !empty($s['totalResults']);
-        $evtName    = 'onSearchReturned' . ($hasRes ? '' : 'no') . 'results'; // onSearchReturned or onSearchReturnedNoResults
-        
-        $this->events->trigger($evtName, array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
-        $this->events->trigger('onAfterSearch', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
         
         return $this;
     }
@@ -406,13 +397,7 @@ class AdminView extends View
             $this->dispatchMethods($args, array('allowed' => 'create,retrieve,update,delete,duplicate,search'));    
         }
         
-        $this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));	
-	
-/*	
-$this->options['conditions'] = array_merge(
-	(array) $this->options['conditions'], 
-	(isset($_SESSION['selection'][$this->resourceName]['filters']) ? $_SESSION['selection'][$this->resourceName]['filters'] : array())
-);*/
+        //$this->events->trigger('onBeforeIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Set output data		
 		$this->data = array_merge($this->data, array(
@@ -425,7 +410,7 @@ $this->options['conditions'] = array_merge(
 			),
 		));
 		
-		$this->events->trigger('onAfterIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		//$this->events->trigger('onAfterIndex', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
         
         $this->handleRelations();
 		
@@ -442,7 +427,7 @@ $this->options['conditions'] = array_merge(
 		// Log current method
 		$this->log(__METHOD__);
 		
-		$this->events->trigger('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		//$this->events->trigger('onBeforeCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		// Check for crudability
 		$meta 		= !empty($this->data['meta']) ? $this->data['meta'] : null;
@@ -481,7 +466,7 @@ $this->options['conditions'] = array_merge(
 						
 			$successRedir = !empty($_POST['successRedirect']) ? $_POST['successRedirect'] : false;
 			
-			$this->events->trigger('onCreateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			//$this->events->trigger('onCreateSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 			//if ( !empty($_POST['successRedirect']) ) { $this->redirect($_POST['successRedirect']); }
 			if ( $successRedir ) { $this->redirect($successRedir); }
@@ -492,10 +477,10 @@ $this->options['conditions'] = array_merge(
 		}
 		else
 		{
-			$this->events->trigger('onCreateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			//$this->events->trigger('onCreateError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
 		
-		$this->events->trigger('onAfterCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		//$this->events->trigger('onAfterCreate', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		$this->beforeRender(array('function' => __FUNCTION__));
 		
@@ -552,7 +537,7 @@ $this->options['conditions'] = array_merge(
 		
 		$this->resourceId 	= $rIds;
         
-        $this->events->trigger('onBeforeRetrieve', $evt);
+        //$this->events->trigger('onBeforeRetrieve', $evt);
 		
 		// Check for crudability
 		$this->_isCRUDable('R') || $this->redirect(_URL_ADMIN . $rName . '/');
@@ -590,7 +575,7 @@ $this->options['conditions'] = array_merge(
 		
 		$this->resourceId 	= $rIds;
 		
-		$this->events->trigger('onBeforeUpdate', $evt);
+		//$this->events->trigger('onBeforeUpdate', $evt);
 		
 		// Check for crudability
 		$this->_isCRUDable('U') || $this->redirect(_URL_ADMIN . $rName . '/');
@@ -637,7 +622,7 @@ $this->options['conditions'] = array_merge(
 			$successRedir = !empty($_POST['successRedirect']) ? $_POST['successRedirect'] : false;
 			
 			// Trigger proper events
-			$this->events->trigger('onUpdateSuccess', $evt);
+			//$this->events->trigger('onUpdateSuccess', $evt);
 			
 			if ( !empty($_GET['forceFileDeletion']) )
 			{
@@ -653,10 +638,10 @@ $this->options['conditions'] = array_merge(
 		}
 		else
 		{
-			$this->events->trigger('onUpdateError', $evt);
+			//$this->events->trigger('onUpdateError', $evt);
 		}
 		
-		$this->events->trigger('onAfterUpdate', $evt);
+		//$this->events->trigger('onAfterUpdate', $evt);
 
 		$this->paginate();
 		
@@ -679,7 +664,7 @@ $this->options['conditions'] = array_merge(
 		
 		$this->resourceId 	= $rIds;
 		
-		$this->events->trigger('onBeforeDelete', $evt);
+		//$this->events->trigger('onBeforeDelete', $evt);
 		
 		// Check for crudability
 		$this->_isCRUDable('D') || $this->redirect(_URL_ADMIN . $rName . '/');		
@@ -717,14 +702,15 @@ $this->options['conditions'] = array_merge(
 		{
 			$this->logAdminAction(array('action' => __FUNCTION__));
 			
-			$this->events->trigger('onDeleteSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			//$this->events->trigger('onDeleteSuccess', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
 		else
 		{
-			$this->events->trigger('onDeleteError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+			$this->statusCode(401);
+			//$this->events->trigger('onDeleteError', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		}
 		
-		$this->events->trigger('onAfterDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
+		//$this->events->trigger('onAfterDelete', array('source' => array('class' => __CLASS__, 'method' => __FUNCTION__)));
 		
 		$this->beforeRender(array('function' => __FUNCTION__));
 				

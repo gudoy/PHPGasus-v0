@@ -33,7 +33,8 @@
 		{foreach $data[$relResource] as $item}
 		{$val 	= $item[$relField]}
 		{$label = $item[$relDisplayField]|default:$item[$relField]}
-		<option value="{$val}">{$val}&nbsp;-&nbsp;{$label}</option>
+		{*<option value="{$val}" {if $smarty.post[$resourceFieldName] == $val || $curVal === $val}selected="selected"{/if}>{$val} - {$label}</option>*}
+		<option value="{$val}" {if $smarty.post[$resourceFieldName] == $val || $curVal === $val}selected="selected"{/if} label="{$label|default:"[{$val}]"}" />
 		{/foreach}
 	<!--[if !IE]><!-->
 	</select><!--<![endif]-->
@@ -46,20 +47,21 @@
 	</nav>
 {else}
 	<div class="current">
-		<span class="idValue{if !$curVal} empty{/if}">{$resource[$fieldName]}</span>
-		<span class="textValue{if !$curVal} empty{/if}">{if $curVal}{$resource[$relGetAs]|default:"{t}[untitled]{/t}"}{/if}</span>
+		<input type="number" name="{$resourceFieldName}{$useArray}" class="idValue" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} data-relresource="{$relResource}" {if isset($curVal)}value="{$curVal}{/if}" />
+		<output>
+			<span class="txtValue{if !$curVal} empty{/if}">{if $curVal}{$resource[$relGetAs]|default:"{t}[untitled]{/t}"}{/if}</span>
+		</output>
 		<nav class="actions">
-			{if $curVal}
-			{include file='common/blocks/actionBtn.tpl' id="edit{$fieldName|ucfirst}Btn" class="action edit relItemSearchBtn" label="{t}edit{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
-			{else}
-			{include file='common/blocks/actionBtn.tpl' id="search{$fieldName|ucfirst}Btn" class="action search relItemSearchBtn" label="{t}search{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
-			{/if}
-			{*
-			<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}" title="{t 1=$relResourceSingular}add a new %1{/t}">
-				<span class="value">{t}add{/t}</span>
-			</a>
-			*}
+		{if $curVal}
+		{include file='common/blocks/actionBtn.tpl' id="edit{$fieldName|ucfirst}Btn" class="action edit relItemSearchBtn" label="{t}edit{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
+		{else}
+		{include file='common/blocks/actionBtn.tpl' id="search{$fieldName|ucfirst}Btn" class="action search relItemSearchBtn" label="{t}search{/t}" title="{t 1=$relResourceSingular|default:$relResource}search %1{/t}"}
+		{/if}
+		{*
+		<a class="action adminLink add addLink addRelatedItemsLink" href="{$smarty.const._URL_ADMIN}{$relResource}?method=create" data-relResource="{$relResource}" data-relGetFields="{$relDisplayField}" title="{t 1=$relResourceSingular}add a new %1{/t}">
+			<span class="value">{t}add{/t}</span>
+		</a>
+		*}
 		</nav>
 	</div>
-	<input type="hidden" name="{$resourceFieldName}{$useArray}" id="{$resourceFieldName}{$itemIndex}" {if !$editable}disabled="disabled"{/if}{if $isRequired} required="required"{/if} data-relresource="{$relResource}" {if isset($curVal)}value="{$curVal}{/if}" />
 {/if}

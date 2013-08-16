@@ -27,7 +27,7 @@
     <thead>
         <tr>
             {if ($userResPerms.allow_create && in_array('create',$o.showActions)) || ($userResPerms.allow_update && in_array('update',$o.showActions)) || ($userResPerms.allow_delete && in_array('delete',$o.showActions))}
-            <th id="toggleAllCel" class="col firstCol colSelectResources hidden"><input type="checkbox" name="toggleAll" id="toggleAll" /></th>
+            <th id="toggleAllCel" class="col colSelectResources hidden"><input type="checkbox" name="toggleAll" id="toggleAll" /></th>
             <th class="col actionsCol hidden">
                 <span class="title">{t}actions{/t}</span>
             </th>
@@ -38,7 +38,7 @@
             {$isDefaultNameField 	= ($colName === $data._resources[$rName].defaultNameField)?true:false}
 			{if $colProps.type === 'int' && $colProps.fk}{$type = 'onetoone'}{/if}
 			{if $displayed}
-            <th id="{$colName}Col" class="col {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{* if !$displayed} hidden{/if *}{if $isSorted} activeSort{/if}" scope="col" data-importance="{$colProps.list|default:0}">
+            <th id="{$colName}Col" class="col {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{* if !$displayed} hidden{/if *}{if $isSorted} activeSort{/if}" scope="col" data-importance="{$colProps.list|default:0}">
                 {$data.current.urlParams.sortBy     = null}
                 {$data.current.urlParams.orderBy    = null}
                 {$newPageURL 						= "{$curURLbase}?{http_build_query($data.current.urlParams)}"}
@@ -46,7 +46,7 @@
             </th>
             {/if}
             {/foreach}
-			<th class="col colsCol goToCol last lastCol">
+			<th class="col colsCol goToCol">
 				<div class="colsManagerBlock" id="colsManagerBlock">
 					<a id="colsManagerLink" href="#"><span class="label">{t}show/hide columns{/t}</span></a>
 					<ul class="colsBlock" id="colsBlock">
@@ -77,9 +77,9 @@
     <tbody>
         {foreach $rows as $row}
         {$rowNum = $row.id|default:$row@iteration}
-        <tr id="row{$rowNum}" class="dataRow {cycle values='odd,even'} {if $row@first} firstRow{/if}{if $row@last} lastRow{/if}">
+        <tr id="row{$rowNum}" class="dataRow">
             {if ($userResPerms.allow_create && in_array('create',$o.showActions)) || ($userResPerms.allow_update && in_array('update',$o.showActions)) || ($userResPerms.allow_delete && in_array('delete',$o.showActions))}
-            <td class="col selecRowCol firstCol colSelectResources hidden">
+            <td class="col selecRowCol colSelectResources hidden">
                 <input type="checkbox" name="ids[]" value="{$rowNum}" {if $smarty.post.ids && in_array($rowNum, $smarty.post.ids)}checked="checked"{/if} />
             </td>
             <td class="col actionsCol hidden">{strip}
@@ -106,7 +106,7 @@
             {$displayed 			= ($lowCapDevice && $colProps.list < 3)?false:true}
             {if $type === 'int' && $colProps.fk}{$type = 'onetoone'}{/if}
             {if $displayed}
-            <td class="col dataCol {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{if $colName@last} lastCol{/if}{* if $displayed} hidden{/if *}" headers="row{$rowNum} {$colName}Col" data-importance="{$colProps.list|default:0}">{strip}
+            <td class="col dataCol {$colName}Col type{$type|ucfirst}{if $isDefaultNameField} defaultNameField{/if}{* if $displayed} hidden{/if *}" headers="row{$rowNum} {$colName}Col" data-importance="{$colProps.list|default:0}">{strip}
                 <div class="value dataValue" data-exactValue="{$value}">{strip}
                 {if $type === 'timestamp' || $type === 'datetime'}
                     <time class="date">{$value|date_format:"%d %b %Y"}</time><span class="sep"> </span><time class="time">{$value|date_format:"%Hh%M</time>"}
@@ -128,7 +128,7 @@
             {strip}</td>
             {/if}
             {/foreach}
-            <td class="col goToCol lastCol">
+            <td class="col goToCol">
                 {if in_array('retrieve',$o.showActions)}<a class="action view actionBtn adminLink viewLink" href="{$smarty.const._URL_ADMIN}{$o.goToResource|default:$rName}/{$row[$o.idCol]}"><span class="value">{t}view{/t}</span></a>{/if}
             </td>
         </tr>

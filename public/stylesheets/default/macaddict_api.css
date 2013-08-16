@@ -20,13 +20,14 @@
 #apisBlock .api.secured { background-repeat:no-repeat; background-position:-2px 25px; /*background-image:none;*/ } 
 #apisBlock > header { display:none; }
 #apisBlock .apis { display:none; padding:20px 10px; }
-#apisBlock .method { min-width:40px; margin-right:20px; display:inline-block; font-size:20px; font-weight:normal; vertical-align:middle; }
-#apisBlock .uri { font-size:20px; font-weight:bold; text-transform:lowercase; vertical-align:middle; }
+#apisBlock .method { min-width:76px; margin-right:20px; display:inline-block; font-size:20px; font-weight:normal; vertical-align:middle; }
+#apisBlock .uri { font-size:20px; font-weight:bold; /*text-transform:lowercase;*/ vertical-align:middle; }
 #apisBlock .mandatory { color:#aaa; } 
 #apisBlock .props { margin:20px 0; }
 #apisBlock .prop { padding:10px 0; }
 #apisBlock .prop .key { width:100px; display:inline-block; text-transform:capitalize; color:#A7A7A7; vertical-align:top; }
 #apisBlock .prop .values { width:100%; display:inline-block; vertical-align:top; word-wrap:break-word; }
+#apisBlock .prop .values .or { margin-left:-10px; padding:3px 0 3px; position:relative; color:red; }
 #apisBlock .prop .samples { display:block; }
 #apisBlock .samplesURI a { display:block; }
 #apisBlock .expectedInputData .required:after { margin-left:2px; display:inline; content:'*'; color:red; }
@@ -58,13 +59,43 @@
 
 #apisBlock .api .title {  }
 #apisBlock .api .title:before { width:12px; height:12px; margin-right:10px; position:static; border-radius:6px; }
+
+
+.resourceAPIBlock {  }
+.resourceAPIBlock h4 { font-size:100%; }
+.resourceAPIBlock .method { margin-right:10px; }
+.resourceAPIBlock .resourceURI { display:inline-block; font-weight:bold; }
+.resourceAPIBlock .summary { display:block; }
+.resourceAPIBlock .expectedInputData dl { margin-bottom:0; display:inline-block; vertical-align:top; }
+.resourceAPIBlock .possibleErrors dl { max-width:380px; vertical-align:top; }
+.resourceAPIBlock .possibleErrors dt,
+.resourceAPIBlock .possibleErrors dd { display:inline-block; vertical-align:top; }
+.resourceAPIBlock .possibleErrors dt { width:40%; clear:both; }
+.resourceAPIBlock .possibleErrors dd { width:58%; } 
+.resourceAPIBlock li { margin-bottom:0.5em; padding-top:10px; }
+.resourceAPIBlock .prop { margin:0 0 0 30px; padding:2px 0; border-bottom:1px dashed #ddd; color:#7F7F7F; }
+.resourceAPIBlock .prop > .key { width:120px; display:inline-block; font-weight:bold; vertical-align:top; text-transform:capitalize; }
+.resourceAPIBlock .prop > .val { max-width:450px; margin-bottom:0; display:inline-block; }
+.resourceAPIBlock .sampleURI a { display:block; color:#7F7F7F; }
+#apiBox .resourceAPIBlock { margin:0; padding:0; border:1px solid black; border-top:0; }
+#apiBox .resourceAPIBlock:first-of-type,
+#apiBox .resourceAPIBlock.first { border-top:1px solid; }
+#apiBox .resourceAPIBlock h3 { margin-bottom:0; padding:5px 10px; background:gray; }
+#apiBox .resourceAPIBlock h3:before { width:12px; margin-right:10px; padding:2px; display:inline-block; content:'+'; background:white; color:black; text-align:center; }
+#apiBox .resourceAPIBlock h3[class*=ui-state-active]:before { content:'-'; }
+#apiBox .commonParams dl { margin:0 10px 20px; }
+#apiBox .commonParams dt { display:inline-block; clear:left; vertical-align:top; font-size:109%; font-weight:bold; }
+#apiBox .commonParams dd { padding:0 10px; display:inline-block; vertical-align:top; }
+
+.apiDataSection .titleBlock { display:none; }
+.apiDataSection .line {}
+
 /* End API */
 
 
 /* 1024 x 768 */
 @media handheld, only screen and (min-width:980px) 
 {
-	.api #body { -moz-box-direction:normal; -webkit-box-direction:normal; box-direction:normal; }
 	.api #aside { border-right:0; border-width:0 0 0 1px; -webkitbox-shadow:1px 0 0 rgba(255,255,255,0.8) inset; box-shadow:1px 0 0 rgba(255,255,255,0.8) inset; }
 	
 	.api #aside { position:relative; z-index:100; box-shadow:-3px 0 6px rgba(0,0, 0,0.2); }

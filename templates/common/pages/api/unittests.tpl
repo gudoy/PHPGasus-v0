@@ -10,7 +10,7 @@
 	<table class="commonTable unittestsResultsTable">
 		<thead>
 			<tr>
-				<th class="col firstCol colSelectResources" id="toggleAllCel" scope="col">
+				<th class="col colSelectResources" id="toggleAllCel" scope="col">
 					<input type="checkbox" id="toggleAll" name="toggleAll" />
 				</th>
 				<th class="col colName" scope="col">

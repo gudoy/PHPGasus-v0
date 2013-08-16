@@ -52,3 +52,14 @@
 	{/block}
 
 {/block}
+
+{block name='mainFooterContent'}
+<div class="legend"><dl><dt class="required">*</dt><dd class="required">Required</dd></dl></div>
+<div class="actions formActions">
+	{*
+	{include file='common/blocks/actionBtn.tpl' href="{$smarty.const._URL_ADMIN}{$view.resourceName}" class='cancelBtn' id='cancelBtn' label="{t}cancel{/t}"}
+	<span class="sep or">{t}or{/t}</span>
+	{include file='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' name='confirm' id='validateBtn' type='submit' value='1' label="{t}delete{/t}"}
+	*}
+</div>
+{/block}

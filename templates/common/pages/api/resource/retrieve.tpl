@@ -11,9 +11,8 @@
 			<h2 class="title">{t}data{/t}</h2>
 		</header>
 		<div class="content">
-			{$items=$items|default:$data[$resourceName]}
 			<div class="apiItemBlock">
-				{include file='common/blocks/api/resource/retrieve.tpl'}
+				{include file='common/blocks/api/resource/retrieve.tpl' item=$data[$resourceName]}
 			</div>
 		</div>
 	</section>

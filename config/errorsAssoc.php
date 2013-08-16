@@ -68,6 +68,10 @@ $errorsAssoc = array(
 					
 	'5000' => array('back' => 'Common error.',
 					'front' => _('An error occured during the process, please retry later')),
+	'5001' => array('back' => '%s',
+					'front' => _('An error occured during the process')),
+	'5002' => array('back' => '%s: %s',
+					'front' => _('An error occured during the process')),
 					
 	'6050' => array('back' => 'Password update error.',
 					'front' => _('You are not allowed to edit the password of this user.')),

@@ -60,13 +60,14 @@
 {/block}
 
 
-{block name='mainFooterContent'}
-{$position 		= 'bottom'}
-{$crudability 	= join('',$data._resources[$resourceName].crudability)|default:'CRUD'}
-{$userResPerms 	= $data.current.user.auths[$resourceName]}
-<nav class="actions toolbar adminToolbar adminUpdateToolbar {$position}" id="adminUpdateToolbar{$position|ucfirst}">
-{if $data.total[$rName] === 1}
-{include file='common/blocks/admin/pagination/nextprev.tpl' adminView='update'}
-{/if}
-</nav>
-{/block}
+{* block name='mainFooterContent'}
+<div class="legend"><dl><dt class="required">*</dt><dd class="required">Required</dd></dl></div>
+<div class="actions formActions">
+	{*
+	{include file='common/blocks/actionBtn.tpl' href="{$smarty.const._URL_ADMIN}{$view.resourceName}" class='cancelBtn' id='cancelBtn' label="{t}cancel{/t}"}
+	<span class="sep or">{t}or{/t}</span>
+	{include file *='common/blocks/actionBtn.tpl' mode='button' class='validateBtn' id='validateBtn' type='submit' label="{t}update{/t}"}
+	{include file='common/blocks/actionBtn.tpl' mode='button' type='submit' name='successRedirect' value="{$smarty.const._URL_ADMIN}{$view.resourceName}" class='validateAndBackBtn' id='validateAndBackBtn' label="{t escape=no}update & back to list{/t}"}
+	*}
+</div>
+{/block *}

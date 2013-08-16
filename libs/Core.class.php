@@ -2,17 +2,16 @@
 
 class Core
 {
-	/*
-	private $inited = false;
+	//private $inited = false;
+	//private static $_instance;
 	
-	private static $_instance;
-	//public static $debug = true;
 	public static $debug = true;
 	
 	public function __construct()
 	{
 	}
-	
+
+	/*
 	public function init()
 	{
 		if ( $this->inited ){ return; }
