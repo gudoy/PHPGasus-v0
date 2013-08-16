@@ -133,7 +133,6 @@ $_columns = array(
 	//'name' 					=> array('type' => 'varchar', 'length' => 128, 'list' => 3, 'searchable' => 1),
 	'prefered_lang' 		=> array('type' => 'varchar', 'null' => 1, 'length' => 8, 'list' => 1),
 	'prefered_timezone' 	=> array('type' => 'enum', 'null' => 1, 'possibleValues' => array('Europe/Amsterdam', 'Europe/Berlin', 'Europe/Brussels', 'Europe/London', 'Europe/Madrid', 'Europe/Paris', 'Europe/Rome', 'Europe/Zurich'), 'list' => 0),
-	//'groups' 				=> array('type' => 'onetomany', 'relResource' => 'groups', 'relField' => 'id', 'pivotResource' => 'users_groups', 'pivotLeftField' => 'user_id', 'pivotRightField' => 'group_id', 'getFields' => 'slug'),
 	'groups' 				=> array('type' => 'onetomany', 'getFields' => 'id,slug'),
 	'activated' 			=> array('type' => 'bool', 'default' => 0, 'list' => 1, 'exposed' => 0),
 	'activation_key' 		=> array('type' => 'varchar', 'subtype' => 'uniqueID', 'length' => 32, 'editable' => 1, 'exposed' => 0),

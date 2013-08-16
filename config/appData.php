@@ -105,13 +105,13 @@ define('_FACEBOOK_API_URL', 						'https://graph.facebook.com/');
 
 ### TWITTER
 define('_APP_USE_TWITTER_LOGIN', 					true);
-define('_TWITTER_CONSUMER_KEY', 					'PcIPBp22R5bAA08naTngQ');
-define('_TWITTER_CONSUMER_SECRET', 					'6CUl1RM0sniZRAJNHPPI4XVCS1Rbnd6wC430p5bDmlA');
+define('_TWITTER_CONSUMER_KEY', 					'');
+define('_TWITTER_CONSUMER_SECRET', 					'');
 
 ### GOOGLE
 define('_APP_USE_GOOGLE_LOGIN', 					true);
-define('_GOOGLE_CLIENT_ID', 						'536398260008.apps.googleusercontent.com');
-define('_GOOGLE_CLIENT_SECRET', 					'90YlG4V-oox3WLPb8O3dgajr');
+define('_GOOGLE_CLIENT_ID', 						'');
+define('_GOOGLE_CLIENT_SECRET', 					'');
 
 
 ### FEATURES

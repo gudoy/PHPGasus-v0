@@ -82,6 +82,10 @@ class PHPGasusImage
 		{
 			$this->lib = 'imagick';
 		}
+		elseif ( extension_loaded('gmagick') )
+		{
+			$this->lib = 'gmagick';
+		}
 		// Otherwise, try to dynamically load extensions
 		elseif ( dl('imagick.' . $extExt ) )
 		{
@@ -91,9 +95,13 @@ class PHPGasusImage
 		{
 			$this->lib = 'imagick';
 		}
+		elseif ( dl('gmagick.' . $extExt ) )
+		{
+			$this->lib = 'gmagick';
+		}
 		else
 		{
-			Throw new Exception('Missing image handling extension. Please install ImageMagic or GD extension.' . $this->eol);
+			Throw new Exception('Missing image handling extension. Please install ImageMagic, GD or Gmagick extension.' . $this->eol);
 		}
 		
 		if ( $src ){ $this->src = $src; }
@@ -136,6 +144,8 @@ class PHPGasusImage
 			catch (Exception $e)
 			{
 				echo 'Error loading image ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
+				$this->image = false;
+				return $this;
 			}
 
 			try
@@ -146,6 +156,7 @@ class PHPGasusImage
 			{
 				echo 'Error reading image ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
 				$this->image = false;
+				return $this;
 			}
 		}
 		elseif ( $this->lib === 'gd' )
@@ -178,9 +189,11 @@ class PHPGasusImage
 	{
 		$isValid = false;
 		
+		// Do not continue if the image is not opened 
+		if ( !$this->image ){ return $isValid; }
+		
 		if ( $this->lib === 'imagick' )
 		{
-			/*
 			try
 			{
 				$this->image->valid();
@@ -188,9 +201,10 @@ class PHPGasusImage
 			}
 			catch (Exception $e)
 			{
-			}*/
+				echo 'Error testing image validity ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
+			}
 			
-			$isValid = $this->image->valid();
+			//$isValid = $this->image->valid();
 		}
 		elseif ( $this->lib === 'gd' )
 		{
@@ -327,10 +341,9 @@ class PHPGasusImage
 		
 		//: $srcInfo['dirname'] . '/' . $srcInfo['filename'] . time() . $p['extension'];
 		
-		$this->dest = $destInfo['dirname'] . '/' . $p['prefix'] . $destInfo['filename'] . $p['suffix'] . $p['extension'];
+		//$this->dest = $destInfo['dirname'] . '/' . $p['prefix'] . $destInfo['filename'] . $p['suffix'] . $p['extension'];
+		$this->dest = $destInfo['dirname'] . '/' . $p['prefix'] . $destInfo['filename'] . $p['suffix'] . '.' . $p['type'];
 
-//var_dump($this->image);						
-//var_dump($this->dest);
 		
 		if ( $this->lib === 'gd' )
 		{
@@ -376,7 +389,35 @@ class PHPGasusImage
 //var_dump('get image format: ' . $this->image->getImageFormat());
 			//if ( $format === 'png8' ){ $this->image->setImageDepth(4); }
 			if ( $format === 'png8' ){ $this->image->setImageColorSpace(256); }
-			$this->image->setFormat($format);
+			
+			if ( $format === 'jpg' ){ $format = 'jpeg'; }
+			
+			//$this->image->setFormat($format);
+			
+//var_dump('new depth: ' . $this->image->getImageDepth());
+//var_dump('new format: ' . $this->image->getImageFormat());
+			
+			if ( $p['type'] === 'jpg' )
+			{
+				//$this->image->setImageCompression(imagick::COMPRESSION_JPEG);
+				try
+				{
+					$this->image->setImageCompression(imagick::COMPRESSION_JPEG);
+				}
+				catch (Exception $e)
+				{
+					echo 'Error setting image compression ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
+				}
+				
+				try
+				{
+					$this->image->setImageCompressionQuality($p['quality']);
+				}
+				catch (Exception $e)
+				{
+					echo 'Error setting image compression quality ' . $this->src . $this->eol . $e->getMessage() . $this->eol;
+				}
+			}
 			
 			try
 			{
@@ -431,10 +472,12 @@ class PHPGasusImage
 //var_dump($p);
 		
 		// Do not continue if both of the interpreted dimensions are 'auto'
-		if ( $p['width'] === 'auto' && $p['height'] === 'auto' ){ throw new Exception("Invalid dimensions. Please pass at least 1 valid dimension." . $this->eol); }
+		//if ( $p['width'] === 'auto' && $p['height'] === 'auto' ){ throw new Exception("Invalid dimensions. Please pass at least 1 valid dimension." . $this->eol); }
+		if ( $p['width'] === 'auto' && $p['height'] === 'auto' ){ echo "Invalid dimensions. Please pass at least 1 valid dimension." . $this->eol; }
 		
 		// Do not continue if resize dimensions are identical to source dimensions
-		if ( $p['width'] === $src['width'] && $p['height'] === $src['height'] ){ throw new Exception("Resize dimensions are identical to source dimensions." . $this->eol); }
+		//if ( $p['width'] === $src['width'] && $p['height'] === $src['height'] ){ throw new Exception("Resize dimensions are identical to source dimensions." . $this->eol); }
+		if ( $p['width'] === $src['width'] && $p['height'] === $src['height'] ){ echo "Resize dimensions are identical to source dimensions." . $this->eol; }
 		
 		// If only one of the 2 dimensions is passed, calculate the other
 		$p['width'] = round($p['width'] === 'auto' ? $p['ratio'] * $p['height'] : $p['width']);
@@ -554,6 +597,9 @@ class PHPGasusImage
 	
 	public function close()
 	{
+		// Do not continue if the image is not opened 
+		if ( !$this->image ){ return false; }
+		
 		if ( $this->lib === 'gd' )
 		{
 			imagedestroy($this->image);
@@ -563,6 +609,13 @@ class PHPGasusImage
 			$this->image->clear();
 			$this->image->destroy();
 		}
+		
+		return $this;
+	}
+	
+	public function __destruct()
+	{
+		$this->close();
 	}
 }	
 
