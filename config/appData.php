@@ -108,10 +108,6 @@ define('_APP_USE_TWITTER_LOGIN', 					false);
 define('_TWITTER_API_URL', 							'https://api.twitter.com/1.1/');
 define('_TWITTER_CONSUMER_KEY', 					'');
 define('_TWITTER_CONSUMER_SECRET', 					'');
-define('_TWITTER_ACCESS_TOKEN', 					'');
-define('_TWITTER_TOKEN_SECRET', 					'');
-
-
 
 ### GOOGLE
 define('_APP_USE_GOOGLE_LOGIN', 					false);
