@@ -8,7 +8,7 @@ var Tools =
 	
     /*
      * This function dynamically loads a css file in the page
-     * @author Guyllaume Doyer guyllaume@clicmobile.com
+     * @author Guyllaume Doyer doyer.guyllaume@gmail.com
      * @return {Object} this object
      */
     // TODO: multi usage patterns
@@ -218,7 +218,7 @@ var Tools =
 	
 	/* 
 	 * This function gets, in an URL, the value of the param given in the function call
-	 * @author Guyllaume Doyer guyllaume@clicmobile.com
+	 * @author Guyllaume Doyer doyer.guyllaume@gmail.com
 	 * @return {String|Boolean} The value if found, otherwise false
 	 */
 	getURLParamValue: function (url, paramName)

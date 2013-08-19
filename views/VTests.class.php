@@ -14,7 +14,7 @@ class VTests extends View
 
 	public function testmongo()
 	{
-		$user = CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => 'guyllaume@clicmobile.com'));
+		$user = CUsers::getInstance()->retrieve(array('by' => 'email', 'values' => 'doyer.guyllaume@gmail.com'));
 		
 		try
 		{
@@ -96,7 +96,7 @@ var_dump($data->users);
 var_dump('first item id: ' . $id);
 			 
 			// 
-			$toDel = $collection->find(array('email' => 'guyllaume@clicmobile.com'));
+			$toDel = $collection->find(array('email' => 'doyer.guyllaume@gmail.com'));
 			
 			// Handle results (cursor)
 			foreach ( $toDel as $item )

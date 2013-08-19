@@ -178,7 +178,8 @@
         // return or tab key
         if ( e.keyCode == 13 || e.keyCode == 9 ){
           if (active.length) {
-            $input.val(active.text());
+            //$input.val(active.text());
+            $input.val(active.attr('value'));
             item_selected(active.text());
           }
           $datalist.fadeOut(options.fadeOutSpeed);
@@ -202,7 +203,8 @@
       datalistItems.on("click", function() {
         var active = $("li.active");
         if (active.length) {
-          $input.val($(this).text());
+          //$input.val($(this).text());
+          $input.val(active.attr('value'));
         }
         $datalist.fadeOut(options.fadeOutSpeed);
         datalistItems.removeClass("active");
