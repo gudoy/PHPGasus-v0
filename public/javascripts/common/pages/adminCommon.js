@@ -8,6 +8,8 @@ var admin =
 	
 	init: function()
 	{
+		this.baseUrl = window.location.href.replace(/^(.*\/)admin\/(.*)?$/,'$1');
+		
 		// Fix scrolling on var dumps (dev)
 		$('pre')
 			.closest('body').closest('html').andSelf().css({'overflow-x':'visible', 'overflow-y':'visible', 'overflow':'visible'});
@@ -429,7 +431,7 @@ $('#header').removeClass('active');
 	
 	handleOneToOneFields: function()
 	{
-		var self = this;
+		var self 	= this;
 		
 //return this;
 		
@@ -438,8 +440,10 @@ $('#header').removeClass('active');
 	      //test : (!Modernizr.input.list || (parseInt($.browser.version) > 400)),
 	      test : true,
 	      yep : [
-	          '/public/javascripts/common/libs/relevantDropdown/jquery.relevant-dropdown.js',
-	          '/public/javascripts/common/libs/relevantDropdown/load-fallbacks.js'
+	          //'/public/javascripts/common/libs/relevantDropdown/jquery.relevant-dropdown.js',
+	          admin.baseUrl + 'public/javascripts/common/libs/relevantDropdown/jquery.relevant-dropdown.js',
+	          //'/public/javascripts/common/libs/relevantDropdown/load-fallbacks.js'
+	          admin.baseUrl + 'public/javascripts/common/libs/relevantDropdown/load-fallbacks.js'
 	      ]
 	    });
 		

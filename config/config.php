@@ -1,7 +1,8 @@
 <?php
 
-define("_APP_CONTEXT", 					!getenv("APP_CONTEXT") ? 'prod' : getenv("APP_CONTEXT"));
-define("_DOMAIN", 						preg_replace('/(.*\.)?(.*\..*)/', '$2', $_SERVER['SERVER_NAME']));
+define("_APP_CONTEXT", 					!getenv('APP_CONTEXT') ? 'prod' : getenv('APP_CONTEXT'));
+//define("_DOMAIN", 						preg_replace('/(.*\.)?(.*\..*)/', '$2', $_SERVER['SERVER_NAME']));
+define("_DOMAIN", 						!getenv('DOMAIN_NAME') ? preg_replace('/(.*\.)?(.*\..*)/', '$2', $_SERVER['SERVER_NAME']) : getenv('DOMAIN_NAME'));
 define("_SUBDOMAIN", 					str_replace('.' . _DOMAIN, '', $_SERVER['HTTP_HOST']));
 
 ###########
